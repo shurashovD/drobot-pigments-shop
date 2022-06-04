@@ -1,0 +1,60 @@
+$accordion-button-active-bg: transparent;
+$accordion-button-active-color: #000000;
+$accordion-button-focus-box-shadow: none;
+$accordion-icon-width: 0.5rem;
+
+@import "~bootstrap/scss/bootstrap";
+
+a, .btn-link {
+    text-decoration: none;
+}
+
+*::-webkit-scrollbar {
+    width: 8px;
+    /* ширина scrollbar */
+    height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+    background: none;
+    /* цвет дорожки */
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #fff;
+    /* цвет плашки */
+    border-radius: 20px;
+    /* закругления плашки */
+    border: 3px solid rgba(0, 0, 0, 0);
+    /* padding вокруг плашки */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #e0e0e0;
+    transition: .2s;
+}
+
+a.active.focus,
+a.active:focus,
+a.focus,
+a:active.focus,
+a:active:focus,
+a:focus,
+button.active.focus,
+button.active:focus,
+button.focus,
+button:active.focus,
+button:active:focus,
+button:focus,
+.btn.active.focus,
+.btn.active:focus,
+.btn.focus,
+.btn:active.focus,
+.btn:active:focus,
+.btn:focus {
+    outline: 0;
+    outline-color: transparent;
+    outline-width: 0;
+    outline-style: none;
+    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+}

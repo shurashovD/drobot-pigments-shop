@@ -1,0 +1,23 @@
+{
+    "include": ["./"],
+    "compilerOptions": {
+        "module": "ES6",
+        "target": "ES5",
+        "jsx": "react-jsx",
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "moduleResolution": "node",
+        "skipLibCheck": true,
+        "strict": true,
+        "strictNullChecks": true,
+        "noImplicitAny": true
+    },
+    "references": [
+        {
+            "path": "./../shared"
+        }
+    ],
+    "typeRoots": [
+        "./../shared"
+    ]
+}

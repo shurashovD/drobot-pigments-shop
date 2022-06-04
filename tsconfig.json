@@ -1,0 +1,17 @@
+{
+    "include": ["./server"],
+    "compilerOptions": {
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "lib": ["DOM", "ES6"],
+        "target": "ES6",
+        "jsx": "react-jsx",
+        "allowJs": true,
+        "strict": true,
+        "strictNullChecks": true,
+        "noImplicitAny": true
+    }
+}
