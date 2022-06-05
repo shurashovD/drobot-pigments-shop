@@ -4,7 +4,8 @@ const mode = process.env.NODE_ENV || 'development'
 const output = process.env.NODE_ENV === 'production' ? {
     path: path.resolve(__dirname, '..', 'dist', 'static', 'admin'),
     filename: '[name].[contenthash].js',
-    publicPath: '/static/admin'
+    publicPath: '/static/admin',
+    clean: true
 } : {
     path: path.resolve(__dirname, 'admin'),
 }

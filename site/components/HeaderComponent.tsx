@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react"
-import { Button, Col, Collapse, Container, Dropdown, Image, Nav, Navbar, Offcanvas, Row, Stack } from "react-bootstrap"
+import { Button, Col, Collapse, Container, Image, Offcanvas, Row, Stack } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
-import { useLocation, useNavigate } from "react-router-dom"
+import { useLocation } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../application/hooks"
-import { hideCatalog, hideNavCatalog, showCatalog, showNavCatalog } from "../application/navCatalogSlice"
+import { hideNavCatalog, showNavCatalog } from "../application/navCatalogSlice"
 import IconAccount from "./icons/IconAccount"
 import IconBox from "./icons/IconBox"
 import IconCart from "./icons/IconCart"
@@ -72,6 +72,14 @@ const HeaderComponent = () => {
 			window.removeEventListener('scroll', handler)
 		}
 	}, [logoRef])
+
+	useEffect(() => {
+		window.scrollTo({
+			behavior: 'smooth',
+			left: 0,
+			top: 0
+		})
+	}, [pathname])
 
     return (
 		<Container fluid className="p-0 sticky-top">
@@ -151,7 +159,7 @@ const HeaderComponent = () => {
 			</Offcanvas>
 			<Collapse in={scrollingTop}>
 				<div>
-					<p className="bg-dark text-center text-white m-0 p-1"></p>
+					<p className="bg-primary text-center text-white m-0 p-1"></p>
 					<div className="d-none d-lg-block bg-light p-2">
 						<Container>
 							<Row>
@@ -206,7 +214,7 @@ const HeaderComponent = () => {
 			</Collapse>
 			<Container
 				fluid
-				className="py-2 bg-dark position-relative"
+				className="py-2 bg-primary position-relative"
 				id="header-menu"
 			>
 				<Container className="p-0 my-0">
@@ -247,11 +255,13 @@ const HeaderComponent = () => {
 							</div>
 						</Col>
 						<Col xs={6} lg={2} className="text-center">
-							<img
-								src={logo}
-								ref={logoRef}
-								className="header-logo-increase"
-							/>
+							<NavLink to="/">
+								<img
+									src={logo}
+									ref={logoRef}
+									className="header-logo-increase"
+								/>
+							</NavLink>
 						</Col>
 						<Col
 							xs={3}
@@ -283,7 +293,7 @@ const HeaderComponent = () => {
 								<IconFavourite stroke={"#ffffff"} />
 							</NavLink>
 							<NavLink
-								to="/"
+								to="/cart"
 								className="d-none d-lg-block text-white ms-4"
 							>
 								<IconCart stroke={"#ffffff"} />

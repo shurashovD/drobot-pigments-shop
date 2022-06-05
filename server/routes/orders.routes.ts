@@ -30,6 +30,22 @@ router.get('/', async (req, res) => {
     }
 })
 
+router.get("/cart-total", async (req: Request<{}, {}, {}, { products: string }>, res) => {
+	try {
+		const { products } = req.query
+		const ids = JSON.parse(products)
+		const prices = await ProductModel.find<{ price: number | undefined }>({ _id: { $in: ids } }).select('price')
+		if ( !prices ) {
+			return res.status(500).json({ message: 'Не удалось посчитать сумму заказа' })
+		}
+		const total = prices.reduce((total, {price}) => total + (price || 0), 0)
+		return res.json(total)
+	} catch (e) {
+		console.log(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
+	}
+})
+
 router.get("/:id", async (req: Request<{id: string}>, res) => {
 	try {
 		const { id } = req.params

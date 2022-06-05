@@ -7,7 +7,7 @@ const youtubeLogo = require("../img/youtube.svg")
 
 const FooterComponent = () => {
     return (
-		<Container fluid className="bg-dark pt-5 pb-5 pb-md-4">
+		<Container fluid className="bg-primary pt-5 pb-5 pb-md-4">
 			<Container className="pb-1">
 				<Row xs={1} md={3} className="mb-6">
 					<Col className="mb-6 mb-md-0">

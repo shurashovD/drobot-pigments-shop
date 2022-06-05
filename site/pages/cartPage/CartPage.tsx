@@ -1,0 +1,87 @@
+import { useEffect, useState } from "react"
+import { Button, Col, Container, Form, ListGroup, Row, Stack } from "react-bootstrap"
+import { useAppSelector } from "../../application/hooks"
+import CartItem from "./CartItem"
+import CartTotal from "./CartTotal"
+
+const CartPage = () => {
+    const [label, setLabel] = useState<'товар' | 'товара' | 'товаров'>()
+    const { products } = useAppSelector(state => state.cartSlice)
+
+    useEffect(() => {
+        const productsLength = products.reduce((total, { quantity }) => total + quantity, 0)
+
+		const lastSymbol = parseInt(
+			productsLength.toString()[productsLength.toString().length - 1]
+		)
+		if (lastSymbol > 4 || lastSymbol === 0) {
+			setLabel("товаров")
+		} else {
+			if (lastSymbol === 1) {
+				setLabel("товар")
+			} else {
+				setLabel("товара")
+			}
+		}
+	}, [products])
+
+    return (
+		<Container className="pb-6">
+			<div className="d-flex align-items-baseline">
+				<h3>Корзина</h3>
+				<span className="ms-2 text-muted">
+					{products.reduce(
+						(total, { quantity }) => total + quantity,
+						0
+					)}{" "}
+					{label}
+				</span>
+			</div>
+			{products.length > 0 && (
+				<Row>
+					<Col xs={12} lg={8}>
+						<Row className="m-0">
+							<Col xs={"auto"} className="ps-4">
+								<Form.Check
+									label="Выбрать все"
+									className="align-item-center m-0"
+								/>
+							</Col>
+							<Col xs={"auto"}>
+								<Button
+									variant="link"
+									className="text-muted m-0 p-0 border-0 border-bottom border-2 border-gray"
+								>
+									Удалить выбранные
+								</Button>
+							</Col>
+						</Row>
+					</Col>
+				</Row>
+			)}
+			{products.length === 0 ? (
+				<p className="text-muted">Коризна пуста</p>
+			) : (
+				<Row>
+					<Col xs={12} lg={8}>
+						<hr className="mb-0" />
+						<ListGroup variant="flush" className="p-0">
+							{products.map((item) => (
+								<CartItem
+									key={item.productId}
+									productId={item.productId}
+								/>
+							))}
+						</ListGroup>
+						<hr />
+					</Col>
+					<Col xs={12} lg={4}>
+                        { /*<CartTotal /> */}
+                    </Col>
+				</Row>
+			)}
+		</Container>
+	)
+}
+
+export default CartPage

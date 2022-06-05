@@ -7,14 +7,14 @@ import IconHome from "./icons/IconHome"
 
 const MobileFooter = () => {
     return (
-		<div className="d-flex d-lg-none justify-content-around bg-dark p-3 position-fixed bottom-0 start-0 end-0">
+		<div className="d-flex d-lg-none justify-content-around bg-primary p-3 position-fixed bottom-0 start-0 end-0">
 			<NavLink to="/">
 				<IconHome stroke="#ffffff" />
 			</NavLink>
 			<NavLink to="/">
 				<IconFind stroke="#ffffff" />
 			</NavLink>
-			<NavLink to="/">
+			<NavLink to="/cart">
 				<IconCart stroke="#ffffff" />
 			</NavLink>
 			<NavLink to="/">

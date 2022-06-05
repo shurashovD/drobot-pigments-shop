@@ -3,6 +3,7 @@ import { FC } from "react"
 import { ButtonProps } from "react-bootstrap"
 import { useAppDispatch, useAppSelector } from "../../application/hooks"
 import IconCart from "../icons/IconCart"
+import { addToCart } from "../../application/cartSlice"
 
 interface IProps extends ButtonProps {
     productId: string
@@ -17,19 +18,29 @@ const ButtonCart: FC<IProps> = (props) => {
 	)
     const dispatch = useAppDispatch()
 
+	const addHandler = () => {
+		if (quantity) return
+		dispatch(addToCart(props.productId))
+	}
+
     return (
 		<Button
-			variant="primary"
-			className="px-0 border border-dark d-flex justify-content-center align-items-center w-100"
+			variant={quantity ? "white" : "primary"}
+			className={`${quantity && "border border-primary"} px-md-0 d-flex justify-content-center align-items-center w-100`}
+			style={{ maxWidth: "264px" }}
+			onClick={addHandler}
 		>
-			<Row>
-				<Col xs={"auto"}>
-					<IconCart stroke="#141515" width={22} height={27} />
+			<Row className="g-0 m-0 w-100">
+				<Col xs={3}>
+					<div className={`${quantity ? "invisible" : "visible"} p-0 m-0 text-end`}>
+						<IconCart stroke="#F7DFB1" width={22} height={27} />
+					</div>
 				</Col>
-				<Col xs={"auto"} className="d-flex">
-					<span className="text-uppercase m-auto">В корзину</span>
+				<Col xs={6} className="d-flex">
+					<span className="text-uppercase m-auto">
+						В корзин{quantity ? <>е</> : <>у</>}
+					</span>
 				</Col>
-				<Col xs={"auto"}></Col>
 			</Row>
 		</Button>
 	)

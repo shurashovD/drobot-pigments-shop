@@ -8,6 +8,7 @@
     "build:server": "cross-env NODE_ENV=production webpack --config webpack.config.js",
     "build:site": "cross-env NODE_ENV=production webpack --config ./site/webpack.config.js",
     "start:dev": "node ./dist/server",
+    "start": "cross-env NODE_ENV=production node ./dist/server",
     "watch:server": "npx webpack serve --config webpack.config.js",
     "watch:admin": "npx webpack serve --config admin/webpack.config.js",
     "watch:site": "npx webpack serve --config site/webpack.config.js"

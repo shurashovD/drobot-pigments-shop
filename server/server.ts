@@ -54,4 +54,15 @@ app.use("/api/products", productsRoutes)
 
 app.use("/api/orders", ordersRoutes)
 
+app.get('*', (req, res) => {
+    try {
+        const file = path.join(__dirname, 'static', 'site', 'index.html')
+        res.sendFile(file)
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(500).end()
+    }
+})
+
 start()

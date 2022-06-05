@@ -20,8 +20,8 @@ const CategoryPage = () => {
             )}
 			{!isLoading && data && (
 				<Row>
-					<Col xs={1} lg={3}></Col>
-					<Col xs={11} lg={9}>
+					<Col xs={0} lg={3}></Col>
+					<Col xs={12} lg={9}>
                         <Products
                             categoryId={id || ''}
                         />

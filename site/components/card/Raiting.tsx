@@ -29,7 +29,7 @@ const Raiting: FC<IProps> = ({ className = "", raiting, reviewsCount = 0 }) => {
 		<div className={`d-flex align-items-center ${className}`}>
 			<IconStar stroke={raiting ? "#FEE17A" : "#9E9E9E"} />
 			<span className="ms-1 me-2">{raiting?.toFixed(1)}</span>
-			<span className="text-secondary">
+			<span className="text-muted">
                 {reviewsCount === 0 ? <>Нет</> : reviewsCount.toString()} {title} 
             </span>
 		</div>
