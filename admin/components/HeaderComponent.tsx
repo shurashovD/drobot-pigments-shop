@@ -15,8 +15,9 @@ const HeaderComponent = () => {
 
 	useEffect(() => {
 		if ( hasNewOrders ) {
-			const audio = new Audio('/static/assets/sound.webm')
-			audio.play()
+			new Audio("/static/assets/sound.ogg").play().catch(() => {
+				new Audio("/static/assets/sound.webm").play()
+			})
 		}
 	}, [hasNewOrders])
 
