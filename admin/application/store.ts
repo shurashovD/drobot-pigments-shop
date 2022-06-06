@@ -6,6 +6,7 @@ import { rtkQueryLogger } from "./error.middleware";
 import filtersSlice from "./filtersSlice";
 import moySkladApi from "./moySklad.service";
 import orderApi from "./order.service";
+import ordersSlice from "./ordersSlice";
 import productApi from "./product.service";
 
 const store = configureStore({
@@ -24,6 +25,7 @@ const store = configureStore({
 		[filtersSlice.name]: filtersSlice.reducer,
 		[moySkladApi.reducerPath]: moySkladApi.reducer,
         [orderApi.reducerPath]: orderApi.reducer,
+		[ordersSlice.name]: ordersSlice.reducer,
         [productApi.reducerPath]: productApi.reducer,
 	},
 })

@@ -17,7 +17,7 @@ const store = configureStore({
 		fileApi.middleware,
         orderApi.middleware,
         productApi.middleware,
-		rtkQueryLogger,
+		rtkQueryLogger
 	],
 	reducer: {
 		[alertSlice.name]: alertSlice.reducer,

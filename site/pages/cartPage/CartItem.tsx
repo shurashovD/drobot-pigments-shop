@@ -1,7 +1,7 @@
 import { FC, useRef } from "react"
 import { Button, Col, Form, ListGroup, Row, Spinner } from "react-bootstrap"
-import { setQuantity } from "../../application/cartSlice"
-import { useAppDispatch } from "../../application/hooks"
+import { setQuantity, toggleCheckInCart } from "../../application/cartSlice"
+import { useAppDispatch, useAppSelector } from "../../application/hooks"
 import { useGetProductByIdQuery } from "../../application/product.service"
 import ProductCounter from "../../components/card/ProductCounter"
 import IconDelete from "../../components/icons/IconDelete"
@@ -15,6 +15,7 @@ interface IProps {
 
 const CartItem: FC<IProps> = ({ disabled, productId }) => {
     const { data, isLoading } = useGetProductByIdQuery(productId, { refetchOnMountOrArgChange: true })
+	const checked = useAppSelector(state => state.cartSlice.products.find(item => item.productId === productId)?.checked || false)
     const dispatch = useAppDispatch()
     const formatter = useRef(
 		Intl.NumberFormat("ru", {
@@ -23,6 +24,10 @@ const CartItem: FC<IProps> = ({ disabled, productId }) => {
 			minimumFractionDigits: 2,
 		})
 	)
+
+	const handler = () => {
+		dispatch(toggleCheckInCart(productId))
+	}
 
     return (
 		<ListGroup.Item className="py-4">
@@ -33,10 +38,12 @@ const CartItem: FC<IProps> = ({ disabled, productId }) => {
 			)}
 			{!isLoading && data && (
 				<Row>
-					<Col xs={0} md={1}>
+					<Col xs={0} md={1} className="d-flex align-items-center">
 						<Form.Check
+							checked={checked}
 							className="d-none d-md-block"
 							disabled={disabled}
+							onChange={handler}
 						/>
 					</Col>
 					<Col xs={4} md={2} className="px-md-0">
@@ -46,6 +53,7 @@ const CartItem: FC<IProps> = ({ disabled, productId }) => {
 							/>
 							<Form.Check
 								disabled={disabled}
+								onChange={handler}
 								className="d-md-none position-absolute top-0 start-0 m-2"
 							/>
 						</div>

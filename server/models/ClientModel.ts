@@ -2,7 +2,7 @@ import { IClient } from '../../shared';
 import { model, Model, Schema, Types } from 'mongoose'
 
 const ClientSchema = new Schema<IClient, Model<IClient>>({
-    addresses: [{ String }],
+    addresses: [String],
     mail: String,
     name: String,
     orders: [{ type: Types.ObjectId, ref: 'Order' }],

@@ -12,12 +12,12 @@ const OrderPage = () => {
                 <Spinner animation="border" variant="secondary" />
             </div> }
             { data && <Container>
-                <h3>Заказ №{data.number} от {data.date}</h3>
+                <h3>Заказ №{data.number} от {data.date} на сумму {data.total}</h3>
                 <p>
-                    {data.client.name} {data.client.tel}
+                    Клиент: {data.client?.name} {data.client?.tel}
                 </p>
                 <p>
-                    {data.address}
+                    Адрес доставки: {data.delivery?.address}
                 </p>
                 <ListGroup>
                     {
@@ -26,7 +26,7 @@ const OrderPage = () => {
                                 key={`order-product_${index}`}
                             >
                                 <div className="hstack justify-content-between gap-3">
-                                    <span>{product.name}</span>
+                                    <span>{product?.name}</span>
                                     <Badge>{quantity}</Badge>
                                 </div>
                             </ListGroup.Item>

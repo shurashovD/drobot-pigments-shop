@@ -1,5 +1,9 @@
+import { useEffect } from "react"
 import { Container } from "react-bootstrap"
 import { Navigate, Route, Routes } from "react-router-dom"
+import { useAppDispatch } from "./application/hooks"
+import { useGetOrdersQuery } from "./application/order.service"
+import { setOrders } from "./application/ordersSlice"
 import AlertComponent from "./components/AlertComponent"
 import HeaderComponent from "./components/HeaderComponent"
 import CategoryPage from "./pages/categoryPage/CategoryPage"
@@ -10,6 +14,15 @@ import OrdersPage from "./pages/ordersPage/OrdersPage"
 import ProductsPage from "./pages/productsPage/ProductsPage"
 
 const App = () => {
+	const { data, isSuccess } = useGetOrdersQuery({}, { refetchOnMountOrArgChange: true, pollingInterval: 10000 })
+	const dispatch = useAppDispatch()
+
+	useEffect(() => {
+		if ( data && isSuccess ) {
+			dispatch(setOrders(data))
+		}
+	}, [data, isSuccess])
+
     return (
 		<Container fluid className="p-0">
 			<AlertComponent />

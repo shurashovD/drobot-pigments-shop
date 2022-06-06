@@ -1,8 +1,10 @@
-import { MouseEvent } from "react"
+import { MouseEvent, useEffect } from "react"
 import { Nav, Navbar } from "react-bootstrap"
 import { useLocation, useNavigate } from "react-router-dom"
+import { useAppSelector } from "../application/hooks"
 
 const HeaderComponent = () => {
+	const hasNewOrders = useAppSelector(state => state.ordersSlice.news.length > 0)
     const { pathname } = useLocation()
     const navigate = useNavigate()
     
@@ -10,6 +12,13 @@ const HeaderComponent = () => {
         const to = event.currentTarget.dataset.to || '/'
         navigate(to)
     }
+
+	useEffect(() => {
+		if ( hasNewOrders ) {
+			const audio = new Audio('/static/assets/sound.webm')
+			audio.play()
+		}
+	}, [hasNewOrders])
 
     return (
 		<Navbar bg="primary" variant="dark" sticky="top">
@@ -40,7 +49,7 @@ const HeaderComponent = () => {
 					<Nav.Link
 						active={/\/orders/.test(pathname)}
 						as="button"
-						className="btn"
+						className={`btn ${ hasNewOrders && "fw-bold text-warning" }`}
 						onClick={handler}
 						data-to="/admin/orders"
 					>

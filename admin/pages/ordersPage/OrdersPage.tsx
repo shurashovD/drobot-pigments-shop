@@ -1,5 +1,6 @@
+import { useEffect } from "react"
 import { Container, Spinner, Table } from "react-bootstrap"
-import { useGetOrdersQuery } from "../../application/order.service"
+import { useAppSelector } from "../../application/hooks"
 import Item from "./Item"
 
 const statusDecoder = (status: string) => {
@@ -12,21 +13,17 @@ const statusDecoder = (status: string) => {
 }
 
 const OrdersPage = () => {
-    const { data, isLoading } = useGetOrdersQuery({}, { refetchOnMountOrArgChange: true })
+	const { orders } = useAppSelector(state => state.ordersSlice)
     
     return (
 		<Container>
 			<h3>Заказы</h3>
-			{isLoading && (
-				<div className="text-center p-3">
-					<Spinner variant="secondary" animation="border" />
-				</div>
-			)}
-			{data && (
+			{orders && (
 				<Table>
 					<thead>
 						<tr>
 							<th>Номер</th>
+							<th>Дата</th>
 							<th>Заказчик</th>
 							<th className="text-center">Телефон</th>
 							<th className="text-center">Адрес</th>
@@ -35,12 +32,14 @@ const OrdersPage = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{data.map((item) => (
+						{orders.map((item) => (
 							<Item
 								key={item._id?.toString()}
+								date={item.date}
 								id={item._id?.toString() || ""}
+								new={item.status === "new"}
 								number={item.number.toString()}
-								address={item.address}
+								address={item.delivery.address}
 								client={item.client.name}
 								mail={item.client.mail}
 								phone={item.client.tel}

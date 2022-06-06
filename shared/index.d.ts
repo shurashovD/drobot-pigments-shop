@@ -164,21 +164,26 @@ export interface ICategoryMethods {
 export type CategoryModel = Model<ICategory, {}, ICategoryMethods>
 
 export interface IOrder extends Document {
-	address: string
 	client: Types.ObjectId
 	date: Date
+	delivery: {
+		address?: string
+	}
 	products: Types.DocumentArray<{
 		product: Types.ObjectId
 		quantity: number
 	}>
 	number: number
 	status: 'new' | 'isReading' | 'compiling' | 'deliveried' | 'complete'
+	total?: number
 }
 
 export interface IOrderPop extends Document {
-	address: string
 	client: IClient
 	date: string
+	delivery: {
+		address: string
+	}
 	products: [
 		{
 			product: IProduct
@@ -187,12 +192,13 @@ export interface IOrderPop extends Document {
 	]
 	number: number
 	status: "new" | "isReading" | "compiling" | "deliveried" | "complete"
+	total: number
 }
 
 export interface IClient extends Document {
 	addresses: string[]
-	mail: string
-	name: string
+	mail?: string
+	name?: string
     orders: Types.ObjectId[]
 	tel: string
 }
