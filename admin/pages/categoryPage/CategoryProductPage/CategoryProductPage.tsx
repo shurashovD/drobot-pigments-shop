@@ -1,9 +1,9 @@
 import { Button, Col, Container, Row, Spinner } from "react-bootstrap"
 import { useNavigate, useParams } from "react-router-dom"
 import { useGetProductByIdQuery } from "../../../application/product.service"
-import ProductBinds from "./ProductBinds"
 import ProductCard from "./ProductCard"
 import ProductsFilters from "./ProductFilters"
+import ProductVariants from "./ProductVariants"
 
 const CategoryProductPage = () => {
     const {id} = useParams()
@@ -43,10 +43,9 @@ const CategoryProductPage = () => {
 						/>
 					</Col>
 					<Col xs={12} lg={4}>
-						<ProductBinds
-							binds={data.binds}
-							disabled={isFetching}
-							productId={id || ''}
+						<ProductVariants
+							variantsLabel={data.variantsLabel}
+							variants={data.variants}
 						/>
 					</Col>
 				</Row>

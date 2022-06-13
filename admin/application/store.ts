@@ -1,6 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
 import alertSlice from "./alertSlice";
-import bindLabelModalSlice from "./bindLabelModalSlice";
 import categoryApi from "./category.service";
 import { rtkQueryLogger } from "./error.middleware";
 import filtersSlice from "./filtersSlice";
@@ -20,7 +19,6 @@ const store = configureStore({
 	],
 	reducer: {
 		[alertSlice.name]: alertSlice.reducer,
-		[bindLabelModalSlice.name]: bindLabelModalSlice.reducer,
 		[categoryApi.reducerPath]: categoryApi.reducer,
 		[filtersSlice.name]: filtersSlice.reducer,
 		[moySkladApi.reducerPath]: moySkladApi.reducer,

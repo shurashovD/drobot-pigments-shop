@@ -50,11 +50,26 @@ const HeaderComponent = () => {
 					<Nav.Link
 						active={/\/orders/.test(pathname)}
 						as="button"
-						className={`btn ${ hasNewOrders && "fw-bold text-warning" }`}
+						className={`btn ${
+							hasNewOrders && "fw-bold text-warning"
+						}`}
 						onClick={handler}
 						data-to="/admin/orders"
 					>
 						Заказы
+					</Nav.Link>
+				</Nav.Item>
+				<Nav.Item className="mx-3">
+					<Nav.Link
+						active={/\/hooks/.test(pathname)}
+						as="button"
+						className={`btn ${
+							hasNewOrders && "fw-bold text-warning"
+						}`}
+						onClick={handler}
+						data-to="/admin/hooks"
+					>
+						WebHooks
 					</Nav.Link>
 				</Nav.Item>
 				<Nav.Item className="ms-auto">

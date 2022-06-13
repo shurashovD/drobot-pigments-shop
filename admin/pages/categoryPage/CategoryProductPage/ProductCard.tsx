@@ -65,7 +65,7 @@ const ProductCard: FC<IProps> = (props) => {
 							}
 						/>
 					) : (
-						<>{props.description}</>
+						<pre style={{ whiteSpace: 'pre-wrap' }}>{props.description}</pre>
 					)}
 				</Card.Text>
 				{typeof descriptionEdit === "string" ? (

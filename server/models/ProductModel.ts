@@ -4,34 +4,33 @@ import CurrencyModel from './CurrencyModel';
 import UomModel from './UomModel';
 import CategoryModel from './CategoryModel';
 
-const BindSchema = new Schema<IProduct["binds"][0]>({
-	products: [
-		{
-			label: String,
-			product: { type: Types.ObjectId, ref: "Product" }
-		},
-	],
-	productLabel: { type: String, required: true },
-	title: { type: String, required: true },
+const VariantSchema = new Schema<IProduct["variants"][0]>({
+	identifier: String,
+	name: String,
+	photo: String,
+	photoUpdate: String,
+	price: Number,
+	value: String
 })
 
-const bindModel = model('Bind', BindSchema)
+const variantModel = model("Variant", VariantSchema)
 
 const ProductSchema = new Schema<IProduct, IProductModel, IProductMethods>({
 	archived: { type: Boolean, default: false },
 	available: { type: Number, default: 0 },
-	binds: [BindSchema],
 	currency: { type: Schema.Types.ObjectId, ref: "Currency" },
 	description: String,
 	identifier: { type: String, required: true },
-	parentBind: [{ type: Types.ObjectId, ref: "Product" }],
 	name: { type: String, required: true },
 	parent: { type: Schema.Types.ObjectId, ref: "Catalog" },
 	parentCategory: { type: Schema.Types.ObjectId, ref: "Category" },
 	photo: [String],
+	photoUpdated: String,
 	properties: [Schema.Types.ObjectId],
 	price: { type: Number },
 	uom: { type: Schema.Types.ObjectId, ref: "Uom" },
+	variantsLabel: String,
+	variants: [VariantSchema],
 	weight: { type: Number },
 })
 
@@ -44,26 +43,27 @@ ProductSchema.statics.getProduct = async function(id: string): Promise<Product |
 
 		if ( !product ) return null
 
-		const binds: Product['binds'] = product.binds.map(item => ({ 
+		const variants: Product['variants'] = product.variants?.map(item => ({ 
 			...item.toObject(), 
-			id: item._id?.toString() || '', 
-			products: item.products.map(({ label, product }) => ({ label, product: product.toString() })) 
-		}))
+			id: item._id?.toString() || ''
+		})) || []
 
 		const result: Product = {
 			archived: product.archived,
 			available: product.available,
-			binds,
 			category: product.parentCategory?.toString(),
 			currency: product.currency,
 			description: product.description,
 			id: product._id.toString(),
 			name: product.name,
-			parentBind: product.parentBind.map(item => item.toString()),
 			photo: product.photo,
-			properties: product.properties.map(item => item.toString()),
-			uom: product.uom,
 			price: product.price,
+			properties: product.properties.map((item) => item.toString()),
+			uom: product.uom,
+			variants
+		}
+		if ( product.variantsLabel ) {
+			result.variantsLabel = product.variantsLabel
 		}
 		return result
 	}
@@ -137,7 +137,7 @@ ProductSchema.methods.resetFilter = async function(fieldId: Types.ObjectId): Pro
 	}
 	catch (e) { throw e }
 }
-
+/*
 ProductSchema.methods.createBind = async function(this: IProduct, bindTitle: string, productLabel: string): Promise<IProduct> {
 	try {
 		if ( this.parentBind.length > 0 ) {
@@ -268,5 +268,5 @@ ProductSchema.methods.reBindProduct = async function(this: IProduct, bindId: str
 	}
 	catch (e) { throw e }
 }
-
+*/
 export default model<IProduct, IProductModel>("Product", ProductSchema)

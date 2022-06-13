@@ -24,25 +24,26 @@ export interface ICatalog extends Document {
 export interface IProduct extends Document {
 	archived: boolean
 	available: number
-	binds: Types.DocumentArray<{
-		products: {
-			label: string
-			product: Types.ObjectId
-		}[]
-		productLabel: string
-		title: string
-	}>
 	currency: Types.ObjectId
 	description?: string
 	identifier: string
-	parentBind: Types.ObjectId[]
 	name: string
 	parent: Types.ObjectId
 	parentCategory?: Types.ObjectId
 	photo: string[]
+	photoUpdated?: string
 	properties: Types.ObjectId[]
 	price?: number
 	uom: Types.ObjectId
+	variantsLabel?: string
+	variants: Types.DocumentArray<{
+		identifier: string
+		name: string
+		photo?: string
+		photoUpdate?: string
+		price: Number
+		value: string
+	}>
 	weight?: number
 	createBind(bindTitle: string, productLabel: string): Promise<IProduct>
 	updateBind(
@@ -82,25 +83,24 @@ interface IProductMethods {
 export interface Product {
 	archived: boolean
 	available: number
-	binds: {
-		id: string
-		products: {
-			label: string
-			product: string
-		}[]
-		productLabel: string
-		title: string
-	}[]
 	category?: string
 	currency: string
 	description?: string
 	id: string
 	name: string
-	parentBind?: string[]
 	photo: string[]
 	properties: string[]
 	price?: number
 	uom: string
+	variantsLabel?: string
+	variants: {
+		id: string
+		identifier: string
+		name: string
+		photo?: string
+		price: Number
+		value: string
+	}[]
 	weight?: number
 }
 
@@ -201,6 +201,19 @@ export interface IClient extends Document {
 	name?: string
     orders: Types.ObjectId[]
 	tel: string
+}
+
+export interface IMSHook {
+	url: string
+	action: "CREATE" | "UPDATE" | "DELETE"
+	entityType: "productfolder" | "product" | "variant" | string
+	id?: string
+	method?: string
+	enabled?: boolean
+}
+
+export interface IReqId extends Document {
+	requestId: string
 }
 
 declare global {

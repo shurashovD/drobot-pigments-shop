@@ -4,9 +4,6 @@ import { useGetProductsQuery } from "../../application/category.service"
 import { useAppDispatch, useAppSelector } from "../../application/hooks"
 import AddProductsModal from "./AddProductsModal"
 import ProductItem from "./ProductItem"
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
-import BindLabelModal from "../../components/BindLabelModal"
 import { Product } from "../../../shared"
 import { nextPage } from "../../application/filtersSlice"
 
@@ -74,7 +71,6 @@ const Products: FC<IProps> = ({ categoryId, disabled, products, refetchCategory 
 				onHide={() => setShowAddProductsModal(false)}
 				show={showAddProductsModal}
 			/>
-			<BindLabelModal refetch={refetch} />
 			<div className="sticky-top mb-3">
 				<Button
 					size="sm"
@@ -85,33 +81,36 @@ const Products: FC<IProps> = ({ categoryId, disabled, products, refetchCategory 
 					Добавить товары
 				</Button>
 			</div>
-			<DndProvider backend={HTML5Backend}>
-				<ListGroup as="ul" variant="flush">
-					{rows.map((item) => (
-						<ProductItem
-							binds={item.binds}
-							disabled={isFetching || disabled}
-							key={item.id}
-							categoryId={categoryId}
-							productId={item.id}
-							name={item.name}
-							refetchCategory={refetchCategory}
-							refetchProducts={refetch}
-						/>
-					))}
-				</ListGroup>
-			</DndProvider>
+			<ListGroup as="ul" variant="flush">
+				{rows.map((item) => (
+					<ProductItem
+						key={item.id}
+						categoryId={categoryId}
+						disabled={isFetching || disabled}
+						productId={item.id}
+						name={item.name}
+						refetchCategory={refetchCategory}
+						refetchProducts={refetch}
+						variantLabel={item.variantsLabel}
+						variants={item.variants}
+					/>
+				))}
+			</ListGroup>
 			<div className="text-center p-3">
 				{isLoading || isFetching ? (
 					<Spinner animation="border" size="sm" variant="secondary" />
-				) : (
-					data && limit * page < data?.length ? <Button variant="outline-primary" onClick={moreHandler}>
+				) : data && limit * page < data?.length ? (
+					<Button variant="outline-primary" onClick={moreHandler}>
 						Показать ещё
-					</Button> : <></>
+					</Button>
+				) : (
+					<></>
 				)}
-				{ !isLoading && !isFetching && rows.length === 0 && <h5 className="text-secondary">
-					Нет товаров, удовлетворяющих критериям поиска
-				</h5>}
+				{!isLoading && !isFetching && rows.length === 0 && (
+					<h5 className="text-secondary">
+						Нет товаров, удовлетворяющих критериям поиска
+					</h5>
+				)}
 			</div>
 		</div>
 	)

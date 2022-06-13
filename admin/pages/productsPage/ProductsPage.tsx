@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Container, Table } from "react-bootstrap"
 import { useGetCategoriesQuery } from "../../application/category.service"
 import PhotoModalComponent from "./PhotoModalComponent"

@@ -32,13 +32,12 @@ CategorySchema.methods.getProducts = function(filters: string[][] = [], limit?: 
 		)
 	}
     result = result
-		.filter(({ parentBind }) => parentBind.length === 0)
 		.map((item) => {
-			const binds = item.binds.map((bind: IProduct["binds"][0]) => ({
-				...bind.toObject(),
-				id: bind._id?.toString(),
+			const variants = item.variants.map((variant: IProduct["variants"][0]) => ({
+				...variant.toObject(),
+				id: variant._id?.toString(),
 			}))
-			return { ...item.toObject(), id: item._id.toString(), binds }
+			return { ...item.toObject(), id: item._id.toString(), variants }
 		})
     const { length } = result
     if (sortByPrice) {
@@ -225,13 +224,6 @@ CategorySchema.methods.rmProduct = async function (productId: string): Promise<I
 			error.userError = true
 			throw error
         }
-        if (product.binds.length > 0) {
-			const error = new Error(
-				`Сначала удалите все связи товара`
-			)
-			error.userError = true
-			throw error
-		}
 
         await ProductModel.findByIdAndUpdate(productId, {
 			$unset: { parentCategory: true },

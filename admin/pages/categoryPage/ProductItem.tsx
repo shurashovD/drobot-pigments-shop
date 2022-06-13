@@ -6,31 +6,22 @@ import { successAlert } from "../../application/alertSlice"
 import { useRmProductMutation } from "../../application/category.service"
 import { useAppDispatch } from "../../application/hooks"
 import ButtonComponent from "../../components/ButtonComponent"
-import { useDrag } from "react-dnd"
-import ProductItemBindDropdown from "./ProductItemBindDropdown"
+import ProductItemVariants from "./ProductItemVariants"
 
 interface IProps {
-	binds: Product["binds"]
 	categoryId: string
 	disabled?: boolean
 	productId: string
 	name: string
+	variantLabel?: string
+	variants: Product["variants"]
 	refetchCategory?: () => any
 	refetchProducts?: () => any
 }
 
-const ProductItem: FC<IProps> = ({ binds, categoryId, disabled, productId, name, refetchCategory, refetchProducts }) => {
+const ProductItem: FC<IProps> = ({ categoryId, disabled, productId, name, refetchCategory, refetchProducts, variantLabel, variants }) => {
 	const [remove, { isLoading, isSuccess }] = useRmProductMutation()
 	const dispatch = useAppDispatch()
-
-	const [{ isDragging }, drag] = useDrag<{ bindProductId: string }, {}, { isDragging: boolean }>(() => ({
-		type: "product",
-		item: { bindProductId: productId },
-		collect: (monitor) => ({
-			isDragging: monitor.isDragging(),
-			endDrag: monitor.getDropResult(),
-		}),
-	}))
 
 	useEffect(() => {
 		if ( isSuccess ) {
@@ -42,25 +33,22 @@ const ProductItem: FC<IProps> = ({ binds, categoryId, disabled, productId, name,
 	}, [dispatch, isSuccess, refetchCategory, successAlert])
 
     return (
-		<ListGroup.Item ref={drag}>
-			<div className={`hstack gap-3 opacity-${isDragging ? "25" : "1"}`}>
+		<ListGroup.Item>
+			<div className="hstack gap-3">
 				<div>
 					<NavLink to={`/admin/products/product/${productId}`}>
 						{name}
 					</NavLink>
 				</div>
-				{binds.map((item) => (
-					<ProductItemBindDropdown
-						key={item.id}
-						bindId={item.id}
-						disabled={disabled || isLoading}
-						productLabel={item.productLabel}
-						productId={productId}
-						products={item.products}
-						refetchProducts={refetchProducts}
-						title={item.title}
-					/>
-				))}
+				{variantLabel && (
+					<div>
+						<ProductItemVariants
+							name={variantLabel}
+							variants={variants}
+							disabled={disabled || isLoading}
+						/>
+					</div>
+				)}
 				<div className="ms-auto">
 					<ButtonComponent
 						disabled={disabled}

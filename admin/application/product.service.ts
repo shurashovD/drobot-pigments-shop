@@ -59,69 +59,6 @@ const productApi = createApi({
 			}),
 			invalidatesTags: ["product"],
 		}),
-		createBind: build.mutation<
-			undefined,
-			{ id: string; body: { bindTitle: string; productLabel: string } }
-		>({
-			query: ({ body, id }) => ({
-				body,
-				method: "POST",
-				url: `/bind/${id}`,
-			}),
-			invalidatesTags: ["product"],
-		}),
-		updateBind: build.mutation<
-			undefined,
-			{
-				id: string
-				body: {
-					bindId: string
-					bindTitle: string
-					productLabel: string
-				}
-			}
-		>({
-			query: ({ body, id }) => ({
-				body,
-				method: "PUT",
-				url: `/bind/${id}`,
-			}),
-			invalidatesTags: ["product"],
-		}),
-		rmBind: build.mutation<
-			undefined,
-			{ id: string; body: { bindId: string } }
-		>({
-			query: ({ body, id }) => ({
-				body,
-				method: "DELETE",
-				url: `/bind/${id}`,
-			}),
-			invalidatesTags: ["product"],
-		}),
-		setProductBind: build.mutation<
-			undefined,
-			{
-				id: string
-				body: { bindId: string; bindLabel: string; productId: string }
-			}
-		>({
-			query: ({ body, id }) => ({
-				body,
-				method: "PUT",
-				url: `/bind-product/${id}`,
-			}),
-		}),
-		resetProductBind: build.mutation<
-			undefined,
-			{ id: string; body: { bindId: string; productId: string } }
-		>({
-			query: ({ body, id }) => ({
-				body,
-				method: "DELETE",
-				url: `/bind-product/${id}`,
-			}),
-		}),
 	}),
 	reducerPath: "productApi",
 	tagTypes: ["product"],
@@ -134,11 +71,6 @@ export const {
 	useSetProductDescriptionMutation,
 	useSetProductFilterMutation,
 	useResetProductFilterMutation,
-	useCreateBindMutation,
-	useUpdateBindMutation,
-	useRmBindMutation,
-	useSetProductBindMutation,
-	useResetProductBindMutation,
 } = productApi
 
 export default productApi

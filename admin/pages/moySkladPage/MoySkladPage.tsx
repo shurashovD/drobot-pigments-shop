@@ -1,5 +1,5 @@
-import { useEffect } from "react"
-import { Col, Container, ListGroup, Row } from "react-bootstrap"
+import { ChangeEvent, useEffect } from "react"
+import { Col, Container, Form, ListGroup, Row } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
 import { useParams } from "react-router-dom"
 import { useGetMoySkladQuery, useSyncMoySkladMutation } from "../../application/moySklad.service"
@@ -57,7 +57,9 @@ const MoySkladPage = () => {
 							className="px-1 pb-1"
 							key={item._id.toString()}
 						>
-							<NavLink to={`/admin/moy-sklad/${item._id.toString()}`}>
+							<NavLink
+								to={`/admin/moy-sklad/${item._id.toString()}`}
+							>
 								{item.name}
 							</NavLink>
 						</ListGroup.Item>
