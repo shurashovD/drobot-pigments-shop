@@ -13,7 +13,7 @@ const VariantSchema = new Schema<IProduct["variants"][0]>({
 	value: String
 })
 
-const variantModel = model("Variant", VariantSchema)
+export const VariantModel = model("Variant", VariantSchema)
 
 const ProductSchema = new Schema<IProduct, IProductModel, IProductMethods>({
 	archived: { type: Boolean, default: false },

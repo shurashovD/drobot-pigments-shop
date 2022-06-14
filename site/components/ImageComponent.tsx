@@ -26,7 +26,7 @@ const ImageComponent: FC<IProps> = ({ widthToHeight = 1, src }) => {
             abort()
         }
 
-    }, [trigger])
+    }, [trigger, src])
 
 	return (
 		<div ref={container}>

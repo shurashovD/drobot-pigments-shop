@@ -41,7 +41,7 @@ export interface IProduct extends Document {
 		name: string
 		photo?: string
 		photoUpdate?: string
-		price: Number
+		price: number
 		value: string
 	}>
 	weight?: number
@@ -98,7 +98,7 @@ export interface Product {
 		identifier: string
 		name: string
 		photo?: string
-		price: Number
+		price: number
 		value: string
 	}[]
 	weight?: number
@@ -173,8 +173,13 @@ export interface IOrder extends Document {
 		product: Types.ObjectId
 		quantity: number
 	}>
+	variants: Types.DocumentArray<{
+		product: Types.ObjectId
+		variant: Types.ObjectId
+		quantity: number
+	}>
 	number: number
-	status: 'new' | 'isReading' | 'compiling' | 'deliveried' | 'complete'
+	status: "new" | "isReading" | "compiling" | "deliveried" | "complete"
 	total?: number
 }
 
@@ -190,6 +195,11 @@ export interface IOrderPop extends Document {
 			quantity: number
 		}
 	]
+	variants: Types.DocumentArray<{
+		product: Types.ObjectId
+		variant: IProduct['variants'][0]
+		quantity: number
+	}>
 	number: number
 	status: "new" | "isReading" | "compiling" | "deliveried" | "complete"
 	total: number

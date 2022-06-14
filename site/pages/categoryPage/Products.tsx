@@ -18,7 +18,7 @@ const Products: FC<IProps> = ({ categoryId }) => {
         Intl.NumberFormat('ru', {
             style: 'currency',
             currency: 'RUB',
-            minimumFractionDigits: 2
+            minimumFractionDigits: 0
         })
     )
 
@@ -50,8 +50,12 @@ const Products: FC<IProps> = ({ categoryId }) => {
 					<ProductCard
 						id={item.id}
 						img={item.photo?.[0]}
-						price={formatter.current.format(item.price || 0)}
+						price={formatter.current.format(
+							Math.min(...item.variants.map(({ price }) => price / 100)) || item.price || 0
+						)}
 						title={item.name}
+						variantsLabel={item.variantsLabel}
+						variants={item.variants.length > 0 ? item.variants : undefined}
 					/>
 				</Col>
 			))}

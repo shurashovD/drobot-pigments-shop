@@ -5,20 +5,26 @@ import { useAppDispatch, useAppSelector } from "../../application/hooks"
 import { useLazyGetCartTotalQuery } from "../../application/order.service"
 import CartItem from "./CartItem"
 import CartTotal from "./CartTotal"
+import VariantCartItem from "./VariantCartItem"
 
 const CartPage = () => {
     const [label, setLabel] = useState<'товар' | 'товара' | 'товаров'>()
 	const [trigger, { isFetching, data: cartTotal }] = useLazyGetCartTotalQuery()
-    const { products } = useAppSelector(state => state.cartSlice)
+    const { products, variants } = useAppSelector(state => state.cartSlice)
 	const dispatch = useAppDispatch()
 
     useEffect(() => {
 		const checkedProducts = products
 			.filter(({ checked }) => checked)
 			.map(({ productId, quantity }) => ({ productId, quantity }))
-		trigger(checkedProducts)
+		const checkedVariants = variants
+			.filter(({ checked }) => checked)
+			.map(({ productId, quantity, variantId }) => ({ productId, quantity, variantId }))
+		trigger({ products: checkedProducts, variants: checkedVariants })
 		
-        const productsLength = products.reduce((total, { quantity }) => total + quantity, 0)
+        const productsLength =
+			products.reduce((total, { quantity }) => total + quantity, 0) +
+			variants.reduce((total, { quantity }) => total + quantity, 0)
 		const lastSymbol = parseInt(
 			productsLength.toString()[productsLength.toString().length - 1]
 		)
@@ -31,7 +37,7 @@ const CartPage = () => {
 				setLabel("товара")
 			}
 		}
-	}, [products])
+	}, [products, variants])
 
     return (
 		<Container className="pb-6">
@@ -41,11 +47,15 @@ const CartPage = () => {
 					{products.reduce(
 						(total, { quantity }) => total + quantity,
 						0
-					)}{" "}
+					) +
+						variants.reduce(
+							(total, { quantity }) => total + quantity,
+							0
+						)}{" "}
 					{label}
 				</span>
 			</div>
-			{products.length > 0 && (
+			{products.length + variants.length > 0 && (
 				<Row>
 					<Col xs={12} lg={8}>
 						<Row className="m-0">
@@ -54,7 +64,10 @@ const CartPage = () => {
 									label="Выбрать все"
 									className="align-item-center m-0"
 									onChange={() => dispatch(toggleCheckAll())}
-									checked={products.every(({ checked }) => checked)}
+									checked={
+										products.every(({ checked }) => checked) &&
+										variants.every(({ checked }) => checked)
+									}
 									disabled={isFetching}
 								/>
 							</Col>
@@ -72,7 +85,7 @@ const CartPage = () => {
 					</Col>
 				</Row>
 			)}
-			{products.length === 0 ? (
+			{products.length + variants.length === 0 ? (
 				<p className="text-muted">Коризна пуста</p>
 			) : (
 				<Row>
@@ -86,15 +99,20 @@ const CartPage = () => {
 									disabled={isFetching}
 								/>
 							))}
+							{variants.map((item) => (
+								<VariantCartItem
+									key={item.variantId}
+									productId={item.productId}
+									variantId={item.variantId}
+									disabled={isFetching}
+								/>
+							))}
 						</ListGroup>
 						<hr />
 					</Col>
 					<Col xs={12} lg={4}>
-                        <CartTotal
-							isLoading={isFetching}
-							total={cartTotal}
-						/>
-                    </Col>
+						<CartTotal isLoading={isFetching} total={cartTotal} />
+					</Col>
 				</Row>
 			)}
 		</Container>

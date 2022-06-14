@@ -1,25 +1,31 @@
 import { ChangeEvent, FC } from "react"
 import { Button, Form } from "react-bootstrap"
-import { addToCart, rmFromCart, setQuantity } from "../../application/cartSlice"
+import { addToCart, addVariantToCart, rmFromCart, rmVariantFromCart, setQuantity, setVariantQuantity } from "../../application/cartSlice"
 import { useAppDispatch, useAppSelector } from "../../application/hooks"
 
 interface IProps {
     disabled?: boolean
-    productId: string
+	productId: string
+    variantId: string
 }
 
-const ProductCounter: FC<IProps> = ({ disabled, productId }) => {
-    const state = useAppSelector(state => state.cartSlice.products.find(item => item.productId === productId)?.quantity || 0)
-    const dispatch = useAppDispatch()
+const VariantCounter: FC<IProps> = ({ disabled, productId, variantId }) => {
+	const state = useAppSelector(
+		(state) =>
+			state.cartSlice.variants.find(
+				(item) => item.variantId === variantId
+			)?.quantity || 0
+	)
+	const dispatch = useAppDispatch()
 
-    const handler = (event: ChangeEvent<HTMLInputElement>) => {
-        const { value } = event.target
-        if ( isNaN(parseInt(value)) ) return
+	const handler = (event: ChangeEvent<HTMLInputElement>) => {
+		const { value } = event.target
+		if (isNaN(parseInt(value))) return
 
-        dispatch(setQuantity({ productId, quantity: parseInt(value)}))
-    }
+		dispatch(setVariantQuantity({ variantId, quantity: parseInt(value) }))
+	}
 
-    return (
+	return (
 		<div
 			className="d-flex w-100 justify-content-between align-items-center"
 			style={{ maxWidth: "116px" }}
@@ -36,7 +42,7 @@ const ProductCounter: FC<IProps> = ({ disabled, productId }) => {
 					minHeight: "28px",
 					maxHeight: "28px",
 				}}
-				onClick={() => dispatch(rmFromCart(productId))}
+				onClick={() => dispatch(rmVariantFromCart(variantId))}
 			>
 				-
 			</Button>
@@ -58,7 +64,7 @@ const ProductCounter: FC<IProps> = ({ disabled, productId }) => {
 					minHeight: "28px",
 					maxHeight: "28px",
 				}}
-				onClick={() => dispatch(addToCart(productId))}
+				onClick={() => dispatch(addVariantToCart({ productId, variantId }))}
 			>
 				+
 			</Button>
@@ -66,4 +72,4 @@ const ProductCounter: FC<IProps> = ({ disabled, productId }) => {
 	)
 }
 
-export default ProductCounter
+export default VariantCounter

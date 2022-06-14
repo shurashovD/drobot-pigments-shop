@@ -34,6 +34,9 @@ const SignOrderModal: FC<ModalProps> = ({ show, onHide }) => {
 	const products = useAppSelector((state) =>
 		state.cartSlice.products.filter(({ checked }) => checked)
 	)
+	const variants = useAppSelector((state) =>
+		state.cartSlice.variants.filter(({ checked }) => checked)
+	)
 	const [create, { data, isLoading, isSuccess, reset }] =
 		useCreateOrderMutation()
 	const navigate = useNavigate()
@@ -150,7 +153,8 @@ const SignOrderModal: FC<ModalProps> = ({ show, onHide }) => {
 								onClick={() =>
 									create({
 										...state,
-										products: JSON.stringify(products),
+										products,
+										variants
 									})
 								}
 							>

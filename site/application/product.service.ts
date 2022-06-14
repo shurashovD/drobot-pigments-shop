@@ -8,6 +8,14 @@ const productApi = createApi({
 			query: (id) => `/${id}`,
 			providesTags: () => ["product"],
 		}),
+		getVariant: build.query<
+			Product['variants'][0],
+			{ productId: string; variantId: string }
+		>({
+			query: ({ productId, variantId }) =>
+				`/variant/${variantId}?productId=${productId}`,
+			providesTags: () => ["product"],
+		}),
 	}),
 	reducerPath: "productApi",
 	tagTypes: ["product"],
@@ -15,6 +23,7 @@ const productApi = createApi({
 
 export const {
 	useGetProductByIdQuery,
+	useGetVariantQuery
 } = productApi
 
 export default productApi

@@ -1,6 +1,7 @@
 import { FC } from "react"
 import { Col, Row } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
+import { Product } from "../../../shared"
 import ImageComponent from "../ImageComponent"
 import ButtonCart from "./ButtonCart"
 import Raiting from "./Raiting"
@@ -10,6 +11,8 @@ interface IProps {
 	img?: string
 	price?: string
 	title?: string
+	variantsLabel?: string
+	variants?: Product['variants']
 }
 
 
@@ -23,10 +26,10 @@ const ProductCard: FC<IProps> = (props) => {
 			<div className="mt-auto">
 				<Raiting />
 			</div>
-			<span className="fs-3 my-4">{props.price}</span>
+			<span className="fs-3 my-4">от {props.price}</span>
 			<Row className="d-flex justify-content-between">
 				<Col xs={10}>
-					<ButtonCart productId={props.id || ""} />
+					<ButtonCart productId={props.id || ""} variants={props.variants} variantsLabel={props.variantsLabel} />
 				</Col>
 			</Row>
 		</div>

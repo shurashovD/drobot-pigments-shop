@@ -11,12 +11,16 @@ interface IProps {
 
 const CartTotal: FC<IProps> = ({ isLoading, total }) => {
 	const [show, setShow] = useState(false)
-	const noChecked = useAppSelector(state => state.cartSlice.products.every(({ checked }) => !checked))
+	const noChecked = useAppSelector(
+		(state) =>
+			state.cartSlice.products.every(({ checked }) => !checked) &&
+			state.cartSlice.variants.every(({ checked }) => !checked)
+	)
 	const formatter = useRef(
 		Intl.NumberFormat("ru", {
 			style: "currency",
 			currency: "RUB",
-			minimumFractionDigits: 2,
+			minimumFractionDigits: 0,
 		})
 	)
 
@@ -29,17 +33,17 @@ const CartTotal: FC<IProps> = ({ isLoading, total }) => {
 			<Row className="p-4 pb-5 mb-5 border border-primary mx-0">
 				<Col xs={8}>
 					<div className="fs-3 text-uppercse mb-2">Итого</div>
-					<div className="text-muted mb-2">Товары, 2 шт</div>
+					<div className="text-muted mb-2">Товары</div>
 				</Col>
 				<Col xs={4}>
 					<div className="fs-3 text-uppercse mb-2">
 						{typeof total !== "undefined" && (
-							<>{formatter.current.format(total)}</>
+							<>{formatter.current.format(total / 100)}</>
 						)}
 					</div>
 					<div className="text-muted mb-2">
 						{typeof total !== "undefined" && (
-							<>{formatter.current.format(total)}</>
+							<>{formatter.current.format(total / 100)}</>
 						)}
 					</div>
 				</Col>

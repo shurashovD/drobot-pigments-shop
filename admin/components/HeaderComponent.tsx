@@ -63,9 +63,7 @@ const HeaderComponent = () => {
 					<Nav.Link
 						active={/\/hooks/.test(pathname)}
 						as="button"
-						className={`btn ${
-							hasNewOrders && "fw-bold text-warning"
-						}`}
+						className="btn"
 						onClick={handler}
 						data-to="/admin/hooks"
 					>

@@ -58,6 +58,29 @@ router.get('/:id', async (req: Request<{id: string}>, res) => {
 	}
 })
 
+// получить модификацию;
+router.get('/variant/:id', async (req: Request<{id: string}, {}, {}, {productId: string}>, res) => {
+    try {
+		const { id } = req.params
+		const { productId } = req.query
+		const product = await ProductModel.getProduct(productId)
+		if (!product) {
+			return res.status(500).json({ message: "Товар не найден" })
+		}
+
+		const variant = product.variants.find(item => item.id === id)
+		if (!variant) {
+			return res.status(500).json({ message: "Вариант не найден" })
+		}
+
+		return res.json(variant)
+	} catch (e: any) {
+		console.log(e)
+		const message = e.userError ? e.message : "Что-то пошло не так..."
+		return res.status(500).json({ message })
+	}
+})
+
 // установить фото товара;
 router.put('/photo/:id', upload.single('photo'), async (req: Request<{id: string}>, res) => {
     try {

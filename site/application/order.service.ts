@@ -6,21 +6,37 @@ const orderApi = createApi({
 	endpoints: (build) => ({
 		getCartTotal: build.query<
 			number,
-			{ productId: string; quantity: number }[]
+			{
+				products: { productId: string; quantity: number }[]
+				variants: {
+					productId: string
+					variantId: string
+					quantity: number
+				}[]
+			}
 		>({
-			query: (prodIds) =>
-				`/cart-total?products=${JSON.stringify(prodIds)}`,
+			query: ({ products, variants }) =>
+				`/cart-total?products=${JSON.stringify(
+					products
+				)}&variants=${JSON.stringify(variants)}`,
 		}),
 		createOrder: build.mutation<
 			string,
 			{
 				tel: string
 				address: string
-				products: string
+				products: { productId: string; quantity: number }[]
+				variants: {
+					variantId: string
+					productId: string
+					quantity: number
+				}[]
 			}
 		>({
-			query: (body) => ({
-				body,
+			query: ({ address, products, tel, variants }) => ({
+				body: {
+					address, tel, products: JSON.stringify(products), variants: JSON.stringify(variants)
+				},
 				method: "POST",
 				url: "/",
 			}),
