@@ -34,6 +34,7 @@ const getCounterPartyByNumber = async (phone: string) => {
 				return { id, phone: tel }
 			})
 			.find((item: any) => (item.phone = phone))
+            console.log(phone);
         return counterparty
     }
     catch (e) {

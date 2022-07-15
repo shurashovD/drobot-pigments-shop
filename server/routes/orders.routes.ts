@@ -764,7 +764,6 @@ router.post('/check-number/init', bodyParser.json(), async (req: Request<{}, {},
 		const { phone } = req.body
 		const key = await checkNumber(phone)
 		req.session.plusofonKey = key
-		//req.session.plusofonKey = '123'
 		req.session.candidateNumber = phone
 		return res.end()
 	}
@@ -784,7 +783,6 @@ router.post('/check-number/pin', bodyParser.json(), async (req: Request<{}, {}, 
 			throw new Error("К сессии не привязан номер")
 		}
 		const result = await checkPin(req.session.plusofonKey, pin)
-		//const result = 1
 		if (result === 1 ) {
 			let client = await ClientModel.findOne({ tel: req.session.candidateNumber })
 			if ( !client ) {

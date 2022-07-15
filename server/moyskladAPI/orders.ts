@@ -90,7 +90,7 @@ export const acceptPayment = async (orderId: string, sum: number) => {
 				mediaType: "application/json"
             }
         }]
-		await ms.POST(paths.payment, { agent, operations, organization, sum })
+		await ms.POST(paths.payment, { agent, operations, organization, sum: sum * 100 })
 	}
 	catch (e) {
 		throw (e)
