@@ -11,18 +11,18 @@ const paths = {
 
 const getCounterPartyByNumber = async (phone: string) => {
     const parsePhone = (number: string) => {
-        if ( number.length < 10 ) return undefined
-        
-        let result = ''
-        for (let i = 1; i <= 10; ++i) {
-            const symbol = phone[phone.length - i]
-            if ( isNaN(parseInt(symbol)) ) {
-                continue
-            }
-            result += symbol
-        }
-        return Array.from(result).reverse().join()
-    }
+		if (number.length < 10) return undefined
+
+		let result = ""
+		for (let i = 1; i <= 10; ++i) {
+			const symbol = number[number.length - i]
+			if (isNaN(parseInt(symbol))) {
+				continue
+			}
+			result += symbol
+		}
+		return Array.from(result).reverse().join()
+	}
     try {
         const { rows } = await ms.GET(paths.counterparty)
         const counterparty:
@@ -33,8 +33,7 @@ const getCounterPartyByNumber = async (phone: string) => {
 				const tel = parsePhone(phone)
 				return { id, phone: tel }
 			})
-			.find((item: any) => (item.phone = phone))
-            console.log(phone);
+			.find((item: any) => (item.phone === phone))
         return counterparty
     }
     catch (e) {

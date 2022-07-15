@@ -689,20 +689,23 @@ router.post(
 			req.session.orderId = order._id.toString()
 			const { url, id } = await createUKPayment({
 				amount: {
-					currency: 'RUB',
-					value: (sum / 100 + (order?.delivery?.sdek?.cost || 0)).toFixed(2)
+					currency: "RUB",
+					value: (
+						sum / 100 +
+						(order?.delivery?.sdek?.cost || 0)
+					).toFixed(2),
 				},
-				capture: 'true',
+				capture: "true",
 				confirmation: {
-					type: 'redirect',
-					return_url: `http://127.0.0.1:3000/payment/${order._id.toString()}`
+					type: "redirect",
+					return_url: `https://drobot-pigments-shop.ru/payment/${order._id.toString()}`,
 				},
 				metadata: {
 					orderId: order._id.toString(),
 					orderSum: sum,
 					deliverySum: order?.delivery?.sdek?.cost || 0,
 					msOrderId,
-				}
+				},
 			})
 
 			order.payment = { paymentId: id }
