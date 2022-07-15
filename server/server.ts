@@ -10,6 +10,10 @@ import categoryRoutes from "./routes/categroies.routes"
 import productsRoutes from "./routes/products.routes"
 import ordersRoutes from "./routes/orders.routes"
 import adminRoutes from './routes/admin.routes'
+import sdekRoutes from './routes/sdek.routes'
+import authRoutes from './routes/auth.routes'
+import ukassaRoutes from './routes/ukassa.routes'
+import paymentRoutes from './routes/payment.routes'
 
 const PORT = 3000
 
@@ -38,6 +42,7 @@ app.use(
 		saveUninitialized: true,
 		store: MongoStore.create({
 			mongoUrl: config.get("mongoURI"),
+            ttl: 60 * 24 * 3600
 		}),
 	})
 )
@@ -46,6 +51,8 @@ app.use('/static', express.static(path.join(__dirname, 'static')))
 
 app.use('/admin', adminRoutes)
 
+app.use("/payment", paymentRoutes)
+
 app.use('/api/moy-sklad', moySkladRoutes)
 
 app.use("/api/categories", categoryRoutes)
@@ -53,6 +60,12 @@ app.use("/api/categories", categoryRoutes)
 app.use("/api/products", productsRoutes)
 
 app.use("/api/orders", ordersRoutes)
+
+app.use("/api/sdek", sdekRoutes)
+
+app.use("/api/auth", authRoutes)
+
+app.use("/api/ukassa", ukassaRoutes)
 
 app.get('*', (req, res) => {
     try {

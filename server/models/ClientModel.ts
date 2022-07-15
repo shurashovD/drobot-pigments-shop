@@ -3,6 +3,7 @@ import { model, Model, Schema, Types } from 'mongoose'
 
 const ClientSchema = new Schema<IClient, Model<IClient>>({
     addresses: [String],
+    counterpartyId: String,
     mail: String,
     name: String,
     orders: [{ type: Types.ObjectId, ref: 'Order' }],

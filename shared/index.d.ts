@@ -167,7 +167,15 @@ export interface IOrder extends Document {
 	client: Types.ObjectId
 	date: Date
 	delivery: {
-		address?: string
+		sdek?: {
+			uuid?: string
+			cost?: number 
+		}
+	}
+	payment?: {
+		paymentId: string
+		status?: string
+		probably?: boolean
 	}
 	products: Types.DocumentArray<{
 		product: Types.ObjectId
@@ -178,6 +186,7 @@ export interface IOrder extends Document {
 		variant: Types.ObjectId
 		quantity: number
 	}>
+	msOrderId?: string
 	number: number
 	status: "new" | "isReading" | "compiling" | "deliveried" | "complete"
 	total?: number
@@ -207,6 +216,7 @@ export interface IOrderPop extends Document {
 
 export interface IClient extends Document {
 	addresses: string[]
+	counterpartyId?: string
 	mail?: string
 	name?: string
     orders: Types.ObjectId[]
@@ -226,15 +236,312 @@ export interface IReqId extends Document {
 	requestId: string
 }
 
+export interface ISdekPoints {
+	code: string
+	name: string
+	location: {
+		country_code: string
+		region_code: number
+		region: string
+		city_code: number
+		city: string
+		fias_guid?: string
+		postal_code: string
+		longitude: number
+		latitude: number
+		address: string
+		address_full: string
+	}
+	address_comment?: string
+	nearest_station: string
+	nearest_metro_station?: string
+	work_time: string
+	phones: {
+		number: string
+		additional?: string
+	}[]
+	email: string
+	note?: string
+	type: "PVZ" | "POSTAMAT"
+	owner_сode: "cdek" | "InPost"
+	take_only: boolean
+	is_handout: boolean
+	is_reception: boolean
+	is_dressing_room: boolean
+	have_cashless: boolean
+	have_cash: boolean
+	allowed_cod: boolean
+	site?: string
+	office_image_list: {
+		url: string
+		number: number
+	}[]
+	work_time_list: {
+		day: number
+		time?: string
+	}[]
+	work_time_exceptions: {
+		date: string
+		time?: string
+		is_working: boolean
+	}[]
+	weight_min?: number
+	weight_max?: number
+	fulfillment?: boolean
+	dimensions?: {
+		width: number
+		height: number
+		depth: number
+	}[]
+	errors?: {
+		code: string
+		message: string
+	}[]
+}
+
+export interface ISdekPointDoc extends ISdekPoints, Document {}
+
+export interface ISdekCalcPayload {
+	date?: string
+	tariff_code: 138 | 139 | 366
+	from_location: {
+		code: number
+	}
+	to_location: {
+		code: number
+		address?: string
+	}
+	packages: {
+		weight: number
+		length?: number
+		width?: number
+		height?: number
+	}[]
+}
+
+export interface ISdekCalcResponse {
+	delivery_sum: number
+	period_min: number
+	period_max: number
+	weight_calc: number
+	total_sum: number
+	currency: string
+	services?: any[]
+	errors?: {
+		code: string
+		message: string
+	}[]
+}
+
+export interface ISdekOrderPayload {
+	number?: string
+	tariff_code: 138 | 139 | 366
+	comment?: string
+	delivery_point?: string
+	recipient: {
+		name: string
+		phones: {number: string}[]
+		number: string
+	}
+	from_location: {
+		address: string
+		code?: number
+	}
+	to_location?: {
+		code?: number
+		address: string
+	}
+	packages: {
+		number: string
+		weight: number
+		length?: number
+		width?: number
+		height?: number
+		items: {
+			name: string
+			ware_key: string
+			payment: {
+				value: number
+			}
+			cost: number
+			weight: number
+			amount: number
+		}[]
+	}[]
+}
+
+export interface ISdekOrderResponse {
+	entity?: {
+		uuid?: string
+	}
+	requests: {
+		request_uuid?: string
+		type: "CREATE" | "UPDATE" | "DELETE" | "AUTH" | "GET"
+		date_time: string
+		state: "ACCEPTED" | "WAITING" | "SUCCESSFUL" | "INVALID"
+	}[]
+	errors?: {
+		code: string
+		message: string
+	}[]
+	warnings?: {
+		code: string
+		message: string
+	}[]
+	related_entities?: {
+		type: "waybill" | "barcode"
+		uuid: string
+	}[]
+}
+
+export interface ISdekOrderInfo {
+	entity?: {
+		uuid: string
+		is_return: boolean
+		is_reverse: boolean
+		type: 1 | 2
+		cdek_number?: string
+		number?: string
+		delivery_mode: string
+		tariff_code: number
+		comment?: string
+		shipment_point?: string
+		delivery_point?: string
+		sender: {
+			company?: string
+			name: string
+			number?: string
+		}
+		recipient: {
+			company?: string
+			name: string
+			number: string
+		}
+		from_location: {
+			code: string
+			city: string
+			address?: string
+		}
+		to_location: {
+			code: number
+			city: string
+			address?: string
+		}
+		packages: {
+			package_id: string
+			number: string
+			weight: number
+			items: {
+				name: string
+				ware_key: string
+				payment: { value: number }
+				cost: number
+				weight: number
+				amount: number
+			}[]
+		}
+		delivery_problem?: {
+			code: string
+			create_date: string
+		}[]
+		delivery_detail?: {
+			date: string
+			recipient_name: string
+			payment_info: {
+				type: "CASH" | "CARD"
+				sum: number
+			}
+			delivery_sum: number
+			total_sum: number
+		}
+		statuses: {
+			code: string
+			name: string
+			date_time: string
+		}[]
+	}
+	requests: {
+		request_uuid?: string
+		type: "CREATE" | "UPDATE" | "DELETE" | "AUTH" | "GET"
+		date_time: string
+		state: "ACCEPTED" | "WAITING" | "SUCCESSFUL" | "INVALID"
+		errors?: {
+			code: string
+			message: string
+		}[]
+		warnings?: {
+			code: string
+			message: string
+		}[]
+	}[]
+}
+
+export interface IUKassaNotice {
+	event: string
+	object: {
+		id: string
+		status: string
+		paid: boolean
+		amount: {
+			value: "2.00"
+			currency: "RUB"
+		}
+		description?: string
+		test: boolean
+	}
+}
+
+export interface ICart {
+	products: {
+		productId: string
+		quantity: number
+	}[]
+	variants: {
+		productId: string
+		variantId: string
+		quantity: number
+	}[]
+}
+
 declare global {
 	interface Error {
 		userError?: boolean
 	}
 }
 
+declare global {
+	var sdekToken: string
+	var refreshTokenTime: number
+	var plusofonToken: string
+	namespace NodeJS {
+		interface Global {
+			refreshTokenTime: number
+			sdekToken: string
+			plusofonToken: string
+		}
+	}
+}
+
 declare module 'express-session' {
 	interface SessionData {
-		isAdmin: boolean
+		isAdmin?: boolean
+		cart?: ICart
+		orderId?: string
+		userId?: string
+		plusofonKey?: string
+		candidateNumber?: string
+		delivery?: {
+			city_code?: number
+			sdek?: {
+				checked: boolean
+				tariff_code: 138 | 139 | 366
+				address?: string
+				code?: string
+				cost?: number
+			},
+			recipientName?: string
+			recipientMail?: string
+		}
 	}
 }
 

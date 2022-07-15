@@ -1,11 +1,19 @@
 import { FC, useState } from 'react'
-import { Accordion, ListGroup, Offcanvas, OffcanvasProps, Stack } from 'react-bootstrap'
-import { NavLink } from 'react-router-dom'
+import { Accordion, Button, ListGroup, Offcanvas, OffcanvasProps, Stack } from 'react-bootstrap'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { useAppSelector } from '../application/hooks'
 
 const NavCatalogMobile: FC<OffcanvasProps> = ({ onHide, show }) => {
     const { categories } = useAppSelector(state => state.categoriesSlice)
     const [openedCategory, setOpenedCategory] = useState<string | undefined>()
+	const navigate = useNavigate()
+
+	const clickHandler = (to: string) => {
+		navigate(to)
+		if ( onHide ) {
+			onHide()
+		}
+	}
 
     return (
 		<Offcanvas show={show} onExit={() => setOpenedCategory(undefined)}>
@@ -23,23 +31,48 @@ const NavCatalogMobile: FC<OffcanvasProps> = ({ onHide, show }) => {
 							.find(
 								({ _id }) => _id?.toString() === openedCategory
 							)
-							?.filters.map(({ _id, fields, title }) => (
+							?.filters.map((item) => (
 								<Accordion.Item
-									eventKey={_id?.toString()}
-									key={_id?.toString()}
+									eventKey={item._id?.toString()}
+									key={item._id?.toString()}
 								>
 									<Accordion.Header className="text-start text-uppercase">
-										{title}
+										{item.title}
 									</Accordion.Header>
 									<Accordion.Body>
 										<Stack gap={3}>
-											{fields.map(({ _id, value }) => (
-												<div key={_id?.toString()}>
-													<NavLink to={`/`}>
-														{value}
-													</NavLink>
-												</div>
-											))}
+											{item.fields.map(
+												({ _id, value }) => {
+													const filters: any[] = [
+														{
+															filterId:
+																item._id?.toString(),
+															valueIds: [
+																_id?.toString(),
+															],
+														},
+													]
+													return (
+														<div
+															key={_id?.toString()}
+														>
+															<Button
+																variant="link"
+																onClick={() =>
+																	clickHandler(
+																		`/category/${openedCategory}/${JSON.stringify(
+																			filters
+																		)}`
+																	)
+																}
+																className="p-0"
+															>
+																{value}
+															</Button>
+														</div>
+													)
+												}
+											)}
 										</Stack>
 									</Accordion.Body>
 								</Accordion.Item>

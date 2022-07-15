@@ -2,11 +2,25 @@ import { useEffect } from "react"
 import { Col, Container, Row, Spinner } from "react-bootstrap"
 import { useParams } from "react-router-dom"
 import { useGetCategoryByIdQuery } from "../../application/category.service"
+import { initFilterObject } from "../../application/filtersSlice"
+import { useAppDispatch } from "../../application/hooks"
 import Products from "./Products"
 
 const CategoryPage = () => {
-    const {id} = useParams()
+    const {id, filters} = useParams()
     const { data, isLoading } = useGetCategoryByIdQuery(id || '', { refetchOnMountOrArgChange: true })
+	const dispatch = useAppDispatch()
+
+	useEffect(() => {
+		if ( filters ) {
+			let arr
+			try {
+				arr = JSON.parse(filters)
+				dispatch(initFilterObject(arr))
+			}
+			catch {}
+		}
+	}, [filters])
 
     return (
 		<Container className="pb-6">

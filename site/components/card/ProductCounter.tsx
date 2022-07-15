@@ -1,23 +1,36 @@
 import { ChangeEvent, FC } from "react"
 import { Button, Form } from "react-bootstrap"
-import { addToCart, rmFromCart, setQuantity } from "../../application/cartSlice"
+import { setCartBusy } from "../../application/cartSlice"
 import { useAppDispatch, useAppSelector } from "../../application/hooks"
+import { useChangeProductInCartMutation } from "../../application/order.service"
 
 interface IProps {
-    disabled?: boolean
-    productId: string
+	productId: string
 }
 
-const ProductCounter: FC<IProps> = ({ disabled, productId }) => {
-    const state = useAppSelector(state => state.cartSlice.products.find(item => item.productId === productId)?.quantity || 0)
-    const dispatch = useAppDispatch()
+const ProductCounter: FC<IProps> = ({ productId }) => {
+	const quantity = useAppSelector(state => state.cartSlice.products.find(item => item.productId === productId)?.quantity || 0)
+	const disabled = useAppSelector(state => state.cartSlice.cartBusy)
+	const dispatch = useAppDispatch()
+	const [changeProduct] = useChangeProductInCartMutation()
 
-    const handler = (event: ChangeEvent<HTMLInputElement>) => {
+    const inputHandler = (event: ChangeEvent<HTMLInputElement>) => {
+		if ( disabled ) return
         const { value } = event.target
         if ( isNaN(parseInt(value)) ) return
-
-        dispatch(setQuantity({ productId, quantity: parseInt(value)}))
+		dispatch(setCartBusy(true))
+        changeProduct({ productId, quantity: parseInt(value) })
     }
+
+	const handlerInc = () => {
+		dispatch(setCartBusy(true))
+		changeProduct({ productId, quantity: quantity + 1 })
+	}
+
+	const handlerDec = () => {
+		dispatch(setCartBusy(true))
+		changeProduct({ productId, quantity: quantity - 1 })
+	}
 
     return (
 		<div
@@ -36,15 +49,15 @@ const ProductCounter: FC<IProps> = ({ disabled, productId }) => {
 					minHeight: "28px",
 					maxHeight: "28px",
 				}}
-				onClick={() => dispatch(rmFromCart(productId))}
+				onClick={handlerDec}
 			>
 				-
 			</Button>
 			<Form.Control
 				disabled={disabled}
-				className="border-0 text-center"
-				value={state}
-				onChange={handler}
+				className="border-0 text-center p-0"
+				value={quantity}
+				onChange={inputHandler}
 			/>
 			<Button
 				disabled={disabled}
@@ -58,7 +71,7 @@ const ProductCounter: FC<IProps> = ({ disabled, productId }) => {
 					minHeight: "28px",
 					maxHeight: "28px",
 				}}
-				onClick={() => dispatch(addToCart(productId))}
+				onClick={handlerInc}
 			>
 				+
 			</Button>

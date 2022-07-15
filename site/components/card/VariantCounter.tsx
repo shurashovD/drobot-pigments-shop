@@ -1,28 +1,36 @@
 import { ChangeEvent, FC } from "react"
 import { Button, Form } from "react-bootstrap"
-import { addToCart, addVariantToCart, rmFromCart, rmVariantFromCart, setQuantity, setVariantQuantity } from "../../application/cartSlice"
+import { setCartBusy } from "../../application/cartSlice"
 import { useAppDispatch, useAppSelector } from "../../application/hooks"
+import { useChangeVariantInCartMutation } from "../../application/order.service"
 
 interface IProps {
-    disabled?: boolean
 	productId: string
-    variantId: string
+	variantId: string
 }
 
-const VariantCounter: FC<IProps> = ({ disabled, productId, variantId }) => {
-	const state = useAppSelector(
-		(state) =>
-			state.cartSlice.variants.find(
-				(item) => item.variantId === variantId
-			)?.quantity || 0
-	)
+const VariantCounter: FC<IProps> = ({ productId, variantId }) => {
+	const quantity = useAppSelector(state => state.cartSlice.variants.find(item => item.variantId === variantId)?.quantity || 0)
+	const disabled = useAppSelector(state => state.cartSlice.cartBusy)
+	const [changeVariantInCart] = useChangeVariantInCartMutation()
 	const dispatch = useAppDispatch()
 
-	const handler = (event: ChangeEvent<HTMLInputElement>) => {
+	const inputHandler = (event: ChangeEvent<HTMLInputElement>) => {
+		if ( disabled ) return
 		const { value } = event.target
 		if (isNaN(parseInt(value))) return
+		dispatch(setCartBusy(true))
+		changeVariantInCart({ productId, variantId, quantity: parseInt(value) })
+	}
 
-		dispatch(setVariantQuantity({ variantId, quantity: parseInt(value) }))
+	const handlerDec = () => {
+		dispatch(setCartBusy(true))
+		changeVariantInCart({ productId, variantId, quantity: quantity - 1 })
+	}
+
+	const handlerInc = () => {
+		dispatch(setCartBusy(true))
+		changeVariantInCart({ productId, variantId, quantity: quantity + 1 })
 	}
 
 	return (
@@ -42,15 +50,14 @@ const VariantCounter: FC<IProps> = ({ disabled, productId, variantId }) => {
 					minHeight: "28px",
 					maxHeight: "28px",
 				}}
-				onClick={() => dispatch(rmVariantFromCart(variantId))}
+				onClick={handlerDec}
 			>
 				-
 			</Button>
 			<Form.Control
-				disabled={disabled}
-				className="border-0 text-center"
-				value={state}
-				onChange={handler}
+				className="border-0 text-center p-0"
+				value={quantity}
+				onChange={inputHandler}
 			/>
 			<Button
 				disabled={disabled}
@@ -64,7 +71,7 @@ const VariantCounter: FC<IProps> = ({ disabled, productId, variantId }) => {
 					minHeight: "28px",
 					maxHeight: "28px",
 				}}
-				onClick={() => dispatch(addVariantToCart({ productId, variantId }))}
+				onClick={handlerInc}
 			>
 				+
 			</Button>

@@ -1,38 +1,40 @@
 import { FC, useRef } from "react"
 import { Button, Col, Form, ListGroup, Row, Spinner } from "react-bootstrap"
-import { setQuantity, setVariantQuantity, toggleCheckVariantInCart } from "../../application/cartSlice"
+import { setCartBusy, toggleCheckVariantInCart } from "../../application/cartSlice"
 import { useAppDispatch, useAppSelector } from "../../application/hooks"
+import { useDeleteFromCartMutation } from "../../application/order.service"
 import { useGetVariantQuery } from "../../application/product.service"
-import ProductCounter from "../../components/card/ProductCounter"
 import VariantCounter from "../../components/card/VariantCounter"
 import IconDelete from "../../components/icons/IconDelete"
 import IconFavourite from "../../components/icons/IconFavourite"
 import ImageComponent from "../../components/ImageComponent"
 
 interface IProps {
-    disabled?: boolean
-    productId: string
+	productId: string
 	variantId: string
 }
 
-const VariantCartItem: FC<IProps> = ({ disabled, productId, variantId }) => {
+const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
     const { data, isLoading } = useGetVariantQuery({ productId, variantId }, { refetchOnMountOrArgChange: true })
+	const disabled = useAppSelector(state => state.cartSlice.cartBusy)
 	const checked = useAppSelector(state => state.cartSlice.variants.find(item => item.variantId === variantId)?.checked || false)
-    const dispatch = useAppDispatch()
+	const dispatch = useAppDispatch()
+	const [remove] = useDeleteFromCartMutation()
     const formatter = useRef(
 		Intl.NumberFormat("ru", {
 			style: "currency",
 			currency: "RUB",
-			minimumFractionDigits: 2,
+			minimumFractionDigits: 0,
 		})
 	)
 
-	const handler = () => {
-		dispatch(toggleCheckVariantInCart(variantId))
+	const rmHandler = () => {
+		dispatch(setCartBusy(true))
+		remove({ productIds: [], variantIds: [variantId] })
 	}
 
     return (
-		<ListGroup.Item className="py-4">
+		<ListGroup.Item className="py-4 bg-transparent">
 			{isLoading && (
 				<div className="text-center p-4">
 					<Spinner animation="border" variant="secondary" />
@@ -45,17 +47,22 @@ const VariantCartItem: FC<IProps> = ({ disabled, productId, variantId }) => {
 							checked={checked}
 							className="d-none d-md-block"
 							disabled={disabled}
-							onChange={handler}
+							onChange={() =>
+								dispatch(toggleCheckVariantInCart(variantId))
+							}
 						/>
 					</Col>
 					<Col xs={4} md={2} className="px-md-0">
 						<div className="position-relative">
-							<ImageComponent
-								src={data.photo || "/static"}
-							/>
+							<ImageComponent src={data.photo || "/static"} />
 							<Form.Check
+								checked={checked}
 								disabled={disabled}
-								onChange={handler}
+								onChange={() =>
+									dispatch(
+										toggleCheckVariantInCart(variantId)
+									)
+								}
 								className="d-md-none position-absolute top-0 start-0 m-2"
 							/>
 						</div>
@@ -65,12 +72,11 @@ const VariantCartItem: FC<IProps> = ({ disabled, productId, variantId }) => {
 						md={5}
 						className="d-flex flex-column justify-content-between"
 					>
-						<span>{data.name}</span>
+						<span className="cart-item-name">{data.name}</span>
 						<div className="d-none d-md-block">
 							<VariantCounter
 								productId={productId}
 								variantId={variantId}
-								disabled={disabled}
 							/>
 						</div>
 					</Col>
@@ -96,11 +102,7 @@ const VariantCartItem: FC<IProps> = ({ disabled, productId, variantId }) => {
 								disabled={disabled}
 								variant="link"
 								className="text-end w-100 m-0 p-0"
-								onClick={() =>
-									dispatch(
-										setVariantQuantity({ variantId, quantity: 0 })
-									)
-								}
+								onClick={rmHandler}
 							>
 								Удалить
 							</Button>
@@ -114,7 +116,6 @@ const VariantCartItem: FC<IProps> = ({ disabled, productId, variantId }) => {
 						<VariantCounter
 							productId={productId}
 							variantId={variantId}
-							disabled={disabled}
 						/>
 					</Col>
 					<Col xs={4} className="offset-4">
@@ -130,11 +131,7 @@ const VariantCartItem: FC<IProps> = ({ disabled, productId, variantId }) => {
 								disabled={disabled}
 								variant="link"
 								className="text-end w-100 m-0 p-0"
-								onClick={() =>
-									dispatch(
-										setVariantQuantity({ variantId, quantity: 0 })
-									)
-								}
+								onClick={rmHandler}
 							>
 								<IconDelete stroke="#9E9E9E" />
 							</Button>

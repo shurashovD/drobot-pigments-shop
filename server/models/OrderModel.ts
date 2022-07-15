@@ -5,7 +5,15 @@ const OrderSchema = new Schema<IOrder, Model<IOrder>>({
 	client: { type: Schema.Types.ObjectId, ref: "Client" },
 	date: { type: Date, default: Date.now },
 	delivery: {
-		address: { type: String },
+		sdek: {
+			uuid: String,
+			cost: Number
+		},
+	},
+	payment: {
+		paymentId: String,
+		status: String,
+		probably: Boolean
 	},
 	products: [
 		{
@@ -20,6 +28,7 @@ const OrderSchema = new Schema<IOrder, Model<IOrder>>({
 			quantity: { type: Number, required: true },
 		},
 	],
+	msOrderId: String,
 	number: { type: Number, default: 1 },
 	status: { type: String, default: "new" },
 	total: Number,

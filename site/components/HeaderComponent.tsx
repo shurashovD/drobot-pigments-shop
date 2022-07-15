@@ -6,7 +6,6 @@ import { useAppDispatch, useAppSelector } from "../application/hooks"
 import { hideNavCatalog, showNavCatalog } from "../application/navCatalogSlice"
 import IconAccount from "./icons/IconAccount"
 import IconBox from "./icons/IconBox"
-import IconCart from "./icons/IconCart"
 import IconCompare from "./icons/IconCompare"
 import IconFavourite from "./icons/IconFavourite"
 import NavCatalog from "./NavCatalog"
@@ -15,8 +14,11 @@ import IconMenu from './icons/IconMenu'
 import { useGetCategoriesQuery } from "../application/category.service"
 import { setCategories } from "../application/categoriesSlice"
 import NavCatalogMobile from "./NavCatalogMobile"
+import { useGetCartQuery } from "../application/order.service"
+import { setCart, setLoading } from "../application/cartSlice"
+import CartIconComponent from "./CartIconComponent"
 const waLogo = require('../img/whatsup.svg')
-const logo = require('../img/logo.png')
+const logo = require('../img/logo.svg')
 
 const HeaderComponent = () => {
     const { pathname } = useLocation()
@@ -27,6 +29,7 @@ const HeaderComponent = () => {
 	const dispatch = useAppDispatch()
 	const logoRef = useRef<HTMLImageElement | null>(null)
 	const { data: categories, isSuccess } = useGetCategoriesQuery(undefined)
+	const { data: cart, isLoading: cartLoading } = useGetCartQuery(undefined, { refetchOnMountOrArgChange: true })
 
 	const handleClose = () => {
 		setMobileMenuShow(false)
@@ -80,6 +83,16 @@ const HeaderComponent = () => {
 			top: 0
 		})
 	}, [pathname])
+
+	useEffect(() => {
+		if ( cart ) {
+			dispatch(setCart(cart))
+		}
+	}, [cart])
+
+	useEffect(() => {
+		dispatch(setLoading(cartLoading))
+	}, [cartLoading])
 
     return (
 		<Container fluid className="p-0 sticky-top">
@@ -292,12 +305,9 @@ const HeaderComponent = () => {
 							>
 								<IconFavourite stroke={"#ffffff"} />
 							</NavLink>
-							<NavLink
-								to="/cart"
-								className="d-none d-lg-block text-white ms-4"
-							>
-								<IconCart stroke={"#ffffff"} />
-							</NavLink>
+							<div className="d-none d-lg-block">
+								<CartIconComponent />
+							</div>
 						</Col>
 					</Row>
 				</Container>

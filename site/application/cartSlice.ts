@@ -1,9 +1,8 @@
-import { createSlice,createAsyncThunk, AnyAction } from "@reduxjs/toolkit"
+import { ICart } from './../../shared/index.d';
+import { createSlice } from "@reduxjs/toolkit"
 import { PayloadAction } from '@reduxjs/toolkit';
-import { AppDispatch, RootState } from './store';
 
 interface IState {
-	delivery?: number
 	products: {
 		checked: boolean
 		productId: string
@@ -15,105 +14,37 @@ interface IState {
 		variantId: string
 		quantity: number
 	}[]
-	total?: number
+	isLoading: boolean
+	cartBusy: boolean
 }
 
 const initialState: IState = {
     products: [],
-	variants: []
+	variants: [],
+	isLoading: false,
+	cartBusy: false
 }
 
 const cartSlice = createSlice({
 	initialState,
 	name: "cartSlice",
 	reducers: {
-		addToCart: (state, { payload }: PayloadAction<string>) => {
-			const index = state.products.findIndex(
-				({ productId }) => productId === payload
-			)
-			if (index === -1) {
-				state.products.push({
-					checked: false,
-					productId: payload,
-					quantity: 1,
-				})
-			} else {
-				++state.products[index].quantity
-			}
+		setCart: (state, { payload }: PayloadAction<ICart>) => {
+			const products = payload.products.map(item => ({
+				...item, checked: state.products.find(({ productId }) => productId === item.productId)?.checked || false
+			}))
+			const variants = payload.variants.map(item => ({
+				...item, checked: state.variants.find(({ variantId }) => variantId === item.variantId)?.checked || false
+			}))
+			state.products = products
+			state.variants = variants
+			state.cartBusy = false
 		},
-		addVariantToCart: (state, { payload }: PayloadAction<{productId: string, variantId: string}>) => {
-			const index = state.variants.findIndex(
-				({ variantId }) => variantId === payload.variantId
-			)
-			if (index === -1) {
-				state.variants.push({
-					checked: false,
-					productId: payload.productId,
-					variantId: payload.variantId,
-					quantity: 1,
-				})
-			} else {
-				++state.variants[index].quantity
-			}
+		setCartBusy: (state, { payload }: PayloadAction<boolean>) => {
+			state.cartBusy = payload
 		},
-		clearCart: () => initialState,
-		rmChecked: (state) => {
-			state.products = state.products.filter(({ checked }) => !checked)
-			state.variants = state.variants.filter(({ checked }) => !checked)
-		},
-		rmFromCart: (state, { payload }: PayloadAction<string>) => {
-			const index = state.products.findIndex(
-				({ productId }) => productId === payload
-			)
-			if (index !== -1) {
-				if (state.products[index].quantity === 1) {
-					state.products.splice(index, 1)
-				} else {
-					--state.products[index].quantity
-				}
-			}
-		},
-		rmVariantFromCart: (state, { payload }: PayloadAction<string>) => {
-			const index = state.variants.findIndex(
-				({ variantId }) => variantId === payload
-			)
-			if (index !== -1) {
-				if (state.variants[index].quantity === 1) {
-					state.variants.splice(index, 1)
-				} else {
-					--state.variants[index].quantity
-				}
-			}
-		},
-		setQuantity: (
-			state,
-			{ payload }: PayloadAction<{ productId: string; quantity: number }>
-		) => {
-			const index = state.products.findIndex(
-				({ productId }) => productId === payload.productId
-			)
-			if (index !== -1) {
-				if (payload.quantity === 0) {
-					state.products.splice(index, 1)
-				} else {
-					state.products[index].quantity = payload.quantity
-				}
-			}
-		},
-		setVariantQuantity: (
-			state,
-			{ payload }: PayloadAction<{ variantId: string; quantity: number }>
-		) => {
-			const index = state.variants.findIndex(
-				({ variantId }) => variantId === payload.variantId
-			)
-			if (index !== -1) {
-				if (payload.quantity === 0) {
-					state.variants.splice(index, 1)
-				} else {
-					state.variants[index].quantity = payload.quantity
-				}
-			}
+		setLoading: (state, { payload }: PayloadAction<boolean>) => {
+			state.isLoading = payload
 		},
 		toggleCheckInCart: (state, { payload }: PayloadAction<string>) => {
 			const index = state.products.findIndex(
@@ -152,14 +83,9 @@ const cartSlice = createSlice({
 })
 
 export const {
-	addToCart,
-	addVariantToCart,
-	clearCart,
-	rmChecked,
-	rmFromCart,
-	rmVariantFromCart,
-	setQuantity,
-	setVariantQuantity,
+	setCart,
+	setCartBusy,
+	setLoading,
 	toggleCheckAll,
 	toggleCheckInCart,
 	toggleCheckVariantInCart

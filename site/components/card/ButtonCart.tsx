@@ -1,10 +1,10 @@
-import { Button, Col, Overlay, OverlayTrigger, Popover, Row } from "react-bootstrap"
+import { Button, Col, Overlay, Popover, Row } from "react-bootstrap"
 import { FC, useEffect, useRef, useState } from "react"
 import { ButtonProps } from "react-bootstrap"
-import { useAppDispatch, useAppSelector } from "../../application/hooks"
 import IconCart from "../icons/IconCart"
-import { addToCart, addVariantToCart } from "../../application/cartSlice"
 import { Product } from "../../../shared"
+import { useAppSelector } from "../../application/hooks"
+import { useChangeProductInCartMutation, useChangeVariantInCartMutation } from "../../application/order.service"
 
 interface IProps extends ButtonProps {
     productId: string
@@ -12,80 +12,80 @@ interface IProps extends ButtonProps {
 	variants?: Product['variants']
 }
 
-const ButtonCart: FC<IProps> = (props) => {
+const ButtonCart: FC<IProps> = ({ productId, variants, variantsLabel }) => {
+	const inCart = useAppSelector((state) => !!variantsLabel
+		? variants?.every(({id}) => state.cartSlice.variants.some(({ variantId }) => id === variantId)) || false
+		: state.cartSlice.products.some((item) => item.productId === productId)
+	)
+	const variantsInCart = useAppSelector(state => state.cartSlice.variants)
+	const { cartBusy: disabled } = useAppSelector(state => state.cartSlice)
 	const overlayTarget = useRef<HTMLButtonElement | null>(null)
 	const [popoverShow, setPopoverShow] = useState(false)
-    const quantity = useAppSelector(
-		(state) =>
-			state.cartSlice.products.find(
-				({ productId }) => productId === props.productId
-			)?.quantity
-	)
-	const variants = useAppSelector(state => props.variants?.map(({ id }) => {
-		const inCart = state.cartSlice.variants.some(({ variantId }) => variantId === id)
-		return { id, inCart }
-	})?.filter(({ inCart }) => !inCart)?.map(({id}) => id) || [])
-    const dispatch = useAppDispatch()
+	const [addProductToCart, { isLoading: addProductLoading }] = useChangeProductInCartMutation()
+	const [addVariantToCart, { isLoading: addVariantLoading }] = useChangeVariantInCartMutation()
 
-	const addHandler = () => {
-		if (variants.length > 0) {
-			setPopoverShow((state) => !state)
-			return
+	const addProductHandler = () => {
+		if (variantsLabel) {
+			setPopoverShow(true)
+		} else {
+			addProductToCart({ productId, quantity: 1 })
 		}
-		if (quantity || (props.variants && props.variants.length > 0)) return
-		dispatch(addToCart(props.productId))
 	}
 
 	useEffect(() => {
-		if (popoverShow && variants.length === 0) {
+		if (popoverShow && variants?.length === 0) {
 			setPopoverShow(false)
 		}
 	}, [variants, popoverShow])
 
     return (
-		<div>
-			<Overlay target={overlayTarget} placement="top" show={popoverShow} onHide={() => setPopoverShow(false)} rootClose>
-				<Popover>
-					<Popover.Header>{props.variantsLabel}</Popover.Header>
-					<Popover.Body>
-						{props.variants
-							?.filter(({ id }) =>
-								variants.some((item) => item === id)
-							)
-							.map(({ id, value }) => (
+		<div className="w-100">
+			{variants && (
+				<Overlay
+					target={overlayTarget}
+					placement="top"
+					show={!inCart && popoverShow}
+					onHide={() => setPopoverShow(false)}
+					rootClose
+				>
+					<Popover>
+						<Popover.Header>{variantsLabel}</Popover.Header>
+						<Popover.Body>
+							{variants.filter(({ id }) => !variantsInCart.some(({ variantId }) => variantId === id))
+								.map(({ id, value }) => (
 								<Button
+									disabled={
+										disabled ||
+										addProductLoading ||
+										addVariantLoading
+									}
 									variant="link"
 									className="border border-gray me-1 p-2"
 									key={id}
-									onClick={() =>
-										dispatch(
-											addVariantToCart({
-												productId: props.productId,
-												variantId: id,
-											})
-										)
-									}
+									onClick={() => addVariantToCart({ productId, variantId: id, quantity: 1 })}
 								>
 									{value}
 								</Button>
 							))}
-					</Popover.Body>
-				</Popover>
-			</Overlay>
+						</Popover.Body>
+					</Popover>
+				</Overlay>
+			)}
 			<Button
-				variant={quantity ? "white" : "primary"}
+				disabled={disabled || addProductLoading || addVariantLoading || inCart}
+				variant={inCart ? "white" : "primary"}
 				className={`${
-					quantity && "border border-primary"
+					inCart && "border border-primary"
 				} px-md-0 d-flex justify-content-center align-items-center w-100`}
-				style={{ maxWidth: "264px" }}
-				onClick={addHandler}
+				style={{ maxWidth: "264px", minWidth: "210px" }}
+				onClick={addProductHandler}
 				ref={overlayTarget}
 			>
 				<Row className="g-0 m-0 w-100">
 					<Col xs={3}>
 						<div
 							className={`${
-								quantity ? "invisible" : "visible"
+								inCart ? "invisible" : "visible"
 							} p-0 m-0 text-end`}
 						>
 							<IconCart stroke="#F7DFB1" width={22} height={27} />
@@ -93,7 +93,7 @@ const ButtonCart: FC<IProps> = (props) => {
 					</Col>
 					<Col xs={6} className="d-flex">
 						<span className="text-uppercase m-auto">
-							В корзин{quantity ? <>е</> : <>у</>}
+							В корзин{inCart ? <>е</> : <>у</>}
 						</span>
 					</Col>
 				</Row>

@@ -12,7 +12,7 @@ interface IProps {
 	price?: string
 	title?: string
 	variantsLabel?: string
-	variants?: Product['variants']
+	variants?: Product["variants"]
 }
 
 
@@ -29,7 +29,10 @@ const ProductCard: FC<IProps> = (props) => {
 			<span className="fs-3 my-4">от {props.price}</span>
 			<Row className="d-flex justify-content-between">
 				<Col xs={10}>
-					<ButtonCart productId={props.id || ""} variants={props.variants} variantsLabel={props.variantsLabel} />
+					<ButtonCart
+						productId={props.id || ""}
+						variants={props.variants}
+						variantsLabel={props.variantsLabel} />
 				</Col>
 			</Row>
 		</div>

@@ -27,9 +27,10 @@ CategorySchema.methods.getProducts = function(filters: string[][] = [], limit?: 
     let result = this.products as any[]
     for (const i in filters) {
         const filter = filters[i]
-		result = result.filter(({ properties }) =>
-			properties.some((prop: Types.ObjectId) => filter.some((item) => item === prop.toString()))
-		)
+        if ( filter.length === 0 ) continue
+		result = result.filter(({ properties }) => {
+            return properties.some((prop: Types.ObjectId) => filter.some((item) => item === prop.toString()))
+        })
 	}
     result = result
 		.map((item) => {

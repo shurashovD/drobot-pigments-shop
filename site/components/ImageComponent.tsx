@@ -43,10 +43,10 @@ const ImageComponent: FC<IProps> = ({ widthToHeight = 1, src }) => {
 				)}
 				{!isError && data && (
 					<Image
-							src={data}
-							width={size.width.toString()}
-							height={size.height.toString()}
-						/>
+						src={data}
+						width={size.width.toString()}
+						height={size.height.toString()}
+					/>
 				)}
 			</div>
 		</div>

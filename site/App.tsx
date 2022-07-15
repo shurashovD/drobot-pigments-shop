@@ -7,6 +7,7 @@ import MobileFooter from "./components/MobileFooter"
 import CartPage from "./pages/cartPage/CartPage"
 import CategoryPage from "./pages/categoryPage/CategoryPage"
 import MainPage from "./pages/mainPage/MainPage"
+import OrderPage from "./pages/orderPage/OrderPage"
 import ProductPage from "./pages/productPage/ProductPage"
 
 const App = () => {
@@ -20,9 +21,10 @@ const App = () => {
 			<Container fluid className="pt-4 border">
 				<Routes>
 					<Route path="/" element={<MainPage />} />
-					<Route path="/category/:id" element={<CategoryPage />} />
+					<Route path="/category/:id/:filters" element={<CategoryPage />} />
 					<Route path="/product/:id" element={<ProductPage />} />
 					<Route path="/cart" element={<CartPage />} />
+					<Route path="/order" element={<OrderPage />} />
 					<Route path="*" element={<Navigate to="/" />} />
 				</Routes>
 			</Container>

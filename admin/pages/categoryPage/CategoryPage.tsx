@@ -8,7 +8,7 @@ import Filters from "./Filters"
 import Products from "./Products"
 
 const CategoryPage = () => {
-    const {id} = useParams()
+    const {id, filters} = useParams()
     const { data, refetch, isFetching } = useGetCategoryByIdQuery(id || '', { refetchOnMountOrArgChange: true })
 	const dispatch = useAppDispatch()
 

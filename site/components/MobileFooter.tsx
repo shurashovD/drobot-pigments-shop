@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom"
+import CartIconComponent from "./CartIconComponent"
 import IconAccount from "./icons/IconAccount"
 import IconCart from "./icons/IconCart"
 import IconFavourite from "./icons/IconFavourite"
@@ -14,9 +15,7 @@ const MobileFooter = () => {
 			<NavLink to="/">
 				<IconFind stroke="#ffffff" />
 			</NavLink>
-			<NavLink to="/cart">
-				<IconCart stroke="#ffffff" />
-			</NavLink>
+			<CartIconComponent />
 			<NavLink to="/">
 				<IconFavourite stroke="#ffffff" />
 			</NavLink>

@@ -61,14 +61,14 @@ const ProductPage = () => {
 					<Col
 						xs={12}
 						md={7}
-						className="d-flex d-md-block justify-content-between align-items-center p-2 px-md-4"
+						className="d-flex flex-wrap d-md-block justify-content-between align-items-center p-2 px-md-4"
 					>
 						<div className="fs-3 text-uppercase d-none d-md-block">
 							{data.variants.find(({ id }) => id === toCart)
 								?.name || data.name}
 						</div>
 						{data.variants.length > 0 && data.variantsLabel && (
-							<div>
+							<div className="w-100 order-2">
 								<div className="text-muted mb-2 mt-3">
 									{data.variantsLabel}:
 								</div>
@@ -87,7 +87,7 @@ const ProductPage = () => {
 							</div>
 						)}
 						{typeof data.price !== "undefined" && (
-							<div className="fs-3 mt-md-5">
+							<div className="fs-3 mt-md-5 order-0">
 								{formatter.current.format(
 									(data.variants.find(
 										({ id }) => id === toCart
@@ -95,10 +95,12 @@ const ProductPage = () => {
 								)}
 							</div>
 						)}
-						<div className="my-md-4 d-flex align-items-center">
-							<Fade in={!!toCart}>
+						<div className="my-md-4 d-flex align-items-center order-1">
+							<Fade in={!!toCart} className="w-100">
 								<div className="w-100 w-md-75">
-									<ButtonCart productId={toCart || ""} />
+									<ButtonCart
+										productId={toCart || ""}
+									/>
 								</div>
 							</Fade>
 						</div>

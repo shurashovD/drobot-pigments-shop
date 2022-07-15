@@ -1,7 +1,8 @@
 import { FC, useRef } from "react"
 import { Button, Col, Form, ListGroup, Row, Spinner } from "react-bootstrap"
-import { setQuantity, toggleCheckInCart } from "../../application/cartSlice"
+import { setCartBusy, toggleCheckInCart } from "../../application/cartSlice"
 import { useAppDispatch, useAppSelector } from "../../application/hooks"
+import { useDeleteFromCartMutation } from "../../application/order.service"
 import { useGetProductByIdQuery } from "../../application/product.service"
 import ProductCounter from "../../components/card/ProductCounter"
 import IconDelete from "../../components/icons/IconDelete"
@@ -9,28 +10,30 @@ import IconFavourite from "../../components/icons/IconFavourite"
 import ImageComponent from "../../components/ImageComponent"
 
 interface IProps {
-    disabled?: boolean
-    productId: string
+	productId: string
 }
 
-const CartItem: FC<IProps> = ({ disabled, productId }) => {
+const CartItem: FC<IProps> = ({ productId }) => {
     const { data, isLoading } = useGetProductByIdQuery(productId, { refetchOnMountOrArgChange: true })
+	const [remove] = useDeleteFromCartMutation()
 	const checked = useAppSelector(state => state.cartSlice.products.find(item => item.productId === productId)?.checked || false)
-    const dispatch = useAppDispatch()
+	const disabled = useAppSelector(state => state.cartSlice.cartBusy)
+	const dispatch = useAppDispatch()
     const formatter = useRef(
 		Intl.NumberFormat("ru", {
 			style: "currency",
 			currency: "RUB",
-			minimumFractionDigits: 2,
+			minimumFractionDigits: 0,
 		})
 	)
 
-	const handler = () => {
-		dispatch(toggleCheckInCart(productId))
+	const rmHandler = () => {
+		dispatch(setCartBusy(true))
+		remove({ productIds: [productId], variantIds: [] })
 	}
 
     return (
-		<ListGroup.Item className="py-4">
+		<ListGroup.Item className="py-4 bg-transparent">
 			{isLoading && (
 				<div className="text-center p-4">
 					<Spinner animation="border" variant="secondary" />
@@ -43,7 +46,9 @@ const CartItem: FC<IProps> = ({ disabled, productId }) => {
 							checked={checked}
 							className="d-none d-md-block"
 							disabled={disabled}
-							onChange={handler}
+							onChange={() =>
+								dispatch(toggleCheckInCart(productId))
+							}
 						/>
 					</Col>
 					<Col xs={4} md={2} className="px-md-0">
@@ -52,8 +57,11 @@ const CartItem: FC<IProps> = ({ disabled, productId }) => {
 								src={data.photo?.[0] || "/static"}
 							/>
 							<Form.Check
+								checked={checked}
 								disabled={disabled}
-								onChange={handler}
+								onChange={() =>
+									dispatch(toggleCheckInCart(productId))
+								}
 								className="d-md-none position-absolute top-0 start-0 m-2"
 							/>
 						</div>
@@ -65,10 +73,7 @@ const CartItem: FC<IProps> = ({ disabled, productId }) => {
 					>
 						<span>{data.name}</span>
 						<div className="d-none d-md-block">
-							<ProductCounter
-								productId={productId}
-								disabled={disabled}
-							/>
+							<ProductCounter productId={productId} />
 						</div>
 					</Col>
 					<Col
@@ -93,11 +98,7 @@ const CartItem: FC<IProps> = ({ disabled, productId }) => {
 								disabled={disabled}
 								variant="link"
 								className="text-end w-100 m-0 p-0"
-								onClick={() =>
-									dispatch(
-										setQuantity({ productId, quantity: 0 })
-									)
-								}
+								onClick={rmHandler}
 							>
 								Удалить
 							</Button>
@@ -108,10 +109,7 @@ const CartItem: FC<IProps> = ({ disabled, productId }) => {
 			{!isLoading && data && (
 				<Row className="d-md-none mt-4">
 					<Col xs={4}>
-						<ProductCounter
-							productId={productId}
-							disabled={disabled}
-						/>
+						<ProductCounter productId={productId} />
 					</Col>
 					<Col xs={4} className="offset-4">
 						<div className="w-100 d-flex d-md-none justify-content-between">
@@ -126,11 +124,7 @@ const CartItem: FC<IProps> = ({ disabled, productId }) => {
 								disabled={disabled}
 								variant="link"
 								className="text-end w-100 m-0 p-0"
-								onClick={() =>
-									dispatch(
-										setQuantity({ productId, quantity: 0 })
-									)
-								}
+								onClick={rmHandler}
 							>
 								<IconDelete stroke="#9E9E9E" />
 							</Button>

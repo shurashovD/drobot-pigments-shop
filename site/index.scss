@@ -53,7 +53,11 @@ $h6-font-size: $font-size-base;
 
 $primary: #39261F;
 $secondary: #F7DFB1;
+$light: #F7F0F0;
+$danger: #FD7575;
 $gray: #9C938F;
+
+$body-bg: #F7F0F0;
 
 $text-muted: $gray;
 
@@ -79,11 +83,9 @@ $accordion-button-active-color: #000000;
 $accordion-button-focus-box-shadow: none;
 $accordion-icon-width: 0.5rem;
 
-@import "~bootstrap/scss/bootstrap";
+$input-bg: transparent;
 
-body {
-    background-color: #F7F0F0;
-}
+@import "~bootstrap/scss/bootstrap";
 
 small {
     font-size: .8125rem;
@@ -151,6 +153,9 @@ button.focus,
 button:active.focus,
 button:active:focus,
 button:focus,
+.form-control.active.focus,
+.form-control:focus,
+.form-control.focus,
 input.active.focus,
 input.active:focus,
 input.focus,
@@ -263,4 +268,38 @@ input:focus,
     color: $primary !important;
     background-color: $secondary !important;
     transition: .2s;
+}
+
+.sign-order-accordion button.accordion-button {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.sign-order-accordion .accordion-body {
+    padding-left: 0;
+    padding-right: 0;
+    margin: 0;
+}
+
+.sign-tel-btn {
+    padding: 0;
+    color: $danger;
+    border-bottom: 1px dotted $danger;
+}
+.sign-tel-btn:hover {
+    color: $danger;
+}
+
+.sign-tel-btn-success {
+    padding: 0;
+    color: #93FA82;
+}
+.sign-tel-btn-success:hover {
+    color: #93FA82;
+}
+
+@media (max-width: 576px) {
+    .cart-item-name {
+        font-size: 80%;
+    }
 }

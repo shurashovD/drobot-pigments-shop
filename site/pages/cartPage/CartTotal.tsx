@@ -1,16 +1,13 @@
 import { FC, useRef, useState } from "react"
-import { Col, Row } from "react-bootstrap"
+import { Col, Fade, Row } from "react-bootstrap"
+import { NavLink } from "react-router-dom"
 import { useAppSelector } from "../../application/hooks"
-import ButtonComponent from "../../components/ButtonComponent"
-import SignOrderModal from "./SignOrderModal"
 
 interface IProps {
-	isLoading: boolean
 	total?: number
 }
 
-const CartTotal: FC<IProps> = ({ isLoading, total }) => {
-	const [show, setShow] = useState(false)
+const CartTotal: FC<IProps> = ({ total }) => {
 	const noChecked = useAppSelector(
 		(state) =>
 			state.cartSlice.products.every(({ checked }) => !checked) &&
@@ -26,10 +23,6 @@ const CartTotal: FC<IProps> = ({ isLoading, total }) => {
 
     return (
 		<div className="sticky-lg-top" style={{ top: "120px" }}>
-			<SignOrderModal
-				onHide={() => setShow(false)}
-				show={show}
-			/>
 			<Row className="p-4 pb-5 mb-5 border border-primary mx-0">
 				<Col xs={8}>
 					<div className="fs-3 text-uppercse mb-2">Итого</div>
@@ -50,13 +43,11 @@ const CartTotal: FC<IProps> = ({ isLoading, total }) => {
 			</Row>
 			<Row className="justify-content-center mx-0">
 				<Col xs={12} md={10} className="text-center">
-					<ButtonComponent
-						isLoading={isLoading}
-						onClick={() => setShow(true)}
-						disabled={noChecked}
-					>
-						К оформлению
-					</ButtonComponent>
+					<Fade in={!noChecked}>
+						<NavLink className="btn btn-primary" to="/order">
+							К оформлению
+						</NavLink>
+					</Fade>
 				</Col>
 			</Row>
 		</div>

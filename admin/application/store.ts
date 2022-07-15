@@ -7,6 +7,7 @@ import moySkladApi from "./moySklad.service";
 import orderApi from "./order.service";
 import ordersSlice from "./ordersSlice";
 import productApi from "./product.service";
+import sdekApi from "./sdek.service";
 
 const store = configureStore({
 	middleware: (getDefaultMiddleware) => [
@@ -16,6 +17,7 @@ const store = configureStore({
         orderApi.middleware,
         productApi.middleware,
 		rtkQueryLogger,
+		sdekApi.middleware,
 	],
 	reducer: {
 		[alertSlice.name]: alertSlice.reducer,
@@ -25,6 +27,7 @@ const store = configureStore({
         [orderApi.reducerPath]: orderApi.reducer,
 		[ordersSlice.name]: ordersSlice.reducer,
         [productApi.reducerPath]: productApi.reducer,
+		[sdekApi.reducerPath]: sdekApi.reducer,
 	},
 })
 

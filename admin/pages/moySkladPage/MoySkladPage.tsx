@@ -1,16 +1,18 @@
-import { ChangeEvent, useEffect } from "react"
-import { Col, Container, Form, ListGroup, Row } from "react-bootstrap"
+import { useEffect } from "react"
+import { Col, Container, ListGroup, Row } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
 import { useParams } from "react-router-dom"
 import { useGetMoySkladQuery, useSyncMoySkladMutation } from "../../application/moySklad.service"
 import ButtonComponent from "../../components/ButtonComponent"
 import { useAppDispatch } from '../../application/hooks'
 import { errorAlert, successAlert } from "../../application/alertSlice"
+import { useSyncPointsMutation } from "../../application/sdek.service"
 
 const MoySkladPage = () => {
     const {id} = useParams()
     const { data, isLoading } = useGetMoySkladQuery(id)
 	const [sync, { isLoading: syncProcess, isError, isSuccess }] = useSyncMoySkladMutation()
+	const [pointsSync, {isLoading: pointsSuncProcess, isError: pointsSyncError, isSuccess: pointsSyncSuccess }] = useSyncPointsMutation()
 	const dispatch = useAppDispatch()
 
 	useEffect(() => {
@@ -25,9 +27,31 @@ const MoySkladPage = () => {
 		}
 	}, [isSuccess])
 
+	useEffect(() => {
+		if (pointsSyncError) {
+			dispatch(errorAlert("Синхронизация не выполнена"))
+		}
+	}, [pointsSyncError])
+
+	useEffect(() => {
+		if (pointsSyncSuccess) {
+			dispatch(successAlert("Синхронизация выполнена успешно"))
+		}
+	}, [pointsSyncSuccess])
+
     return (
 		<Container>
 			<Row className="justify-content-end">
+				<Col xs={4}>
+					<ButtonComponent
+						variant="success"
+						onClick={pointsSync}
+						isLoading={pointsSuncProcess}
+						disabled={isLoading}
+					>
+						Синхронизация со СДЭК
+					</ButtonComponent>
+				</Col>
 				<Col xs={4}>
 					<ButtonComponent
 						onClick={sync}
