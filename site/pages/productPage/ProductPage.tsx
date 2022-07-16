@@ -5,10 +5,11 @@ import { useGetProductByIdQuery } from "../../application/product.service"
 import ButtonCart from "../../components/card/ButtonCart"
 import Raiting from "../../components/card/Raiting"
 import ImageComponent from "../../components/ImageComponent"
+import ToCartBtn from "./ToCartBtn"
 
 const ProductPage = () => {
     const {id} = useParams()
-    const { data, isLoading, isSuccess } = useGetProductByIdQuery(id || '', { refetchOnMountOrArgChange: true })
+    const { data, isLoading } = useGetProductByIdQuery(id || '', { refetchOnMountOrArgChange: true })
 	const [toCart, setToCart] = useState<string | undefined>()
 	const formatter = useRef(
 		Intl.NumberFormat("ru", {
@@ -17,14 +18,6 @@ const ProductPage = () => {
 			minimumFractionDigits: 2,
 		})
 	)
-
-	useEffect(() => {
-		if ( data && isSuccess ) {
-			if ( data.variants.length === 0 ) {
-				setToCart(data.id)
-			}
-		}
-	}, [data, isSuccess])
 
     return (
 		<Container className="py-6">
@@ -98,8 +91,10 @@ const ProductPage = () => {
 						<div className="my-md-4 d-flex align-items-center order-1">
 							<Fade in={!!toCart} className="w-100">
 								<div className="w-100 w-md-75">
-									<ButtonCart
-										productId={toCart || ""}
+									<ToCartBtn
+										productId={id || ''}
+										variantId={toCart}
+										disabled={isLoading}
 									/>
 								</div>
 							</Fade>
