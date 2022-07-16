@@ -614,7 +614,7 @@ router.post(
 				if ( product ) {
 					items.push({
 						amount: quantity,
-						cost: product.price || 0,
+						cost: (product.price || 0) / 100,
 						name: product.name,
 						payment: { value: 0 },
 						ware_key: product.identifier,
@@ -631,7 +631,7 @@ router.post(
 				if (variant) {
 					items.push({
 						amount: quantity,
-						cost: variant.price || 0,
+						cost: (variant.price || 0) / 100,
 						name: product?.name || '' + ' ' + variant.name,
 						payment: { value: 0 },
 						ware_key: variant.identifier,
@@ -706,6 +706,27 @@ router.post(
 					deliverySum: order?.delivery?.sdek?.cost || 0,
 					msOrderId,
 				},
+				receipt: {
+					email: client.mail || '',
+					phone: client.tel,
+					items: items.map(({ amount, name, cost }) => ({
+						amount: { 
+							value: cost.toFixed(2),
+							currency: 'RUB'
+						 },
+						description: name,
+						quantity: amount.toString(),
+						vat_code: 1,
+					})).concat({
+						amount: { 
+							value: (order.delivery.sdek?.cost || 0).toFixed(2),
+							currency: 'RUB'
+						 },
+						description: 'Доставка',
+						quantity: '1',
+						vat_code: 1,
+					})
+				}
 			})
 
 			order.payment = { paymentId: id }
