@@ -3,7 +3,7 @@ import config from 'config'
 
 export const sdekAuth = async () => {
     try {
-        const url = "https://api.edu.cdek.ru/v2/oauth/token"
+        const url = "https://api.cdek.ru/v2/oauth/token?parameters"
         const { client_id, client_secret } = config.get("sdek")
         if (!global.refreshTokenTime || Date.now() > global.refreshTokenTime - 10000) {
 			const { data } = await axios.post<{

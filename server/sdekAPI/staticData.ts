@@ -5,7 +5,7 @@ import { sdekAuth } from "./auth"
 
 async function getPoints(): Promise<ISdekPoints[]> {
     try {
-        const url = "https://api.edu.cdek.ru/v2/deliverypoints?country_code=RU"
+        const url = "https://api.cdek.ru/v2/deliverypoints?country_code=RU"
         const Authorization = await sdekAuth()
         const {data} = await axios.get<ISdekPoints[]>(url, {
             headers: { Authorization }

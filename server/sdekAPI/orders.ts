@@ -4,7 +4,7 @@ import { sdekAuth } from "./auth"
 
 export const sdekCreateOrder = async (payload: ISdekOrderPayload) => {
     try {
-        const url = "https://api.edu.cdek.ru/v2/orders"
+        const url = "https://api.cdek.ru/v2/orders"
 		const Authorization = await sdekAuth()
         const res = await axios
 			.post<ISdekOrderResponse>(url, payload, {
@@ -20,7 +20,7 @@ export const sdekCreateOrder = async (payload: ISdekOrderPayload) => {
 
 export const sdekGetOrderInfo = async (uuid: string) => {
     try {
-        const url = `https://api.edu.cdek.ru/v2/orders/${uuid}`
+        const url = `https://api.cdek.ru/v2/orders/${uuid}`
 		const Authorization = await sdekAuth()
 		return await axios.get<ISdekOrderInfo>(url, {
 			headers: { Authorization },
