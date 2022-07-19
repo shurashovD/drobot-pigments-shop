@@ -491,6 +491,33 @@ export interface IUKassaNotice {
 	}
 }
 
+export interface IAmoAuthCodeExchangePayload {
+	client_id: string
+	client_secret: string
+	grant_type: "authorization_code"
+	code: string
+	redirect_uri: string
+}
+
+export interface IAmoAuthCodeExchangeResponse {
+	token_type: string
+	expires_in: number
+	access_token: string
+	refresh_token: string
+}
+
+export interface IAmoAuthCodeExchangeResponseDoc extends Document, IAmoAuthCodeExchangeResponse {}
+
+export interface IAmoRefreshTokenPayload {
+	client_id: string
+	client_secret: string
+	grant_type: "refresh_token"
+	refresh_token: string
+	redirect_uri: string
+}
+
+export interface IAmoRefreshTokenResponse {}
+
 export interface ICart {
 	products: {
 		productId: string

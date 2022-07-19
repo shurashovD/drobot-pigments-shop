@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import alertSlice from "./alertSlice";
+import amoApi from "./amo.service";
 import categoryApi from "./category.service";
 import { rtkQueryLogger } from "./error.middleware";
 import filtersSlice from "./filtersSlice";
@@ -12,6 +13,7 @@ import sdekApi from "./sdek.service";
 const store = configureStore({
 	middleware: (getDefaultMiddleware) => [
 		...getDefaultMiddleware(),
+		amoApi.middleware,
         categoryApi.middleware,
 		moySkladApi.middleware,
         orderApi.middleware,
@@ -21,6 +23,7 @@ const store = configureStore({
 	],
 	reducer: {
 		[alertSlice.name]: alertSlice.reducer,
+		[amoApi.reducerPath]: amoApi.reducer,
 		[categoryApi.reducerPath]: categoryApi.reducer,
 		[filtersSlice.name]: filtersSlice.reducer,
 		[moySkladApi.reducerPath]: moySkladApi.reducer,

@@ -53,6 +53,7 @@ const HeaderComponent = () => {
 						className={`btn ${
 							hasNewOrders && "fw-bold text-warning"
 						}`}
+						disabled={true}
 						onClick={handler}
 						data-to="/admin/orders"
 					>
@@ -68,6 +69,17 @@ const HeaderComponent = () => {
 						data-to="/admin/hooks"
 					>
 						WebHooks
+					</Nav.Link>
+				</Nav.Item>
+				<Nav.Item className="mx-3">
+					<Nav.Link
+						active={/\/amo/.test(pathname)}
+						as="button"
+						className="btn"
+						onClick={handler}
+						data-to="/admin/amo"
+					>
+						AmoCRM
 					</Nav.Link>
 				</Nav.Item>
 				<Nav.Item className="ms-auto">

@@ -14,6 +14,7 @@ import { getCity, getPointName } from '../sdekAPI/staticData';
 import getCounterPartyByNumber from '../moyskladAPI/counterparty';
 import { sdekCreateOrder } from '../sdekAPI/orders';
 import { createUKPayment } from '../ukassaAPI/payments';
+import { createContact } from '../amoAPI/amoApi';
 
 const formatter = Intl.DateTimeFormat('ru', {
 	day: 'numeric',
@@ -731,6 +732,8 @@ router.post(
 
 			order.payment = { paymentId: id }
 			await order.save()
+			
+			await createContact(client.name, client.tel)
 
 			return res.json({ url, orderNumber: order.number} )
 		} catch (e) {

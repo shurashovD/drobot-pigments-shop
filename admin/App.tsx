@@ -6,6 +6,7 @@ import { useGetOrdersQuery } from "./application/order.service"
 import { setOrders } from "./application/ordersSlice"
 import AlertComponent from "./components/AlertComponent"
 import HeaderComponent from "./components/HeaderComponent"
+import AmoPage from "./pages/amoPage/AmoPage"
 import CategoryPage from "./pages/categoryPage/CategoryPage"
 import CategoryProductPage from "./pages/categoryPage/CategoryProductPage/CategoryProductPage"
 import HooksPage from "./pages/hooksPage/HooksPage"
@@ -47,6 +48,7 @@ const App = () => {
 					<Route path="/admin/orders" element={<OrdersPage />} />
 					<Route path="/admin/orders/:id" element={<OrderPage />} />
 					<Route path="/admin/hooks" element={<HooksPage />} />
+					<Route path="/admin/amo" element={<AmoPage />} />
 					<Route
 						path="*"
 						element={<Navigate to="/admin/moy-sklad" />}

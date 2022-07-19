@@ -10,6 +10,7 @@ const ms = Moysklad({ fetch, ...moyskladCredentails })
 const paths = {
 	order: "entity/customerorder",
 	payment: "entity/paymentin",
+	demand: "entity/demand",
 }
 
 interface IProps {
@@ -75,6 +76,21 @@ export const updateMsOrder = async (orderId: string, payload: any) => {
 	}
 }
 
+const createDemand = async (orderId: string) => {
+	const template = await ms.PUT(`${paths.demand}/new`, {
+		customerOrder: {
+			meta: {
+				href: `https://online.moysklad.ru/api/remap/1.2/entity/customerorder/${orderId}`,
+				metadataHref:
+					"https://online.moysklad.ru/api/remap/1.2/entity/customerorder/metadata",
+				type: "customerorder",
+				mediaType: "application/json",
+			},
+		},
+	})
+	await ms.POST(paths.demand, template)
+}
+
 export const acceptPayment = async (orderId: string, sum: number) => {
 	try {
 		const order = await ms.GET(`${paths.order}/${orderId}`)
@@ -91,6 +107,7 @@ export const acceptPayment = async (orderId: string, sum: number) => {
             }
         }]
 		await ms.POST(paths.payment, { agent, operations, organization, sum: sum * 100 })
+		await createDemand(orderId)
 	}
 	catch (e) {
 		throw (e)

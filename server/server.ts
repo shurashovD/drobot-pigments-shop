@@ -14,6 +14,7 @@ import sdekRoutes from './routes/sdek.routes'
 import authRoutes from './routes/auth.routes'
 import ukassaRoutes from './routes/ukassa.routes'
 import paymentRoutes from './routes/payment.routes'
+import amoRoutes from "./routes/amo.routes"
 
 const PORT = 3000
 
@@ -48,6 +49,8 @@ app.use(
 )
 
 app.use('/static', express.static(path.join(__dirname, 'static')))
+
+app.use("/api/amo", amoRoutes)
 
 app.use('/admin', adminRoutes)
 
