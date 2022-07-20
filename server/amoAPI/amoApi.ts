@@ -6,8 +6,9 @@ import AmoCredModel from '../models/AmoCredModel'
 const { auth, domain } = config.get("amo")
 
 const paths = {
-    oauth: '/oauth2/access_token',
+	oauth: "/oauth2/access_token",
 	contacts: "/api/v4/contacts",
+	contactsCustomFields: "/api/v4/contacts/custom_fields",
 }
 
 export const amoGetToken = async (code: string) => {
@@ -78,29 +79,77 @@ const amoAuth = async () => {
         }
         return `${amoCred.token_type} ${amoCred.access_token}`
     }
-    catch (e) {
+    catch (e: any) {
+        console.log(e.response?.data)
         throw e
     }
 }
 
-export const createContact = async (name = 'Покупатель с сайта', phone?: string) => {
+export const createContact = async (name = 'Покупатель с сайта', phone?: string, mail?: string, city?: string) => {
     try {
-        const payload: {name: string, phone?: string} = { name }
+        const payload: {
+			name: string
+			custom_fields_values: {
+				field_id: number
+				values: { value: string }[]
+			}[]
+		}[] = [
+			{
+				name,
+				custom_fields_values: [
+					{
+						field_id: 331359,
+                        values: [{
+                            value: 'drobot-pigments-shop.ru'
+                        }]
+					},
+				],
+			},
+		]
+
         if ( phone ) {
-            payload.phone = phone
+            payload[0].custom_fields_values.push({
+				field_id: 329649,
+                values: [{
+                    value: phone
+                }]
+			})
         }
+
+        if (mail) {
+			payload[0].custom_fields_values.push({
+				field_id: 329651,
+				values: [
+					{
+						value: mail,
+					},
+				],
+			})
+		}
+
+        if (city) {
+			payload[0].custom_fields_values.push({
+				field_id: 331409,
+				values: [
+					{
+						value: city,
+					},
+				],
+			})
+		}
 
         const authorization = await amoAuth()
         if ( !authorization ) {
             return
         }
 
-        await axios.post<{ id: number }, AxiosResponse<{ id: number }, any>>(
-			`${domain}/${paths.contacts}`, payload,
-			{ headers: {"Content-Type": "application/json", authorization} }
-		)
+        return await axios
+			.post(`${domain}${paths.contacts}`, payload, {
+				headers: { "Content-Type": "application/json", authorization },
+			})
+			.then(({ data }) => data?._embedded?.contacts?.[0]?.id)
     }
-    catch (e) {
-        console.log(e)
+    catch (e: any) {
+        console.log(e.response?.data?.['validation-errors']?.[0])
     }
 }

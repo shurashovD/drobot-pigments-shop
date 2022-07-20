@@ -733,7 +733,11 @@ router.post(
 			order.payment = { paymentId: id }
 			await order.save()
 			
-			await createContact(client.name, client.tel)
+			if ( !client.amoContactId ) {
+				const amoContactId = await createContact(client.name, client.tel, client.mail)
+				client.amoContactId = amoContactId
+				await client.save()
+			}
 
 			return res.json({ url, orderNumber: order.number} )
 		} catch (e) {

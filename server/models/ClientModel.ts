@@ -3,6 +3,7 @@ import { model, Model, Schema, Types } from 'mongoose'
 
 const ClientSchema = new Schema<IClient, Model<IClient>>({
     addresses: [String],
+    amoContactId: Number,
     counterpartyId: String,
     mail: String,
     name: String,

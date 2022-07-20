@@ -1,11 +1,18 @@
 import axios from "axios"
+import config from 'config'
 import { ISdekPoints } from "../../shared"
 import PointsModel from "../models/PointsModel"
 import { sdekAuth } from "./auth"
 
+const sdek = config.get<{
+	url: string
+	client_id: string
+	client_secret: string
+}>("sdek")
+
 async function getPoints(): Promise<ISdekPoints[]> {
     try {
-        const url = "https://api.cdek.ru/v2/deliverypoints?country_code=RU"
+        const url = `${sdek.url}/deliverypoints?country_code=RU`
         const Authorization = await sdekAuth()
         const {data} = await axios.get<ISdekPoints[]>(url, {
             headers: { Authorization }

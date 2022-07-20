@@ -216,6 +216,7 @@ export interface IOrderPop extends Document {
 
 export interface IClient extends Document {
 	addresses: string[]
+	amoContactId?: number
 	counterpartyId?: string
 	mail?: string
 	name?: string

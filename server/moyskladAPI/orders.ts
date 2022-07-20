@@ -1,6 +1,7 @@
 import fetch from "node-fetch"
 import Moysklad from "moysklad"
 import config from 'config'
+import { AxiosError } from "axios"
 
 const moyskladCredentails: any = config.get("moysklad")
 const organizationId: string = config.get("moyskladOrgId")
@@ -79,7 +80,6 @@ export const updateMsOrder = async (orderId: string, payload: any) => {
 
 const createDemand = async (orderId: string) => {
 	try {
-		console.log(orderId)
 		const template = await ms.PUT(`${paths.demand}/new`, {
 			customerOrder: {
 				meta: {
@@ -98,8 +98,7 @@ const createDemand = async (orderId: string) => {
 				mediaType: "application/json",
 			},
 		}
-		const res = await ms.POST(paths.demand, { ...template, store })
-		console.log(res)
+		await ms.POST(paths.demand, { ...template, store })
 	}
 	catch (e) {
 		console.log(e)

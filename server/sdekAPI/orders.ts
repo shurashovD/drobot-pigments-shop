@@ -1,10 +1,17 @@
 import axios from "axios"
+import config from "config"
 import { ISdekOrderInfo, ISdekOrderPayload, ISdekOrderResponse } from "../../shared"
 import { sdekAuth } from "./auth"
 
+const sdek = config.get<{
+	url: string
+	client_id: string
+	client_secret: string
+}>("sdek")
+
 export const sdekCreateOrder = async (payload: ISdekOrderPayload) => {
     try {
-        const url = "https://api.cdek.ru/v2/orders"
+        const url = `${sdek.url}/orders`
 		const Authorization = await sdekAuth()
         const res = await axios
 			.post<ISdekOrderResponse>(url, payload, {
@@ -20,7 +27,7 @@ export const sdekCreateOrder = async (payload: ISdekOrderPayload) => {
 
 export const sdekGetOrderInfo = async (uuid: string) => {
     try {
-        const url = `https://api.cdek.ru/v2/orders/${uuid}`
+        const url = `${sdek.url}/orders/${uuid}`
 		const Authorization = await sdekAuth()
 		return await axios.get<ISdekOrderInfo>(url, {
 			headers: { Authorization },
