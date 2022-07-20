@@ -77,18 +77,25 @@ export const updateMsOrder = async (orderId: string, payload: any) => {
 }
 
 const createDemand = async (orderId: string) => {
-	const template = await ms.PUT(`${paths.demand}/new`, {
-		customerOrder: {
-			meta: {
-				href: `https://online.moysklad.ru/api/remap/1.2/entity/customerorder/${orderId}`,
-				metadataHref:
-					"https://online.moysklad.ru/api/remap/1.2/entity/customerorder/metadata",
-				type: "customerorder",
-				mediaType: "application/json",
+	try {
+		console.log(orderId)
+		const template = await ms.PUT(`${paths.demand}/new`, {
+			customerOrder: {
+				meta: {
+					href: `https://online.moysklad.ru/api/remap/1.2/entity/customerorder/${orderId}`,
+					metadataHref:
+						"https://online.moysklad.ru/api/remap/1.2/entity/customerorder/metadata",
+					type: "customerorder",
+					mediaType: "application/json",
+				},
 			},
-		},
-	})
-	await ms.POST(paths.demand, template)
+		})
+		const res = await ms.POST(paths.demand, template)
+		console.log(res)
+	}
+	catch (e) {
+		console.log(e)
+	}
 }
 
 export const acceptPayment = async (orderId: string, sum: number) => {
