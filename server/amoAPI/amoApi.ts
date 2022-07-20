@@ -96,7 +96,7 @@ export const createContact = async (name = 'Покупатель с сайта',
         }
 
         await axios.post<{ id: number }, AxiosResponse<{ id: number }, any>>(
-			paths.contacts, payload,
+			`${domain}/${paths.contacts}`, payload,
 			{ headers: {"Content-Type": "application/json", authorization} }
 		)
     }

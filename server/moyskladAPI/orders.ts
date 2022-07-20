@@ -5,6 +5,7 @@ import config from 'config'
 const moyskladCredentails: any = config.get("moysklad")
 const organizationId: string = config.get("moyskladOrgId")
 const agentnId: string = config.get("moyskladDrobotShopAgentId")
+const storeId = config.get<string>("moyskladStoreId")
 const ms = Moysklad({ fetch, ...moyskladCredentails })
 
 const paths = {
@@ -90,7 +91,14 @@ const createDemand = async (orderId: string) => {
 				},
 			},
 		})
-		const res = await ms.POST(paths.demand, template)
+		const store = {
+			meta: {
+				href: `https://online.moysklad.ru/api/remap/1.2/entity/store/${storeId}`,
+				type: "store",
+				mediaType: "application/json",
+			},
+		}
+		const res = await ms.POST(paths.demand, { ...template, store })
 		console.log(res)
 	}
 	catch (e) {
