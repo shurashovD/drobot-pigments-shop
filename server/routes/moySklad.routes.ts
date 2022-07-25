@@ -99,9 +99,13 @@ router.get("/folder/:id", async (req: Request<{ id: string }, {}, {}>, res) => {
 router.get('/sync', async (req, res) => {
     try {
         await currencySync()
+		console.log("Валюта синхронизирована")
         await uomSync()
+		console.log("Измерения синхронизированы")
         await productFolderSync()
+		console.log('Папки синхронизированы');
         await productSync()
+		console.log('Продукты синхронизированы');
 		await variantSync()
         return res.end()
     }

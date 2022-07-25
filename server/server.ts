@@ -15,6 +15,7 @@ import authRoutes from './routes/auth.routes'
 import ukassaRoutes from './routes/ukassa.routes'
 import paymentRoutes from './routes/payment.routes'
 import amoRoutes from "./routes/amo.routes"
+import accountRoutes from './routes/account.routes'
 
 const PORT = 3000
 
@@ -69,6 +70,8 @@ app.use("/api/sdek", sdekRoutes)
 app.use("/api/auth", authRoutes)
 
 app.use("/api/ukassa", ukassaRoutes)
+
+app.use("/api/account", accountRoutes)
 
 app.get('*', (req, res) => {
     try {

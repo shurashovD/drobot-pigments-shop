@@ -250,14 +250,22 @@ export const productSync = async () => {
 		const uoms = await UomModel.find()
 
 		// удаление продуктов, не содержащихся в "Мой склад";
+		console.log("Удаление продуктов")
 		const deletedIdentifier = products
 			.map(({ identifier }: IProduct) => identifier)
 			.filter((item: string) =>
 				normalize.every(({ id }: any) => id !== item)
 			)
 		for (const i in deletedIdentifier) {
-			const id = deletedIdentifier[i]
-			const product = await ProductModel.findByIdAndDelete(id)
+			const identifier = deletedIdentifier[i]
+			let product
+			try {
+				product = await ProductModel.findOneAndDelete({ identifier })
+			}
+			catch (e) {
+				console.log(identifier)
+				throw e
+			}
 			if ( product?.photo[0] ) {
 				try {
 					await rm(path.resolve(product.photo[0]), { recursive: true })
@@ -267,6 +275,7 @@ export const productSync = async () => {
 				}
 			}
 		}
+		console.log("Удаление продуктов завершено")
 
 		// добавление продуктов, не содержащихся в БД;
 		const addedRows = normalize.filter(({ id }: any) =>
@@ -328,8 +337,10 @@ export const productSync = async () => {
 				}
 			}
 		}
+		console.log('Удаление продуктов завешено')
 
 		// обновление измененных продуктов;
+		console.log('Обновление продуктов');
 		for (let i in normalize) {
 			console.log(i, normalize.length);
 			const item = normalize[i]
@@ -411,6 +422,7 @@ export const productSync = async () => {
 				await product.save()
 			}
 		}
+		console.log('Обновление продуктов завершено');
 	}
     catch (e) {
         console.log(e)
