@@ -1,6 +1,7 @@
 import { Image, Modal, ModalProps, Spinner } from 'react-bootstrap'
 import { FC, useEffect, useState } from 'react'
-import { useCheckPaymentProbablyQuery } from '../../application/order.service'
+import { useCheckPaymentProbablyQuery, useClearCartAfterOrderMutation } from '../../application/order.service'
+import { NavLink } from 'react-router-dom'
 const logo = require('../../img/logo.svg')
  
 interface IProps extends ModalProps {
@@ -11,12 +12,14 @@ interface IProps extends ModalProps {
 const FinalModal: FC<IProps> = ({ show, onHide, number, url }) => {
 	const [isPaying, setIsPaying] = useState(false)
 	const { data } = useCheckPaymentProbablyQuery(undefined, { pollingInterval: 3000, skip: !show || isPaying })
+	const [clearCart] = useClearCartAfterOrderMutation()
 
 	useEffect(() => {
-		if ( data ) {
+		if ( data && number ) {
+			clearCart({ orderNumber: number })
 			setIsPaying(true)
 		}
-	}, [data])
+	}, [data, clearCart, number])
 
 	useEffect(() => {
 		setIsPaying(false)
@@ -31,17 +34,16 @@ const FinalModal: FC<IProps> = ({ show, onHide, number, url }) => {
     return (
 		<Modal show={show} onHide={onHide}>
 			<Modal.Body className="bg-primary pb-6 px-5">
-				<Modal.Header
-					closeButton={isPaying}
-					closeVariant="white"
-					className="border-0"
-				/>
-				<div className="text-uppercase text-white text-center mb-3">
-					Заказ {isPaying ? (<>оформлен успешно!</>) : (<>ожидает оплаты...</>)}
-				</div>
+				<Modal.Header closeButton={isPaying} closeVariant="white" className="border-0" />
+				<div className="text-uppercase text-white text-center mb-3">Заказ {isPaying ? <>оформлен успешно!</> : <>ожидает оплаты...</>}</div>
 				<div className="text-uppercase text-white text-center mb-4">
-					{ isPaying ? <>Заказ №{number}</> : <Spinner animation="border" size="sm" variant="secondary" /> }					
+					{isPaying ? <>Заказ №{number}</> : <Spinner animation="border" size="sm" variant="secondary" />}
 				</div>
+				{ isPaying && (
+					<div className="text-white text-clearInterval mb-4">
+						Отслеживайте статусы заказов в <NavLink to="/profile">личном кабинете</NavLink>
+					</div>
+				)}
 				<div className="text-center mb-5">
 					<Image src={logo} width={106} />
 				</div>
@@ -50,8 +52,7 @@ const FinalModal: FC<IProps> = ({ show, onHide, number, url }) => {
 						<>В течении 15 минут с вами свяжется менеджер.</>
 					) : (
 						<a target="_blank" href={url} className="text-secondary">
-							Перейдите на вкладку оплаты, если оплата
-							произведена, подождите немного.
+							Перейдите на вкладку оплаты, если оплата произведена, подождите немного.
 						</a>
 					)}
 				</div>

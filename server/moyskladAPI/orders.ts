@@ -1,7 +1,6 @@
 import fetch from "node-fetch"
 import Moysklad from "moysklad"
 import config from 'config'
-import { AxiosError } from "axios"
 
 const moyskladCredentails: any = config.get("moysklad")
 const organizationId: string = config.get("moyskladOrgId")
@@ -25,6 +24,7 @@ interface IProps {
 		price: number
 		productId?: string
 		variantId?: string
+		discount?: number 
 	}[]
 }
 
@@ -32,8 +32,9 @@ const createMsOrder = async (props: IProps) => {
 	try {
 		const shipmentAddress = `${props.city} ${props.address && `до двери ${props.address}`} ${props.point && `до ПВЗ ${props.point}`}`
 		const positions = props.positions.map(
-			({ price, quantity, productId, variantId }) => ({
+			({ price, quantity, productId, variantId, discount }) => ({
 				quantity, price,
+				discount: discount || 0,
 				assortment: {
 					meta: {
 						href: `https://online.moysklad.ru/api/remap/1.2/entity/${
@@ -69,11 +70,27 @@ const createMsOrder = async (props: IProps) => {
 	}
 }
 
+export const getMsOrder = async (orderId: string) => {
+	try {
+		return await ms.GET(`${paths.order}/${orderId}`)
+	} catch (e) {
+		throw e
+	}
+}
+
 export const updateMsOrder = async (orderId: string, payload: any) => {
 	try {
 		await ms.PUT(`${paths.order}/${orderId}`, payload)
 	}
 	catch (e) {
+		throw e
+	}
+}
+
+export const deleteMsOrder = async (orderId: string) => {
+	try {
+		await ms.DELETE(`${paths.order}/${orderId}`)
+	} catch (e) {
 		throw e
 	}
 }

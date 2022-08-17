@@ -25,24 +25,12 @@ const HeaderComponent = () => {
 		<Navbar bg="primary" variant="dark" sticky="top">
 			<Nav className="w-100">
 				<Nav.Item className="mx-3">
-					<Nav.Link
-						active={/\/moy-sklad/.test(pathname)}
-						as="button"
-						className="btn"
-						onClick={handler}
-						data-to="/admin/moy-sklad"
-					>
+					<Nav.Link active={/\/moy-sklad/.test(pathname)} as="button" className="btn" onClick={handler} data-to="/admin/moy-sklad">
 						Мой склад
 					</Nav.Link>
 				</Nav.Item>
 				<Nav.Item className="mx-3">
-					<Nav.Link
-						active={/\/products/.test(pathname)}
-						as="button"
-						className="btn"
-						onClick={handler}
-						data-to="/admin/products"
-					>
+					<Nav.Link active={/\/products/.test(pathname)} as="button" className="btn" onClick={handler} data-to="/admin/products">
 						Товары
 					</Nav.Link>
 				</Nav.Item>
@@ -50,9 +38,7 @@ const HeaderComponent = () => {
 					<Nav.Link
 						active={/\/orders/.test(pathname)}
 						as="button"
-						className={`btn ${
-							hasNewOrders && "fw-bold text-warning"
-						}`}
+						className={`btn ${hasNewOrders && "fw-bold text-warning"}`}
 						disabled={true}
 						onClick={handler}
 						data-to="/admin/orders"
@@ -61,25 +47,23 @@ const HeaderComponent = () => {
 					</Nav.Link>
 				</Nav.Item>
 				<Nav.Item className="mx-3">
-					<Nav.Link
-						active={/\/hooks/.test(pathname)}
-						as="button"
-						className="btn"
-						onClick={handler}
-						data-to="/admin/hooks"
-					>
+					<Nav.Link active={/\/hooks/.test(pathname)} as="button" className="btn" onClick={handler} data-to="/admin/hooks">
 						WebHooks
 					</Nav.Link>
 				</Nav.Item>
 				<Nav.Item className="mx-3">
-					<Nav.Link
-						active={/\/amo/.test(pathname)}
-						as="button"
-						className="btn"
-						onClick={handler}
-						data-to="/admin/amo"
-					>
+					<Nav.Link active={/\/amo/.test(pathname)} as="button" className="btn" onClick={handler} data-to="/admin/amo">
 						AmoCRM
+					</Nav.Link>
+				</Nav.Item>
+				<Nav.Item className="mx-3">
+					<Nav.Link active={/\/users/.test(pathname)} as="button" className="btn" onClick={handler} data-to="/admin/users">
+						Пользователи
+					</Nav.Link>
+				</Nav.Item>
+				<Nav.Item className="mx-3">
+					<Nav.Link active={/\/loyalty/.test(pathname)} as="button" className="btn" onClick={handler} data-to="/admin/loyalty">
+						Лояльность
 					</Nav.Link>
 				</Nav.Item>
 				<Nav.Item className="ms-auto">

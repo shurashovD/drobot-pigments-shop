@@ -12,14 +12,14 @@ const MobileFooter = () => {
 			<NavLink to="/">
 				<IconHome stroke="#ffffff" />
 			</NavLink>
-			<NavLink to="/">
+			<NavLink to="/" className="invisible">
 				<IconFind stroke="#ffffff" />
 			</NavLink>
 			<CartIconComponent />
-			<NavLink to="/">
+			<NavLink to="/" className="invisible">
 				<IconFavourite stroke="#ffffff" />
 			</NavLink>
-			<NavLink to="/">
+			<NavLink to="/profile">
 				<IconAccount stroke="#ffffff" />
 			</NavLink>
 		</div>

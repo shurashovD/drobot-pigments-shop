@@ -4,7 +4,6 @@ import { NavLink } from "react-router-dom"
 import { useLocation } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../application/hooks"
 import { hideNavCatalog, showNavCatalog } from "../application/navCatalogSlice"
-import IconAccount from "./icons/IconAccount"
 import IconBox from "./icons/IconBox"
 import IconCompare from "./icons/IconCompare"
 import IconFavourite from "./icons/IconFavourite"
@@ -17,6 +16,7 @@ import NavCatalogMobile from "./NavCatalogMobile"
 import { useGetCartQuery } from "../application/order.service"
 import { setCart, setLoading } from "../application/cartSlice"
 import CartIconComponent from "./CartIconComponent"
+import HeaderAccountComponent from "./HeaderAccountComponent"
 const waLogo = require('../img/whatsup.svg')
 const logo = require('../img/logo.svg')
 
@@ -122,7 +122,7 @@ const HeaderComponent = () => {
 						<div>
 							<NavLink
 								to="/"
-								className="text-uppercase text-white"
+								className="text-uppercase text-white d-none"
 							>
 								Обучение
 							</NavLink>
@@ -130,7 +130,7 @@ const HeaderComponent = () => {
 						<div>
 							<NavLink
 								to="/"
-								className="text-uppercase text-white"
+								className="text-uppercase text-white d-none"
 							>
 								Спец.предложение %
 							</NavLink>
@@ -138,23 +138,23 @@ const HeaderComponent = () => {
 						<div>
 							<NavLink
 								to="/"
-								className="text-uppercase text-white"
+								className="text-uppercase text-white d-none"
 							>
 								Сотрудничество
 							</NavLink>
 						</div>
 						<div className="mt-auto">
 							<NavLink
-								to="/"
+								to="/delivery"
 								className="text-uppercase text-white"
 							>
-								Доставка и оплата
+								Доставка
 							</NavLink>
 						</div>
 						<div>
 							<NavLink
 								to="/"
-								className="text-uppercase text-white"
+								className="text-uppercase text-white d-none"
 							>
 								Статус заказа
 							</NavLink>
@@ -195,7 +195,7 @@ const HeaderComponent = () => {
 								>
 									<a
 										href="#"
-										className="w-100 d-flex align-items-center text-dark"
+										className="w-100 d-flex align-items-center text-dark d-none"
 									>
 										<Image
 											src={waLogo}
@@ -210,11 +210,11 @@ const HeaderComponent = () => {
 									lg={5}
 									className="offset-lg-2 d-flex align-items-center justify-content-evenly"
 								>
-									<NavLink to="/" className="text-dark">
+									<NavLink to="/" className="text-dark d-none">
 										Cотрудничество
 									</NavLink>
-									<NavLink to="/" className="text-dark">
-										Доставка и оплата
+									<NavLink to="/delivery" className="text-dark">
+										Доставка
 									</NavLink>
 									<NavLink to="/" className="text-dark">
 										Контакты
@@ -253,7 +253,7 @@ const HeaderComponent = () => {
 							<div className="p-0 m-0">
 								<a
 									href="#"
-									className="d-none d-lg-block text-white text-uppercase"
+									className="d-none d-lg-block text-white text-uppercase invisible"
 								>
 									<span>Обучение</span>
 								</a>
@@ -261,7 +261,7 @@ const HeaderComponent = () => {
 							<div className="p-0 m-0">
 								<a
 									href="#"
-									className="d-none d-lg-block text-white text-uppercase"
+									className="d-none d-lg-block text-white text-uppercase d-none invisible"
 								>
 									<span>Спец. предложение %</span>
 								</a>
@@ -281,27 +281,27 @@ const HeaderComponent = () => {
 							lg={5}
 							className="d-flex align-items-center justify-content-between"
 						>
-							<NavLink to="/" className="text-white me-auto">
+							<NavLink to="/" className="text-white me-auto invisible">
 								<IconBox stroke={"#ffffff"} />
 								<span className="d-none d-md-inline ms-3">
 									Статус заказа
 								</span>
 							</NavLink>
 							<NavLink
-								to="/"
+								to="/profile"
 								className="d-none d-lg-block text-white ms-4"
 							>
-								<IconAccount stroke={"#ffffff"} />
+								<HeaderAccountComponent />
 							</NavLink>
 							<NavLink
 								to="/"
-								className="d-none d-lg-block text-white ms-4"
+								className="d-none d-lg-block text-white ms-4 invisible"
 							>
 								<IconCompare stroke={"#ffffff"} />
 							</NavLink>
 							<NavLink
 								to="/"
-								className="d-none d-lg-block text-white ms-4"
+								className="d-none d-lg-block text-white ms-4 invisible"
 							>
 								<IconFavourite stroke={"#ffffff"} />
 							</NavLink>

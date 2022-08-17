@@ -1,20 +1,18 @@
-import { IOrder } from './../../shared/index.d';
+import { IOrder, IProduct, IProductFromClient, IVariantFromClient } from './../../shared/index.d';
 import { checkNumber, checkPin } from './../plusofonAPI/plusofonApi';
 import bodyParser from 'body-parser';
 import { Request, Router } from "express";
-import { ISdekCalcPayload, ISdekOrderPayload } from '../../shared';
+import { ISdekCalcPayload } from '../../shared';
 import ClientModel from "../models/ClientModel";
 import OrderModel from "../models/OrderModel";
 import PointsModel from '../models/PointsModel';
 import ProductModel, { VariantModel } from '../models/ProductModel'
-import createMsOrder, { updateMsOrder } from '../moyskladAPI/orders';
 import rests from '../moyskladAPI/rests';
 import { sdekCalcDelivery } from '../sdekAPI/calc';
-import { getCity, getPointName } from '../sdekAPI/staticData';
 import getCounterPartyByNumber from '../moyskladAPI/counterparty';
-import { sdekCreateOrder } from '../sdekAPI/orders';
-import { createUKPayment } from '../ukassaAPI/payments';
-import { createContact } from '../amoAPI/amoApi';
+import errorHandler from '../handlers/errorLogger';
+import createMsOrderHandler from '../handlers/createMsOrderHandler';
+import createPaymentHandler from '../handlers/createPaymentHandler';
 
 const formatter = Intl.DateTimeFormat('ru', {
 	day: 'numeric',
@@ -197,126 +195,115 @@ router.put("/delivery/recipient", bodyParser.json(), async (req: Request<{}, {},
 	}
 })
 
-router.put(
-	"/cart/product",
-	bodyParser.json(),
-	async (req: Request<{}, {}, { productId: string; quantity: number }>, res) => {
-		try {
-			const { productId, quantity } = req.body
-			const product = await ProductModel.findById(productId)
-			if ( !product ) {
-				throw new Error('Товар не найден')
-			}
-			
-			const stock = await rests({ assortmentId: [product.identifier] }).then(doc => doc[0].stock)
-			if (!stock) {
-				throw new Error("Остаток не получен")
-			}
-
-			const cart = req.session.cart
-			if (!cart && (stock * quantity > 0)) {
-				req.session.cart = {
-					products: [{ productId, quantity: Math.min(quantity, stock) }],
-					variants: [],
-				}
-				return res.end()
-			}
-
-			if ( cart ) {
-				const index = cart.products.findIndex(item => item.productId === productId)
-				if (stock * quantity === 0) {
-					if (index !== -1) {
-						cart.products.splice(index, 1)
-					}
-				} else {
-					if (index !== -1) {
-						cart.products.push({
-							productId,
-							quantity: Math.min(quantity, stock)
-						})
-					} else {
-						cart.products[index].quantity = Math.min(quantity, stock)
-					}
-				}
-			}
-
-			req.session.cart = cart
-			return res.end()
-			
-		} catch (e) {
-			console.log(e)
-			return res.status(500).json({ message: "Что-то пошло не так..." })
+router.put("/cart/product", bodyParser.json(), async (req: Request<{}, {}, { productId: string; quantity: number }>, res) => {
+	try {
+		const { productId, quantity } = req.body
+		const product = await ProductModel.findById(productId)
+		if ( !product ) {
+			throw new Error('Товар не найден')
 		}
-	}
-)
-
-router.put(
-	"/cart/variant",
-	bodyParser.json(),
-	async (
-		req: Request<{}, {}, { productId: string; variantId: string, quantity: number }>,
-		res
-	) => {
-		try {
-			const { productId, variantId, quantity } = req.body
-			const product = await ProductModel.findById(productId)
-			if (!product) {
-				throw new Error("Товар не найден")
-			}
-
-			const variant = product.variants.find(({ _id }) => _id?.toString())
-			if (!variant) {
-				throw new Error("Вариант не найден")
-			}
-
-			const stock = await rests({
-				assortmentId: [variant.identifier],
-			}).then((doc) => doc[0].stock)
-			if (!stock) {
-				throw new Error("Остаток не получен")
-			}
-
-			const cart = req.session.cart
-			if (!cart && stock * quantity > 0) {
-				req.session.cart = {
-					products: [],
-					variants: [
-						{ productId, variantId, quantity: Math.min(quantity, stock) },
-					],
-				}
-				return res.end()
-			}
-
-			if (cart) {
-				const index = cart.variants.findIndex((item) => item.variantId === variantId)
-				if (stock * quantity === 0) {
-					if (index !== -1) {
-						cart.variants.splice(index, 1)
-					}
-				} else {
-					if (index !== -1) {
-						cart.variants[index].quantity = Math.min(
-							quantity,
-							stock
-						)
-					} else {
-						cart.variants.push({
-							productId,
-							variantId,
-							quantity: Math.min(quantity, stock),
-						})
-					}
-				}
-			}
-
-			req.session.cart = cart
-			return res.end()
-		} catch (e) {
-			console.log(e)
-			return res.status(500).json({ message: "Что-то пошло не так..." })
+		
+		const stock = await rests({ assortmentId: [product.identifier] }).then(doc => doc[0].stock)
+		if (!stock) {
+			throw new Error("Остаток не получен")
 		}
+
+		const cart = req.session.cart
+		if (!cart && (stock * quantity > 0)) {
+			req.session.cart = {
+				products: [{ productId, quantity: Math.min(quantity, stock) }],
+				variants: [],
+			}
+			return res.end()
+		}
+
+		if ( cart ) {
+			const index = cart.products.findIndex(item => item.productId === productId)
+			if (stock * quantity === 0) {
+				if (index !== -1) {
+					cart.products.splice(index, 1)
+				}
+			} else {
+				if (index !== -1) {
+					cart.products.push({
+						productId,
+						quantity: Math.min(quantity, stock)
+					})
+				} else {
+					cart.products[index].quantity = Math.min(quantity, stock)
+				}
+			}
+		}
+
+		req.session.cart = cart
+		return res.end()
+		
+	} catch (e) {
+		console.log(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
-)
+})
+
+router.put("/cart/variant", bodyParser.json(), async (req: Request<{}, {}, { productId: string; variantId: string, quantity: number }>, res) => {
+	try {
+		const { productId, variantId, quantity } = req.body
+		const product = await ProductModel.findById(productId)
+		if (!product) {
+			throw new Error("Товар не найден")
+		}
+
+		const variant = product.variants.find(({ _id }) => _id?.toString())
+		if (!variant) {
+			throw new Error("Вариант не найден")
+		}
+
+		const stock = await rests({
+			assortmentId: [variant.identifier],
+		}).then((doc) => doc[0].stock)
+		if (!stock) {
+			throw new Error("Остаток не получен")
+		}
+
+		const cart = req.session.cart
+		if (!cart && stock * quantity > 0) {
+			req.session.cart = {
+				products: [],
+				variants: [
+					{ productId, variantId, quantity: Math.min(quantity, stock) },
+				],
+			}
+			return res.end()
+		}
+
+		if (cart) {
+			const index = cart.variants.findIndex((item) => item.variantId === variantId)
+			if (stock * quantity === 0) {
+				if (index !== -1) {
+					cart.variants.splice(index, 1)
+				}
+			} else {
+				if (index !== -1) {
+					cart.variants[index].quantity = Math.min(
+						quantity,
+						stock
+					)
+				} else {
+					cart.variants.push({
+						productId,
+						variantId,
+						quantity: Math.min(quantity, stock),
+					})
+				}
+			}
+		}
+
+		req.session.cart = cart
+		return res.end()
+	} catch (e) {
+		console.log(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
+	}
+})
 
 router.delete('/cart', async (req: Request<{}, {}, {}, { productIds: string, variantIds: string }>, res) => {
 	try {
@@ -475,285 +462,112 @@ router.put(
 	}
 )
 
-router.post(
-	"/",
-	bodyParser.json(),
-	async (
-		req: Request<
-			{},
-			{},
-			{ city_code: number, address?: string; code?: number; products: string, variants: string }
-		>,
-		res
-	) => {
+// создание заказа;
+router.post("/", bodyParser.json(), async (req: Request<{}, {}, { products: string, variants: string }>, res) => {
 		try {
 			const { products, variants } = req.body
 			const client = await ClientModel.findById(req.session.userId)
-			if ( !client ) {
-				return res.status(500).json({ message: 'Не удалось привязать заказ...' })
+			if (!client) {
+				const err = new Error()
+				err.userError = true
+				err.sersviceInfo = `Клиент ${req.session.userId} не найден. Создание заказа`
+				throw err
 			}
-
-			if ( !req.session.cart ) {
-				return res.status(500).json({ message: 'Корзина не найдена...' })
+			if (!req.session.cart) {
+				const err = new Error("Корзина пуста")
+				err.userError = true
+				err.sersviceInfo = `Пустая корзина. Клиент ${req.session.userId}. Создание заказа`
+				throw err
 			}
-			const orderProducts = []
-			const orderVariants = []
-			const positions: {
-				quantity: number
-				price: number
-				productId?: string
-				variantId?: string
-			}[] = []
-			let total = 0
-			const productsFromClient: { productId: string, quantity: number }[] = JSON.parse(products)
-			const productsArr = productsFromClient.filter(item => req.session.cart?.products.some(({ productId }) => productId === item.productId))
-			for (const i in productsArr) {
-				try {
-					const { productId, quantity } = productsArr[i]
-					const product = await ProductModel.findById(productId)
-					if ( product ) {
-						orderProducts.push({
-							product: product._id,
-							quantity,
-						})
-						positions.push({
-							quantity,
-							price: product.price || 0,
-							productId: product.identifier
-						})
-						total += product.price || 0
-					}
-				}
-				catch (e) {
-					console.log(e)
-				}
-			}
-			const variantsFromClient: { variantId: string, productId: string, quantity: number }[] = JSON.parse(variants)
-			const variantsArr = variantsFromClient.filter((item) =>
-				req.session.cart?.variants.some(
-					({ variantId }) => variantId === item.variantId
-				)
-			)
-			for (const i in variantsArr) {
-				try {
-					const { productId, quantity, variantId } = variantsArr[i]
-					const product = await ProductModel.findById(productId)
-					if (product) {
-						const variant = product.variants.find(({ _id }) => _id?.toString() === variantId)
-						if ( variant ) {
-							orderVariants.push({
-								product: product._id,
-								variant: variant._id,
-								quantity,
-							})
-							positions.push({
-								quantity,
-								price: variant.price || 0,
-								variantId: variant.identifier,
-							})
-							total += variant.price || 0
-						}
-					}
-				} catch (e) {
-					console.log(e)
-				}
-			}
-
-
 			if (!req.session.delivery) {
-				throw new Error("Не найдены параметры доставки")
+				const err = new Error("Не найдены параметры доставки")
+				err.userError = true
+				err.sersviceInfo = `Не найдены параметры доставки. Клиент ${req.session.userId}. Создание заказа`
+				throw err
 			}
-			if ( !req.session.delivery.city_code ) {
-				throw new Error('Не найден город доставки')
+			if (!req.session.delivery.city_code) {
+				const err = new Error("Не найден город доставки")
+				err.userError = true
+				err.sersviceInfo = `Не найден город доставки. Клиент ${req.session.userId}. Создание заказа`
+				throw err
 			}
 			const { city_code, sdek } = req.session.delivery
 			if (!sdek) {
-				throw new Error("Не найдены параметры СДЭК")
+				const err = new Error("Не найдены параметры СДЭК")
+				err.userError = true
+				err.sersviceInfo = `Не найдены параметры СДЭК. Клиент ${req.session.userId}. Создание заказа`
+				throw err
 			}
-			const city = await getCity(city_code)
+
+			// создание шаблона заказа в БД;
+			const productsFromClient: IProductFromClient[] = JSON.parse(products)
+			const variantsFromClient: IVariantFromClient[] = JSON.parse(variants)
+			const productsArr = productsFromClient.filter((item) => req.session.cart?.products.some(({ productId }) => productId === item.productId))
+			const variantsArr = variantsFromClient.filter((item) => req.session.cart?.variants.some(({ variantId }) => variantId === item.variantId))
+			const productsForOrder = await ProductModel.find({ _id: { $in: productsArr.map(({ productId }) => productId) } }).then<
+				{ productId: string; price: number; quantity: number; discountOn?: number }[]
+			>((doc) =>
+				doc.map((item) => ({
+					productId: item._id.toString(),
+					price: (item.price || 0) / 100,
+					quantity: productsArr.find(({ productId }) => productId === item._id.toString())?.quantity || 0,
+				}))
+			)
+			const variantsForOrder = await ProductModel.find({ _id: { $in: variantsArr.map(({ productId }) => productId) } }).then<
+				{ productId: string; variantId: string; quantity: number; price: number; discountOn?: number }[]
+			>((doc) =>
+				variantsArr.map(({ productId, quantity, variantId }) => {
+					const price =
+						doc
+							.reduce<IProduct["variants"][0][]>((result, { variants }) => result.concat(variants), [])
+							.find(({ _id }) => _id?.toString() === variantId)?.price || 0
+					return { productId, variantId, quantity, price }
+				})
+			)
 			const { tariff_code, address, code } = sdek
-			let point
-			if ( code ) {
-				point = await getPointName(code)
-			}
-
-			const addressString = `До ${(tariff_code === 138) && 'ПВЗ'} ${(tariff_code === 139) && 'адреса'} ${(tariff_code === 366) && 'постамата'}, ${address}`
-			const msOrder = await createMsOrder({ city, address, point, positions, counterpartyId: client.counterpartyId })
-
-			const { name: number, id: msOrderId, shipmentAddress, sum } = msOrder
-			const order = await new OrderModel({
-				client: client._id,
-				delivery: { address: addressString },
-				products: orderProducts,
-				variants: orderVariants,
-				msOrderId, number,
-				total: total / 100,
-			}).save()
-
-			client.orders.push(order._id)
-			await client.save()
-
-			req.session.cart.products = req.session.cart.products.filter(
-				({ productId }) =>
-					!productsFromClient.some(
-						(item) => item.productId === productId
-					)
-			)
-			req.session.cart.variants = req.session.cart.variants.filter(
-				({ variantId }) =>
-					!variantsFromClient.some(
-						(item) => item.variantId === variantId
-					)
-			)
-
-			const productItems = await ProductModel.find({ _id: { $in: productsArr.map(({ productId }) => productId) }})
-			const variantItems = await ProductModel.find({ _id: { $in: variantsArr.map(({ productId }) => productId) }})
-			const items: ISdekOrderPayload['packages'][0]['items'] = []
-			for (const i in productsArr) {
-				const { productId, quantity } = productsArr[i]
-				const product = productItems.find(({ _id }) => _id.toString() === productId)
-				if ( product ) {
-					items.push({
-						amount: quantity,
-						cost: (product.price || 0) / 100,
-						name: product.name,
-						payment: { value: 0 },
-						ware_key: product.identifier,
-						weight: product.weight || 25 * quantity
-					})
-				}
-			}
-			for (const i in variantsArr) {
-				const { productId, variantId, quantity } = variantsArr[i]
-				const product = variantItems.find(
-					({ _id }) => _id.toString() === productId
-				)
-				const variant = product?.variants.find(({ _id }) => _id?.toString() === variantId)
-				if (variant) {
-					items.push({
-						amount: quantity,
-						cost: (variant.price || 0) / 100,
-						name: product?.name || '' + ' ' + variant.name,
-						payment: { value: 0 },
-						ware_key: variant.identifier,
-						weight: product?.weight || 25 * quantity,
-					})
-				}
-			}
-
-			const sdekPayload: ISdekOrderPayload = {
+			const sdekForOrder: IOrder["delivery"]["sdek"] = {
+				city_code,
+				number: `+7${client.tel}`,
+				address,
+				point_code: code,
+				cost: req.session.delivery.sdek?.cost || 0,
+				name: client.name,
 				tariff_code,
-				recipient: {
-					name: client.name || "Покупатель",
-					phones: [{ number: `+7${client.tel}` }],
-					number: `+7${client.tel}`,
-				},
-				from_location: {
-					address: "Дзержинского 87/1",
-					code: 435,
-				},
-				packages: [
-					{
-						number,
-						items,
-						weight: items.reduce(
-							(total, { weight }) => total + weight,
-							0
-						),
-					},
-				],
 			}
-			if ( tariff_code === 139 && address ) {
-				sdekPayload.to_location = { address, code: req.session.delivery.city_code }
-			}
-			if ( tariff_code === 138 || tariff_code === 366 ) {
-				sdekPayload.delivery_point = req.session.delivery.sdek?.code
-			}
-			const uuid = await sdekCreateOrder(sdekPayload)
-			if (order.delivery.sdek) {
-				order.delivery.sdek.uuid = uuid
-				order.delivery.sdek.cost = req.session.delivery.sdek?.cost || 0
-			} else {
-				order.delivery = {
-					sdek: {
-						uuid,
-						cost: req.session.delivery.sdek?.cost || 0,
-					},
-				}
-			}
-			await order.save()
+			const orderId = await client.createTempOrder(sdekForOrder, productsForOrder, variantsForOrder)
 
-			await updateMsOrder(msOrderId, {
-				shipmentAddress: `${shipmentAddress}; СДЭК ${uuid}`,
-			})
+			// создание заказа в "Мой склад";
+			const { name: number, id: msOrderId, sum } = await createMsOrderHandler(orderId)
 
-			req.session.orderId = order._id.toString()
-			const { url, id } = await createUKPayment({
-				amount: {
-					currency: "RUB",
-					value: (
-						sum / 100 +
-						(order?.delivery?.sdek?.cost || 0)
-					).toFixed(2),
-				},
-				capture: "true",
-				confirmation: {
-					type: "redirect",
-					return_url: `https://drobot-pigments-shop.ru/payment/${order._id.toString()}`,
-				},
-				metadata: {
-					orderId: order._id.toString(),
-					orderSum: sum,
-					deliverySum: order?.delivery?.sdek?.cost || 0,
-					msOrderId,
-				},
-				receipt: {
-					email: client.mail || '',
-					phone: client.tel,
-					items: items.map(({ amount, name, cost }) => ({
-						amount: { 
-							value: cost.toFixed(2),
-							currency: 'RUB'
-						 },
-						description: name,
-						quantity: amount.toString(),
-						vat_code: 1,
-					})).concat({
-						amount: { 
-							value: (order.delivery.sdek?.cost || 0).toFixed(2),
-							currency: 'RUB'
-						 },
-						description: 'Доставка',
-						quantity: '1',
-						vat_code: 1,
-					})
-				}
-			})
-
-			order.payment = { paymentId: id }
-			await order.save()
-			
-			if ( !client.amoContactId ) {
-				const amoContactId = await createContact(client.name, client.tel, client.mail)
-				client.amoContactId = amoContactId
-				await client.save()
+			// запись информации о заказе "Мой склад" в заказ из БД;
+			try {
+				await OrderModel.findByIdAndUpdate(orderId, { number, msOrderId, msOrderSumRub: sum / 100 })
+			} catch (e: any) {
+				const err = new Error()
+				err.userError = true
+				err.sersviceInfo = `Привязка заказа МС к заказу в БД. ${e.message}`
+				throw err
 			}
 
-			return res.json({ url, orderNumber: order.number} )
-		} catch (e) {
-			console.log(e)
-			return res.status(500).json({ message: "Что-то пошло не так..." })
+			// создание платежа в Ю-Касса;
+			const { url, id } = await createPaymentHandler(orderId)
+
+			// запись информации о платеже в заказ из БД;
+			try {
+				await OrderModel.findByIdAndUpdate(orderId, { 'payment.paymentId': id })
+			} catch (e: any) {
+				const err = new Error()
+				err.userError = true
+				err.sersviceInfo = `Привязка заказа МС к заказу в БД. ${e.message}`
+				throw err
+			}
+
+			return res.json({ url, orderNumber: number })
+		} catch (e: any) {
+			errorHandler(e, req, res)
 		}
 	}
 )
-
-router.put("/", async (req, res) => {
-	try {
-	} catch (e) {
-		console.log(e)
-		return res.status(500).json({ message: "Что-то пошло не так..." })
-	}
-})
 
 router.get('/delivery/cities/:str', async (req: Request<{str: string}>, res) => {
 	try {
@@ -856,10 +670,32 @@ router.post('/check-number/pin', bodyParser.json(), async (req: Request<{}, {}, 
 	}
 })
 
+router.post("/clear-cart", bodyParser.json(), async (req: Request<{}, {}, { orderNumber: string }>, res) => {
+	try {
+		const { orderNumber } = req.body
+		const order = await OrderModel.findOne({ number: orderNumber })
+		if (!order) {
+			return res.end()
+		}
+
+		const productsIds = order.products.map(({ product }) => product.toString())
+		const variantsIds = order.variants.map(({ variant }) => variant.toString())
+
+		if (req.session.cart) {
+			req.session.cart.products = req.session.cart.products.filter(({ productId }) => !productsIds.includes(productId.toString()))
+			req.session.cart.variants = req.session.cart.variants.filter(({ variantId }) => !variantsIds.includes(variantId.toString()))
+		}
+		return res.end()
+	} catch (e) {
+		console.log(e)
+		return res.end()
+	}
+})
+
 router.get('/check-payment/probably', async (req, res) => {
 	try {
 		const { orderId } = req.session
-		const order = await OrderModel.findById<IOrder>(orderId)
+		const order = await OrderModel.findById(orderId)
 		if ( !order ) {
 			throw new Error(`Заказ ${orderId} не найден...`)
 		}

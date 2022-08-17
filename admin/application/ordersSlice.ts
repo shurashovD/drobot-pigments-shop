@@ -17,7 +17,7 @@ const ordersSlice = createSlice({
     name: 'ordersSlice',
     reducers: {
         resetNew: (state, { payload }: PayloadAction<string>) => {
-            const index = state.news.findIndex(({ _id }) => _id.toString() === payload)
+            const index = state.news.findIndex(({ id }) => id === payload)
             if ( index !== -1 ) {
                 state.news.splice(index, 1)
             }

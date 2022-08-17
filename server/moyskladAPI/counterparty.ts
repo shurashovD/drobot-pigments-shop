@@ -18,6 +18,23 @@ export const createMsCounterParty = async (payload: { name: string; email: strin
 	}
 }
 
+export const editMsCounterParty = async (
+	identifier: string,
+	payload: { name?: string; email?: string; phone?: string }
+) => {
+	try {
+		const res: {
+			id: string
+			name: string
+			phone?: string
+			email?: string
+		} = await ms.PUT(`${paths.counterparty}/${identifier}`, payload)
+		return res
+	} catch (e) {
+		throw e
+	}
+}
+
 const getCounterPartyByNumber = async (phone: string) => {
     const parsePhone = (number: string) => {
 		if (number.length < 10) return undefined
@@ -30,7 +47,7 @@ const getCounterPartyByNumber = async (phone: string) => {
 			}
 			result += symbol
 		}
-		return Array.from(result).reverse().join()
+		return Array.from(result).reverse().join('')
 	}
     try {
         const { rows } = await ms.GET(paths.counterparty)

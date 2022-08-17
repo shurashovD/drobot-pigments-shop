@@ -8,7 +8,6 @@ interface IProps {
     client?: string
     new: boolean
     phone?: string
-    address?: string
     mail?: string
     status: string
 }
@@ -22,7 +21,6 @@ const Item: FC<IProps> = (props) => {
 			<td>{props.date}</td>
 			<td>{props.client}</td>
 			<td className="text-center">{props.phone}</td>
-			<td className="text-center">{props.address}</td>
 			<td className="text-center">{props.mail}</td>
 			<td className="text-center">{props.status}</td>
 		</tr>

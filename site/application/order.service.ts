@@ -166,6 +166,13 @@ const orderApi = createApi({
 		checkPaymentProbably: build.query<boolean, undefined>({
 			query: () => "/check-payment/probably",
 		}),
+		clearCartAfterOrder: build.mutation<undefined, { orderNumber: string }>({
+			query: (body) => ({
+				body,
+				method: 'POST',
+				url: `/clear-cart`
+			})
+		})
 	}),
 	reducerPath: "orderApi",
 	tagTypes: [
@@ -197,6 +204,7 @@ export const {
 	useGetRecipientQuery,
 	useSetRecipientMutation,
 	useCheckPaymentProbablyQuery,
+	useClearCartAfterOrderMutation,
 } = orderApi
 
 export default orderApi

@@ -1,5 +1,5 @@
-import { FC, useCallback, useEffect, useRef, useState } from "react" 
-import { Fade, Image, Ratio, Spinner } from "react-bootstrap"
+import { FC, useEffect, useRef, useState } from "react" 
+import { Image,  Spinner } from "react-bootstrap"
 import { useLazyStaticQuery } from "../application/file.service"
 
 interface IProps {
@@ -10,23 +10,33 @@ interface IProps {
 const ImageComponent: FC<IProps> = ({ widthToHeight = 1, src }) => {
 	const [size, setSize] = useState({ width: 0, height: 0 })
     const [trigger, { isFetching, isError, data }] = useLazyStaticQuery()
+	const container = useRef<HTMLDivElement | null>(null)
 
-    const container = useCallback((container: HTMLDivElement) => {
-		if (container) {
-			const width = container.offsetWidth
+    useEffect(() => {
+		const handler = () => {
+			if (container.current) {
+				const width = container.current.offsetWidth
+				const height = width / widthToHeight
+				setSize({ width, height })
+			}
+		}
+
+		if (container.current) {
+			const width = container.current.offsetWidth
 			const height = width / widthToHeight
 			setSize({ width, height })
 		}
-	}, [])
 
-    useEffect(() => {
         const { abort } = trigger(src, true)
 
+		window.addEventListener('resize', handler)
+
         return () => {
+			window.removeEventListener('resize', handler)
             abort()
         }
 
-    }, [trigger, src])
+    }, [trigger, src, container])
 
 	return (
 		<div ref={container}>

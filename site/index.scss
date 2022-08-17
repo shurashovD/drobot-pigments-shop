@@ -53,9 +53,11 @@ $h6-font-size: $font-size-base;
 
 $primary: #39261F;
 $secondary: #F7DFB1;
+$dark: #B88E5B;
 $light: #F7F0F0;
 $danger: #FD7575;
 $gray: #9C938F;
+$gray2: #ab9a9a;
 
 $body-bg: #F7F0F0;
 
@@ -296,6 +298,62 @@ input:focus,
 }
 .sign-tel-btn-success:hover {
     color: #93FA82;
+}
+
+.white-space {
+    white-space: nowrap;
+}
+
+.delivery-list {
+    list-style-position: inside;
+    list-style-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNSIgaGVpZ2h0PSI3IiB2aWV3Qm94PSIwIDAgNSA1IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogICAgPGNpcmNsZSBjeD0iMi41IiBjeT0iMS41IiByPSIyLjUiIGZpbGw9IiNCODhFNUIiLz4KPC9zdmc+Cg==');
+}
+
+.profile-input {
+    border: 0;
+}
+.profile-input:disabled {
+    background-color: transparent;
+}
+
+.profile-edit__btn {
+    background-image: url('./img/forge-icon.svg');
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+.profile-edit__btn.invalid {
+    background-image: url('./img/invalid-icon.svg');
+}
+
+.info-icon-bg {
+    background-image: url('./img/info-icon.svg');
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+
+.profile-mobile-accordion {
+    .accordion-button {
+        background-color: $secondary;
+    }
+    .accordion-button::after {
+        background-image: none;
+    }
+
+    .accordion-button.collapsed {
+        background-color: $dark;
+    }
+}
+
+.order-product-component {
+    border-bottom: 1px solid $gray2;
+}
+.order-product-component:last-child {
+    border-bottom: 0;
+}
+
+hr {
+    opacity: 1 !important;
 }
 
 @media (max-width: 576px) {

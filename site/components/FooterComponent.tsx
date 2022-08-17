@@ -7,7 +7,11 @@ const youtubeLogo = require("../img/youtube.svg")
 
 const FooterComponent = () => {
     return (
-		<Container fluid className="bg-primary pt-5 pb-5 pb-md-4" id="footer-component">
+		<Container
+			fluid
+			className="bg-primary pt-5 pb-5 pb-md-4"
+			id="footer-component"
+		>
 			<Container className="pb-1">
 				<Row xs={1} md={3} className="mb-6">
 					<Col className="mb-6 mb-md-0">
@@ -25,14 +29,14 @@ const FooterComponent = () => {
 								>
 									<div>
 										<a
-											href="http://vk.com"
+											href="https://vk.com/drobot_pigments"
 											target="_blank"
 											rel="noopener noreferrer"
 										>
 											<Image src={vkLogo} />
 										</a>
 									</div>
-									<div>
+									<div className="d-none">
 										<a
 											href="http://instagram.com"
 											target="_blank"
@@ -41,7 +45,7 @@ const FooterComponent = () => {
 											<Image src={instaLogo} />
 										</a>
 									</div>
-									<div>
+									<div className="d-none">
 										<a
 											href="http://tg.com"
 											target="_blank"
@@ -50,7 +54,7 @@ const FooterComponent = () => {
 											<Image src={tgLogo} />
 										</a>
 									</div>
-									<div>
+									<div className="d-none">
 										<a
 											href="http://youtube.com"
 											target="_blank"
@@ -70,17 +74,20 @@ const FooterComponent = () => {
 									Покупателю
 								</span>
 							</div>
-							<div className="text-center text-md-start">
+							<div className="text-center text-md-start d-none">
 								<NavLink to="/" className="footer__link">
 									Статус заказа
 								</NavLink>
 							</div>
 							<div className="text-center text-md-start">
-								<NavLink to="/" className="footer__link">
-									Доставка и оплата
+								<NavLink
+									to="/delivery"
+									className="footer__link"
+								>
+									Доставка
 								</NavLink>
 							</div>
-							<div className="text-center text-md-start">
+							<div className="text-center text-md-start d-none">
 								<NavLink to="/" className="footer__link">
 									Бонусная программа
 								</NavLink>
@@ -92,7 +99,7 @@ const FooterComponent = () => {
 							</div>
 						</Stack>
 					</Col>
-					<Col>
+					<Col className="d-none">
 						<Stack gap={2}>
 							<div className="mb-3 text-center text-md-start">
 								<span className="text-uppercase text-secondary">
@@ -120,7 +127,7 @@ const FooterComponent = () => {
 				<Row
 					xs={1}
 					md={"auto"}
-					className="justify-content-center mb-5 gap-4"
+					className="justify-content-center mb-5 gap-4 d-none"
 				>
 					<Col className="text-center text-md-start">
 						<NavLink to="/" className="footer-light__link">

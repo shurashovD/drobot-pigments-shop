@@ -1,14 +1,17 @@
 import axios, { AxiosResponse } from 'axios'
 import config from 'config'
-import { IAmoAuthCodeExchangePayload, IAmoAuthCodeExchangeResponse, IAmoRefreshTokenPayload, IAmoRefreshTokenResponse } from '../../shared'
+import { IAmoAuthCodeExchangePayload, IAmoAuthCodeExchangeResponse, IAmoPipeline, IAmoRefreshTokenPayload, IAmoRefreshTokenResponse, IAmoTag } from '../../shared'
 import AmoCredModel from '../models/AmoCredModel'
 
-const { auth, domain } = config.get("amo")
+const { auth, contact, domain, pipelineId } = config.get("amo")
 
 const paths = {
 	oauth: "/oauth2/access_token",
+	catalogs: '/api/v4/catalogs',
 	contacts: "/api/v4/contacts",
 	contactsCustomFields: "/api/v4/contacts/custom_fields",
+    pipelines: '/api/v4/leads/pipelines',
+	trade: "/api/v4/leads",
 }
 
 export const amoGetToken = async (code: string) => {
@@ -45,9 +48,29 @@ export const amoGetToken = async (code: string) => {
     }
 }
 
-export const amoRefreshToken = async (refresh_token: string) => {
+const getAmoProducts = async () => {
 	try {
-		await axios.post<IAmoRefreshTokenResponse, any, IAmoRefreshTokenPayload>(
+		const authorization = await amoAuth()
+		if (!authorization) {
+			return
+		}
+
+		const url = `${domain}${paths.catalogs}/3961/elements`
+		return await axios
+			.get(url, {
+				headers: { "Content-Type": "application/json", authorization },
+			})
+			.then(({ data }) =>
+				data?._embedded.elements
+			)
+	} catch (e) {
+		throw e
+	}
+}
+
+const amoRefreshToken = async (refresh_token: string) => {
+	try {
+		const res = await axios.post<IAmoRefreshTokenResponse, any, IAmoRefreshTokenPayload>(
 			`${domain}/${paths.oauth}`,
 			{
                 client_id: auth.client_id,
@@ -57,7 +80,22 @@ export const amoRefreshToken = async (refresh_token: string) => {
                 refresh_token
             },
 			{ headers: { "Content-Type": "application/json" } }
-		)
+		).then(({ data }) => data)
+        const amoCred = await AmoCredModel.findOne()
+		if (amoCred) {
+			amoCred.access_token = res.access_token
+			amoCred.expires_in = Math.round(Date.now() / 1000) + res.expires_in
+			amoCred.refresh_token = res.refresh_token
+			amoCred.token_type = res.token_type
+			await amoCred.save()
+		} else {
+			await new AmoCredModel({
+				expires_in: Math.round(Date.now() / 1000) + res.expires_in,
+				access_token: res.access_token,
+				refresh_token: res.refresh_token,
+				token_type: res.token_type,
+			}).save()
+		}
 	} catch (e) {
 		throw e
 	}
@@ -147,9 +185,214 @@ export const createContact = async (name = 'Покупатель с сайта',
 			.post(`${domain}${paths.contacts}`, payload, {
 				headers: { "Content-Type": "application/json", authorization },
 			})
+			.then(({ data }) => data._embedded?.contacts?.[0])
+    }
+    catch (e: any) {
+        console.log(e.response?.data?.['validation-errors']?.[0])
+    }
+}
+
+export const updateContact = async (id: string, name = 'Покупатель с сайта', phone?: string, mail?: string, city?: string) => {
+    try {
+        const payload: {
+			name: string
+			custom_fields_values: {
+				field_id: number
+				values: { value: string }[]
+			}[]
+		}[] = [
+			{
+				name,
+				custom_fields_values: [
+					{
+						field_id: 331359,
+                        values: [{
+                            value: 'drobot-pigments-shop.ru'
+                        }]
+					},
+				],
+			},
+		]
+
+        if ( phone ) {
+            payload[0].custom_fields_values.push({
+				field_id: 329649,
+                values: [{
+                    value: phone
+                }]
+			})
+        }
+
+        if (mail) {
+			payload[0].custom_fields_values.push({
+				field_id: 329651,
+				values: [
+					{
+						value: mail,
+					},
+				],
+			})
+		}
+
+        if (city) {
+			payload[0].custom_fields_values.push({
+				field_id: 331409,
+				values: [
+					{
+						value: city,
+					},
+				],
+			})
+		}
+
+        const authorization = await amoAuth()
+        if ( !authorization ) {
+            return
+        }
+
+        return await axios
+			.patch(`${domain}${paths.contacts}/${id}`, payload, {
+				headers: { "Content-Type": "application/json", authorization },
+			})
 			.then(({ data }) => data?._embedded?.contacts?.[0]?.id)
     }
     catch (e: any) {
         console.log(e.response?.data?.['validation-errors']?.[0])
     }
+}
+
+export const getContactByPhone = async (phone: string) => {
+    try {
+		const parsePhone = (number: string) => {
+			if (number.length < 10) return undefined
+
+			let result = ""
+			for (let i = 1; i <= 10; ++i) {
+				const symbol = number[number.length - i]
+				if (isNaN(parseInt(symbol))) {
+					continue
+				}
+				result += symbol
+			}
+			return Array.from(result).reverse().join('')
+		}
+
+        const authorization = await amoAuth()
+		if (!authorization) {
+			return
+		}
+        const url = `${domain}${paths.contacts}`
+        const contacts = await axios.get(url, {
+			headers: {
+				"Content-Type": "application/json",
+				authorization,
+			},
+		})
+		.then(({ data }) => data?._embedded?.contacts)
+		const compPhone = parsePhone(phone)
+		return contacts.find(({ custom_fields_values }: any) => {
+			custom_fields_values?.some(({ field_id, values }: any) => (
+				( field_id === 329649 ) &&
+					values.some(({ value }: any) => parsePhone(value) === compPhone)
+			))
+		})
+    }
+    catch (e) {
+        throw e
+    }
+}
+
+const getPipelines = async (id?: string) => {
+    try {
+        const authorization = await amoAuth()
+		if (!authorization) {
+			return
+		}
+
+        if ( id ) {
+            const url = `${domain}${paths.pipelines}/${id}`
+            return await axios.get<IAmoPipeline, AxiosResponse<IAmoPipeline>>(url, {
+                headers: { "Content-Type": "application/json", authorization },
+            }).then(({ data }) => data)
+        } else {
+            const url = `${domain}${paths.pipelines}`
+            return await axios.get<IAmoPipeline[], AxiosResponse<{_embedded: { pipelines: IAmoPipeline[] }}>>(url, {
+                headers: { "Content-Type": "application/json", authorization },
+            }).then(({ data }) => data._embedded.pipelines)
+        }
+        
+    }
+    catch (e) {
+        throw e
+    }
+}
+
+const getLeadsTags = async () => {
+    try {
+        const authorization = await amoAuth()
+		if (!authorization) {
+			return
+		}
+
+        const url = `${domain}${paths.trade}/tags`
+		return await axios
+			.get<IAmoTag, AxiosResponse<{ _embedded: IAmoTag[]}>>(url, {
+				headers: { "Content-Type": "application/json", authorization },
+			})
+			.then(({ data }) => data._embedded)
+    }
+    catch (e) {
+        throw e
+    }
+}
+
+const getContactById = async (id: number) => {
+	try {
+		const authorization = await amoAuth()
+		if (!authorization) {
+			return
+		}
+		const url = `${domain}${paths.contacts}/${id}`
+		return await axios.get(url, {
+			headers: {
+				"Content-Type": "application/json",
+				authorization,
+			},
+		}).then(({ data }) => data)
+	} catch (e) {
+		throw e
+	}
+}
+
+export const createTrade = async (contactId: number, products: {name: string, quantity: number}[], price: number) => {
+	try {
+		const authorization = await amoAuth()
+		if (!authorization) {
+			return
+		}
+
+		const contact = await getContactById(contactId)
+		const payload = {
+			custom_fields_values: [
+				{
+					field_id: 986327,
+					values: products.map(
+						({ name, quantity }) => `${name} ${quantity}шт.`
+					),
+				},
+			],
+			price,
+			pipeline_id: pipelineId,
+			_embedded: {
+				contacts: [contact]
+			}
+		}
+
+		return await axios.post(`${domain}${paths.trade}`, payload, {
+			headers: { "Content-Type": "application/json", authorization },
+		}).then(({ data }) => data)
+	} catch (e: any) {
+		console.log(e.response.data["validation-errors"][0].errors)
+	}
+    
 }

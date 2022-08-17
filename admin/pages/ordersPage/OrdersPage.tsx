@@ -26,7 +26,6 @@ const OrdersPage = () => {
 							<th>Дата</th>
 							<th>Заказчик</th>
 							<th className="text-center">Телефон</th>
-							<th className="text-center">Адрес</th>
 							<th className="text-center">Почта</th>
 							<th className="text-center">Статус</th>
 						</tr>
@@ -34,12 +33,11 @@ const OrdersPage = () => {
 					<tbody>
 						{orders.map((item) => (
 							<Item
-								key={item._id?.toString()}
+								key={item.id}
 								date={item.date}
-								id={item._id?.toString() || ""}
+								id={item.id}
 								new={item.status === "new"}
 								number={item.number.toString()}
-								address={item.delivery.address}
 								client={item.client.name}
 								mail={item.client.mail}
 								phone={item.client.tel}

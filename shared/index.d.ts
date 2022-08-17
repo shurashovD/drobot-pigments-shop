@@ -1,6 +1,30 @@
 import { Document, Model, Types } from "mongoose"
 import { FC, SVGProps } from "react"
 
+interface IAmoStatuses {
+	id: number
+	name: string
+	sort: number
+	pipeline_id: number
+	color: string
+	type: 0 | 1
+}
+
+interface IAmoPipeline {
+	id: number
+	name: string
+	sort: number
+	_embedded: {
+		statuses: IAmoStatuses[]
+	}
+}
+
+export interface IAmoTag {
+	id: number
+	name: string
+	color: string | null
+}
+
 export interface ICurrency extends Document {
 	identifier: string
 	name: string
@@ -168,8 +192,14 @@ export interface IOrder extends Document {
 	date: Date
 	delivery: {
 		sdek?: {
+			number: string
+			city_code: number
+			point_code?: string
+			name?: string
+			address?: string
 			uuid?: string
-			cost?: number 
+			cost?: number
+			tariff_code: number
 		}
 	}
 	payment?: {
@@ -180,37 +210,67 @@ export interface IOrder extends Document {
 	products: Types.DocumentArray<{
 		product: Types.ObjectId
 		quantity: number
+		price: number
+		discountOn?: number
 	}>
 	variants: Types.DocumentArray<{
 		product: Types.ObjectId
 		variant: Types.ObjectId
 		quantity: number
+		price: number
+		discountOn?: number
 	}>
 	msOrderId?: string
+	msOrderSumRub?: number
 	number: number
-	status: "new" | "isReading" | "compiling" | "deliveried" | "complete"
-	total?: number
+	status: "new" | "compiling" | "deliveried" | "complete"
+	total: number
 }
 
-export interface IOrderPop extends Document {
+export interface OrderModel extends Model<IOrder> {
+	getOrder(id: string): Promise<IOrderPop>
+}
+
+export interface IOrderPop {
 	client: IClient
 	date: string
 	delivery: {
-		address: string
+		sdek?: {
+			number: string
+			city_code: number
+			point_code: string
+			name?: string
+			address?: string
+			uuid?: string
+			cost?: number
+			tariff_code: number
+		}
+	}
+	id: string
+	payment?: {
+		paymentId: string
+		status?: string
+		probably?: boolean
 	}
 	products: [
 		{
 			product: IProduct
 			quantity: number
+			price: number
+			discountOn?: number
 		}
 	]
 	variants: Types.DocumentArray<{
-		product: Types.ObjectId
-		variant: IProduct['variants'][0]
+		product: IProduct
+		variant: Types.ObjectId
 		quantity: number
+		price: number
+		discountOn?: number
 	}>
+	msOrderId?: string
+	msOrderSumRub?: number
 	number: number
-	status: "new" | "isReading" | "compiling" | "deliveried" | "complete"
+	status: "new" | "compiling" | "deliveried" | "complete"
 	total: number
 }
 
@@ -220,9 +280,62 @@ export interface IClient extends Document {
 	counterpartyId?: string
 	mail?: string
 	name?: string
-    orders: Types.ObjectId[]
+	orders: Types.ObjectId[]
 	tel: string
+	commonOrders: Types.ObjectId[]
+	agentOrders: Types.ObjectId[]
+	delegateOrders: Types.ObjectId[]
+	status?: string
+	claimedStatus?: string
+	promocodes?: Types.ObjectId[]
+	cashBack?: number
+	total?: number
+	createTempOrder(
+		sdek: IOrder['delivery']['sdek'],
+		products: {
+			productId: string
+			quantity: number
+			price: number
+			discountOn?: number
+		}[],
+		variants: {
+			productId: string
+			variantId: string
+			quantity: number
+			price: number
+			discountOn?: number
+		}[]
+	): Promise<string>
+	deleteOrder(orderId: string): Promise<void>
+	getDiscount(): Promise<{ discountPercentValue?: string; nextLevelRequires: string[] }>
+	getOrder(id: string): Promise<IOrderPop>
+	getNearestOrder(): Promise<IOrderPop | undefined>
 }
+
+export interface IClientMethods {
+	createTempOrder(
+		sdek: IOrder["delivery"]["sdek"],
+		products: {
+			productId: string
+			quantity: number
+			price: number
+			discountOn?: number
+		}[],
+		variants: {
+			productId: string
+			variantId: string
+			quantity: number
+			price: number
+			discountOn?: number
+		}[]
+	): Promise<string>
+	deleteOrder(orderId: string): Promise<void>
+	getOrder(id: string): Promise<IOrderPop>
+	getDiscount(): Promise<{ discountPercentValue?: string; nextLevelRequires: string[] }>
+	getNearestOrder(): Promise<IOrderPop | undefined>
+}
+
+export interface ClientModel extends Model<IClient, {}, IClientMethods> {}
 
 export interface IMSHook {
 	url: string
@@ -531,9 +644,55 @@ export interface ICart {
 	}[]
 }
 
+export interface INearestOrder {
+	id: string
+	number: string
+	date: string
+	delivery?: string
+	products: IProduct[]
+	variants: {
+		product: IProduct
+		variantId: string
+	}[]
+}
+
+export interface ICommonDiscount {
+	id: string
+	percentValue: number
+	lowerTreshold: number
+}
+
+export interface ICommonDiscountDoc extends ICommonDiscount, Document  {}
+
+export interface IAgentDiscount {
+	id: string
+	percentValue: number
+}
+
+export interface IAgentDiscountDoc extends IAgentDiscount, Document {}
+
+export interface IDelegateDiscount {
+	id: string
+	percentValue: number
+	lowerTreshold: number
+}
+
+export interface IDelegateDiscountDoc extends IDelegateDiscount, Document {}
+
+export interface IProductFromClient {
+	productId: string, quantity: number
+}
+
+export interface IVariantFromClient {
+	variantId: string
+	productId: string
+	quantity: number
+}
+
 declare global {
 	interface Error {
 		userError?: boolean
+		sersviceInfo?: string
 	}
 }
 
@@ -546,6 +705,9 @@ declare global {
 			refreshTokenTime: number
 			sdekToken: string
 			plusofonToken: string
+		}
+		interface ProcessEnv {
+			NODE_ENV?: string
 		}
 	}
 }
