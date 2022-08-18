@@ -19,7 +19,7 @@ router.get('/:id', async (req: Request<{id: string}>, res) => {
 			await order.save()
 		}
         
-        return res.send('<h3>Работа с оплатой завершена.</h3><h4>Закройте эту вкладку и вернитесь в магазин.</h4>')
+        return res.send('<script>window.close()</script>')
     }
     catch (e: any) { errorHandler(e, req, res) }
 })

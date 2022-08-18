@@ -37,21 +37,25 @@ const FinalModal: FC<IProps> = ({ show, onHide, number, url }) => {
     return (
 		<Modal show={show} onHide={onHide}>
 			<Modal.Body className="bg-primary pb-6 px-5">
-				<Modal.Header closeButton={isPaying} closeVariant="white" className="border-0" />
-				{data && data.status === "probably" ? (
-					<div className="text-uppercase text-white text-center mb-3">
-						Процесс оплаты завершен, но деньги к нам еще не поступили. Пожалуйста, подождите еще немного до завершения платежа. Вы можете
-						отследить заказ в <NavLink to="/profile">личном кабинете</NavLink>
-					</div>
-				) : (
-					<div className="text-uppercase text-white text-center mb-3">
-						Заказ {isPaying ? <>оформлен успешно!</> : <>ожидает оплаты...</>}
+				<Modal.Header
+					closeButton={data && (data.status === "succeeded" || data.status === "canceled")}
+					closeVariant="white"
+					className="border-0"
+				/>
+				<div className="text-uppercase text-white text-center mb-3">
+					{(!data || data.status === "pending") && <>Заказ №{number} ожидает оплаты...</>}
+					{data && data.status === "canceled" && <>Ошибка оплаты заказа!</>}
+					{data && data.status === "probably" && (
+						<>Процесс оплаты завершен, но деньги к нам еще не поступили. Пожалуйста, подождите еще немного до завершения платежа.</>
+					)}
+					{data && data.status === "succeeded" && <>Заказ №{number} успешно оформлен</>}
+				</div>
+				{(!data || data.status === "pending" || data.status === "probably") && (
+					<div className="text-center mb-4">
+						<Spinner animation="border" size="sm" variant="secondary" />
 					</div>
 				)}
-				<div className="text-uppercase text-white text-center mb-4">
-					{isPaying ? <>Заказ №{number}</> : <Spinner animation="border" size="sm" variant="secondary" />}
-				</div>
-				{isPaying && (
+				{data && data.status !== "pending" && (
 					<div className="text-white text-clearInterval mb-4">
 						Вы можете отследить заказ в <NavLink to="/profile">личном кабинете</NavLink>
 					</div>
@@ -60,12 +64,16 @@ const FinalModal: FC<IProps> = ({ show, onHide, number, url }) => {
 					<Image src={logo} width={106} />
 				</div>
 				<div className="text-center text-muted">
-					{isPaying ? (
-						<>В течении 15 минут с вами свяжется менеджер.</>
+					{!data || data.status === "pending" ? (
+						<>
+							Перейдите на{" "}
+							<a target="_blank" href={url} className="text-secondary">
+								вкладку оплаты
+							</a>
+							, если оплата произведена, подождите немного.
+						</>
 					) : (
-						<a target="_blank" href={url} className="text-secondary">
-							Перейдите на вкладку оплаты, если оплата произведена, подождите немного.
-						</a>
+						<>В течении 15 минут с вами свяжется менеджер.</>
 					)}
 				</div>
 			</Modal.Body>
