@@ -15,8 +15,11 @@ const FinalModal: FC<IProps> = ({ show, onHide, number, url }) => {
 	const [clearCart] = useClearCartAfterOrderMutation()
 
 	useEffect(() => {
-		if ( data && number ) {
+		if (data && data.status === "succeeded" && number) {
 			clearCart({ orderNumber: number })
+			setIsPaying(true)
+		}
+		if (data && data.status === "canceled") {
 			setIsPaying(true)
 		}
 	}, [data, clearCart, number])
@@ -35,13 +38,22 @@ const FinalModal: FC<IProps> = ({ show, onHide, number, url }) => {
 		<Modal show={show} onHide={onHide}>
 			<Modal.Body className="bg-primary pb-6 px-5">
 				<Modal.Header closeButton={isPaying} closeVariant="white" className="border-0" />
-				<div className="text-uppercase text-white text-center mb-3">Заказ {isPaying ? <>оформлен успешно!</> : <>ожидает оплаты...</>}</div>
+				{data && data.status === "probably" ? (
+					<div className="text-uppercase text-white text-center mb-3">
+						Процесс оплаты завершен, но деньги к нам еще не поступили. Пожалуйста, подождите еще немного до завершения платежа. Вы можете
+						отследить заказ в <NavLink to="/profile">личном кабинете</NavLink>
+					</div>
+				) : (
+					<div className="text-uppercase text-white text-center mb-3">
+						Заказ {isPaying ? <>оформлен успешно!</> : <>ожидает оплаты...</>}
+					</div>
+				)}
 				<div className="text-uppercase text-white text-center mb-4">
 					{isPaying ? <>Заказ №{number}</> : <Spinner animation="border" size="sm" variant="secondary" />}
 				</div>
-				{ isPaying && (
+				{isPaying && (
 					<div className="text-white text-clearInterval mb-4">
-						Отслеживайте статусы заказов в <NavLink to="/profile">личном кабинете</NavLink>
+						Вы можете отследить заказ в <NavLink to="/profile">личном кабинете</NavLink>
 					</div>
 				)}
 				<div className="text-center mb-5">

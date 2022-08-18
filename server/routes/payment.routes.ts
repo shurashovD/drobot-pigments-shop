@@ -14,10 +14,10 @@ router.get('/:id', async (req: Request<{id: string}>, res) => {
             err.sersviceInfo = `Заказ ${id} не найден. Страница редиректа Ю-Касса`
             throw err
         }
-        if ( order.payment ) {
-            order.payment.probably = true
-            await order.save()
-        }
+        if (order.payment && order.payment.status !== "canceled" && order.payment.status !== "waiting_for_capture") {
+			order.payment.probably = true
+			await order.save()
+		}
         
         return res.send('<h3>Работа с оплатой завершена.</h3><h4>Закройте эту вкладку и вернитесь в магазин.</h4>')
     }

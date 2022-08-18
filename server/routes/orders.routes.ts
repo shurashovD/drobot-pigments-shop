@@ -692,7 +692,19 @@ router.post("/check-payment/probably", bodyParser.json(), async (req: Request<{}
 		if (!order) {
 			throw new Error(`Заказ с номером ${number} не найден...`)
 		}
-		return res.json(!!order.payment?.probably)
+
+		const response = { status: 'pending' }
+		if ( order.payment && order.payment.status === 'succeeded' ) {
+			response.status = 'succeeded'
+		}
+		if (order.payment && order.payment.status === "canceled") {
+			response.status = "canceled"
+		}
+		if (order.payment && !order.payment.status && order.payment.probably) {
+			response.status = 'probably'
+		}
+		
+		res.json(response)
 	} catch (e) {
 		console.log(e)
 		return res.end()

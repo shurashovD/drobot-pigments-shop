@@ -141,8 +141,12 @@ const orderApi = createApi({
 			}),
 			invalidatesTags: ["recipient"],
 		}),
-		checkPaymentProbably: build.query<boolean, { orderNumber: string }>({
-			query: () => "/check-payment/probably",
+		checkPaymentProbably: build.query<{ status: string }, { orderNumber: string }>({
+			query: (body) => ({
+				body,
+				method: "POST",
+				url: "/check-payment/probably",
+			}),
 		}),
 		clearCartAfterOrder: build.mutation<undefined, { orderNumber: string }>({
 			query: (body) => ({
