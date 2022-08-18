@@ -38,8 +38,8 @@ const createPaymentHandler = async (orderId: string) => {
 				})
 			)
 
-        return await createUKPayment({
-			amount: { currency: "RUB", value: ((order.msOrderSumRub || 0) + (sdek.cost || 0)).toFixed(2) },
+        const { id, url } = await createUKPayment({
+			amount: { currency: "RUB", value: (+(order.msOrderSumRub || 0) + +(sdek.cost || 0)).toFixed(2) },
 			capture: "true",
 			confirmation: {
 				type: "redirect",
@@ -58,6 +58,13 @@ const createPaymentHandler = async (orderId: string) => {
 				}),
 			},
 		})
+		if (!url) {
+			const err = new Error()
+			err.userError = true
+			err.sersviceInfo = 'Отсутствует url платежа. Создание платежа'
+			throw err
+		}
+		return { id, url }
     } catch (e) { throw e }
 }
 

@@ -32,17 +32,22 @@ const createMsOrderHandler = async (orderId: string) => {
 			point = await getPointName(point_code)
 		}
 
-		const positions: { quantity: number; price: number; productId?: string; variantId?: string, discount?: number }[] =
-			order.products.map(({ price, product, quantity, discountOn }) => {
+		const positions: { quantity: number; price: number; productId?: string; variantId?: string; discount?: number }[] = [
+			...order.products.map(({ price, product, quantity, discountOn }) => {
 				const discount = discountOn ? Math.round(discountOn / price) * 100 : discountOn
-				return { price: price * 100, quantity, productId: product.identifier, discount }
-			})
-
+				return { price: price, quantity, productId: product.identifier, discount }
+			}),
+			...order.variants.map(({ price, product, variant, quantity, discountOn }) => {
+				const discount = discountOn ? Math.round(discountOn / price) * 100 : discountOn
+				const variantId = product.variants.find(({ _id }) => _id?.toString() === variant.toString())?.identifier
+				return { price: price, quantity, variantId, discount }
+			})]
 		try {
 			const msOrder = await createMsOrder({ city, address: addressString, point, positions, counterpartyId: order.client.counterpartyId })
 			return msOrder
 		} catch (e: any) {
-			await order.client.deleteOrder(orderId)
+			const client = await ClientModel.findById(order.client._id)
+			await client?.deleteOrder(orderId)
 			e.userError = true
 			e.sersviceInfo = "Создание заказа в МС"
 			throw e

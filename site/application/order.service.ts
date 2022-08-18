@@ -15,10 +15,7 @@ const orderApi = createApi({
 				}[]
 			}
 		>({
-			query: ({ products, variants }) =>
-				`/cart-total?products=${JSON.stringify(
-					products
-				)}&variants=${JSON.stringify(variants)}`,
+			query: ({ products, variants }) => `/cart-total?products=${JSON.stringify(products)}&variants=${JSON.stringify(variants)}`,
 			providesTags: () => ["total"],
 		}),
 		createOrder: build.mutation<
@@ -45,10 +42,7 @@ const orderApi = createApi({
 			query: () => "/cart",
 			providesTags: () => ["cart"],
 		}),
-		changeProductInCart: build.mutation<
-			undefined,
-			{ productId: string; quantity: number }
-		>({
+		changeProductInCart: build.mutation<undefined, { productId: string; quantity: number }>({
 			query: (body) => ({
 				body,
 				method: "PUT",
@@ -56,10 +50,7 @@ const orderApi = createApi({
 			}),
 			invalidatesTags: ["cart", "total"],
 		}),
-		changeVariantInCart: build.mutation<
-			undefined,
-			{ productId: string; variantId: string; quantity: number }
-		>({
+		changeVariantInCart: build.mutation<undefined, { productId: string; variantId: string; quantity: number }>({
 			query: (body) => ({
 				body,
 				method: "PUT",
@@ -67,22 +58,14 @@ const orderApi = createApi({
 			}),
 			invalidatesTags: ["cart", "total"],
 		}),
-		deleteFromCart: build.mutation<
-			undefined,
-			{ productIds: string[]; variantIds: string[] }
-		>({
+		deleteFromCart: build.mutation<undefined, { productIds: string[]; variantIds: string[] }>({
 			query: ({ productIds, variantIds }) => ({
 				method: "DELETE",
-				url: `/cart?productIds=${JSON.stringify(
-					productIds
-				)}&variantIds=${JSON.stringify(variantIds)}`,
+				url: `/cart?productIds=${JSON.stringify(productIds)}&variantIds=${JSON.stringify(variantIds)}`,
 			}),
 			invalidatesTags: ["cart", "total"],
 		}),
-		getRelevantCities: build.query<
-			{ city: string; city_code: number }[],
-			string
-		>({
+		getRelevantCities: build.query<{ city: string; city_code: number }[], string>({
 			query: (str) => `/delivery/cities/${str}`,
 		}),
 		getDeliveryCity: build.query<string, undefined>({
@@ -146,44 +129,31 @@ const orderApi = createApi({
 			}),
 			invalidatesTags: ["recipient"],
 		}),
-		getRecipient: build.query<
-			{ phone: string; name?: string; mail?: string },
-			undefined
-		>({
+		getRecipient: build.query<{ phone: string; name?: string; mail?: string }, undefined>({
 			query: () => "/delivery/recipient",
 			providesTags: () => ["recipient"],
 		}),
-		setRecipient: build.mutation<undefined, { name: string; mail: string }>(
-			{
-				query: (body) => ({
-					body,
-					method: "PUT",
-					url: "/delivery/recipient",
-				}),
-				invalidatesTags: ["recipient"],
-			}
-		),
-		checkPaymentProbably: build.query<boolean, undefined>({
+		setRecipient: build.mutation<undefined, { name: string; mail: string }>({
+			query: (body) => ({
+				body,
+				method: "PUT",
+				url: "/delivery/recipient",
+			}),
+			invalidatesTags: ["recipient"],
+		}),
+		checkPaymentProbably: build.query<boolean, { orderNumber: string }>({
 			query: () => "/check-payment/probably",
 		}),
 		clearCartAfterOrder: build.mutation<undefined, { orderNumber: string }>({
 			query: (body) => ({
 				body,
-				method: 'POST',
-				url: `/clear-cart`
-			})
-		})
+				method: "POST",
+				url: `/clear-cart`,
+			}),
+		}),
 	}),
 	reducerPath: "orderApi",
-	tagTypes: [
-		"cart",
-		"orders",
-		"total",
-		"deliveryCity",
-		"deliveryDetail",
-		"recipient",
-		"points",
-	],
+	tagTypes: ["cart", "orders", "total", "deliveryCity", "deliveryDetail", "recipient", "points"],
 })
 
 export const {

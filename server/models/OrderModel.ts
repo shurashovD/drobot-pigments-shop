@@ -18,6 +18,7 @@ const OrderSchema = new Schema<IOrder, OrderModel>({
 	},
 	payment: {
 		paymentId: String,
+		paymentUrl: String,
 		status: String,
 		probably: Boolean,
 	},
@@ -72,6 +73,71 @@ OrderSchema.statics.getOrder = async (id: string) => {
 		return order
 	}
 	catch (e) { throw e }
+}
+
+OrderSchema.statics.setMsInfo = async (id: string, args: { msOrderId: string; msOrderSumRub: number; number: number }) => {
+	try {
+		const order = await Order.findById(id)
+		if (!order) {
+			const err = new Error()
+			err.userError = true
+			err.sersviceInfo = `Заказ ${id} не найден. Установка свойств заказа МС`
+			throw err
+		}
+
+		const { msOrderId, msOrderSumRub, number } = args
+		order.msOrderId = msOrderId
+		order.msOrderSumRub = msOrderSumRub
+		order.number = number
+		await order.save()
+		return order
+	} catch (e) {
+		throw e
+	}
+}
+
+OrderSchema.statics.setPaymentInfo = async (id: string, args: { paymentId: string; paymentUrl: string }) => {
+	try {
+		const order = await Order.findById(id)
+		if (!order) {
+			const err = new Error()
+			err.userError = true
+			err.sersviceInfo = `Заказ ${id} не найден. Установка информации об оплате`
+			throw err
+		}
+
+		const { paymentId, paymentUrl } = args
+		order.payment = { ...order.payment, paymentId, paymentUrl }
+		await order.save()
+		return order
+	} catch (e) {
+		throw e
+	}
+}
+
+OrderSchema.statics.setPaymentStatus = async (id: string, args: { status: string, cancelationReason?: string }) => {
+	try {
+		const order = await Order.findById(id)
+		if (!order) {
+			const err = new Error()
+			err.userError = true
+			err.sersviceInfo = `Заказ ${id} не найден. Установка информации об оплате`
+			throw err
+		}
+
+		const { status, cancelationReason } = args
+		if (order.payment) {
+			order.payment.status = status
+			order.payment.probably = status === 'succeeded'
+			if ( cancelationReason ) {
+				order.payment.cancelationReason = cancelationReason
+			}
+		}
+		await order.save()
+		return order
+	} catch (e) {
+		throw e
+	}
 }
 
 const Order = model<IOrder, OrderModel>('Order', OrderSchema)

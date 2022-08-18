@@ -11,7 +11,7 @@ interface IProps extends ModalProps {
 
 const FinalModal: FC<IProps> = ({ show, onHide, number, url }) => {
 	const [isPaying, setIsPaying] = useState(false)
-	const { data } = useCheckPaymentProbablyQuery(undefined, { pollingInterval: 3000, skip: !show || isPaying })
+	const { data } = useCheckPaymentProbablyQuery({ orderNumber: number || '' }, { pollingInterval: 3000, skip: !show || isPaying })
 	const [clearCart] = useClearCartAfterOrderMutation()
 
 	useEffect(() => {

@@ -204,8 +204,10 @@ export interface IOrder extends Document {
 	}
 	payment?: {
 		paymentId: string
+		paymentUrl: string
 		status?: string
 		probably?: boolean
+		cancelationReason?: string
 	}
 	products: Types.DocumentArray<{
 		product: Types.ObjectId
@@ -223,12 +225,15 @@ export interface IOrder extends Document {
 	msOrderId?: string
 	msOrderSumRub?: number
 	number: number
-	status: "new" | "compiling" | "deliveried" | "complete"
+	status: "new" | "payCanceled" | "compiling" | "builded" | "delivering" | "complete"
 	total: number
 }
 
 export interface OrderModel extends Model<IOrder> {
 	getOrder(id: string): Promise<IOrderPop>
+	setMsInfo(id: string, args: { msOrderId: string; msOrderSumRub: number; number: number }): Promise<IOrderPop>
+	setPaymentInfo(id: string, args: { paymentId: string; paymentUrl: string }): Promise<IOrderPop>
+	setPaymentStatus(id: string, args: { status: string, cancelationReason?: string }): Promise<IOrderPop>
 }
 
 export interface IOrderPop {
@@ -249,8 +254,10 @@ export interface IOrderPop {
 	id: string
 	payment?: {
 		paymentId: string
+		paymentUrl: string
 		status?: string
 		probably?: boolean
+		cancelationReason?: string
 	}
 	products: [
 		{
@@ -270,7 +277,7 @@ export interface IOrderPop {
 	msOrderId?: string
 	msOrderSumRub?: number
 	number: number
-	status: "new" | "compiling" | "deliveried" | "complete"
+	status: "new" | "payCanceled" | "compiling" | "builded" | "delivering" | "complete"
 	total: number
 }
 
@@ -406,10 +413,6 @@ export interface ISdekPoints {
 		width: number
 		height: number
 		depth: number
-	}[]
-	errors?: {
-		code: string
-		message: string
 	}[]
 }
 

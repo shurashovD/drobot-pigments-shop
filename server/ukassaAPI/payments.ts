@@ -14,3 +14,11 @@ export const createUKPayment = async (createPayload: ICreatePayment) => {
 		throw e
 	}
 }
+
+export const getUKPayment = async (paymentId: string) => {
+	try {
+		return await checkout.getPayment(paymentId)
+	} catch (e) {
+		throw e
+	}
+}

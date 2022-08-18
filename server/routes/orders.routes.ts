@@ -518,9 +518,8 @@ router.post("/", bodyParser.json(), async (req: Request<{}, {}, { products: stri
 			>((doc) =>
 				variantsArr.map(({ productId, quantity, variantId }) => {
 					const price =
-						doc
-							.reduce<IProduct["variants"][0][]>((result, { variants }) => result.concat(variants), [])
-							.find(({ _id }) => _id?.toString() === variantId)?.price || 0
+						(doc.reduce<IProduct["variants"][0][]>((result, { variants }) => result.concat(variants), [])
+							.find(({ _id }) => _id?.toString() === variantId)?.price || 0) / 100
 					return { productId, variantId, quantity, price }
 				})
 			)
@@ -540,17 +539,11 @@ router.post("/", bodyParser.json(), async (req: Request<{}, {}, { products: stri
 			const { name: number, id: msOrderId, sum } = await createMsOrderHandler(orderId)
 
 			// запись информации о заказе "Мой склад" в заказ из БД;
-			try {
-				await OrderModel.findByIdAndUpdate(orderId, { number, msOrderId, msOrderSumRub: sum / 100 })
-			} catch (e: any) {
-				const err = new Error()
-				err.userError = true
-				err.sersviceInfo = `Привязка заказа МС к заказу в БД. ${e.message}`
-				throw err
-			}
+			await OrderModel.setMsInfo(orderId, { number, msOrderId, msOrderSumRub: sum / 100 })
 
 			// создание платежа в Ю-Касса;
 			const { url, id } = await createPaymentHandler(orderId)
+			await OrderModel.setPaymentInfo(orderId, { paymentId: id, paymentUrl: url })
 
 			// запись информации о платеже в заказ из БД;
 			try {
@@ -692,16 +685,15 @@ router.post("/clear-cart", bodyParser.json(), async (req: Request<{}, {}, { orde
 	}
 })
 
-router.get('/check-payment/probably', async (req, res) => {
+router.post("/check-payment/probably", bodyParser.json(), async (req: Request<{}, {}, { orderNumber: string }>, res) => {
 	try {
-		const { orderId } = req.session
-		const order = await OrderModel.findById(orderId)
-		if ( !order ) {
-			throw new Error(`Заказ ${orderId} не найден...`)
+		const { orderNumber: number } = req.body
+		const order = await OrderModel.findOne({ number })
+		if (!order) {
+			throw new Error(`Заказ с номером ${number} не найден...`)
 		}
 		return res.json(!!order.payment?.probably)
-	}
-	catch (e) {
+	} catch (e) {
 		console.log(e)
 		return res.end()
 	}

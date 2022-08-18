@@ -33,7 +33,7 @@ const createMsOrder = async (props: IProps) => {
 		const shipmentAddress = `${props.city} ${props.address && `до двери ${props.address}`} ${props.point && `до ПВЗ ${props.point}`}`
 		const positions = props.positions.map(
 			({ price, quantity, productId, variantId, discount }) => ({
-				quantity, price,
+				quantity, price: price * 100,
 				discount: discount || 0,
 				assortment: {
 					meta: {

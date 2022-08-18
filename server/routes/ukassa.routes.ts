@@ -1,4 +1,4 @@
-import { deleteMsOrder, getMsOrder, updateMsOrder } from './../moyskladAPI/orders';
+import { getMsOrder, updateMsOrder } from './../moyskladAPI/orders';
 import { ICreateWebHook } from "@a2seven/yoo-checkout";
 import bodyParser from "body-parser";
 import { Request, Router } from "express";
@@ -7,6 +7,7 @@ import OrderModel from "../models/OrderModel";
 import { acceptPayment } from "../moyskladAPI/orders";
 import { createUKHook, deleteUKHooks, getUKHooks } from "../ukassaAPI/hooks";
 import createSdekOrderHandler from '../handlers/createSdekOrderHandler';
+import { getUKPayment } from '../ukassaAPI/payments';
 
 const router = Router()
 
@@ -50,16 +51,12 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
         if ( !order ) {
              return res.end()
         }
-        if ( order.payment ) {
-            order.payment.status = status
-            order.payment.probably = status === "succeeded"
-            await order.save()
-        }
         if ( !order?.msOrderId ) {
             return res.end()
         }
         if (status === "succeeded") {
             // проведение оплаты в "Мой склад";
+            await OrderModel.setPaymentStatus(order._id.toString(), { status })
             const sum = parseFloat(amount.value) - (order.delivery.sdek?.cost || 0)
 			await acceptPayment(order.msOrderId, sum)
 
@@ -71,7 +68,15 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
             await updateMsOrder(order.msOrderId, { shipmentAddress: `${msOrder.shipmentAddress || ''}; СДЭК ${uuid}` })
         }
         if (status === "canceled") {
-            await deleteMsOrder(order.msOrderId)
+            // получение причины отмены платежа;
+            const { cancellation_details } = await getUKPayment(id)
+            if ( cancellation_details ) {
+                const { reason: cancelationReason } = cancellation_details
+                await OrderModel.setPaymentStatus(order._id.toString(), { status, cancelationReason })
+            } else {
+                await OrderModel.setPaymentStatus(order._id.toString(), { status })
+            }
+            await updateMsOrder(order.msOrderId, { description: "Произошла ошибка при оплате, ожидаем оплаты" })
         }
         if (status === "waiting_for_capture") {
 			await updateMsOrder(order.msOrderId, {
