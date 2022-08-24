@@ -3,6 +3,9 @@ import { model, Schema, Types } from 'mongoose';
 import CurrencyModel from './CurrencyModel';
 import UomModel from './UomModel';
 import CategoryModel from './CategoryModel';
+import config from 'config'
+
+const discountRootCategory = config.get("discountRootCategory")
 
 const VariantSchema = new Schema<IProduct["variants"][0]>({
 	identifier: String,
@@ -68,6 +71,16 @@ ProductSchema.statics.getProduct = async function(id: string): Promise<Product |
 		return result
 	}
 	catch (e) { throw e }
+}
+
+ProductSchema.statics.isDiscounted = async function (id: string): Promise<boolean> {
+	try {
+		const product = await this.findById(id)
+		return product?.parentCategory?.toString() === discountRootCategory
+	} catch (e) {
+		console.log(e)
+		return false
+	}
 }
 
 ProductSchema.methods.setFilter = async function(fieldId: Types.ObjectId): Promise<IProduct> {

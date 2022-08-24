@@ -22,16 +22,16 @@ const createMsOrderHandler = async (orderId: string) => {
 		}
 
 		const { city_code, address, point_code, tariff_code } = sdek
-		const addressString = `До ${tariff_code === 138 && "ПВЗ"} ${tariff_code === 139 && "адреса"} ${
-			tariff_code === 366 && "постамата"
-		}, ${address}`
+		const addressString = `До${tariff_code === 138 ? " ПВЗ" : " "}${tariff_code === 139 ? "адреса" : ""}${
+			tariff_code === 366 ? "постамата" : ""
+		}, ${address || ""}`
 		const city = await getCity(city_code)
 
 		let point
 		if (point_code) {
 			point = await getPointName(point_code)
 		}
-
+		
 		const positions: { quantity: number; price: number; productId?: string; variantId?: string; discount?: number }[] = [
 			...order.products.map(({ price, product, quantity, discountOn }) => {
 				const discount = discountOn ? Math.round(discountOn / price) * 100 : discountOn

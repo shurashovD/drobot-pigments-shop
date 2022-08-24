@@ -1,22 +1,11 @@
-import { ChangeEvent, FC, useEffect, useState } from "react"
+import { ChangeEvent, useEffect, useState } from "react"
 import { Button, Col, Fade, Form, Row } from "react-bootstrap"
-import { useSetDeliveryDetailMutation } from "../../application/order.service"
+import { useGetDeliveryDetailQuery, useSetDeliveryDetailMutation } from "../../application/order.service"
 import ButtonComponent from "../../components/ButtonComponent"
 import PointModal from "./PointModal"
 
-interface IProps {
-	busy?: boolean
-	tariff_code?: number
-	sdek?: boolean
-	address?: string
-	code?: string
-	period_max?: number
-	period_min?: number
-	total_sum?: number
-}
-
-const Delivery: FC<IProps> = (props) => {
-    const { address, tariff_code } = props
+const Delivery = () => {
+    const { data, isFetching } = useGetDeliveryDetailQuery(undefined)
     const [value, setValue] = useState('')
     const [showModal, setShowModal] = useState(false)
     const [setDetail, { isLoading }] = useSetDeliveryDetailMutation()
@@ -32,17 +21,11 @@ const Delivery: FC<IProps> = (props) => {
 		setDetail({ sdek: true, tariff_code: 139, address: value })
 	}
 
-    useEffect(() => {
-        if ( tariff_code === 138 || tariff_code === 366 ) {
-
-        }
-    }, [tariff_code])
-
 	useEffect(() => {
-		if ( address ) {
-			setValue(address)
+		if (data?.address) {
+			setValue(data.address)
 		}
-	}, [address])
+	}, [data])
 
     return (
 		<Row>
@@ -57,52 +40,32 @@ const Delivery: FC<IProps> = (props) => {
 							<Form.Label className="d-flex mb-0">
 								<Form.Check
 									type="radio"
-									checked={
-										!isLoading &&
-										!props.busy &&
-										(props.tariff_code === 138 ||
-											props.tariff_code === 366)
-									}
+									checked={!isLoading && !isFetching && (data?.tariff_code === 138 || data?.tariff_code === 366)}
 									onChange={handler}
-									disabled={isLoading}
+									disabled={isLoading || isFetching}
 									data-tariff={138}
 								/>
-								<span className="text-muted ms-1">
-									Самовывоз
-								</span>
+								<span className="text-muted ms-1">Самовывоз</span>
 							</Form.Label>
 						</Col>
 						<Col xs="auto">
 							<Form.Label className="d-flex mb-0">
 								<Form.Check
 									type="radio"
-									checked={
-										!isLoading &&
-										!props.busy &&
-										props.tariff_code === 139
-									}
+									checked={!isLoading && !isFetching && data?.tariff_code === 139}
 									onChange={handler}
 									disabled={isLoading}
 									data-tariff={139}
 								/>
-								<span className="text-muted ms-1">
-									Доставка курьером
-								</span>
+								<span className="text-muted ms-1">Доставка курьером</span>
 							</Form.Label>
 						</Col>
 					</Row>
 					<Row>
 						<Col xs={12}>
-							<Fade
-								in={
-									!!props.total_sum &&
-									!props.busy &&
-									!isLoading
-								}
-							>
+							<Fade in={!!data?.total_sum && !isFetching && !isLoading}>
 								<div>
-									{props.total_sum} руб., {props.period_min}-
-									{props.period_max} дней
+									{data?.total_sum} руб., {data?.period_min}-{data?.period_max} дней
 								</div>
 							</Fade>
 						</Col>
@@ -110,58 +73,40 @@ const Delivery: FC<IProps> = (props) => {
 				</div>
 			</Col>
 			<Col lg={6} />
-			<Fade in={!props.busy}>
+			<Fade in={!isFetching && !!data}>
 				<Col lg={12} className="mt-5 mb-4">
-					{props.tariff_code === 139 && (
+					{data?.tariff_code === 139 && (
 						<Row>
 							<Col xs={12} md={10} lg={8}>
 								<Form.Control
 									value={value}
-									onChange={(
-										e: ChangeEvent<HTMLInputElement>
-									) => setValue(e.target.value)}
+									onChange={(e: ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
 									placeholder="Адрес без города"
 									className="h-100"
 								/>
 							</Col>
 							<Col xs={12} md={2}>
-								<ButtonComponent
-									onClick={addressHandler}
-									isLoading={isLoading}
-									disabled={
-										value === "" || value === props.address
-									}
-								>
+								<ButtonComponent onClick={addressHandler} isLoading={isLoading} disabled={value === "" || value === data?.address}>
 									Далее
 								</ButtonComponent>
 							</Col>
 						</Row>
 					)}
-					{(props.tariff_code === 138 || props.tariff_code === 366) &&
-						props.address && (
-							<div className="mb-4">
-								Выбрано:{" "}
-								<b className="text-primary">{props.address}</b>
-							</div>
-						)}
-					{(props.tariff_code === 138 || props.tariff_code === 366) &&
-						props.code && (
-							<Button
-								variant="outline-primary"
-								onClick={() => setShowModal(true)}
-							>
-								Изменить пункт выдачи
-							</Button>
-						)}
-					{(props.tariff_code === 138 || props.tariff_code === 366) &&
-						!props.code && (
-							<Button
-								variant="secondary"
-								onClick={() => setShowModal(true)}
-							>
-								Выбрать пункт выдачи
-							</Button>
-						)}
+					{(data?.tariff_code === 138 || data?.tariff_code === 366) && data?.address && (
+						<div className="mb-4">
+							Выбрано: <b className="text-primary">{data?.address}</b>
+						</div>
+					)}
+					{(data?.tariff_code === 138 || data?.tariff_code === 366) && data?.code && (
+						<Button variant="outline-primary" onClick={() => setShowModal(true)}>
+							Изменить пункт выдачи
+						</Button>
+					)}
+					{(data?.tariff_code === 138 || data?.tariff_code === 366) && !data?.code && (
+						<Button variant="secondary" onClick={() => setShowModal(true)}>
+							Выбрать пункт выдачи
+						</Button>
+					)}
 				</Col>
 			</Fade>
 		</Row>

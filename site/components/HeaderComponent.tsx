@@ -13,8 +13,6 @@ import IconMenu from './icons/IconMenu'
 import { useGetCategoriesQuery } from "../application/category.service"
 import { setCategories } from "../application/categoriesSlice"
 import NavCatalogMobile from "./NavCatalogMobile"
-import { useGetCartQuery } from "../application/order.service"
-import { setCart, setLoading } from "../application/cartSlice"
 import CartIconComponent from "./CartIconComponent"
 import HeaderAccountComponent from "./HeaderAccountComponent"
 const waLogo = require('../img/whatsup.svg')
@@ -29,7 +27,6 @@ const HeaderComponent = () => {
 	const dispatch = useAppDispatch()
 	const logoRef = useRef<HTMLImageElement | null>(null)
 	const { data: categories, isSuccess } = useGetCategoriesQuery(undefined)
-	const { data: cart, isLoading: cartLoading } = useGetCartQuery(undefined, { refetchOnMountOrArgChange: true })
 
 	const handleClose = () => {
 		setMobileMenuShow(false)
@@ -83,16 +80,6 @@ const HeaderComponent = () => {
 			top: 0
 		})
 	}, [pathname])
-
-	useEffect(() => {
-		if ( cart ) {
-			dispatch(setCart(cart))
-		}
-	}, [cart])
-
-	useEffect(() => {
-		dispatch(setLoading(cartLoading))
-	}, [cartLoading])
 
     return (
 		<Container fluid className="p-0 sticky-top">

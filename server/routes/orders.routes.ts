@@ -1,4 +1,6 @@
-import { IOrder, IProduct, IProductFromClient, IVariantFromClient } from './../../shared/index.d';
+import { Schema, Types } from 'mongoose';
+import { json } from 'body-parser';
+import { IOrder, ICartDoc } from './../../shared/index.d';
 import { checkNumber, checkPin } from './../plusofonAPI/plusofonApi';
 import bodyParser from 'body-parser';
 import { Request, Router } from "express";
@@ -7,12 +9,12 @@ import ClientModel from "../models/ClientModel";
 import OrderModel from "../models/OrderModel";
 import PointsModel from '../models/PointsModel';
 import ProductModel, { VariantModel } from '../models/ProductModel'
-import rests from '../moyskladAPI/rests';
 import { sdekCalcDelivery } from '../sdekAPI/calc';
 import getCounterPartyByNumber from '../moyskladAPI/counterparty';
 import errorHandler from '../handlers/errorLogger';
 import createMsOrderHandler from '../handlers/createMsOrderHandler';
 import createPaymentHandler from '../handlers/createPaymentHandler';
+import CartModel from '../models/CartModel';
 
 const formatter = Intl.DateTimeFormat('ru', {
 	day: 'numeric',
@@ -24,6 +26,7 @@ const formatter = Intl.DateTimeFormat('ru', {
 
 const router = Router()
 
+// получить все заказы;
 router.get('/', async (req, res) => {
     try {
         const orders = await OrderModel.find().populate([
@@ -42,17 +45,57 @@ router.get('/', async (req, res) => {
     }
 })
 
-router.get('/cart', async (req, res) => {
+// получить корзину;
+router.get('/cart', async (req: Request<{}, {}, {}, {products: string, variants: string}>, res) => {
 	try {
-		const cart = req.session.cart || { products: [], variants: [] }
-		return res.json(cart)
+		const { products, variants } = req.query
+		let checkedProducts = []
+		let checkedVariants = []
+		try {
+			checkedProducts = JSON.parse(products)
+			checkedVariants = JSON.parse(variants)
+		} catch(e) {}
+		const client = await ClientModel.findById(req.session.userId)
+
+		// если пользователь авторизован, попробуем выдать его корзину;
+		if (client) {
+			// если у пользователя есть корзина;
+			if (client?.cartId) {
+				const cart = await CartModel.refreshCart(client.cartId.toString(), checkedProducts, checkedVariants)
+				// вернем его корзину;
+				if (cart) {
+					return res.json(cart)
+				}
+			}
+
+			// если нет, то создадим её;
+			const cart = await new CartModel().save()
+			client.cartId = cart._id
+			await client.save()
+			// и вернём;
+			return res.json(cart)
+		}
+
+		// если пользователь не авторизован, проверим сессию на наличие корзины;
+		if ( req.session.cartId ) {
+			const sessionCart = await CartModel.refreshCart(req.session.cartId, checkedProducts, checkedVariants)
+			// если корзина есть в сессии, отдаём её;
+			if (sessionCart) {
+				return res.json(sessionCart)
+			}
+		}
+
+		// если и в сессии не оказалось корзиныж
+		const newCart = await new CartModel().save() // то создаём её;
+		req.session.cartId = newCart._id.toString() // привязываем к сессии;
+		return res.json(newCart)// и отдаём её;
 	}
 	catch (e) {
-		console.log(e)
-		return res.status(500).json({ message: 'Что-то пошло не так...' })
+		return res.status(500).json({ message: 'Ошибка получения корзины...' })
 	}
 })
 
+// получить город доставки;
 router.get('/delivery/city', async (req, res) => {
 	try {
 		const city_code = req.session.delivery?.city_code
@@ -73,25 +116,43 @@ router.get('/delivery/city', async (req, res) => {
 	}
 })
 
+// получить детали доставки;
 router.get("/delivery/detail", async (req, res) => {
 	try {
-		if ( req.session.delivery?.sdek && req.session.delivery?.city_code && req.session.cart ) {
+		let cart
+		// смотрим, авторизован ли пользователь и есть ли у него корзина;
+		const client = await ClientModel.findById(req.session.userId)
+		if ( client ) {
+			const clientCart = await CartModel.getCart(client.cartId?.toString() || '')
+			if (clientCart) {
+				cart = clientCart
+			}
+		}
+		// если пользователь не авторизован, проверим корзину сессии;
+		else {
+			const sessionCart = await CartModel.getCart(req.session.cartId || '')
+			if ( sessionCart ) {
+				cart = sessionCart
+			}
+		}
+
+		// если корзина не найдена, выходим;
+		if ( typeof cart === 'undefined' ) {
+			return res.end()
+		}
+
+		if ( req.session.delivery?.sdek && req.session.delivery?.city_code && cart ) {
 			const { checked, tariff_code, address, code } = req.session.delivery.sdek
 			const { city_code } = req.session.delivery
-			const products = await ProductModel.find({ _id: { $in: req.session.cart.products.map(({ productId }) => productId) } })
-			const variantProducts = await ProductModel.find({ _id: { $in: req.session.cart.variants.map(({ productId }) => productId) } })
-			const packages: ISdekCalcPayload['packages'] = req.session.cart.products.map(({ productId, quantity }) => {
+			const ids = cart.products.map(({ productId }) => productId).concat(cart.variants.map(({ productId }) => productId))
+			const products = await ProductModel.find({ _id: { $in: ids } })
+			const packages: ISdekCalcPayload['packages'] = cart.products.map(({ productId, quantity }) => {
 				const product = products.find(({ _id }) => _id?.toString() === productId)
-				if ( product?.weight ) {
-					const { weight } = product
-					return { weight: weight * quantity }
-				}
-				return { weight: 25 * quantity }
+				return { weight: (product?.weight || 25) * quantity }
 			}).concat(
-				req.session.cart.variants.map(({ productId, variantId, quantity }) => {
-					const variant = variantProducts.find(({ _id }) => _id?.toString() === productId)
-						?.variants.find(({ _id }) => _id?.toString() === variantId)
-					return { weight: 25 * quantity }
+				cart.variants.map(({ productId, quantity }) => {
+					const product = products.find(({ _id }) => _id?.toString() === productId)
+					return { weight: (product?.weight || 25) * quantity }
 				})
 			)
 			const sdekInfo = await sdekCalcDelivery({
@@ -99,7 +160,7 @@ router.get("/delivery/detail", async (req, res) => {
 				to_location: { code: city_code },
 				packages, tariff_code
 			})
-			const { delivery_sum, period_max, period_min, total_sum } = sdekInfo.data
+			const { total_sum } = sdekInfo.data
 			req.session.delivery.sdek.cost = total_sum
 			if ( tariff_code === 139 ) {
 				if ( req.session.delivery.sdek.address ) {
@@ -123,6 +184,7 @@ router.get("/delivery/detail", async (req, res) => {
 	}
 })
 
+// получить информацию о получателе;
 router.get("/delivery/recipient", async (req, res) => {
 	try {
 		const userId = req.session.userId
@@ -150,6 +212,7 @@ router.get("/delivery/recipient", async (req, res) => {
 	}
 })
 
+// задать получателя;
 router.put("/delivery/recipient", bodyParser.json(), async (req: Request<{}, {}, { name: string, mail: string }>, res) => {
 	try {
 		const userId = req.session.userId
@@ -195,109 +258,40 @@ router.put("/delivery/recipient", bodyParser.json(), async (req: Request<{}, {},
 	}
 })
 
-router.put("/cart/product", bodyParser.json(), async (req: Request<{}, {}, { productId: string; quantity: number }>, res) => {
+// положить товар в корзину;
+router.put("/cart/product", bodyParser.json(), async (req: Request<{}, {}, { productId: string; quantity: number }, {products: string, variants: string}>, res) => {
 	try {
+		const { products, variants } = req.query
+		let checkedProducts = []
+		let checkedVariants = []
+		try {
+			checkedProducts = JSON.parse(products)
+			checkedVariants = JSON.parse(variants)
+		} catch (e) {}
 		const { productId, quantity } = req.body
-		const product = await ProductModel.findById(productId)
-		if ( !product ) {
-			throw new Error('Товар не найден')
-		}
-		
-		const stock = await rests({ assortmentId: [product.identifier] }).then(doc => doc[0].stock)
-		if (!stock) {
-			throw new Error("Остаток не получен")
-		}
 
-		const cart = req.session.cart
-		if (!cart && (stock * quantity > 0)) {
-			req.session.cart = {
-				products: [{ productId, quantity: Math.min(quantity, stock) }],
-				variants: [],
-			}
-			return res.end()
-		}
-
-		if ( cart ) {
-			const index = cart.products.findIndex(item => item.productId === productId)
-			if (stock * quantity === 0) {
-				if (index !== -1) {
-					cart.products.splice(index, 1)
-				}
+		// если пользователь авторизован, попробуем добавить товар в его корзину;
+		const client = await ClientModel.findById(req.session.userId || '')
+		if ( client ) {
+			const cart = await CartModel.findById(client.cartId)
+			// если корзина есть;
+			if ( cart ) {
+				await cart.addProduct(productId, quantity, checkedProducts, checkedVariants)	// положим товар туда;
+				return res.end()
 			} else {
-				if (index !== -1) {
-					cart.products.push({
-						productId,
-						quantity: Math.min(quantity, stock)
-					})
-				} else {
-					cart.products[index].quantity = Math.min(quantity, stock)
-				}
+				const newCart = await new CartModel().save()	// или создадим новую корзину;
+				client.cartId = newCart._id.toString()			// привяже корзину к пользователю;
+				await newCart.addProduct(productId, quantity, checkedProducts, checkedVariants)
+				return res.end()
 			}
 		}
 
-		req.session.cart = cart
-		return res.end()
-		
-	} catch (e) {
-		console.log(e)
-		return res.status(500).json({ message: "Что-то пошло не так..." })
-	}
-})
-
-router.put("/cart/variant", bodyParser.json(), async (req: Request<{}, {}, { productId: string; variantId: string, quantity: number }>, res) => {
-	try {
-		const { productId, variantId, quantity } = req.body
-		const product = await ProductModel.findById(productId)
-		if (!product) {
-			throw new Error("Товар не найден")
-		}
-
-		const variant = product.variants.find(({ _id }) => _id?.toString())
-		if (!variant) {
-			throw new Error("Вариант не найден")
-		}
-
-		const stock = await rests({
-			assortmentId: [variant.identifier],
-		}).then((doc) => doc[0].stock)
-		if (!stock) {
-			throw new Error("Остаток не получен")
-		}
-
-		const cart = req.session.cart
-		if (!cart && stock * quantity > 0) {
-			req.session.cart = {
-				products: [],
-				variants: [
-					{ productId, variantId, quantity: Math.min(quantity, stock) },
-				],
-			}
-			return res.end()
-		}
-
+		// если пользователь не авторизован, положим товар в корзину сессии;
+		const cart = await CartModel.findById(req.session.cartId)
 		if (cart) {
-			const index = cart.variants.findIndex((item) => item.variantId === variantId)
-			if (stock * quantity === 0) {
-				if (index !== -1) {
-					cart.variants.splice(index, 1)
-				}
-			} else {
-				if (index !== -1) {
-					cart.variants[index].quantity = Math.min(
-						quantity,
-						stock
-					)
-				} else {
-					cart.variants.push({
-						productId,
-						variantId,
-						quantity: Math.min(quantity, stock),
-					})
-				}
-			}
-		}
-
-		req.session.cart = cart
+			await cart.addProduct(productId, quantity, checkedProducts, checkedVariants)
+		} 
+		
 		return res.end()
 	} catch (e) {
 		console.log(e)
@@ -305,112 +299,104 @@ router.put("/cart/variant", bodyParser.json(), async (req: Request<{}, {}, { pro
 	}
 })
 
-router.delete('/cart', async (req: Request<{}, {}, {}, { productIds: string, variantIds: string }>, res) => {
+// положить модификацию в корзину;
+router.put("/cart/variant", json(), async (req: Request<{}, {}, { productId: string; variantId: string, quantity: number }, {products: string, variants: string}>, res) => {
+	try {
+		const { products, variants } = req.query
+		let checkedProducts = []
+		let checkedVariants = []
+		try {
+			checkedProducts = JSON.parse(products)
+			checkedVariants = JSON.parse(variants)
+		} catch (e) {}
+		const { productId, variantId, quantity } = req.body
+
+		// если пользователь авторизован, попробуем добавить товар в его корзину;
+		const client = await ClientModel.findById(req.session.userId)
+		if (client) {
+			const cart = await CartModel.findById(client.cartId)
+			// если корзина есть;
+			if (cart) {
+				await cart.addVariant(productId, variantId, quantity, checkedProducts, checkedVariants) // положим товар туда;
+				return res.end()
+			} else {
+				const newCart = await new CartModel().save() // или создадим новую корзину;
+				client.cartId = newCart._id.toString() // привяже корзину к пользователю;
+				await newCart.addVariant(productId, variantId, quantity, checkedProducts, checkedVariants)
+				return res.end()
+			}
+		}
+
+		// если пользователь не авторизован, положим товар в корзину сессии;
+		const cart = await CartModel.findById(req.session.cartId)
+		if (cart) {
+			await cart.addVariant(productId, variantId, quantity, checkedProducts, checkedVariants)
+		}
+
+		return res.end()
+	} catch (e) {
+		console.log(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
+	}
+})
+
+// удалить товары или модификацию из корзины;
+router.delete("/cart", async (req: Request<{}, {}, {}, { productIds: string; variantIds: string; products: string; variants: string }>, res) => {
 	try {
 		const { productIds, variantIds } = req.query
 		const products: string[] = JSON.parse(productIds)
 		const variants: string[] = JSON.parse(variantIds)
-		if ( req.session.cart?.products ) {
-			req.session.cart.products = req.session.cart.products.filter(({ productId }) => !products.some(item => item === productId))
+
+		let cart: ICartDoc | undefined
+
+		// ищем корзину у клиента, затем в сессии;
+		const client = await ClientModel.findById(req.session.userId)
+		if (client?.cartId) {
+			const clientCart = await CartModel.findById(client.cartId.toString())
+			if (clientCart) {
+				cart = clientCart
+			}
+		} else {
+			const sessionCart = await CartModel.findById(req.session.cartId)
+			if (sessionCart) {
+				cart = sessionCart
+			}
 		}
-		if (req.session.cart?.variants) {
-			req.session.cart.variants = req.session.cart.variants.filter(
-				({ variantId }) => !variants.some((item) => item === variantId)
-			)
+
+		// если корзина не определена, выходим;
+		if (typeof cart === "undefined" || !cart) {
+			return res.end()
 		}
-		if ( products.length === 0 && variants.length === 0 ) {
-			req.session.cart = { products: [], variants: [] }
+
+		for (const i in products) {
+			try {
+				const productId = products[i]
+				await cart?.addProduct(productId, 0)
+			} catch (e) {
+				console.log(e)
+			}
 		}
+
+		for (const i in variants) {
+			try {
+				const variantId = variants[i]
+				const variant = cart?.variants.find((item) => item.variantId === variantId)
+				if (variant) {
+					await cart?.addVariant(variant.productId, variant.variantId, 0)
+				}
+			} catch (e) {
+				console.log(e)
+			}
+		}
+
 		return res.end()
-	}
-	catch (e) {
-		console.log(e)
-		return res.status(500).json({ message: 'Что-то пошло не так...' })
-	}
-})
-
-router.get("/cart-total", async (req: Request<{}, {}, {}, { products: string, variants: string }>, res) => {
-	try {
-		if (!req.session.cart) {
-			return res.json(0)
-		}
-
-		const products: string[] = JSON.parse(req.query.products)
-		const variants: { productId: string, variantId: string}[] = JSON.parse(req.query.variants)
-		const productsInDb = await ProductModel.find({_id: { $in: products }})
-		const variantProducts = await ProductModel.find({ _id: { $in: variants.map(({ productId }) => productId) } })
-
-		const variantsTotal = req.session.cart.variants
-			.filter(({ variantId }) => variants.some((item) => item.variantId === variantId))
-			.reduce((total, variant) => {
-				const { productId, variantId, quantity } = variant
-				const product = variantProducts.find(
-					({ _id }) => _id?.toString() === productId
-				)
-				if (product) {
-					const price =
-						product.variants.find(
-							({ _id }) => _id?.toString() === variantId
-						)?.price || 0
-					total += price * quantity
-				}
-				return total
-			}, 0)
-
-		const total = req.session.cart.products
-			.filter(({ productId }) => products.some(item => item === productId))
-			.reduce((total, { productId, quantity }) => {
-				const product = productsInDb.find(({ _id }) => _id.toString() === productId)
-				if ( !product ) {
-					return total
-				}
-				return total + (product?.price || 0) * quantity
-			}, variantsTotal)
-		return res.json(total)
 	} catch (e) {
 		console.log(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
 
-router.get("/:id", async (req: Request<{id: string}>, res) => {
-	try {
-		const { id } = req.params
-		const order: any = await OrderModel.findById(id)
-			.populate([
-				{ path: "client", model: ClientModel },
-				{
-					path: "products",
-					populate: { path: "product", model: ProductModel },
-				},
-				{
-					path: "variants",
-					populate: { path: "product", model: ProductModel },
-				},
-			])
-			.then((doc) => {
-				if (!doc) return doc
-				const date = formatter.format(Date.parse(doc.date.toString()))
-				const variants = doc.variants.map((item: any) => {
-					const variant = item.product.variants.find(({ _id }: any) => _id?.toString() === item.variant.toString())
-					return { ...item.toObject(), product: item.product._id, variant }
-				})
-				return { ...doc.toObject(), date, variants }
-			})
-		if (!order) {
-			return res.status(500).json({ message: 'Завка не найдена' })
-		}
-		if (order.status === "new") {
-			await OrderModel.findByIdAndUpdate(id, { status: "isReading" })
-		}
-
-		return res.json(order)
-	} catch (e) {
-		console.log(e)
-		return res.status(500).json({ message: "Что-то пошло не так..." })
-	}
-})
-
+// установить город доставки;
 router.put('/set/city/:city_code', async (req: Request<{city_code: number}>, res) => {
 	try {
 		const { city_code } = req.params
@@ -427,56 +413,47 @@ router.put('/set/city/:city_code', async (req: Request<{city_code: number}>, res
 	}
 })
 
-router.put(
-	"/set/delivery",
-	bodyParser.json(),
-	async (
-		req: Request<
-			{},
-			{},
-			{ sdek: boolean, tariff_code: 138 | 139 | 366, address?: string, code?: string }
-		>,
-		res
-	) => {
-		try {
-			if (!req.session.delivery?.city_code) {
-				throw new Error(`Город доставки не определён`)
-			}
-			const { sdek, tariff_code, address, code } = req.body
-			if ( sdek ) {
-				req.session.delivery.sdek = {
-					checked: true, tariff_code
-				}
-				if ( tariff_code === 139 && address ) {
-					req.session.delivery.sdek.address = address
-				}
-				if ( tariff_code !== 139 && code ) {
-					req.session.delivery.sdek.code = code
-				}
-			}
-			return res.end()
-		} catch (e) {
-			console.log(e)
-			return res.status(500).json({ message: "Что-то пошло не так..." })
+// установка деталей доставки;
+router.put("/set/delivery", bodyParser.json(), async (req: Request<{}, {}, { sdek: boolean, tariff_code: 138 | 139 | 366, address?: string, code?: string }>, res) => {
+	try {
+		if (!req.session.delivery?.city_code) {
+			throw new Error(`Город доставки не определён`)
 		}
+		const { sdek, tariff_code, address, code } = req.body
+		if ( sdek ) {
+			req.session.delivery.sdek = {
+				checked: true, tariff_code
+			}
+			if ( tariff_code === 139 && address ) {
+				req.session.delivery.sdek.address = address
+			}
+			if ( tariff_code !== 139 && code ) {
+				req.session.delivery.sdek.code = code
+			}
+		}
+		return res.end()
+	} catch (e) {
+		console.log(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
-)
+})
 
 // создание заказа;
 router.post("/", bodyParser.json(), async (req: Request<{}, {}, { products: string, variants: string }>, res) => {
 		try {
 			const { products, variants } = req.body
 			const client = await ClientModel.findById(req.session.userId)
-			if (!client) {
+			if (!client?.cartId) {
 				const err = new Error()
 				err.userError = true
 				err.sersviceInfo = `Клиент ${req.session.userId} не найден. Создание заказа`
 				throw err
 			}
-			if (!req.session.cart) {
-				const err = new Error("Корзина пуста")
+			const cart = await CartModel.refreshCart(client.cartId.toString())
+			if (!cart) {
+				const err = new Error("Корзина не найдена")
 				err.userError = true
-				err.sersviceInfo = `Пустая корзина. Клиент ${req.session.userId}. Создание заказа`
+				err.sersviceInfo = `Корзина не найдена. Клиент ${req.session.userId}. Создание заказа`
 				throw err
 			}
 			if (!req.session.delivery) {
@@ -500,29 +477,8 @@ router.post("/", bodyParser.json(), async (req: Request<{}, {}, { products: stri
 			}
 
 			// создание шаблона заказа в БД;
-			const productsFromClient: IProductFromClient[] = JSON.parse(products)
-			const variantsFromClient: IVariantFromClient[] = JSON.parse(variants)
-			const productsArr = productsFromClient.filter((item) => req.session.cart?.products.some(({ productId }) => productId === item.productId))
-			const variantsArr = variantsFromClient.filter((item) => req.session.cart?.variants.some(({ variantId }) => variantId === item.variantId))
-			const productsForOrder = await ProductModel.find({ _id: { $in: productsArr.map(({ productId }) => productId) } }).then<
-				{ productId: string; price: number; quantity: number; discountOn?: number }[]
-			>((doc) =>
-				doc.map((item) => ({
-					productId: item._id.toString(),
-					price: (item.price || 0) / 100,
-					quantity: productsArr.find(({ productId }) => productId === item._id.toString())?.quantity || 0,
-				}))
-			)
-			const variantsForOrder = await ProductModel.find({ _id: { $in: variantsArr.map(({ productId }) => productId) } }).then<
-				{ productId: string; variantId: string; quantity: number; price: number; discountOn?: number }[]
-			>((doc) =>
-				variantsArr.map(({ productId, quantity, variantId }) => {
-					const price =
-						(doc.reduce<IProduct["variants"][0][]>((result, { variants }) => result.concat(variants), [])
-							.find(({ _id }) => _id?.toString() === variantId)?.price || 0) / 100
-					return { productId, variantId, quantity, price }
-				})
-			)
+			const productsFromClient: string[] = JSON.parse(products)
+			const variantsFromClient: string[] = JSON.parse(variants)
 			const { tariff_code, address, code } = sdek
 			const sdekForOrder: IOrder["delivery"]["sdek"] = {
 				city_code,
@@ -533,7 +489,7 @@ router.post("/", bodyParser.json(), async (req: Request<{}, {}, { products: stri
 				name: client.name,
 				tariff_code,
 			}
-			const orderId = await client.createTempOrder(sdekForOrder, productsForOrder, variantsForOrder)
+			const orderId = await client.createTempOrder(sdekForOrder, productsFromClient, variantsFromClient, cart)
 
 			// создание заказа в "Мой склад";
 			const { name: number, id: msOrderId, sum } = await createMsOrderHandler(orderId)
@@ -562,6 +518,7 @@ router.post("/", bodyParser.json(), async (req: Request<{}, {}, { products: stri
 	}
 )
 
+// получение доступных городов доставки по подстроке;
 router.get('/delivery/cities/:str', async (req: Request<{str: string}>, res) => {
 	try {
 		const { str } = req.params
@@ -582,6 +539,7 @@ router.get('/delivery/cities/:str', async (req: Request<{str: string}>, res) => 
 	}
 })
 
+//получение пунктов выдачи;
 router.get('/delivery/points', async (req, res) => {
 	try {
 		const city_code = req.session.delivery?.city_code
@@ -597,6 +555,7 @@ router.get('/delivery/points', async (req, res) => {
 	}
 })
 
+// создание проверки номера;
 router.post('/check-number/init', bodyParser.json(), async (req: Request<{}, {}, {phone: string}>, res) => {
 	try {
 		const { phone } = req.body
@@ -611,6 +570,7 @@ router.post('/check-number/init', bodyParser.json(), async (req: Request<{}, {},
 	}
 })
 
+// проверка пина при авторизации;
 router.post('/check-number/pin', bodyParser.json(), async (req: Request<{}, {}, {pin: string}>, res) => {
 	try {
 		const { pin } = req.body
@@ -623,6 +583,10 @@ router.post('/check-number/pin', bodyParser.json(), async (req: Request<{}, {}, 
 		const result = await checkPin(req.session.plusofonKey, pin)
 		if (result === 1 ) {
 			let client = await ClientModel.findOne({ tel: req.session.candidateNumber })
+			if ( req.session.cartId && client ) {
+				client.cartId = new Types.ObjectId(req.session.cartId)
+				await client.save()
+			}
 			if ( !client ) {
 				const counterparty = await getCounterPartyByNumber(req.session.candidateNumber)
 				if (counterparty) {
@@ -630,6 +594,7 @@ router.post('/check-number/pin', bodyParser.json(), async (req: Request<{}, {}, 
 						counterpartyId: counterparty.id,
 						name: counterparty.name,
 						tel: req.session.candidateNumber,
+						cartId: req.session.cartId
 					}).save()
 				} else {
 					client = await new ClientModel({
@@ -663,28 +628,7 @@ router.post('/check-number/pin', bodyParser.json(), async (req: Request<{}, {}, 
 	}
 })
 
-router.post("/clear-cart", bodyParser.json(), async (req: Request<{}, {}, { orderNumber: string }>, res) => {
-	try {
-		const { orderNumber } = req.body
-		const order = await OrderModel.findOne({ number: orderNumber })
-		if (!order) {
-			return res.end()
-		}
-
-		const productsIds = order.products.map(({ product }) => product.toString())
-		const variantsIds = order.variants.map(({ variant }) => variant.toString())
-
-		if (req.session.cart) {
-			req.session.cart.products = req.session.cart.products.filter(({ productId }) => !productsIds.includes(productId.toString()))
-			req.session.cart.variants = req.session.cart.variants.filter(({ variantId }) => !variantsIds.includes(variantId.toString()))
-		}
-		return res.end()
-	} catch (e) {
-		console.log(e)
-		return res.end()
-	}
-})
-
+// проверка вероятности оплаты заказа;
 router.post("/check-payment/probably", bodyParser.json(), async (req: Request<{}, {}, { orderNumber: string }>, res) => {
 	try {
 		const { orderNumber: number } = req.body
@@ -708,6 +652,46 @@ router.post("/check-payment/probably", bodyParser.json(), async (req: Request<{}
 	} catch (e) {
 		console.log(e)
 		return res.end()
+	}
+})
+
+// получить один заказ;
+router.get("/:id", async (req: Request<{ id: string }>, res) => {
+	try {
+		console.log(890)
+		const { id } = req.params
+		const order: any = await OrderModel.findById(id)
+			.populate([
+				{ path: "client", model: ClientModel },
+				{
+					path: "products",
+					populate: { path: "product", model: ProductModel },
+				},
+				{
+					path: "variants",
+					populate: { path: "product", model: ProductModel },
+				},
+			])
+			.then((doc) => {
+				if (!doc) return doc
+				const date = formatter.format(Date.parse(doc.date.toString()))
+				const variants = doc.variants.map((item: any) => {
+					const variant = item.product.variants.find(({ _id }: any) => _id?.toString() === item.variant.toString())
+					return { ...item.toObject(), product: item.product._id, variant }
+				})
+				return { ...doc.toObject(), date, variants }
+			})
+		if (!order) {
+			return res.status(500).json({ message: "Завка не найдена" })
+		}
+		if (order.status === "new") {
+			await OrderModel.findByIdAndUpdate(id, { status: "isReading" })
+		}
+
+		return res.json(order)
+	} catch (e) {
+		console.log(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
 

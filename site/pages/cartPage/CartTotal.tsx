@@ -1,18 +1,12 @@
-import { FC, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { Col, Fade, Row } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
 import { useAppSelector } from "../../application/hooks"
+import { useGetCartQuery } from "../../application/order.service"
 
-interface IProps {
-	total?: number
-}
-
-const CartTotal: FC<IProps> = ({ total }) => {
-	const noChecked = useAppSelector(
-		(state) =>
-			state.cartSlice.products.every(({ checked }) => !checked) &&
-			state.cartSlice.variants.every(({ checked }) => !checked)
-	)
+const CartTotal = () => {
+	const { checkedProducts, checkedVariants } = useAppSelector((state) => state.cartSlice)
+	const { data: cart, isFetching } = useGetCartQuery({ checkedProducts, checkedVariants }, { refetchOnMountOrArgChange: true })
 	const formatter = useRef(
 		Intl.NumberFormat("ru", {
 			style: "currency",
@@ -30,20 +24,20 @@ const CartTotal: FC<IProps> = ({ total }) => {
 				</Col>
 				<Col xs={4}>
 					<div className="fs-3 text-uppercse mb-2">
-						{typeof total !== "undefined" && (
-							<>{formatter.current.format(total / 100)}</>
+						{typeof cart?.total !== "undefined" && (
+							<>{formatter.current.format(cart?.total || 0)}</>
 						)}
 					</div>
 					<div className="text-muted mb-2">
-						{typeof total !== "undefined" && (
-							<>{formatter.current.format(total / 100)}</>
+						{typeof cart?.amount !== "undefined" && (
+							<>{formatter.current.format(cart?.amount || 0)}</>
 						)}
 					</div>
 				</Col>
 			</Row>
 			<Row className="justify-content-center mx-0">
 				<Col xs={12} md={10} className="text-center">
-					<Fade in={!noChecked}>
+					<Fade in={!isFetching && !!cart?.total }>
 						<NavLink className="btn btn-primary" to="/order">
 							К оформлению
 						</NavLink>

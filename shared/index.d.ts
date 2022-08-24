@@ -130,6 +130,7 @@ export interface Product {
 
 export interface IProductModel extends Model<IProduct, {}, IProductMethods> {
 	getProduct(id: string): Promise<Product>
+	isDiscounted(id: string): Promise<boolean>
 }
 
 export interface IFilter extends Document {
@@ -211,25 +212,33 @@ export interface IOrder extends Document {
 	}
 	products: Types.DocumentArray<{
 		product: Types.ObjectId
-		quantity: number
 		price: number
+		quantity: number
 		discountOn?: number
+		paidByCashBack?: number
 	}>
 	variants: Types.DocumentArray<{
 		product: Types.ObjectId
 		variant: Types.ObjectId
-		quantity: number
 		price: number
+		quantity: number
 		discountOn?: number
+		paidByCashBack?: number
 	}>
+	promocode?: Types.ObjectId
 	msOrderId?: string
 	msOrderSumRub?: number
 	number: number
 	status: "new" | "payCanceled" | "compiling" | "builded" | "delivering" | "complete"
 	total: number
+	bonusHandle: () => Promise<void>
 }
 
-export interface OrderModel extends Model<IOrder> {
+interface IOrderMethods {
+	bonusHandle: () => Promise<void>
+}
+
+export interface OrderModel extends Model<IOrder, {}, IOrderMethods> {
 	getOrder(id: string): Promise<IOrderPop>
 	setMsInfo(id: string, args: { msOrderId: string; msOrderSumRub: number; number: number }): Promise<IOrderPop>
 	setPaymentInfo(id: string, args: { paymentId: string; paymentUrl: string }): Promise<IOrderPop>
@@ -262,17 +271,20 @@ export interface IOrderPop {
 	products: [
 		{
 			product: IProduct
-			quantity: number
 			price: number
+			quantity: number
 			discountOn?: number
+			paidByCashBack?: number
 		}
 	]
+	promocode?: { id: string; code: string }
 	variants: Types.DocumentArray<{
 		product: IProduct
 		variant: Types.ObjectId
-		quantity: number
 		price: number
+		quantity: number
 		discountOn?: number
+		paidByCashBack?: number
 	}>
 	msOrderId?: string
 	msOrderSumRub?: number
@@ -281,9 +293,39 @@ export interface IOrderPop {
 	total: number
 }
 
+export interface IPromocode {
+	id: string
+	code: string
+	dateStart: Date
+	dateFinish: Date
+	holderClient: IClient
+	discountPercent: number
+	orders: {
+		orderId: string
+		cashBack: number
+	}[]
+	status: "created" | "running" | "finished" | "stopped"
+	promocodeTotalCashBack: number
+}
+
+export interface IPromocodeDoc extends Document {
+	code: string
+	dateStart: Date
+	dateFinish: Date
+	holderClient: Types.ObjectId
+	discountPercent: number
+	orders: Types.DocumentArray<{
+		orderId: Types.ObjectId
+		cashBack: number
+	}>
+	status: "created" | "running" | "finished" | "stopped"
+	promocodeTotalCashBack: number
+}
+
 export interface IClient extends Document {
 	addresses: string[]
 	amoContactId?: number
+	cartId?: Types.ObjectId
 	counterpartyId?: string
 	mail?: string
 	name?: string
@@ -299,24 +341,16 @@ export interface IClient extends Document {
 	total?: number
 	createTempOrder(
 		sdek: IOrder['delivery']['sdek'],
-		products: {
-			productId: string
-			quantity: number
-			price: number
-			discountOn?: number
-		}[],
-		variants: {
-			productId: string
-			variantId: string
-			quantity: number
-			price: number
-			discountOn?: number
-		}[]
+		products: string[],
+		variants: string[],
+		cart: ICart
 	): Promise<string>
 	deleteOrder(orderId: string): Promise<void>
-	getDiscount(): Promise<{ discountPercentValue?: string; nextLevelRequires: string[] }>
+	getDiscount(): Promise<{ discountPercentValue?: number; nextLevelRequires: string[] }>
 	getOrder(id: string): Promise<IOrderPop>
 	getNearestOrder(): Promise<IOrderPop | undefined>
+	addCashBack(cashbackRub: number): Promise<void>
+	mergeCart(mergedCartId: string): Promise<void>
 }
 
 export interface IClientMethods {
@@ -338,8 +372,10 @@ export interface IClientMethods {
 	): Promise<string>
 	deleteOrder(orderId: string): Promise<void>
 	getOrder(id: string): Promise<IOrderPop>
-	getDiscount(): Promise<{ discountPercentValue?: string; nextLevelRequires: string[] }>
+	getDiscount(): Promise<{ discountPercentValue?: number; nextLevelRequires: string[] }>
 	getNearestOrder(): Promise<IOrderPop | undefined>
+	addCashback(cashbackRub: number): Promise<void>
+	mergeCart(mergedCartId: string): Promise<void>
 }
 
 export interface ClientModel extends Model<IClient, {}, IClientMethods> {}
@@ -638,13 +674,43 @@ export interface IAmoRefreshTokenResponse {}
 export interface ICart {
 	products: {
 		productId: string
+		productName: string
+		price: number
 		quantity: number
+		discountOn?: number
+		paidByCashBack?: number
 	}[]
 	variants: {
 		productId: string
 		variantId: string
+		productName: string
+		variantName: string
+		price: number
 		quantity: number
+		discountOn?: number
+		paidByCashBack?: number
 	}[]
+	amount?: number
+	availableCashBack?: number
+	discount?: number
+	promocode?: { promocodeId: string, code: string }
+	total?: number
+	useCashBack?: boolean
+}
+
+export interface ICartDoc extends ICart, Document {
+	refreshPrices: () => Promise<ICartDoc | null>
+	refreshDiscounts: () => Promise<ICartDoc | null>
+	refreshCashBack: () => Promise<ICartDoc | null>
+	refreshTotal: (checkedProducts: string[], checkedVariants: string[]) => Promise<ICartDoc | null>
+	addProduct: (productId: string, quantity: number, checkedProducts?: string[], checkedVariants?: string[]) => Promise<ICartDoc | null>
+	addVariant: (
+		productId: string,
+		variantId: string,
+		quantity: number,
+		checkedProducts?: string[],
+		checkedVariants?: string[]
+	) => Promise<ICartDoc | null>
 }
 
 export interface INearestOrder {
@@ -665,14 +731,19 @@ export interface ICommonDiscount {
 	lowerTreshold: number
 }
 
-export interface ICommonDiscountDoc extends ICommonDiscount, Document  {}
+export interface ICommonDiscountDoc extends Document {
+	percentValue: number
+	lowerTreshold: number
+}
 
 export interface IAgentDiscount {
 	id: string
 	percentValue: number
 }
 
-export interface IAgentDiscountDoc extends IAgentDiscount, Document {}
+export interface IAgentDiscountDoc extends Document {
+	percentValue: number
+}
 
 export interface IDelegateDiscount {
 	id: string
@@ -680,7 +751,10 @@ export interface IDelegateDiscount {
 	lowerTreshold: number
 }
 
-export interface IDelegateDiscountDoc extends IDelegateDiscount, Document {}
+export interface IDelegateDiscountDoc extends Document {
+	percentValue: number
+	lowerTreshold: number
+}
 
 export interface IProductFromClient {
 	productId: string, quantity: number
@@ -718,7 +792,7 @@ declare global {
 declare module 'express-session' {
 	interface SessionData {
 		isAdmin?: boolean
-		cart?: ICart
+		cartId: string
 		orderId?: string
 		userId?: string
 		plusofonKey?: string

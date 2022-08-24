@@ -54,6 +54,11 @@ router.post('/auth/check-pin', json(), async (req: Request<{}, {}, { pin: string
             if ( !client ) {
                 return res.status(500).json({ message: "Пользователь не найден" })
             }
+            if ( req.session.cartId ) {
+                await client.mergeCart(req.session.cartId)
+                delete req.session.cartId
+            }
+
             req.session.userId = client._id.toString()
             return res.end()
         }

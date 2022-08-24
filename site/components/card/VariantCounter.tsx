@@ -1,8 +1,6 @@
-import { ChangeEvent, FC } from "react"
+import { ChangeEvent, FC, useEffect, useState } from "react"
 import { Button, Form } from "react-bootstrap"
-import { setCartBusy } from "../../application/cartSlice"
-import { useAppDispatch, useAppSelector } from "../../application/hooks"
-import { useChangeVariantInCartMutation } from "../../application/order.service"
+import { useChangeVariantInCartMutation, useGetCartQuery } from "../../application/order.service"
 
 interface IProps {
 	productId: string
@@ -10,36 +8,36 @@ interface IProps {
 }
 
 const VariantCounter: FC<IProps> = ({ productId, variantId }) => {
-	const quantity = useAppSelector(state => state.cartSlice.variants.find(item => item.variantId === variantId)?.quantity || 0)
-	const disabled = useAppSelector(state => state.cartSlice.cartBusy)
-	const [changeVariantInCart] = useChangeVariantInCartMutation()
-	const dispatch = useAppDispatch()
+	const { data: cart, isFetching } = useGetCartQuery(undefined)
+	const [quantity, setQuantity] = useState(0)
+	const [changeVariantInCart, { isLoading }] = useChangeVariantInCartMutation()
 
 	const inputHandler = (event: ChangeEvent<HTMLInputElement>) => {
-		if ( disabled ) return
+		if (isFetching || isLoading) return
 		const { value } = event.target
 		if (isNaN(parseInt(value))) return
-		dispatch(setCartBusy(true))
 		changeVariantInCart({ productId, variantId, quantity: parseInt(value) })
 	}
 
 	const handlerDec = () => {
-		dispatch(setCartBusy(true))
-		changeVariantInCart({ productId, variantId, quantity: quantity - 1 })
+		changeVariantInCart({ productId, variantId, quantity: Math.max(quantity - 1, 0) })
 	}
 
 	const handlerInc = () => {
-		dispatch(setCartBusy(true))
 		changeVariantInCart({ productId, variantId, quantity: quantity + 1 })
 	}
 
+	useEffect(() => {
+		if ( cart ) {
+			const quantity = cart.variants.find(item => item.variantId === variantId)?.quantity || 0
+			setQuantity(quantity)
+		}
+	}, [cart, variantId])
+
 	return (
-		<div
-			className="d-flex w-100 justify-content-between align-items-center"
-			style={{ maxWidth: "116px" }}
-		>
+		<div className="d-flex w-100 justify-content-between align-items-center" style={{ maxWidth: "116px" }}>
 			<Button
-				disabled={disabled}
+				disabled={isFetching || isLoading}
 				variant="link"
 				className="border border-dark p-0 d-flex justify-content-center align-items-center"
 				style={{
@@ -54,13 +52,9 @@ const VariantCounter: FC<IProps> = ({ productId, variantId }) => {
 			>
 				-
 			</Button>
-			<Form.Control
-				className="border-0 text-center p-0"
-				value={quantity}
-				onChange={inputHandler}
-			/>
+			<Form.Control className="border-0 text-center p-0" value={quantity} onChange={inputHandler} />
 			<Button
-				disabled={disabled}
+				disabled={isFetching || isLoading}
 				variant="link"
 				className="border border-dark p-0 d-flex justify-content-center align-items-center"
 				style={{

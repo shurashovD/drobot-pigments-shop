@@ -4,31 +4,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 const orderApi = createApi({
 	baseQuery: fetchBaseQuery({ baseUrl: "/api/orders" }),
 	endpoints: (build) => ({
-		getCartTotal: build.query<
-			number,
-			{
-				products: { productId: string; quantity: number }[]
-				variants: {
-					productId: string
-					variantId: string
-					quantity: number
-				}[]
-			}
-		>({
-			query: ({ products, variants }) => `/cart-total?products=${JSON.stringify(products)}&variants=${JSON.stringify(variants)}`,
-			providesTags: () => ["total"],
-		}),
-		createOrder: build.mutation<
-			{ url: string; orderNumber: string },
-			{
-				products: { productId: string; quantity: number }[]
-				variants: {
-					variantId: string
-					productId: string
-					quantity: number
-				}[]
-			}
-		>({
+		createOrder: build.mutation<{ url: string; orderNumber: string }, { products: string[]; variants: string[] }>({
 			query: ({ products, variants }) => ({
 				body: {
 					products: JSON.stringify(products),
@@ -38,32 +14,41 @@ const orderApi = createApi({
 				url: "/",
 			}),
 		}),
-		getCart: build.query<ICart, undefined>({
-			query: () => "/cart",
+		getCart: build.query<ICart, { checkedVariants?: string[]; checkedProducts?: string[] } | undefined>({
+			query: (body) => `/cart?products=${JSON.stringify(body?.checkedProducts || [])}&variants=${JSON.stringify(body?.checkedVariants || [])}`,
 			providesTags: () => ["cart"],
 		}),
-		changeProductInCart: build.mutation<undefined, { productId: string; quantity: number }>({
+		changeProductInCart: build.mutation<
+			undefined,
+			{ productId: string; quantity: number; checkedVariants?: string[]; checkedProducts?: string[] }
+		>({
 			query: (body) => ({
 				body,
 				method: "PUT",
 				url: "/cart/product",
 			}),
-			invalidatesTags: ["cart", "total"],
+			invalidatesTags: ["cart"],
 		}),
-		changeVariantInCart: build.mutation<undefined, { productId: string; variantId: string; quantity: number }>({
+		changeVariantInCart: build.mutation<
+			undefined,
+			{ productId: string; variantId: string; quantity: number; checkedVariants?: string[]; checkedProducts?: string[] }
+		>({
 			query: (body) => ({
 				body,
 				method: "PUT",
 				url: "/cart/variant",
 			}),
-			invalidatesTags: ["cart", "total"],
+			invalidatesTags: ["cart"],
 		}),
-		deleteFromCart: build.mutation<undefined, { productIds: string[]; variantIds: string[] }>({
+		deleteFromCart: build.mutation<
+			undefined,
+			{ productIds: string[]; variantIds: string[]; checkedVariants?: string[]; checkedProducts?: string[] }
+		>({
 			query: ({ productIds, variantIds }) => ({
 				method: "DELETE",
 				url: `/cart?productIds=${JSON.stringify(productIds)}&variantIds=${JSON.stringify(variantIds)}`,
 			}),
-			invalidatesTags: ["cart", "total"],
+			invalidatesTags: ["cart"],
 		}),
 		getRelevantCities: build.query<{ city: string; city_code: number }[], string>({
 			query: (str) => `/delivery/cities/${str}`,
@@ -148,21 +133,13 @@ const orderApi = createApi({
 				url: "/check-payment/probably",
 			}),
 		}),
-		clearCartAfterOrder: build.mutation<undefined, { orderNumber: string }>({
-			query: (body) => ({
-				body,
-				method: "POST",
-				url: `/clear-cart`,
-			}),
-		}),
 	}),
 	reducerPath: "orderApi",
-	tagTypes: ["cart", "orders", "total", "deliveryCity", "deliveryDetail", "recipient", "points"],
+	tagTypes: ["cart", "orders", "deliveryCity", "deliveryDetail", "recipient", "points"],
 })
 
 export const {
 	useCreateOrderMutation,
-	useGetCartTotalQuery,
 	useGetCartQuery,
 	useChangeProductInCartMutation,
 	useChangeVariantInCartMutation,
@@ -178,7 +155,6 @@ export const {
 	useGetRecipientQuery,
 	useSetRecipientMutation,
 	useCheckPaymentProbablyQuery,
-	useClearCartAfterOrderMutation,
 } = orderApi
 
 export default orderApi

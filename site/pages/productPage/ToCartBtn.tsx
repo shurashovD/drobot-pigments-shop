@@ -1,7 +1,7 @@
-import { FC } from "react"
+import { FC, useEffect, useState } from "react"
 import { Button, ButtonProps, Col, Row } from "react-bootstrap"
 import { useAppSelector } from "../../application/hooks"
-import { useChangeProductInCartMutation, useChangeVariantInCartMutation } from "../../application/order.service"
+import { useChangeProductInCartMutation, useChangeVariantInCartMutation, useGetCartQuery } from "../../application/order.service"
 import IconCart from "../../components/icons/IconCart"
 
 interface IProps extends ButtonProps {
@@ -10,10 +10,8 @@ interface IProps extends ButtonProps {
 }
 
 const ToCartBtn: FC<IProps> = ({ disabled, productId, variantId }) => {
-    const inCart = useAppSelector(state => (
-        state.cartSlice.products.some(item => item.productId === productId) ||
-        state.cartSlice.variants.some(item => item.variantId === variantId)
-    ))
+	const { data: cart, isFetching } = useGetCartQuery(undefined)
+    const [inCart, setInCart] = useState(false)
     const [changeProduct, { isLoading: addProductLoading }] = useChangeProductInCartMutation()
     const [changeVariant, { isLoading: addVariantLoading }] = useChangeVariantInCartMutation()
 
@@ -25,10 +23,19 @@ const ToCartBtn: FC<IProps> = ({ disabled, productId, variantId }) => {
         }
     }
 
+	useEffect(() => {
+		if ( cart ) {
+			setInCart(
+				cart.products.some(item => (productId === item.productId)) ||
+				cart.variants.some(item => (variantId === item.variantId))
+			)
+		}
+	}, [cart, productId, variantId])
+
     return (
 		<Button
 			disabled={
-				disabled || addProductLoading || addVariantLoading || inCart
+				disabled || addProductLoading || addVariantLoading || inCart || isFetching
 			}
 			variant={inCart ? "white" : "primary"}
 			className={`${

@@ -1,10 +1,18 @@
+import { useEffect, useState } from "react"
 import { Badge } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
-import { useAppSelector } from "../application/hooks"
+import { useGetCartQuery } from "../application/order.service"
 import IconCart from "./icons/IconCart"
 
 const CartIconComponent = () => {
-    const quantity = useAppSelector(state => state.cartSlice.products.length + state.cartSlice.variants.length)
+    const { data: cart } = useGetCartQuery(undefined)
+    const [quantity, setQuantity] = useState(0)
+
+    useEffect(() => {
+        if ( cart ) {
+            setQuantity(cart.products.length + cart.variants.length)
+        }
+    }, [cart])
     
     return (
 		<div className="position-relative">

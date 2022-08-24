@@ -1,15 +1,9 @@
-import { ChangeEvent, FC, useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { Button, Col, Form, Row, Spinner } from 'react-bootstrap'
-import { useCheckNumberInitMutation, useSetRecipientMutation } from '../../application/order.service'
+import { useCheckNumberInitMutation, useGetRecipientQuery, useSetRecipientMutation } from '../../application/order.service'
 import ButtonComponent from '../../components/ButtonComponent'
 import IconGreenCheckmark from '../../components/icons/IconGreenCheckmark'
 import CheckPhoneModal from './CheckPhoneModal'
-
-interface IProps {
-    name?: string
-    mail?: string
-    phone?: string
-}
 
 const parsePhoneValue = (value: string) => {
 	const code = value.substring(0, 3)
@@ -32,7 +26,8 @@ const parsePhoneValue = (value: string) => {
 	return result
 }
 
-const Recipient: FC<IProps> = ({ name, mail, phone }) => {
+const Recipient = () => {
+	const { data, isFetching } = useGetRecipientQuery(undefined)
     const [state, setState] = useState('')
 	const [nameVal, setName] = useState('')
 	const [mailVal, setMail] = useState("")
@@ -54,22 +49,16 @@ const Recipient: FC<IProps> = ({ name, mail, phone }) => {
 	}
 
     useEffect(() => {
-        if ( phone ) {
-            setState(phone)
+        if ( data?.phone ) {
+            setState(data.phone)
         }
-    }, [phone])
-
-	useEffect(() => {
-		if (name) {
-			setName(name)
+		if (data?.name) {
+			setName(data.name)
 		}
-	}, [name])
-
-	useEffect(() => {
-		if (mail) {
-			setMail(mail)
+		if (data?.mail) {
+			setMail(data.mail)
 		}
-	}, [mail])
+    }, [data])
     
 	useEffect(() => {
 		if ( isSuccess ) {
@@ -89,7 +78,7 @@ const Recipient: FC<IProps> = ({ name, mail, phone }) => {
 						<span className="mb-2">Телефон*</span>
 					</Col>
 					<Col xs="auto">
-						{!isLoading && !phone && (
+						{!isLoading && !isFetching && !data?.phone && (
 							<Button
 								variant="link"
 								className="sign-tel-btn d-lg-none"
@@ -99,9 +88,9 @@ const Recipient: FC<IProps> = ({ name, mail, phone }) => {
 								Подтвердить номер
 							</Button>
 						)}
-						{!isLoading && phone && (
+						{!isLoading && !isFetching && data?.phone && (
 							<div className="d-flex d-lg-none align-items-center">
-								{state === phone && (
+								{state === data?.phone && (
 									<IconGreenCheckmark stroke="#93FA82" />
 								)}
 								<Button
@@ -109,12 +98,12 @@ const Recipient: FC<IProps> = ({ name, mail, phone }) => {
 									className="sign-tel-btn-success ms-2"
 									disabled={state.length < 10}
 									onClick={() =>
-										state !== phone
+										state !== data?.phone
 											? checkNumber(state)
 											: {}
 									}
 								>
-									{state === phone ? (
+									{state === data?.phone ? (
 										<>Номер подтверждён</>
 									) : (
 										<>Привязать новый</>
@@ -142,7 +131,7 @@ const Recipient: FC<IProps> = ({ name, mail, phone }) => {
 								/>
 							</div>
 						)}
-						{!isLoading && !phone && (
+						{!isLoading && !isFetching && !data?.phone && (
 							<Button
 								variant="link"
 								className="sign-tel-btn my-3 d-none d-lg-block"
@@ -152,9 +141,9 @@ const Recipient: FC<IProps> = ({ name, mail, phone }) => {
 								Подтвердить номер
 							</Button>
 						)}
-						{!isLoading && phone && (
+						{!isLoading && !isFetching && data?.phone && (
 							<div className="d-none d-lg-flex align-items-center">
-								{state === phone && (
+								{state === data?.phone && (
 									<IconGreenCheckmark stroke="#93FA82" />
 								)}
 								<Button
@@ -162,12 +151,12 @@ const Recipient: FC<IProps> = ({ name, mail, phone }) => {
 									className="sign-tel-btn-success my-3 ms-2"
 									disabled={state.length < 10}
 									onClick={() =>
-										state !== phone
+										state !== data?.phone
 											? checkNumber(state)
 											: {}
 									}
 								>
-									{state === phone ? (
+									{state === data?.phone ? (
 										<>Номер подтверждён</>
 									) : (
 										<>Привязать новый</>
@@ -177,7 +166,7 @@ const Recipient: FC<IProps> = ({ name, mail, phone }) => {
 						)}
 					</Col>
 				</Row>
-				{!isLoading && phone && (
+				{!isLoading && !data?.phone && !isFetching && (
 					<Row className="mt-2 mt-lg-5">
 						<Col xs={12} lg={6}>
 							<Form.Label className="w-100">
@@ -205,7 +194,7 @@ const Recipient: FC<IProps> = ({ name, mail, phone }) => {
 						</Col>
 					</Row>
 				)}
-				{!isLoading && phone && (
+				{!isLoading && !isFetching && !data?.phone && (
 					<Row className="mt-5">
 						<Col xs="auto">
 							<ButtonComponent

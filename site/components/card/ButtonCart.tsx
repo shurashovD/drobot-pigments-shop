@@ -3,8 +3,7 @@ import { FC, useEffect, useRef, useState } from "react"
 import { ButtonProps } from "react-bootstrap"
 import IconCart from "../icons/IconCart"
 import { Product } from "../../../shared"
-import { useAppSelector } from "../../application/hooks"
-import { useChangeProductInCartMutation, useChangeVariantInCartMutation } from "../../application/order.service"
+import { useChangeProductInCartMutation, useChangeVariantInCartMutation, useGetCartQuery } from "../../application/order.service"
 
 interface IProps extends ButtonProps {
     productId: string
@@ -13,12 +12,8 @@ interface IProps extends ButtonProps {
 }
 
 const ButtonCart: FC<IProps> = ({ productId, variants, variantsLabel }) => {
-	const inCart = useAppSelector((state) => !!variantsLabel
-		? variants?.every(({id}) => state.cartSlice.variants.some(({ variantId }) => id === variantId)) || false
-		: state.cartSlice.products.some((item) => item.productId === productId)
-	)
-	const variantsInCart = useAppSelector(state => state.cartSlice.variants)
-	const { cartBusy: disabled } = useAppSelector(state => state.cartSlice)
+	const { data: cart, isFetching } = useGetCartQuery(undefined)
+	const [inCart, setInCart] = useState(false)
 	const overlayTarget = useRef<HTMLButtonElement | null>(null)
 	const [popoverShow, setPopoverShow] = useState(false)
 	const [addProductToCart, { isLoading: addProductLoading }] = useChangeProductInCartMutation()
@@ -33,10 +28,27 @@ const ButtonCart: FC<IProps> = ({ productId, variants, variantsLabel }) => {
 	}
 
 	useEffect(() => {
-		if (popoverShow && variants?.length === 0) {
+		if ( cart ) {
+			if (popoverShow && variants?.length === 0) {
+				setPopoverShow(false)
+			}
+		} else {
 			setPopoverShow(false)
 		}
-	}, [variants, popoverShow])
+		
+	}, [variants, popoverShow, cart])
+
+	useEffect(() => {
+		if ( cart ) {
+			if ( variants ) {
+				setInCart(variants.every((item) => (
+					cart.variants.some(({ variantId }) => (variantId === item.id))
+				)))
+			} else {
+				setInCart(cart.products.some(product => (product.productId === productId)))
+			}
+		}
+	}, [cart, productId, variants])
 
     return (
 		<div className="w-100">
@@ -51,11 +63,11 @@ const ButtonCart: FC<IProps> = ({ productId, variants, variantsLabel }) => {
 					<Popover>
 						<Popover.Header>{variantsLabel}</Popover.Header>
 						<Popover.Body>
-							{variants.filter(({ id }) => !variantsInCart.some(({ variantId }) => variantId === id))
+							{variants.filter(({ id }) => !cart?.variants.some(({ variantId }) => variantId === id))
 								.map(({ id, value }) => (
 								<Button
 									disabled={
-										disabled ||
+										isFetching ||
 										addProductLoading ||
 										addVariantLoading
 									}
@@ -72,7 +84,7 @@ const ButtonCart: FC<IProps> = ({ productId, variants, variantsLabel }) => {
 				</Overlay>
 			)}
 			<Button
-				disabled={disabled || addProductLoading || addVariantLoading || inCart}
+				disabled={isFetching || addProductLoading || addVariantLoading || inCart}
 				variant={inCart ? "white" : "primary"}
 				className={`${
 					inCart && "border border-primary"

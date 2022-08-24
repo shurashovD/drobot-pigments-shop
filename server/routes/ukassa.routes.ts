@@ -66,6 +66,12 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
             // привязка заявки СДЭК к заказу в "Мой склад";
             const msOrder = await getMsOrder(order.msOrderId)
             await updateMsOrder(order.msOrderId, { shipmentAddress: `${msOrder.shipmentAddress || ''}; СДЭК ${uuid}` })
+            
+            // сохранение uuid заказа СДЭК в заказе БД;
+            order.delivery.sdek = { ...order.toObject().delivery.sdek, uuid }
+            await order.save()
+
+            // обработка бонусов заказа;
         }
         if (status === "canceled") {
             // получение причины отмены платежа;

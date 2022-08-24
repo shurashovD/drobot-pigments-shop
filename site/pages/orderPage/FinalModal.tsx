@@ -1,6 +1,6 @@
 import { Image, Modal, ModalProps, Spinner } from 'react-bootstrap'
 import { FC, useEffect, useState } from 'react'
-import { useCheckPaymentProbablyQuery, useClearCartAfterOrderMutation } from '../../application/order.service'
+import { useCheckPaymentProbablyQuery, useGetCartQuery } from '../../application/order.service'
 import { NavLink } from 'react-router-dom'
 const logo = require('../../img/logo.svg')
  
@@ -12,17 +12,17 @@ interface IProps extends ModalProps {
 const FinalModal: FC<IProps> = ({ show, onHide, number, url }) => {
 	const [isPaying, setIsPaying] = useState(false)
 	const { data } = useCheckPaymentProbablyQuery({ orderNumber: number || '' }, { pollingInterval: 3000, skip: !show || isPaying })
-	const [clearCart] = useClearCartAfterOrderMutation()
+	const { refetch } = useGetCartQuery(undefined)
 
 	useEffect(() => {
-		if (data && data.status === "succeeded" && number) {
-			clearCart({ orderNumber: number })
+		if (data && data.status === "succeeded") {
 			setIsPaying(true)
+			refetch()
 		}
 		if (data && data.status === "canceled") {
 			setIsPaying(true)
 		}
-	}, [data, clearCart, number])
+	}, [data, refetch])
 
 	useEffect(() => {
 		setIsPaying(false)

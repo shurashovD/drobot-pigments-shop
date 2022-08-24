@@ -1,19 +1,27 @@
 import OrderModel from './OrderModel'
-import { ClientModel, IClient, IOrder, IOrderPop } from '../../shared';
+import { ClientModel, ICart, IClient, IOrder, IOrderPop } from '../../shared';
 import { model, Schema, Types } from 'mongoose'
 import CommonDiscountModel from './CommonDiscountModel';
 import AgentDiscountModel from './AgentDiscountModel';
 import DelegateDiscountModel from './DelegateDiscountModel';
+import CartModel from './CartModel';
 
 const ClientSchema = new Schema<IClient, ClientModel>({
-    addresses: [String],
-    amoContactId: Number,
-    counterpartyId: String,
-    mail: String,
-    name: String,
-    orders: [{ type: Types.ObjectId, ref: 'Order' }],
+	addresses: [String],
+	amoContactId: Number,
+	cartId: { type: Schema.Types.ObjectId, ref: 'Cart' },
+	counterpartyId: String,
+	mail: String,
+	name: String,
+	orders: [{ type: Types.ObjectId, ref: "Order" }],
+	agentOrders: [{ type: Types.ObjectId, ref: "Order" }],
+	commonOrders: [{ type: Types.ObjectId, ref: "Order" }],
+	delegateOrders: [{ type: Types.ObjectId, ref: "Order" }],
+	cashBack: Number,
+	claimedStatus: String,
+	promocodes: [{ type: Schema.Types.ObjectId, ref: 'Promocode' }],
 	status: String,
-    tel: { type: String, required: true }
+	tel: { type: String, required: true },
 })
 
 ClientSchema.methods.getOrder = async function(this: IClient, id: string): Promise<IOrderPop> {
@@ -52,7 +60,7 @@ ClientSchema.methods.getNearestOrder = async function(this: IClient): Promise<IO
 	}
 }
 
-ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ discountPercentValue?: string; nextLevelRequires: string[] }> {
+ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ discountPercentValue?: number; nextLevelRequires: string[] }> {
 	try {
 		const formatter = new Intl.NumberFormat('ru', { currency: 'RUB', maximumFractionDigits: 0 })
 		if (this.status === 'common') {
@@ -64,7 +72,7 @@ ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ dis
 			}
 
 			const myDiscountLevelIndex = commonDiscounts.findIndex(({ lowerTreshold }) => (lowerTreshold <= commonOrdersTotal ))
-			const discountPercentValue = `${commonDiscounts[myDiscountLevelIndex]?.percentValue || 0}%`
+			const discountPercentValue = commonDiscounts[myDiscountLevelIndex]?.percentValue || 0
 			let nextLevelRequires = ['Максимальный уровень скидки']
 			if ( myDiscountLevelIndex !== commonDiscounts.length ) {
 				const nextDiscountPercentValue = commonDiscounts[myDiscountLevelIndex + 1].percentValue
@@ -79,7 +87,7 @@ ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ dis
 			if (!agentDiscount) {
 				return { nextLevelRequires: ["Бонусная программа не активна"] }
 			}
-			return { discountPercentValue: `${agentDiscount.percentValue}%`, nextLevelRequires: ["Максимальный уровень скидки"] }
+			return { discountPercentValue: agentDiscount.percentValue, nextLevelRequires: ["Максимальный уровень скидки"] }
 		}
 
 		if (this.status === 'delegate') {
@@ -102,35 +110,28 @@ ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ dis
 ClientSchema.methods.createTempOrder = async function (
 	this: IClient,
 	sdek: IOrder["delivery"]["sdek"],
-	products: {
-		productId: string
-		quantity: number
-		price: number
-		discountOn?: number
-	}[],
-	variants: {
-		productId: string
-		variantId: string
-		quantity: number
-		price: number
-		discountOn?: number
-	}[]
+	products: string[],
+	variants: string[],
+	cart: ICart
 ): Promise<string> {
 	try {
-		const total = products
-			.map(({ price, discountOn }) => price - (discountOn || 0))
-			.concat(variants.map(({ price, discountOn }) => price - (discountOn || 0)))
-			.reduce((total, item) => total + item, 0)
+		const productsForOrder = cart.products.filter(({ productId }) => products.includes(productId))
+			.map(item => ({ ...item, product: item.productId }))
+		const variantsForOrder = cart.variants
+			.filter(({ variantId }) => variants.includes(variantId))
+			.map((item) => ({ ...item, product: item.productId, variant: item.variantId }))
+
 		const order = await new OrderModel({
 			client: this._id,
 			date: new Date(),
 			delivery: { sdek },
-			products: products.map((item) => ({ ...item, product: item.productId })),
-			variants: variants.map((item) => ({ ...item, product: item.productId, variant: item.variantId })),
-			total
+			products: productsForOrder,
+			variants: variantsForOrder,
+			total: cart.total,
 		}).save()
 
 		this.orders.push(order._id)
+		await this.save()
 		return order._id.toString()
 	} catch (e) {
 		throw e
@@ -146,6 +147,47 @@ ClientSchema.methods.deleteOrder = async function (this: IClient, orderId: strin
 			this.orders.splice(index, 1)
 			await this.save()
 		}
+	} catch (e) { throw e }
+}
+
+ClientSchema.methods.addCashback = async function (this: IClient, cashbackRub: number): Promise<void> {
+	try {
+		this.cashBack = (this.cashBack || 0) + cashbackRub
+		await this.save()
+	} catch (e) {
+		throw e
+	}
+}
+
+ClientSchema.methods.mergeCart = async function (this: IClient, mergedCartId: string): Promise<void> {
+	try {
+		// если присоединяемая корзина не найдена, выход;
+		const mergedCart = await CartModel.findById(mergedCartId)
+		if (!mergedCart) {
+			return
+		}
+
+		// если у клиента уже есть корзина;
+		if ( this.cartId ) {
+			// если у клиента нет корзины, то его корзиной становится присоединяемая;
+			const myCart = await CartModel.findById(this.cartId)
+			if (!myCart) {
+				this.cartId = mergedCart?._id
+				await this.save()
+				return
+			}
+			// если корзина есть, то в неё добавляются товары из присоединяемой корзины;
+			myCart.products.concat(mergedCart.products)
+			myCart.variants.concat(mergedCart.variants)
+			
+			// удаление присоединяемой корзины;
+			await CartModel.findByIdAndDelete(mergedCartId)
+		}
+		// если у клиента нет корзины, то его корзиной становится присоединяемая;
+		else {
+			this.cartId = mergedCart?._id
+		}
+		await this.save()
 	} catch (e) { throw e }
 }
 

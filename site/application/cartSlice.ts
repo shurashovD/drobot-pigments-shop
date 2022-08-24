@@ -1,94 +1,71 @@
-import { ICart } from './../../shared/index.d';
 import { createSlice } from "@reduxjs/toolkit"
 import { PayloadAction } from '@reduxjs/toolkit';
 
 interface IState {
-	products: {
-		checked: boolean
-		productId: string
-		quantity: number
-	}[]
-	variants: {
-		checked: boolean
-		productId: string
-		variantId: string
-		quantity: number
-	}[]
-	isLoading: boolean
-	cartBusy: boolean
+	checkedProducts: string[]
+	checkedVariants: string[]
 }
 
 const initialState: IState = {
-    products: [],
-	variants: [],
-	isLoading: false,
-	cartBusy: false
+    checkedProducts: [], checkedVariants: []
 }
 
 const cartSlice = createSlice({
 	initialState,
 	name: "cartSlice",
 	reducers: {
-		setCart: (state, { payload }: PayloadAction<ICart>) => {
-			const products = payload.products.map(item => ({
-				...item, checked: state.products.find(({ productId }) => productId === item.productId)?.checked || false
-			}))
-			const variants = payload.variants.map(item => ({
-				...item, checked: state.variants.find(({ variantId }) => variantId === item.variantId)?.checked || false
-			}))
-			state.products = products
-			state.variants = variants
-			state.cartBusy = false
-		},
-		setCartBusy: (state, { payload }: PayloadAction<boolean>) => {
-			state.cartBusy = payload
-		},
-		setLoading: (state, { payload }: PayloadAction<boolean>) => {
-			state.isLoading = payload
-		},
-		toggleCheckInCart: (state, { payload }: PayloadAction<string>) => {
-			const index = state.products.findIndex(
-				({ productId }) => productId === payload
-			)
+		toggleCheckProductInCart: (state, { payload }: PayloadAction<string>) => {
+			const index = state.checkedProducts.findIndex((item) => item === payload)
 			if (index !== -1) {
-				state.products[index].checked = !state.products[index].checked
+				state.checkedProducts.push(payload)
+			} else {
+				state.checkedProducts.splice(index, 1)
 			}
 		},
 		toggleCheckVariantInCart: (state, { payload }: PayloadAction<string>) => {
-			const index = state.variants.findIndex(
-				({ variantId }) => variantId === payload
-			)
+			const index = state.checkedVariants.findIndex((item) => item === payload)
 			if (index !== -1) {
-				state.variants[index].checked = !state.variants[index].checked
+				state.checkedVariants.push(payload)
+			} else {
+				state.checkedVariants.splice(index, 1)
 			}
 		},
-		toggleCheckAll: (state) => {
-			let checked = true
-			if ( state.products.length > 0 ) {
-				checked &&= !state.products.every(({ checked }) => checked)
+		toggleCheckAll: (state, { payload }: PayloadAction<{ cartProductsIds: string[]; cartVariantsIds: string[] }>) => {
+			const { cartProductsIds, cartVariantsIds } = payload
+			if (state.checkedProducts.length === 0 && state.checkedVariants.length === 0) {
+				state.checkedProducts = cartProductsIds
+				state.checkedVariants = cartVariantsIds
+			} else {
+				state.checkedProducts = []
+				state.checkedVariants = []
 			}
-			if ( state.variants.length > 0 ) {
-				checked &&= !state.variants.every(({ checked }) => checked)
-			}
-			state.products = state.products.map((item) => ({
-				...item,
-				checked,
-			}))
-			state.variants = state.variants.map((item) => ({
-				...item,
-				checked,
-			}))
 		},
+		resetChekProduct: (state, { payload }: PayloadAction<{ productId: string }>) => {
+			const index = state.checkedProducts.findIndex((item) => item === payload.productId)
+			if (index !== -1) {
+				state.checkedProducts.splice(index, 1)
+			}
+		},
+		resetChekVariant: (state, { payload }: PayloadAction<{ variantId: string }>) => {
+			const index = state.checkedVariants.findIndex((item) => item === payload.variantId)
+			if (index !== -1) {
+				state.checkedVariants.splice(index, 1)
+			}
+		},
+		resetCheckAll: (state) => {
+			state.checkedProducts = []
+			state.checkedVariants = []
+		}
 	},
 })
 
 export const {
-	setCart,
-	setCartBusy,
-	setLoading,
 	toggleCheckAll,
-	toggleCheckInCart,
-	toggleCheckVariantInCart
+	toggleCheckProductInCart,
+	toggleCheckVariantInCart,
+	resetCheckAll,
+	resetChekProduct,
+	resetChekVariant,
 } = cartSlice.actions
 
 export default cartSlice

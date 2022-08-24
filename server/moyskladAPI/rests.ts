@@ -12,10 +12,10 @@ const paths = {
 
 const rests = async (filter: { assortmentId: string[] }) => {
 	try {
-		const result: Promise<{assortmentId: string, stock: number}[]> = await ms.GET(paths.stock, {
-			filter: { ...filter, storeId },
-		})
-		return result 
+		const result = await ms
+			.GET(paths.stock, { filter: { ...filter, storeId } })
+			.then<number | undefined>((doc: { assortmentId: string; stock: number }[]) => doc[0]?.stock)
+		return result
 	} catch (e) {
 		throw e
 	}

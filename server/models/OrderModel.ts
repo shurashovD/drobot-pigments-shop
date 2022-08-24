@@ -1,5 +1,8 @@
-import { IOrder, IOrderPop, OrderModel } from './../../shared/index.d';
+import { IOrder, IOrderPop, IPromocodeDoc, OrderModel } from './../../shared/index.d';
 import { model, Schema } from "mongoose";
+import ClientModel from './ClientModel';
+import PromocodeModel from './PromocodeModel';
+import ProductModel from './ProductModel';
 
 const OrderSchema = new Schema<IOrder, OrderModel>({
 	client: { type: Schema.Types.ObjectId, ref: "Client" },
@@ -28,15 +31,18 @@ const OrderSchema = new Schema<IOrder, OrderModel>({
 			quantity: { type: Number, required: true },
 			price: Number,
 			discountOn: Number,
+			paidByCashBack: Number
 		},
 	],
+	promocode: { type: Schema.Types.ObjectId, ref: 'Promocode' },
 	variants: [
 		{
 			product: { type: Schema.Types.ObjectId, ref: "Product" },
 			variant: { type: Schema.Types.ObjectId, ref: "Variant" },
 			quantity: { type: Number, required: true },
 			price: Number,
-			discountOn: Number
+			discountOn: Number,
+			paidByCashBack: Number
 		},
 	],
 	msOrderId: String,
@@ -48,8 +54,9 @@ const OrderSchema = new Schema<IOrder, OrderModel>({
 
 OrderSchema.statics.getOrder = async (id: string) => {
 	try {
-		const order = await Order.findById(id).populate<{ products: IOrderPop["products"][0][]; variants: IOrderPop["variants"][0][] }>([
+		const order = await Order.findById(id).populate<{ products: IOrderPop["products"][0][]; variants: IOrderPop["variants"][0][]; promocode: IPromocodeDoc }>([
 			{ path: "client" },
+			{ path: 'promocode' },
 			{
 				path: "products",
 				populate: "product",
@@ -60,6 +67,10 @@ OrderSchema.statics.getOrder = async (id: string) => {
 			},
 		]).then(doc => {
 			if ( !doc ) return doc
+			if ( doc.promocode ) {
+				const promocode: IOrderPop['promocode'] = { code: doc.promocode.code, id: doc.promocode._id.toString() }
+				return { ...doc.toObject(), id: doc._id.toString(), promocode }
+			}
 			return { ...doc.toObject(), id: doc._id.toString() }
 		})
 
@@ -140,6 +151,61 @@ OrderSchema.statics.setPaymentStatus = async (id: string, args: { status: string
 	}
 }
 
-const Order = model<IOrder, OrderModel>('Order', OrderSchema)
+OrderSchema.methods.bonusHandle = async function(this: IOrder): Promise<void> {
+	try {
+		const client = await ClientModel.findById(this.client)
+		if ( !client ) {
+			const err = new Error('Баллы за заказ не начислены')
+			err.userError = true
+			err.sersviceInfo = `Клиент ${this.client} не найден. Начисление баллов заказ`
+			throw err
+		}
 
+		// кэшбэк и скидка накапливаются только если покупку совершил розничный покупатель;
+		if ( client.status !== 'common' ) {
+			return
+		}
+
+		// при заказе был применён промокод;
+		if ( this.promocode ) {
+			const promocode = await PromocodeModel.getPromocode(this.promocode.toString())
+			if ( !promocode ) {
+				const err = new Error("Баллы за заказ не начислены")
+				err.userError = true
+				err.sersviceInfo = `Промокод ${this.promocode} не найден. Начисление баллов заказ`
+				throw err
+			}
+
+			// получение товаров, на которые распространяется скидка;
+			const discountedProducts = this.products.filter(async ({ product }) => (await ProductModel.isDiscounted(product?.toString() || '')))
+			const discountedVariants = this.variants.filter(async ({ product }) => (await ProductModel.isDiscounted(product?.toString() || '')))
+			
+			// вычисление кэшбэка - 10% от суммы акционных товаров;
+			const productsCashback = discountedProducts.reduce((cashback, { price }) => cashback + price, 0)
+			const cashBack = discountedVariants.reduce((cashback, { price }) => cashback + price, productsCashback) * 0.1
+
+			// начисление кэшбэка хранителю промокода;
+			const promocodeHolderClient = await ClientModel.findById(promocode.holderClient)
+			if ( promocodeHolderClient ) {
+				await promocodeHolderClient.addCashBack(cashBack)
+			}
+			
+			// сохранение информации о заказе в объект промокода;
+			const promocodeDoc = await PromocodeModel.findById(this.promocode.toString())
+			if ( promocodeDoc ) {
+				promocodeDoc.orders.push({ cashBack, orderId: this._id.toString() })
+				await promocodeDoc.save()
+			}
+		}
+		// заказ совершен без промокода;
+		else {
+			// начисление клиенту накопительной скидки;
+			client.commonOrders.push(this._id)
+			await client.save()
+		}
+	}
+	catch (e) { throw e }
+}
+
+const Order = model<IOrder, OrderModel>('Order', OrderSchema)
 export default Order

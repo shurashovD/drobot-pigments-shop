@@ -31,7 +31,7 @@ const Profile = () => {
 	useEffect(() => {
 		if (auth && auth.name) {
 			const nameArr = auth.name.split(" ")
-			setInitials(`${nameArr[0][0]}${nameArr[1]?.[0]}`.toUpperCase())
+			setInitials(`${nameArr[0][0]}${nameArr[1]?.[0] || ""}`.toUpperCase())
 		}
 	}, [auth])
 
