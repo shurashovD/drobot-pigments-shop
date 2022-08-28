@@ -229,7 +229,7 @@ export interface IOrder extends Document {
 	msOrderId?: string
 	msOrderSumRub?: number
 	number: number
-	status: "new" | "payCanceled" | "compiling" | "builded" | "delivering" | "complete"
+	status: "new" | "payCanceled" | "compiling" | "builded" | "delivering" | "ready" | "complete"
 	total: number
 	bonusHandle: () => Promise<void>
 }
@@ -339,12 +339,7 @@ export interface IClient extends Document {
 	promocodes?: Types.ObjectId[]
 	cashBack?: number
 	total?: number
-	createTempOrder(
-		sdek: IOrder['delivery']['sdek'],
-		products: string[],
-		variants: string[],
-		cart: ICart
-	): Promise<string>
+	createTempOrder(sdek: IOrder['delivery']['sdek']): Promise<string>
 	deleteOrder(orderId: string): Promise<void>
 	getDiscount(): Promise<{ discountPercentValue?: number; nextLevelRequires: string[] }>
 	getOrder(id: string): Promise<IOrderPop>
@@ -354,22 +349,7 @@ export interface IClient extends Document {
 }
 
 export interface IClientMethods {
-	createTempOrder(
-		sdek: IOrder["delivery"]["sdek"],
-		products: {
-			productId: string
-			quantity: number
-			price: number
-			discountOn?: number
-		}[],
-		variants: {
-			productId: string
-			variantId: string
-			quantity: number
-			price: number
-			discountOn?: number
-		}[]
-	): Promise<string>
+	createTempOrder(sdek: IOrder["delivery"]["sdek"]): Promise<string>
 	deleteOrder(orderId: string): Promise<void>
 	getOrder(id: string): Promise<IOrderPop>
 	getDiscount(): Promise<{ discountPercentValue?: number; nextLevelRequires: string[] }>
@@ -679,6 +659,7 @@ export interface ICart {
 		quantity: number
 		discountOn?: number
 		paidByCashBack?: number
+		checked?: boolean 
 	}[]
 	variants: {
 		productId: string
@@ -689,6 +670,7 @@ export interface ICart {
 		quantity: number
 		discountOn?: number
 		paidByCashBack?: number
+		checked?: boolean 
 	}[]
 	amount?: number
 	availableCashBack?: number
@@ -702,15 +684,16 @@ export interface ICartDoc extends ICart, Document {
 	refreshPrices: () => Promise<ICartDoc | null>
 	refreshDiscounts: () => Promise<ICartDoc | null>
 	refreshCashBack: () => Promise<ICartDoc | null>
-	refreshTotal: (checkedProducts: string[], checkedVariants: string[]) => Promise<ICartDoc | null>
-	addProduct: (productId: string, quantity: number, checkedProducts?: string[], checkedVariants?: string[]) => Promise<ICartDoc | null>
+	refreshTotal: () => Promise<ICartDoc | null>
+	addProduct: (productId: string, quantity: number) => Promise<ICartDoc | null>
 	addVariant: (
 		productId: string,
 		variantId: string,
-		quantity: number,
-		checkedProducts?: string[],
-		checkedVariants?: string[]
+		quantity: number
 	) => Promise<ICartDoc | null>
+	resetCheckAll: () => Promise<ICartDoc | null>
+	toggleCheckAll: () => Promise<ICartDoc | null>
+	toggleCheck: (productId: string, variantId?: string) => Promise<ICartDoc | null>
 }
 
 export interface INearestOrder {

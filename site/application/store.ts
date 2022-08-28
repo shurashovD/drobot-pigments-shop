@@ -1,7 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import accountApi from "./account.service";
 import alertSlice from "./alertSlice";
-import cartSlice from "./cartSlice";
 import categoriesSlice from "./categoriesSlice";
 import categoryApi from "./category.service";
 import { rtkQueryLogger } from "./error.middleware";
@@ -31,7 +30,6 @@ const store = configureStore({
 		[alertSlice.name]: alertSlice.reducer,
 		[categoryApi.reducerPath]: categoryApi.reducer,
 		[categoriesSlice.name]: categoriesSlice.reducer,
-		[cartSlice.name]: cartSlice.reducer,
 		[errorApi.reducerPath]: errorApi.reducer,
 		[fileApi.reducerPath]: fileApi.reducer,
 		[filtersSlice.name]: filtersSlice.reducer,

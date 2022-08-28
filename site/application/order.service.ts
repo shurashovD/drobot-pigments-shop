@@ -4,12 +4,8 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 const orderApi = createApi({
 	baseQuery: fetchBaseQuery({ baseUrl: "/api/orders" }),
 	endpoints: (build) => ({
-		createOrder: build.mutation<{ url: string; orderNumber: string }, { products: string[]; variants: string[] }>({
-			query: ({ products, variants }) => ({
-				body: {
-					products: JSON.stringify(products),
-					variants: JSON.stringify(variants),
-				},
+		createOrder: build.mutation<{ url: string; orderNumber: string }, void>({
+			query: () => ({
 				method: "POST",
 				url: "/",
 			}),
@@ -18,10 +14,7 @@ const orderApi = createApi({
 			query: (body) => `/cart?products=${JSON.stringify(body?.checkedProducts || [])}&variants=${JSON.stringify(body?.checkedVariants || [])}`,
 			providesTags: () => ["cart"],
 		}),
-		changeProductInCart: build.mutation<
-			undefined,
-			{ productId: string; quantity: number; checkedVariants?: string[]; checkedProducts?: string[] }
-		>({
+		changeProductInCart: build.mutation<undefined, { productId: string; quantity: number }>({
 			query: (body) => ({
 				body,
 				method: "PUT",
@@ -29,10 +22,7 @@ const orderApi = createApi({
 			}),
 			invalidatesTags: ["cart"],
 		}),
-		changeVariantInCart: build.mutation<
-			undefined,
-			{ productId: string; variantId: string; quantity: number; checkedVariants?: string[]; checkedProducts?: string[] }
-		>({
+		changeVariantInCart: build.mutation<undefined, { productId: string; variantId: string; quantity: number }>({
 			query: (body) => ({
 				body,
 				method: "PUT",
@@ -47,6 +37,28 @@ const orderApi = createApi({
 			query: ({ productIds, variantIds }) => ({
 				method: "DELETE",
 				url: `/cart?productIds=${JSON.stringify(productIds)}&variantIds=${JSON.stringify(variantIds)}`,
+			}),
+			invalidatesTags: ["cart"],
+		}),
+		resetCheckProducts: build.mutation<undefined, void>({
+			query: () => ({
+				method: "PUT",
+				url: "/cart/check/reset",
+			}),
+			invalidatesTags: ["cart"],
+		}),
+		toggleCheckAll: build.mutation<undefined, void>({
+			query: () => ({
+				method: "PUT",
+				url: "/cart/check/toggle-all",
+			}),
+			invalidatesTags: ["cart"],
+		}),
+		toggleCheckOne: build.mutation<undefined, { productId: string; variantId?: string }>({
+			query: (body) => ({
+				body,
+				method: "PUT",
+				url: "/cart/check/toggle",
 			}),
 			invalidatesTags: ["cart"],
 		}),
@@ -155,6 +167,9 @@ export const {
 	useGetRecipientQuery,
 	useSetRecipientMutation,
 	useCheckPaymentProbablyQuery,
+	useResetCheckProductsMutation,
+	useToggleCheckAllMutation,
+	useToggleCheckOneMutation,
 } = orderApi
 
 export default orderApi

@@ -1,29 +1,24 @@
 import { useEffect, useState } from "react"
 import { Button, Col, Container, Form, ListGroup, Row, Spinner } from "react-bootstrap"
-import { resetCheckAll, toggleCheckAll } from "../../application/cartSlice"
-import { useAppDispatch, useAppSelector } from "../../application/hooks"
-import { useDeleteFromCartMutation, useGetCartQuery } from "../../application/order.service"
+import { useDeleteFromCartMutation, useGetCartQuery, useResetCheckProductsMutation, useToggleCheckAllMutation } from "../../application/order.service"
 import CartItem from "./CartItem"
 import CartTotal from "./CartTotal"
 import VariantCartItem from "./VariantCartItem"
 
 const CartPage = () => {
     const [label, setLabel] = useState<'товар' | 'товара' | 'товаров'>()
-	const { checkedProducts, checkedVariants } = useAppSelector((state) => state.cartSlice)
-	const { data, isLoading } = useGetCartQuery({ checkedProducts, checkedVariants }, { refetchOnMountOrArgChange: true })
+	const { data, isLoading } = useGetCartQuery(undefined, { refetchOnMountOrArgChange: true })
 	const [remove, { isLoading: rmLoading }] = useDeleteFromCartMutation()
-	const dispatch = useAppDispatch()
+	const [resetCheck] = useResetCheckProductsMutation()
+	const [toggleChekAll, { isLoading: checkAllLoading }] = useToggleCheckAllMutation()
 	const [checked, setChecked] = useState(false)
 
 	const rmHandler = () => {
-		remove({ productIds: checkedProducts, variantIds: checkedVariants })
-		dispatch(resetCheckAll())
-	}
-
-	const toggleChekAllHandler = () => {
-		const cartProductsIds = data?.products.map(({ productId }) => productId) || []
-		const cartVariantsIds = data?.variants.map(({ variantId }) => variantId) || []
-		dispatch(toggleCheckAll({ cartProductsIds, cartVariantsIds }))
+		if ( data ) {
+			const productIds = data.products.filter(({ checked }) => (checked)).map(({ productId }) => (productId))
+			const variantIds = data.variants.filter(({ checked }) => checked).map(({ variantId }) => variantId)
+			remove({ productIds, variantIds })
+		}
 	}
 
 	useEffect(() => {
@@ -44,12 +39,15 @@ const CartPage = () => {
 					setLabel("товара")
 				}
 			}
-			const allProductsChecked = products.map(({ productId }) => (productId)).every(item => checkedProducts.includes(item)) || products.length === 0
-			const allVariantsChecked =
-				variants.map(({ variantId }) => variantId).every((item) => checkedVariants.includes(item)) || variants.length === 0
+			const allProductsChecked = products.every(({ checked }) => checked) || products.length === 0
+			const allVariantsChecked = variants.every(({ checked }) => checked) || variants.length === 0
 			setChecked((products.length + variants.length > 0) && allVariantsChecked && allProductsChecked)
 		}
-	}, [data, checkedProducts, checkedVariants])
+	}, [data])
+
+	useEffect(() => {
+		resetCheck()
+	}, [resetCheck])
 
     return (
 		<Container className="pb-6">
@@ -76,16 +74,16 @@ const CartPage = () => {
 								<Form.Check
 									label="Выбрать все"
 									className="align-item-center m-0"
-									onChange={toggleChekAllHandler}
+									onChange={() => toggleChekAll()}
 									checked={checked}
-									disabled={rmLoading}
+									disabled={rmLoading || checkAllLoading}
 								/>
 							</Col>
 							<Col xs={"auto"}>
 								<Button
 									variant="link"
 									className="text-muted m-0 p-0 border-0 border-bottom border-2 border-gray"
-									disabled={(checkedProducts.length === 0 && checkedVariants.length === 0) || rmLoading}
+									disabled={rmLoading}
 									onClick={rmHandler}
 								>
 									Удалить выбранные

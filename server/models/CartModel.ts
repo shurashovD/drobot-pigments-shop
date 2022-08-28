@@ -9,20 +9,21 @@ interface IMethods {
 	refreshPrices: () => Promise<ICartDoc | null>
 	refreshDiscounts: () => Promise<ICartDoc | null>
 	refreshCashBack: () => Promise<ICartDoc | null>
-	refreshTotal: (checkedProducts: string[], checkedVariants: string[]) => Promise<ICartDoc | null>
-	addProduct: (productId: string, quantity: number, checkedProducts?: string[], checkedVariants?: string[]) => Promise<ICartDoc | null>
+	refreshTotal: () => Promise<ICartDoc | null>
+	addProduct: (productId: string, quantity: number) => Promise<ICartDoc | null>
 	addVariant: (
 		productId: string,
 		variantId: string,
-		quantity: number,
-		checkedProducts?: string[],
-		checkedVariants?: string[]
+		quantity: number
 	) => Promise<ICartDoc | null>
+	resetCheckAll: () => Promise<ICartDoc | null>
+	toggleCheckAll: () => Promise<ICartDoc | null>
+	toggleCheck: (productId: string, variantId?: string) => Promise<ICartDoc | null>
 }
 
 interface ICartModel extends Model<ICartDoc, {}, IMethods> {
 	getCart: (id: string) => Promise<ICartDoc | null>
-	refreshCart: (id: string, checkedProducts?: string[], checkedVariants?: string[]) => Promise<ICartDoc | null>
+	refreshCart: (id: string) => Promise<ICartDoc | null>
 }
 
 const CartSchema = new Schema<ICartDoc, ICartModel>({
@@ -37,6 +38,7 @@ const CartSchema = new Schema<ICartDoc, ICartModel>({
 			quantity: Number,
 			discountOn: Number,
 			paidByCashBack: Number,
+			checked: Boolean
 		},
 	],
 	promocode: { promocodeId: String, code: String },
@@ -50,7 +52,8 @@ const CartSchema = new Schema<ICartDoc, ICartModel>({
 		price: Number,
 		quantity: Number,
 		discountOn: Number,
-		paidByCashBack: Number
+		paidByCashBack: Number,
+		checked: Boolean
     }]
 })
 
@@ -63,7 +66,7 @@ CartSchema.statics.getCart = async function (id: string): Promise<ICartDoc | nul
 	} catch (e) { throw e }
 }
 
-CartSchema.statics.refreshCart = async function (id: string, checkedProducts: string[] = [], checkedVariants: string[] = []): Promise<ICartDoc | null> {
+CartSchema.statics.refreshCart = async function (id: string): Promise<ICartDoc | null> {
 	try {
 		const cart = await this.findById(id)
 		if (cart) {
@@ -77,7 +80,7 @@ CartSchema.statics.refreshCart = async function (id: string, checkedProducts: st
 			await cart.refreshCashBack()
 
 			// обновление общих показателей корзины;
-			return await cart.refreshTotal(checkedProducts, checkedVariants)
+			return await cart.refreshTotal()
 		}
 		return null
 	} catch (e) {
@@ -238,30 +241,30 @@ CartSchema.methods.refreshCashBack = async function (this: ICartDoc): Promise<IC
 }
 
 // обновление общих показателей корзины;
-CartSchema.methods.refreshTotal = async function (this: ICartDoc, checkedProducts: string[], checkedVariants: string[]): Promise<ICartDoc | null> {
+CartSchema.methods.refreshTotal = async function (this: ICartDoc): Promise<ICartDoc | null> {
 	try {
 		// обновление полной суммы корзины без скидок и оплаты кэшбэком;
 		const amount = this.products
-			.filter(({ productId }) => checkedProducts.includes(productId))
+			.filter(({ checked }) => checked)
 			.map(({ price, quantity }) => price * quantity)
-			.concat(this.variants.filter(({ variantId }) => checkedVariants.includes(variantId)).map(({ price, quantity }) => price * quantity))
+			.concat(this.variants.filter(({ checked }) => checked).map(({ price, quantity }) => price * quantity))
 			.reduce((sum, item) => sum + item, 0)
 		this.amount = amount
 
 		// обновление полной скидки корзины без оплаты кэшбэком;
 		const discount = this.products
-			.filter(({ productId }) => checkedProducts.includes(productId))
+			.filter(({ checked }) => checked)
 			.map(({ discountOn, quantity }) => (discountOn || 0) * quantity)
-			.concat(this.variants.filter(({ variantId }) => checkedVariants.includes(variantId)).map(({ discountOn, quantity }) => (discountOn || 0) * quantity))
+			.concat(this.variants.filter(({ checked }) => checked).map(({ discountOn, quantity }) => (discountOn || 0) * quantity))
 			.filter((item) => typeof item === "number")
 			.reduce<number>((sum, item) => sum + (item || 0), 0)
 		this.discount = discount
 
 		// обновление финальной стоимости корзины;
 		const paidByCashBack = this.products
-			.filter(({ productId }) => checkedProducts.includes(productId))
+			.filter(({ checked }) => checked)
 			.map(({ paidByCashBack }) => paidByCashBack)
-			.concat(this.variants.filter(({ variantId }) => checkedVariants.includes(variantId)).map(({ paidByCashBack }) => paidByCashBack))
+			.concat(this.variants.filter(({ checked }) => checked).map(({ paidByCashBack }) => paidByCashBack))
 			.filter((item) => typeof item === "number")
 			.reduce<number>((sum, item) => sum + (item || 0), 0)
 		this.total = amount - discount - paidByCashBack
@@ -273,14 +276,8 @@ CartSchema.methods.refreshTotal = async function (this: ICartDoc, checkedProduct
 	}
 }
 
-// добваление товара;
-CartSchema.methods.addProduct = async function (
-	this: ICartDoc,
-	productId: string,
-	quantity: number,
-	checkedProducts: string[],
-	checkedVariants: string[]
-): Promise<ICartDoc | null> {
+// добавление товара;
+CartSchema.methods.addProduct = async function ( this: ICartDoc, productId: string, quantity: number): Promise<ICartDoc | null> {
 	try {
 		const product = await ProductModel.findById(productId)
 		if (!product) {
@@ -310,7 +307,7 @@ CartSchema.methods.addProduct = async function (
 		}
 
 		await this.save() // сохраняем корзину;
-		return await CartModel.refreshCart(this._id.toString(), checkedProducts, checkedVariants) // возвращаем освежённую корзину;
+		return await CartModel.refreshCart(this._id.toString()) // возвращаем освежённую корзину;
 	} catch (e) {
 		throw e
 	}
@@ -321,9 +318,7 @@ CartSchema.methods.addVariant = async function (
 	this: ICartDoc,
 	productId: string,
 	variantId: string,
-	quantity: number,
-	checkedProducts: string[],
-	checkedVariants: string[]
+	quantity: number
 ): Promise<ICartDoc | null> {
 	try {
 		const product = await ProductModel.findById(productId)
@@ -367,7 +362,78 @@ CartSchema.methods.addVariant = async function (
 		}
 
 		await this.save() // сохраняем корзину;
-		return await CartModel.refreshCart(this._id.toString(), checkedProducts, checkedVariants) // возвращаем освежённую корзину;
+		return await CartModel.refreshCart(this._id.toString()) // возвращаем освежённую корзину;
+	} catch (e) {
+		throw e
+	}
+}
+
+// сброс выбранных товаров;
+CartSchema.methods.resetCheckAll = async function (this: ICartDoc): Promise<ICartDoc | null> {
+	try {
+		// удаляем выбор в модели корзины;
+		this.products.forEach(item => delete item.checked)
+		this.variants.forEach(item => delete item.checked)
+		await this.save()
+		// пересчитываем показатели корзины;
+		await this.refreshPrices()
+		await this.refreshDiscounts()
+		await this.refreshCashBack()
+		return await this.refreshTotal()
+	} catch (e) { throw e }
+}
+
+// переключатель выбора всех товаров в корзине;
+CartSchema.methods.toggleCheckAll = async function (this: ICartDoc): Promise<ICartDoc | null> {
+	try {
+		// проверем текущее состояние переключателя;
+		let checked = false
+		if ( this.products.length > 0 ) {
+			checked = this.products.every(({ checked }) => (checked))
+		}
+		if ( this.variants.length > 0 ) {
+			checked = this.variants.every(({ checked }) => checked)
+		}
+		// меняем состояние переключателя;
+		checked = !checked
+		// ставим новое состояние всем товарам в корзине;
+		this.products.forEach((item) => item.checked = checked)
+		this.variants.forEach((item) => (item.checked = checked))
+		await this.save()
+		// пересчитываем показатели корзины;
+		await this.refreshPrices()
+		await this.refreshDiscounts()
+		await this.refreshCashBack()
+		return await this.refreshTotal()
+	} catch (e) {
+		throw e
+	}
+}
+
+// выбор одного товара в корзине;
+CartSchema.methods.toggleCheck = async function (this: ICartDoc, productId: string, variantId?: string): Promise<ICartDoc | null> {
+	try {
+		// если работаем с модификацией;
+		if (typeof variantId !== "undefined") {
+			// находим модификацию и меняем выбор;
+			const variant = this.variants.find((item) => item.variantId === variantId)
+			if (variant) {
+				variant.checked = !variant.checked
+			}
+		}
+		// если работаем с товаром;
+		else {
+			const product = this.products.find(item => item.productId === productId)
+			if ( product) {
+				product.checked = !product.checked
+			}
+		}
+		await this.save()
+		// пересчитываем показатели корзины;
+		await this.refreshPrices()
+		await this.refreshDiscounts()
+		await this.refreshCashBack()
+		return await this.refreshTotal()
 	} catch (e) {
 		throw e
 	}

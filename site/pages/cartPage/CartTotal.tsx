@@ -1,12 +1,10 @@
-import { useEffect, useRef } from "react"
+import { useRef } from "react"
 import { Col, Fade, Row } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
-import { useAppSelector } from "../../application/hooks"
 import { useGetCartQuery } from "../../application/order.service"
 
 const CartTotal = () => {
-	const { checkedProducts, checkedVariants } = useAppSelector((state) => state.cartSlice)
-	const { data: cart, isFetching } = useGetCartQuery({ checkedProducts, checkedVariants }, { refetchOnMountOrArgChange: true })
+	const { data: cart, isFetching } = useGetCartQuery(undefined, { refetchOnMountOrArgChange: true })
 	const formatter = useRef(
 		Intl.NumberFormat("ru", {
 			style: "currency",

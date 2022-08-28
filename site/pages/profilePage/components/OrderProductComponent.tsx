@@ -18,7 +18,7 @@ const OrderProductComponent: FC<IProps> = (props) => {
     })
 
     return (
-		<Row className="order-product-component pb-5 pb-lg-6">
+		<Row className="order-product-component pb-5 mb-5">
 			<Col xs={4}>
 				<ImageComponent src={props.imageSrc || "/static"} />
 			</Col>
@@ -26,7 +26,7 @@ const OrderProductComponent: FC<IProps> = (props) => {
 				<div className="text-uppercase mb-1">{props.name}</div>
 				<small className="text-muted mb-1">{props.variant}</small>
 				<div className="my-auto">
-					{formatter.format(props.price / 100)} {props.quantity}шт.
+					{formatter.format(props.price / 100)} <span className="text-muted">х{props.quantity}</span>
 				</div>
 			</Col>
 		</Row>

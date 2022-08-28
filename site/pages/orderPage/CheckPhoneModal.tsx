@@ -39,7 +39,7 @@ const CheckPhoneModal: FC<ModalProps> = ({ show, onHide }) => {
 					className="border-0"
 				/>
 				<div className="mb-4 text-center text-uppercase text-white">
-					Последние 4 цифры номера
+					Последние 4 цифры номера входящего звонка
 				</div>
 				<div className="text-center mb-5 d-flex">
 					<Form.Control

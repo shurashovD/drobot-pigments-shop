@@ -3,10 +3,41 @@ import { FC } from 'react'
 const OrderStatusComponent: FC<{ status: string }> = ({ status }) => {
     return (
 		<div className="d-flex align-items-center">
-			{status === "new" && <span className="text-muted">Не обработан</span>}
-			{status === "compiling" && <span>Собран</span>}
-			{status === "deliveried" && <span className="text-dark">В пути</span>}
-			{status === "complete" && <span className="text-success">Доставлен</span>}
+			{status === "new" && (
+				<span className="text-danger text-uppercase" style={{ borderBottom: "1px dashed #FD7575" }}>
+					Не оплачен
+				</span>
+			)}
+			{status === "payCanceled" && (
+				<span className="text-uppercase text-muted" style={{ borderBottom: "1px dashed #ab9a9a" }}>
+					Ошибка оплаты. Заказ отменён
+				</span>
+			)}
+			{status === "compiling" && (
+				<span className="text-uppercase text-muted" style={{ borderBottom: "1px dashed #ab9a9a" }}>
+					Оплачен, формируется
+				</span>
+			)}
+			{status === "builded" && (
+				<span className="text-uppercase text-muted" style={{ borderBottom: "1px dashed #ab9a9a" }}>
+					Передан в доставку
+				</span>
+			)}
+			{status === "delivering" && (
+				<span className="text-uppercase text-muted" style={{ borderBottom: "1px dashed #ab9a9a" }}>
+					В пути
+				</span>
+			)}
+			{status === "ready" && (
+				<span className="text-uppercase text-success" style={{ borderBottom: "1px dashed #ab9a9a" }}>
+					Готов к выдаче
+				</span>
+			)}
+			{status === "complete" && (
+				<span className="text-uppercase text-muted" style={{ borderBottom: "1px dashed #ab9a9a" }}>
+					Получен
+				</span>
+			)}
 		</div>
 	)
 }

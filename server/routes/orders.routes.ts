@@ -1,4 +1,4 @@
-import { Schema, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { json } from 'body-parser';
 import { IOrder, ICartDoc } from './../../shared/index.d';
 import { checkNumber, checkPin } from './../plusofonAPI/plusofonApi';
@@ -46,22 +46,15 @@ router.get('/', async (req, res) => {
 })
 
 // получить корзину;
-router.get('/cart', async (req: Request<{}, {}, {}, {products: string, variants: string}>, res) => {
+router.get('/cart', async (req, res) => {
 	try {
-		const { products, variants } = req.query
-		let checkedProducts = []
-		let checkedVariants = []
-		try {
-			checkedProducts = JSON.parse(products)
-			checkedVariants = JSON.parse(variants)
-		} catch(e) {}
 		const client = await ClientModel.findById(req.session.userId)
 
 		// если пользователь авторизован, попробуем выдать его корзину;
 		if (client) {
 			// если у пользователя есть корзина;
 			if (client?.cartId) {
-				const cart = await CartModel.refreshCart(client.cartId.toString(), checkedProducts, checkedVariants)
+				const cart = await CartModel.refreshCart(client.cartId.toString())
 				// вернем его корзину;
 				if (cart) {
 					return res.json(cart)
@@ -78,7 +71,7 @@ router.get('/cart', async (req: Request<{}, {}, {}, {products: string, variants:
 
 		// если пользователь не авторизован, проверим сессию на наличие корзины;
 		if ( req.session.cartId ) {
-			const sessionCart = await CartModel.refreshCart(req.session.cartId, checkedProducts, checkedVariants)
+			const sessionCart = await CartModel.refreshCart(req.session.cartId)
 			// если корзина есть в сессии, отдаём её;
 			if (sessionCart) {
 				return res.json(sessionCart)
@@ -259,15 +252,8 @@ router.put("/delivery/recipient", bodyParser.json(), async (req: Request<{}, {},
 })
 
 // положить товар в корзину;
-router.put("/cart/product", bodyParser.json(), async (req: Request<{}, {}, { productId: string; quantity: number }, {products: string, variants: string}>, res) => {
+router.put("/cart/product", bodyParser.json(), async (req: Request<{}, {}, { productId: string; quantity: number }>, res) => {
 	try {
-		const { products, variants } = req.query
-		let checkedProducts = []
-		let checkedVariants = []
-		try {
-			checkedProducts = JSON.parse(products)
-			checkedVariants = JSON.parse(variants)
-		} catch (e) {}
 		const { productId, quantity } = req.body
 
 		// если пользователь авторизован, попробуем добавить товар в его корзину;
@@ -276,12 +262,12 @@ router.put("/cart/product", bodyParser.json(), async (req: Request<{}, {}, { pro
 			const cart = await CartModel.findById(client.cartId)
 			// если корзина есть;
 			if ( cart ) {
-				await cart.addProduct(productId, quantity, checkedProducts, checkedVariants)	// положим товар туда;
+				await cart.addProduct(productId, quantity)	// положим товар туда;
 				return res.end()
 			} else {
 				const newCart = await new CartModel().save()	// или создадим новую корзину;
 				client.cartId = newCart._id.toString()			// привяже корзину к пользователю;
-				await newCart.addProduct(productId, quantity, checkedProducts, checkedVariants)
+				await newCart.addProduct(productId, quantity)
 				return res.end()
 			}
 		}
@@ -289,7 +275,7 @@ router.put("/cart/product", bodyParser.json(), async (req: Request<{}, {}, { pro
 		// если пользователь не авторизован, положим товар в корзину сессии;
 		const cart = await CartModel.findById(req.session.cartId)
 		if (cart) {
-			await cart.addProduct(productId, quantity, checkedProducts, checkedVariants)
+			await cart.addProduct(productId, quantity)
 		} 
 		
 		return res.end()
@@ -300,15 +286,8 @@ router.put("/cart/product", bodyParser.json(), async (req: Request<{}, {}, { pro
 })
 
 // положить модификацию в корзину;
-router.put("/cart/variant", json(), async (req: Request<{}, {}, { productId: string; variantId: string, quantity: number }, {products: string, variants: string}>, res) => {
+router.put("/cart/variant", json(), async (req: Request<{}, {}, { productId: string; variantId: string, quantity: number }>, res) => {
 	try {
-		const { products, variants } = req.query
-		let checkedProducts = []
-		let checkedVariants = []
-		try {
-			checkedProducts = JSON.parse(products)
-			checkedVariants = JSON.parse(variants)
-		} catch (e) {}
 		const { productId, variantId, quantity } = req.body
 
 		// если пользователь авторизован, попробуем добавить товар в его корзину;
@@ -317,12 +296,12 @@ router.put("/cart/variant", json(), async (req: Request<{}, {}, { productId: str
 			const cart = await CartModel.findById(client.cartId)
 			// если корзина есть;
 			if (cart) {
-				await cart.addVariant(productId, variantId, quantity, checkedProducts, checkedVariants) // положим товар туда;
+				await cart.addVariant(productId, variantId, quantity) // положим товар туда;
 				return res.end()
 			} else {
 				const newCart = await new CartModel().save() // или создадим новую корзину;
 				client.cartId = newCart._id.toString() // привяже корзину к пользователю;
-				await newCart.addVariant(productId, variantId, quantity, checkedProducts, checkedVariants)
+				await newCart.addVariant(productId, variantId, quantity)
 				return res.end()
 			}
 		}
@@ -330,7 +309,7 @@ router.put("/cart/variant", json(), async (req: Request<{}, {}, { productId: str
 		// если пользователь не авторизован, положим товар в корзину сессии;
 		const cart = await CartModel.findById(req.session.cartId)
 		if (cart) {
-			await cart.addVariant(productId, variantId, quantity, checkedProducts, checkedVariants)
+			await cart.addVariant(productId, variantId, quantity)
 		}
 
 		return res.end()
@@ -396,6 +375,112 @@ router.delete("/cart", async (req: Request<{}, {}, {}, { productIds: string; var
 	}
 })
 
+// сбросить выбор товаров в корзине;
+router.put("/cart/check/reset", async (req, res) => {
+	try {
+		let cart
+		if ( req.session.userId ) {
+			const client = await ClientModel.findById(req.session.userId)
+			if ( client && client.cartId ) {
+				const clientCart = await CartModel.findById(client.cartId)
+				if ( clientCart ) {
+					cart = clientCart
+				}
+			}
+		}
+
+		if ( typeof cart === 'undefined' ) {
+			if ( req.session.cartId ) {
+				const sessionCart = await CartModel.findById(req.session.cartId)
+				if ( sessionCart ) {
+					cart = sessionCart
+				}
+			}
+		}
+
+		if ( typeof cart === 'undefined' ) {
+			throw new Error('Корзина не найдена')
+		}
+
+		await cart.resetCheckAll()
+		return res.end()
+	} catch (e) {
+		console.log(e)
+		return res.status(500).json({ message: 'Что-то пошло не так...' })
+	}
+})
+
+// выбор всех товаров в корзине;
+router.put("/cart/check/toggle-all", async (req, res) => {
+	try {
+		let cart
+		if (req.session.userId) {
+			const client = await ClientModel.findById(req.session.userId)
+			if (client && client.cartId) {
+				const clientCart = await CartModel.findById(client.cartId)
+				if (clientCart) {
+					cart = clientCart
+				}
+			}
+		}
+
+		if (typeof cart === "undefined") {
+			if (req.session.cartId) {
+				const sessionCart = await CartModel.findById(req.session.cartId)
+				if (sessionCart) {
+					cart = sessionCart
+				}
+			}
+		}
+
+		if (typeof cart === "undefined") {
+			return res.end()
+		}
+
+		await cart.toggleCheckAll()
+		return res.end()
+	} catch (e) {
+		console.log(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
+	}
+})
+
+// выбор одного товара в корзине;
+router.put("/cart/check/toggle", json(), async (req: Request<{}, {}, { productId: string; variantId?: string }>, res) => {
+	try {
+		let cart
+		if (req.session.userId) {
+			const client = await ClientModel.findById(req.session.userId)
+			if (client && client.cartId) {
+				const clientCart = await CartModel.findById(client.cartId)
+				if (clientCart) {
+					cart = clientCart
+				}
+			}
+		}
+
+		if (typeof cart === "undefined") {
+			if (req.session.cartId) {
+				const sessionCart = await CartModel.findById(req.session.cartId)
+				if (sessionCart) {
+					cart = sessionCart
+				}
+			}
+		}
+
+		if (typeof cart === "undefined") {
+			throw new Error("Корзина не найдена")
+		}
+
+		const { productId, variantId } = req.body
+		await cart.toggleCheck(productId, variantId)
+		return res.end()
+	} catch (e) {
+		console.log(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
+	}
+})
+
 // установить город доставки;
 router.put('/set/city/:city_code', async (req: Request<{city_code: number}>, res) => {
 	try {
@@ -439,9 +524,8 @@ router.put("/set/delivery", bodyParser.json(), async (req: Request<{}, {}, { sde
 })
 
 // создание заказа;
-router.post("/", bodyParser.json(), async (req: Request<{}, {}, { products: string, variants: string }>, res) => {
+router.post("/", bodyParser.json(), async (req, res) => {
 		try {
-			const { products, variants } = req.body
 			const client = await ClientModel.findById(req.session.userId)
 			if (!client?.cartId) {
 				const err = new Error()
@@ -477,8 +561,6 @@ router.post("/", bodyParser.json(), async (req: Request<{}, {}, { products: stri
 			}
 
 			// создание шаблона заказа в БД;
-			const productsFromClient: string[] = JSON.parse(products)
-			const variantsFromClient: string[] = JSON.parse(variants)
 			const { tariff_code, address, code } = sdek
 			const sdekForOrder: IOrder["delivery"]["sdek"] = {
 				city_code,
@@ -489,7 +571,7 @@ router.post("/", bodyParser.json(), async (req: Request<{}, {}, { products: stri
 				name: client.name,
 				tariff_code,
 			}
-			const orderId = await client.createTempOrder(sdekForOrder, productsFromClient, variantsFromClient, cart)
+			const orderId = await client.createTempOrder(sdekForOrder)
 
 			// создание заказа в "Мой склад";
 			const { name: number, id: msOrderId, sum } = await createMsOrderHandler(orderId)
@@ -522,7 +604,7 @@ router.post("/", bodyParser.json(), async (req: Request<{}, {}, { products: stri
 router.get('/delivery/cities/:str', async (req: Request<{str: string}>, res) => {
 	try {
 		const { str } = req.params
-		const points = await PointsModel.find()
+		const points = await PointsModel.find({ "location.city": { $regex: str, $options: "i" } })
 		const cities = points.reduce<{ city: string, city_code: number }[]>((cities, { location }) => {
 			if ( cities.some(({ city }) => city === location.city) ) {
 				return cities

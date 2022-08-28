@@ -22,7 +22,7 @@ const OrderComponent: FC<IProps> = ({ id }) => {
 	const [show, setShow] = useState(false)
 
 	return (
-		<div className="border border-dark p-4 px-0">
+		<div className="border border-dark p-4 px-0 mb-6">
 			{isLoading && (
 				<div className="text-center">
 					<Spinner animation="border" variant="secondary" />
@@ -34,7 +34,7 @@ const OrderComponent: FC<IProps> = ({ id }) => {
 					<OrderStatusComponent status={data.status} />
 				</div>
 			)}
-			{data && !isLoading && <hr className="bg-dark" style={{ height: "4px" }} />}
+			{data && !isLoading && <hr className="bg-dark mb-6" style={{ height: "4px" }} />}
 			{data && !isLoading && (
 				<div className="px-2 px-lg-5">
 					<Row>
@@ -50,7 +50,7 @@ const OrderComponent: FC<IProps> = ({ id }) => {
 							))}
 							{data.variants.map(({ product, variant, quantity }) => (
 								<OrderProductComponent
-									key={product._id.toString()}
+									key={variant.toString()}
 									name={product.name}
 									imageSrc={product.photo[0]}
 									price={product.variants.find(({ _id }) => _id?.toString() === variant.toString())?.price || 0}
@@ -66,6 +66,7 @@ const OrderComponent: FC<IProps> = ({ id }) => {
 							<div className="mb-5">
 								<div className="text-uppercase mb-2">Способ оплаты:</div>
 								<div>
+									<span className="text-muted">Карта, он-лайн: </span>
 									<span>{priceFormatter.format(data.total + (data.delivery.sdek?.cost || 0))}</span>
 									{", "}
 									{!data.payment?.status && <span className="text-danger">Не оплачено</span>}
@@ -74,14 +75,14 @@ const OrderComponent: FC<IProps> = ({ id }) => {
 									{data.payment?.status === "canceled" && <span className="text-danger">Ошибка оплаты</span>}
 								</div>
 							</div>
-							<div className="mb-5">
+							{!!data.delivery.sdek?.uuid && <div className="mb-5">
 								<div className="text-uppercase mb-2">Способ получения:</div>
-								{!!data.delivery.sdek?.uuid && <OrderSdekComponent id={id} cost={data.delivery.sdek.cost} />}
-							</div>
+								<OrderSdekComponent id={id} cost={data.delivery.sdek.cost} />
+							</div>}
 						</Col>
 						<Container className="d-md-none px-2">
 							<hr className="d-md-none opacity-25" />
-							<Button className="text-muted p-0 pb-5" variant="link" onClick={() => setShow(state => !state)}>
+							<Button className="text-muted p-0 pb-5" variant="link" onClick={() => setShow((state) => !state)}>
 								{show ? <>Скрыть подробности</> : <>Подробнее</>}
 							</Button>
 							<Collapse in={show}>
@@ -100,10 +101,10 @@ const OrderComponent: FC<IProps> = ({ id }) => {
 											{data.payment?.status === "canceled" && <span className="text-danger">Ошибка оплаты</span>}
 										</div>
 									</div>
-									<div className="mb-5">
+									{!!data.delivery.sdek?.uuid && <div className="mb-5">
 										<div className="text-uppercase mb-2">Способ получения:</div>
-										{!!data.delivery.sdek?.uuid && <OrderSdekComponent id={id} cost={data.delivery.sdek.cost} />}
-									</div>
+										<OrderSdekComponent id={id} cost={data.delivery.sdek.cost} />
+									</div>}
 								</Col>
 							</Collapse>
 						</Container>

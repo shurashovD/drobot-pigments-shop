@@ -1,8 +1,6 @@
-import { FC, useRef } from "react"
+import { FC, useEffect, useRef, useState } from "react"
 import { Button, Col, Form, ListGroup, Row, Spinner } from "react-bootstrap"
-import { resetChekProduct, toggleCheckProductInCart } from "../../application/cartSlice"
-import { useAppDispatch, useAppSelector } from "../../application/hooks"
-import { useDeleteFromCartMutation } from "../../application/order.service"
+import { useDeleteFromCartMutation, useGetCartQuery, useToggleCheckOneMutation } from "../../application/order.service"
 import { useGetProductByIdQuery } from "../../application/product.service"
 import ProductCounter from "../../components/card/ProductCounter"
 import IconDelete from "../../components/icons/IconDelete"
@@ -14,10 +12,11 @@ interface IProps {
 }
 
 const CartItem: FC<IProps> = ({ productId }) => {
+	const { data: cart, isFetching: cartFetching } = useGetCartQuery(undefined)
     const { data, isFetching, isLoading: productLoading } = useGetProductByIdQuery(productId, { refetchOnMountOrArgChange: true })
 	const [remove, { isLoading }] = useDeleteFromCartMutation()
-	const checked = useAppSelector(state => state.cartSlice.checkedProducts.includes(productId))
-	const dispatch = useAppDispatch()
+	const [toggle, { isLoading: toggleLoading }] = useToggleCheckOneMutation()
+	const [checked, setChecked] = useState(false)
     const formatter = useRef(
 		Intl.NumberFormat("ru", {
 			style: "currency",
@@ -28,8 +27,13 @@ const CartItem: FC<IProps> = ({ productId }) => {
 
 	const rmHandler = () => {
 		remove({ productIds: [productId], variantIds: [] })
-		dispatch(resetChekProduct({ productId }))
 	}
+
+	useEffect(() => {
+		if ( cart ) {
+			setChecked(cart.products.find((item) => item.productId === productId)?.checked || false)
+		}
+	}, [cart])
 
     return (
 		<ListGroup.Item className="py-4 bg-transparent">
@@ -42,19 +46,19 @@ const CartItem: FC<IProps> = ({ productId }) => {
 				<Row>
 					<Col xs={0} md={1} className="d-flex align-items-center">
 						<Form.Check
-							disabled={isFetching || isLoading}
+							disabled={isFetching || isLoading || cartFetching || toggleLoading}
 							checked={checked}
 							className="d-none d-md-block"
-							onChange={() => dispatch(toggleCheckProductInCart(productId))}
+							onChange={() => toggle({ productId })}
 						/>
 					</Col>
 					<Col xs={4} md={2} className="px-md-0">
 						<div className="position-relative">
 							<ImageComponent src={data.photo?.[0] || "/static"} />
 							<Form.Check
-								disabled={isFetching || isLoading}
+								disabled={isFetching || isLoading || cartFetching || toggleLoading}
 								checked={checked}
-								onChange={() => dispatch(toggleCheckProductInCart(productId))}
+								onChange={() => toggle({ productId })}
 								className="d-md-none position-absolute top-0 start-0 m-2"
 							/>
 						</div>

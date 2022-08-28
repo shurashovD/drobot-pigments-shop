@@ -1,8 +1,6 @@
-import { FC, useRef } from "react"
+import { FC, useEffect, useRef, useState } from "react"
 import { Button, Col, Form, ListGroup, Row, Spinner } from "react-bootstrap"
-import { resetChekVariant, toggleCheckVariantInCart } from "../../application/cartSlice"
-import { useAppDispatch, useAppSelector } from "../../application/hooks"
-import { useDeleteFromCartMutation } from "../../application/order.service"
+import { useDeleteFromCartMutation, useGetCartQuery, useToggleCheckOneMutation } from "../../application/order.service"
 import { useGetVariantQuery } from "../../application/product.service"
 import VariantCounter from "../../components/card/VariantCounter"
 import IconDelete from "../../components/icons/IconDelete"
@@ -15,10 +13,11 @@ interface IProps {
 }
 
 const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
+	const { data: cart, isFetching: cartFetching } = useGetCartQuery(undefined)
     const { data, isLoading: variantLoading, isFetching } = useGetVariantQuery({ productId, variantId }, { refetchOnMountOrArgChange: true })
-	const checked = useAppSelector(state => state.cartSlice.checkedVariants.includes(variantId))
-	const dispatch = useAppDispatch()
 	const [remove, { isLoading }] = useDeleteFromCartMutation()
+	const [toggle, { isLoading: toggleLoading }] = useToggleCheckOneMutation()
+	const [checked, setChecked] = useState(false)
     const formatter = useRef(
 		Intl.NumberFormat("ru", {
 			style: "currency",
@@ -29,8 +28,13 @@ const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
 
 	const rmHandler = () => {		
 		remove({ productIds: [], variantIds: [variantId] })
-		dispatch(resetChekVariant({ variantId }))
 	}
+
+	useEffect(() => {
+		if (cart) {
+			setChecked(cart.variants.find((item) => item.variantId === variantId)?.checked || false)
+		}
+	}, [cart])
 
     return (
 		<ListGroup.Item className="py-4 bg-transparent">
@@ -45,8 +49,8 @@ const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
 						<Form.Check
 							checked={checked}
 							className="d-none d-md-block"
-							disabled={isFetching || isLoading}
-							onChange={() => dispatch(toggleCheckVariantInCart(variantId))}
+							disabled={isFetching || isLoading || cartFetching || toggleLoading}
+							onChange={() => toggle({ productId, variantId })}
 						/>
 					</Col>
 					<Col xs={4} md={2} className="px-md-0">
@@ -54,8 +58,8 @@ const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
 							<ImageComponent src={data.photo || "/static"} />
 							<Form.Check
 								checked={checked}
-								disabled={isFetching || isLoading}
-								onChange={() => dispatch(toggleCheckVariantInCart(variantId))}
+								disabled={isFetching || isLoading || cartFetching || toggleLoading}
+								onChange={() => toggle({ productId, variantId })}
 								className="d-md-none position-absolute top-0 start-0 m-2"
 							/>
 						</div>

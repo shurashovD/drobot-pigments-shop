@@ -107,18 +107,21 @@ ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ dis
 	}
 }
 
-ClientSchema.methods.createTempOrder = async function (
-	this: IClient,
-	sdek: IOrder["delivery"]["sdek"],
-	products: string[],
-	variants: string[],
-	cart: ICart
-): Promise<string> {
+ClientSchema.methods.createTempOrder = async function (this: IClient, sdek: IOrder["delivery"]["sdek"]): Promise<string> {
 	try {
-		const productsForOrder = cart.products.filter(({ productId }) => products.includes(productId))
+		if ( !this.cartId ) {
+			throw new Error(`Корзина не найдена у клиента ${this._id.toString()}`)
+		}
+
+		const cart = await CartModel.findById(this.cartId)
+		if ( !cart ) {
+			throw new Error(`Корзина не найдена у клиента ${this._id.toString()}`)
+		}
+
+		const productsForOrder = cart.products.filter(({ checked }) => checked)
 			.map(item => ({ ...item, product: item.productId }))
 		const variantsForOrder = cart.variants
-			.filter(({ variantId }) => variants.includes(variantId))
+			.filter(({ checked }) => checked)
 			.map((item) => ({ ...item, product: item.productId, variant: item.variantId }))
 
 		const order = await new OrderModel({
