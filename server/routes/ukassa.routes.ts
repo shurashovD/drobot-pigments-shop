@@ -69,6 +69,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
             
             // сохранение uuid заказа СДЭК в заказе БД;
             order.delivery.sdek = { ...order.toObject().delivery.sdek, uuid }
+            order.status = "compiling"
             await order.save()
 
             // обработка бонусов заказа;
