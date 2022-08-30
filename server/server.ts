@@ -98,8 +98,4 @@ app.get('*', (req, res) => {
     }
 })
 
-app.post('*', json(), (req, res) => {
-    console.log(req.body)
-})
-
 start()
