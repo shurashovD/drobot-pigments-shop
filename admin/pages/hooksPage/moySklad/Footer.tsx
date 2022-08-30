@@ -64,25 +64,18 @@ const Footer: FC<IProps> = ({ disabled }) => {
     return (
 		<tr>
 			<td>
-				<Form.Select
-					onChange={actionHandler}
-					value={state.action}
-					disabled={disabled}
-				>
+				<Form.Select onChange={actionHandler} value={state.action} disabled={disabled}>
 					<option value="CREATE">Создание</option>
 					<option value="DELETE">Удаление</option>
 					<option value="UPDATE">Изменение</option>
 				</Form.Select>
 			</td>
 			<td>
-				<Form.Select
-					onChange={entityHandler}
-					value={state.entityType}
-					disabled={disabled}
-				>
+				<Form.Select onChange={entityHandler} value={state.entityType} disabled={disabled}>
 					<option value="productfolder">Группа товаров</option>
 					<option value="product">Товар</option>
 					<option value="variant">Модификация</option>
+					<option value="customerorder">Заказ покупателя</option>
 				</Form.Select>
 			</td>
 			<td>
@@ -90,9 +83,7 @@ const Footer: FC<IProps> = ({ disabled }) => {
 			</td>
 			<td>
 				<ButtonComponent
-					disabled={
-						state.url.length <= baseUrl.current.length || disabled
-					}
+					disabled={state.url.length <= baseUrl.current.length || disabled}
 					isLoading={isLoading}
 					onClick={() => create({ payload: state })}
 				>
