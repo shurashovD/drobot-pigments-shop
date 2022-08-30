@@ -1,14 +1,19 @@
-import { ChangeEvent, useEffect, useState } from "react"
+import { ChangeEvent, FC, useEffect, useState } from "react"
 import { Button, Col, Fade, Form, Row } from "react-bootstrap"
 import { useGetDeliveryDetailQuery, useSetDeliveryDetailMutation } from "../../application/order.service"
 import ButtonComponent from "../../components/ButtonComponent"
+import RadioComponent from "../../components/RadioComponent"
 import PointModal from "./PointModal"
 
-const Delivery = () => {
+interface IProps {
+	readyHandler: () => void
+}
+
+const Delivery: FC<IProps> = ({ readyHandler }) => {
     const { data, isFetching } = useGetDeliveryDetailQuery(undefined)
     const [value, setValue] = useState('')
     const [showModal, setShowModal] = useState(false)
-    const [setDetail, { isLoading }] = useSetDeliveryDetailMutation()
+    const [setDetail, { isLoading, isSuccess }] = useSetDeliveryDetailMutation()
 
     const handler = (event: ChangeEvent<HTMLInputElement>) => {
         const tariff_code = event.target.dataset.tariff
@@ -27,6 +32,12 @@ const Delivery = () => {
 		}
 	}, [data])
 
+	useEffect(() => {
+		if ( isSuccess ) {
+			readyHandler()
+		}
+	}, [isSuccess, readyHandler])
+
     return (
 		<Row>
 			<PointModal show={showModal} onHide={() => setShowModal(false)} />
@@ -37,9 +48,9 @@ const Delivery = () => {
 					</Button>
 					<Row className="justify-content-between mb-3">
 						<Col xs="auto">
-							<Form.Label className="d-flex mb-0">
-								<Form.Check
-									type="radio"
+							<Form.Label className="d-flex mb-2 mb-md-0">
+								<RadioComponent
+									isLoading={isLoading || isFetching}
 									checked={!isLoading && !isFetching && (data?.tariff_code === 138 || data?.tariff_code === 366)}
 									onChange={handler}
 									disabled={isLoading || isFetching}
@@ -50,8 +61,8 @@ const Delivery = () => {
 						</Col>
 						<Col xs="auto">
 							<Form.Label className="d-flex mb-0">
-								<Form.Check
-									type="radio"
+								<RadioComponent
+									isLoading={isLoading || isFetching}
 									checked={!isLoading && !isFetching && data?.tariff_code === 139}
 									onChange={handler}
 									disabled={isLoading}
@@ -97,16 +108,27 @@ const Delivery = () => {
 							Выбрано: <b className="text-primary">{data?.address}</b>
 						</div>
 					)}
-					{(data?.tariff_code === 138 || data?.tariff_code === 366) && data?.code && (
-						<Button variant="outline-primary" onClick={() => setShowModal(true)}>
-							Изменить пункт выдачи
-						</Button>
-					)}
-					{(data?.tariff_code === 138 || data?.tariff_code === 366) && !data?.code && (
-						<Button variant="secondary" onClick={() => setShowModal(true)}>
-							Выбрать пункт выдачи
-						</Button>
-					)}
+					<Row className="gx-5">
+						{(data?.tariff_code === 138 || data?.tariff_code === 366) && data?.code && (
+							<Col xs="auto">
+								<Button variant="outline-primary" onClick={() => setShowModal(true)}>
+									Изменить пункт выдачи
+								</Button>
+							</Col>
+						)}
+						{(data?.tariff_code === 138 || data?.tariff_code === 366) && data?.code && (
+							<Col xs="auto">
+								<Button onClick={() => readyHandler()}>Далее</Button>
+							</Col>
+						)}
+						{(data?.tariff_code === 138 || data?.tariff_code === 366) && !data?.code && (
+							<Col xs="auto">
+								<Button variant="secondary" onClick={() => setShowModal(true)}>
+									Выбрать пункт выдачи
+								</Button>
+							</Col>
+						)}
+					</Row>
 				</Col>
 			</Fade>
 		</Row>

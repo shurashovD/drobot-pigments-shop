@@ -65,7 +65,7 @@ const orderApi = createApi({
 		getRelevantCities: build.query<{ city: string; city_code: number }[], string>({
 			query: (str) => `/delivery/cities/${str}`,
 		}),
-		getDeliveryCity: build.query<string, undefined>({
+		getDeliveryCity: build.query<{ region: string; city: string }, undefined>({
 			query: () => "/delivery/city",
 			providesTags: () => ["deliveryCity"],
 		}),

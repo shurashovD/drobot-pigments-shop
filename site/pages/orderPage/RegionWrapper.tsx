@@ -14,18 +14,18 @@ const RegionWrapper: FC<IProps> = ({ activeKey, accordionHandler }) => {
 
 	return (
 		<>
-			<Accordion.Item eventKey={eventKey} className="border-0 border-bottom">
+			<Accordion.Item eventKey={eventKey} className="border-0 border-bottom" id="order-region">
 				<Accordion.Header onClick={() => accordionHandler(eventKey)}>
 					<span className="text-uppercse fs-3">1. Регион доставки</span>
 				</Accordion.Header>
 				<Accordion.Body>
-					<Region />
+					<Region city={deliveryCity?.city} readyHandler={() => accordionHandler("2")} />
 				</Accordion.Body>
 			</Accordion.Item>
 			<Fade in={!!deliveryCity && activeKey !== eventKey}>
 				<div className="my-5">
 					<span>Город доставки: </span>
-					<b>{deliveryCity}</b>
+					<b>{deliveryCity?.region}, {deliveryCity?.city}</b>
 				</div>
 			</Fade>
 		</>

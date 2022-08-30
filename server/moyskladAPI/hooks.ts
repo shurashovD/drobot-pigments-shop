@@ -23,7 +23,7 @@ export const getHooks = async () => {
 
 export const createHook = async (payload: IMSHook) => {
 	try {
-		await ms.POST({ path: paths.webhook, payload })
+		await ms.POST({ path: paths.webhook, payload: { ...payload, diffType: "FIELDS" } })
 		return true
 	} catch (e) {
 		console.log(e)

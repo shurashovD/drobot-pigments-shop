@@ -101,7 +101,7 @@ router.get('/delivery/city', async (req, res) => {
 			throw new Error(`Пункт выдачи в городе ${city_code} не найден`)
 		}
 
-		return res.json(`${point.location.region} ${point.location.city}`)
+		return res.json({ region: point.location.region, city: point.location.city })
 	}
 	catch (e) {
 		console.log(e)

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { Accordion, Button, Col, Container, Row } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
-import { useGetCartQuery, useGetDeliveryCityQuery, useGetDeliveryDetailQuery, useGetRecipientQuery } from "../../application/order.service"
 import CreateOrderBtn from "./CreateOrderBtn"
 import DeliveryWrapper from "./DeliveryWrapper"
 import ProductsWrapper from "./ProductsWrapper"
@@ -9,61 +8,31 @@ import RecipientWrapper from "./RecipientWrapper"
 import RegionWrapper from "./RegionWrapper"
 
 const OrderPage = () => {
+	const idMap = new Map([
+		["1", "order-region"],
+		["2", "order-delivery"],
+		["3", "order-recipient"],
+		["4", "order-products"],
+	])
     const navigate = useNavigate()
-	const [activeKey, setActiveKey] = useState<string | undefined>()
-	const {
-		data: deliveryCity, isLoading: deliveryCityLoading, isFetching: deliveryCityFetching
-	} = useGetDeliveryCityQuery(undefined, { refetchOnMountOrArgChange: true })
-	const {
-		data: deliveryDetail, isLoading: deliveryDetailLoading, isFetching: deliveryDetailFetching
-	} = useGetDeliveryDetailQuery(undefined, { refetchOnMountOrArgChange: true })
-	const {
-		data: recipient,
-		isLoading: recipientLoading,
-		isFetching: recipientFetching,
-	} = useGetRecipientQuery(undefined, { refetchOnMountOrArgChange: true })
-	const {
-		data: cart,
-		isLoading: cartLoading,
-		isFetching: cartFetching,
-	} = useGetCartQuery(undefined, { refetchOnMountOrArgChange: true })
+	const [activeKey, setActiveKey] = useState<string | undefined>("1")
 
 	const accordionHandler = (key: string) => {
 		setActiveKey(key === activeKey ? undefined : key)
 	}
 
 	useEffect(() => {
-		if (!deliveryCity) {
-			setActiveKey("1")
-			return
+		if ( !activeKey ) return
+		const id = idMap.get(activeKey)
+		if ( !id ) return
+		const element = document.getElementById(id)
+		if ( element ) {
+			const shiftTop = id === 'order-region' ? 250 : 70
+			setTimeout(() => {
+				window.scrollTo(0, element.offsetTop - shiftTop)
+			}, 500)
 		}
-		if (!deliveryDetail?.address) {
-			setActiveKey("2")
-			return
-		}
-		if (!(recipient?.name && recipient?.mail && recipient.phone)) {
-			setActiveKey("3")
-			return
-		}
-		setActiveKey('4')
-	}, [
-		deliveryCity, deliveryCityLoading, deliveryCityFetching,
-		deliveryDetail, deliveryDetailLoading, deliveryDetailFetching,
-		recipient, recipientLoading, recipientFetching,
-		cart, cartLoading, cartFetching
-	])
-
-	useEffect(() => {
-		if (deliveryDetail?.address) {
-			setActiveKey("3")
-		}
-	}, [deliveryDetail])
-
-	useEffect(() => {
-		if (recipient?.name && recipient?.mail && recipient.phone) {
-			setActiveKey("4")
-		}
-	}, [recipient])
+	}, [activeKey])
 
     return (
 		<Container className="pb-6">

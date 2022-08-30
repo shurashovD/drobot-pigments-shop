@@ -49,8 +49,12 @@ ClientSchema.methods.getOrder = async function(this: IClient, id: string): Promi
 
 ClientSchema.methods.getNearestOrder = async function(this: IClient): Promise<IOrderPop | undefined> {
 	try {
-		const order = await OrderModel.find({ _id: { $in: this.orders }, status: "deliveried" })
-			.sort({ date: -1 }).limit(1)
+		const order = await OrderModel.find({
+			_id: { $in: this.orders },
+			status: { $in: ["compiling", "builded", "dispatch", "delivering", "ready"] },
+		})
+			.sort({ date: -1 })
+			.limit(1)
 
 		if ( order[0] ) {
 			return await OrderModel.getOrder(order[0]._id.toString())
@@ -133,7 +137,7 @@ ClientSchema.methods.createTempOrder = async function (this: IClient, sdek: IOrd
 			total: cart.total,
 		}).save()
 
-		this.orders.push(order._id)
+		this.orders.unshift(order._id)
 		await this.save()
 		return order._id.toString()
 	} catch (e) {

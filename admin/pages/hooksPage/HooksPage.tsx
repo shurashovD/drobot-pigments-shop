@@ -1,53 +1,17 @@
-import { Container, Spinner, Table } from "react-bootstrap"
-import { useGetHooksQuery } from "../../application/moySklad.service"
-import Footer from "./Footer"
-import Item from "./Item"
+import { Tab, Tabs } from "react-bootstrap"
+import MsHooks from "./moySklad/MsHooks"
+import SdekHooks from "./sdek/SdekHooks"
 
 const HooksPage = () => {
-    const { data, isLoading, isFetching } = useGetHooksQuery(undefined, { refetchOnMountOrArgChange: true })
-
     return (
-		<Container>
-			<h3>Мой склад</h3>
-			{isLoading && (
-				<div className="text-center p-5">
-					<Spinner animation="border" variant="secondary" size="sm" />
-				</div>
-			)}
-			{!isLoading && data && (
-				<Table>
-					<thead>
-						<tr className="align-middle text-center">
-							<th>Действие</th>
-							<th>Сущность</th>
-							<th>URL</th>
-							<th>Статус</th>
-							<th>Удалить</th>
-						</tr>
-					</thead>
-					<tbody>
-						{data.map(
-							({ action, url, enabled, entityType, id }) => (
-								<Item
-									key={id}
-									id={id}
-									entityType={entityType}
-									action={action}
-									url={url}
-									disabled={isFetching}
-									enabled={enabled}
-								/>
-							)
-						)}
-					</tbody>
-					<tfoot>
-						<Footer
-							disabled={isFetching}
-						/>
-					</tfoot>
-				</Table>
-			)}
-		</Container>
+		<Tabs defaultActiveKey="ms">
+			<Tab eventKey="ms" title="Мой склад">
+                <MsHooks />
+            </Tab>
+			<Tab eventKey="sdek" title="СДЭК">
+                <SdekHooks />
+            </Tab>
+		</Tabs>
 	)
 }
 

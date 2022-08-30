@@ -14,12 +14,12 @@ const DeliveryWrapper: FC<IProps> = ({ accordionHandler, activeKey }) => {
 
     return (
 		<>
-			<Accordion.Item eventKey="2" className="border-0 border-bottom">
+			<Accordion.Item eventKey="2" className="border-0 border-bottom" id="order-delivery">
 				<Accordion.Header onClick={() => accordionHandler(eventKey)}>
 					<span className="text-uppercse fs-3">2. Способ доставки</span>
 				</Accordion.Header>
 				<Accordion.Body>
-					<Delivery />
+					<Delivery readyHandler={() => accordionHandler("3")} />
 				</Accordion.Body>
 			</Accordion.Item>
 			<Fade in={!!deliveryDetail?.address && activeKey !== "2"}>

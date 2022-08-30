@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Button, Col, Container, Form, ListGroup, Row, Spinner } from "react-bootstrap"
 import { useDeleteFromCartMutation, useGetCartQuery, useResetCheckProductsMutation, useToggleCheckAllMutation } from "../../application/order.service"
+import CheckboxComponent from "../../components/CheckboxComponent"
 import CartItem from "./CartItem"
 import CartTotal from "./CartTotal"
 import VariantCartItem from "./VariantCartItem"
@@ -71,7 +72,8 @@ const CartPage = () => {
 					<Col xs={12} lg={8}>
 						<Row className="m-0">
 							<Col xs={"auto"} className="ps-4">
-								<Form.Check
+								<CheckboxComponent
+									isLoading={checkAllLoading}
 									label="Выбрать все"
 									className="align-item-center m-0"
 									onChange={() => toggleChekAll()}

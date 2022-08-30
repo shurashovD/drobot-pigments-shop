@@ -14,12 +14,12 @@ const ProductsWrapper: FC<IProps> = ({ accordionHandler, activeKey }) => {
     const eventKey = "4"
 
 	return (
-		<Accordion.Item eventKey={eventKey} className="border-0 border-bottom">
-			<Accordion.Header onClick={() => accordionHandler}>
+		<Accordion.Item eventKey={eventKey} className="border-0 border-bottom" id="order-products">
+			<Accordion.Header onClick={() => accordionHandler(eventKey)}>
 				<span className="text-uppercse fs-3">4. Товары в заказе</span>
 			</Accordion.Header>
 			<Accordion.Body>
-				{(!cart || (cart?.products.length + cart?.variants.length === 0)) && <div className="text-muted">Товары отсутствуют</div>}
+				{(!cart || cart?.products.length + cart?.variants.length === 0) && <div className="text-muted">Товары отсутствуют</div>}
 				<ListGroup variant="flush">
 					{activeKey === "4" &&
 						cart?.products

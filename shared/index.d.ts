@@ -229,7 +229,7 @@ export interface IOrder extends Document {
 	msOrderId?: string
 	msOrderSumRub?: number
 	number: number
-	status: "new" | "payCanceled" | "compiling" | "builded" | "delivering" | "ready" | "complete"
+	status: "new" | "payCanceled" | "compiling" | "builded" | "dispatch" | "delivering" | "ready" | "complete" | "canceled" | "return"
 	total: number
 	bonusHandle: () => Promise<void>
 }
@@ -607,6 +607,29 @@ export interface ISdekOrderInfo {
 			message: string
 		}[]
 	}[]
+}
+
+export interface ISdekWebhookInfo {
+	uuid: string
+	type: "ORDER_STATUS" | "PRINT_FORM" | "DOWNLOAD_PHOTO"
+	url: string
+}
+
+export interface ISdekCreateWebhookPayload {
+	type: "ORDER_STATUS" | "PRINT_FORM" | "DOWNLOAD_PHOTO"
+	url: string
+}
+
+export interface ISdekWebhookPayload {
+	type: "ORDER_STATUS" | "PRINT_FORM" | "DOWNLOAD_PHOTO"
+	date_time: string
+	uuid: string
+	attributes: {
+		is_return: boolean
+		cdek_number: string
+		number?: string
+		code: string
+	}
 }
 
 export interface IUKassaNotice {

@@ -1,9 +1,13 @@
-import { ChangeEvent, useEffect, useState } from 'react'
-import { Button, Col, Form, Row, Spinner } from 'react-bootstrap'
+import { ChangeEvent, FC, useEffect, useState } from 'react'
+import { Col, Form, Row, Spinner } from 'react-bootstrap'
 import { useCheckNumberInitMutation, useGetRecipientQuery, useSetRecipientMutation } from '../../application/order.service'
 import ButtonComponent from '../../components/ButtonComponent'
-import IconGreenCheckmark from '../../components/icons/IconGreenCheckmark'
 import CheckPhoneModal from './CheckPhoneModal'
+import RecipientNumberConfirm from './RecipientNumberConfirm'
+
+interface IProps {
+	readyHandler: () => void
+}
 
 const parsePhoneValue = (value: string) => {
 	const code = value.substring(0, 3)
@@ -26,14 +30,14 @@ const parsePhoneValue = (value: string) => {
 	return result
 }
 
-const Recipient = () => {
+const Recipient: FC<IProps> = ({ readyHandler }) => {
 	const { data, isFetching } = useGetRecipientQuery(undefined)
     const [state, setState] = useState('')
 	const [nameVal, setName] = useState('')
 	const [mailVal, setMail] = useState("")
     const [showModal, setShowModal] = useState(false)
     const [checkNumber, { isLoading, isSuccess }] = useCheckNumberInitMutation()
-	const [setRecipient, { isLoading: setRecipientLoading }] = useSetRecipientMutation()
+	const [setRecipient, { isLoading: setRecipientLoading, isSuccess: setRecipientSuccess }] = useSetRecipientMutation()
 
     const telHandler = (event: ChangeEvent<HTMLInputElement>) => {
 		setState((state) => {
@@ -66,107 +70,54 @@ const Recipient = () => {
 		}
 	}, [isSuccess])
 
+	useEffect(() => {
+		if ( setRecipientSuccess ) {
+			readyHandler()
+		}
+	}, [setRecipientSuccess])
+
     return (
 		<Row>
-			<CheckPhoneModal
-				show={showModal}
-				onHide={() => setShowModal(false)}
-			/>
+			<CheckPhoneModal show={showModal} onHide={() => setShowModal(false)} />
 			<Col xs={12}>
 				<Row className="justify-content-between">
 					<Col xs="auto">
 						<span className="mb-2">Телефон*</span>
 					</Col>
-					<Col xs="auto">
-						{!isLoading && !isFetching && !data?.phone && (
-							<Button
-								variant="link"
-								className="sign-tel-btn d-lg-none"
-								disabled={state.length < 10}
-								onClick={() => checkNumber(state)}
-							>
-								Подтвердить номер
-							</Button>
-						)}
-						{!isLoading && !isFetching && data?.phone && (
-							<div className="d-flex d-lg-none align-items-center">
-								{state === data?.phone && (
-									<IconGreenCheckmark stroke="#93FA82" />
-								)}
-								<Button
-									variant="link"
-									className="sign-tel-btn-success ms-2"
-									disabled={state.length < 10}
-									onClick={() =>
-										state !== data?.phone
-											? checkNumber(state)
-											: {}
-									}
-								>
-									{state === data?.phone ? (
-										<>Номер подтверждён</>
-									) : (
-										<>Привязать новый</>
-									)}
-								</Button>
-							</div>
+					<Col xs="auto" className="d-lg-none">
+						{!isLoading && !isFetching && (
+							<RecipientNumberConfirm
+								checkNumber={() => checkNumber(state)}
+								numberIsChanged={state !== data?.phone}
+								shortNumber={state.length < 10}
+								isConfirm={!!data?.phone}
+							/>
 						)}
 					</Col>
 				</Row>
 				<Row>
 					<Col xs={12} md={6}>
-						<Form.Control
-							value={parsePhoneValue(state)}
-							onChange={telHandler}
-							className="h-100"
-						/>
+						<Form.Control value={parsePhoneValue(state)} onChange={telHandler} className="h-100" />
 					</Col>
-					<Col xs={12} md={6}>
+					<Col xs={12} md={6} className="d-flex align-items-center">
 						{isLoading && (
 							<div className="py-3 px-4">
-								<Spinner
-									animation="border"
-									size="sm"
-									variant="danger"
-								/>
+								<Spinner animation="border" size="sm" variant="danger" />
 							</div>
 						)}
-						{!isLoading && !isFetching && !data?.phone && (
-							<Button
-								variant="link"
-								className="sign-tel-btn my-3 d-none d-lg-block"
-								disabled={state.length < 10}
-								onClick={() => checkNumber(state)}
-							>
-								Подтвердить номер
-							</Button>
-						)}
-						{!isLoading && !isFetching && data?.phone && (
-							<div className="d-none d-lg-flex align-items-center">
-								{state === data?.phone && (
-									<IconGreenCheckmark stroke="#93FA82" />
-								)}
-								<Button
-									variant="link"
-									className="sign-tel-btn-success my-3 ms-2"
-									disabled={state.length < 10}
-									onClick={() =>
-										state !== data?.phone
-											? checkNumber(state)
-											: {}
-									}
-								>
-									{state === data?.phone ? (
-										<>Номер подтверждён</>
-									) : (
-										<>Привязать новый</>
-									)}
-								</Button>
+						{!isLoading && !isFetching && (
+							<div className="d-none d-lg-block">
+								<RecipientNumberConfirm
+									checkNumber={() => checkNumber(state)}
+									numberIsChanged={state !== data?.phone}
+									shortNumber={state.length < 10}
+									isConfirm={!!data?.phone}
+								/>
 							</div>
 						)}
 					</Col>
 				</Row>
-				{!isLoading && !data?.phone && !isFetching && (
+				{!isLoading && !isFetching && (
 					<Row className="mt-2 mt-lg-5">
 						<Col xs={12} lg={6}>
 							<Form.Label className="w-100">
@@ -174,9 +125,7 @@ const Recipient = () => {
 								<Form.Control
 									className="py-3"
 									value={nameVal}
-									onChange={(
-										e: ChangeEvent<HTMLInputElement>
-									) => setName(e.target.value)}
+									onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
 								/>
 							</Form.Label>
 						</Col>
@@ -186,15 +135,13 @@ const Recipient = () => {
 								<Form.Control
 									className="py-3"
 									value={mailVal}
-									onChange={(
-										e: ChangeEvent<HTMLInputElement>
-									) => setMail(e.target.value)}
+									onChange={(e: ChangeEvent<HTMLInputElement>) => setMail(e.target.value)}
 								/>
 							</Form.Label>
 						</Col>
 					</Row>
 				)}
-				{!isLoading && !isFetching && !data?.phone && (
+				{!isLoading && !isFetching && (
 					<Row className="mt-5">
 						<Col xs="auto">
 							<ButtonComponent

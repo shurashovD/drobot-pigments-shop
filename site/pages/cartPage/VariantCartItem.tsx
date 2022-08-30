@@ -3,6 +3,7 @@ import { Button, Col, Form, ListGroup, Row, Spinner } from "react-bootstrap"
 import { useDeleteFromCartMutation, useGetCartQuery, useToggleCheckOneMutation } from "../../application/order.service"
 import { useGetVariantQuery } from "../../application/product.service"
 import VariantCounter from "../../components/card/VariantCounter"
+import CheckboxComponent from "../../components/CheckboxComponent"
 import IconDelete from "../../components/icons/IconDelete"
 import IconFavourite from "../../components/icons/IconFavourite"
 import ImageComponent from "../../components/ImageComponent"
@@ -46,7 +47,8 @@ const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
 			{!variantLoading && data && (
 				<Row>
 					<Col xs={0} md={1} className="d-flex align-items-center">
-						<Form.Check
+						<CheckboxComponent
+							isLoading={toggleLoading}
 							checked={checked}
 							className="d-none d-md-block"
 							disabled={isFetching || isLoading || cartFetching || toggleLoading}

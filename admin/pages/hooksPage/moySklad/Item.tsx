@@ -1,8 +1,8 @@
 import { ChangeEvent, FC } from "react"
 import { Form } from "react-bootstrap"
-import { IMSHook } from "../../../shared"
-import { useDeleteHookMutation, useDisableHookMutation, useEnableHookMutation } from "../../application/moySklad.service"
-import ButtonComponent from "../../components/ButtonComponent"
+import { IMSHook } from "../../../../shared"
+import { useDeleteHookMutation, useDisableHookMutation, useEnableHookMutation } from "../../../application/moySklad.service"
+import ButtonComponent from "../../../components/ButtonComponent"
 
 interface IProps extends IMSHook {
     disabled?: boolean

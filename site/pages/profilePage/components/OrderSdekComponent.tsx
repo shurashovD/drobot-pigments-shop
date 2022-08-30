@@ -7,8 +7,6 @@ const OrderSdekComponent: FC<{ id: string, cost?: number }> = ({ id, cost }) => 
 	const formatter = new Intl.DateTimeFormat('ru', { day: 'numeric', month: 'long', year: '2-digit' })
 	const currencyFormatter = new Intl.NumberFormat('ru', { style: 'currency', currency: 'RUB' })
 
-	console.log(data)
-
     return (
 		<div>
 			{isLoading && <Spinner variant="secondary" animation="border" />}

@@ -31,16 +31,16 @@ const parsePhoneValue = (value: string) => {
 
 const RecipientWrapper: FC<IProps> = ({ accordionHandler, activeKey }) => {
     const eventKey = "3"
-    const { data: recipient, isFetching } = useGetRecipientQuery(undefined)
+    const { data: recipient } = useGetRecipientQuery(undefined)
 
     return (
 		<>
-			<Accordion.Item eventKey="3" className="border-0 border-bottom">
-				<Accordion.Header onClick={() => accordionHandler}>
+			<Accordion.Item eventKey="3" className="border-0 border-bottom" id="order-recipient">
+				<Accordion.Header onClick={() => accordionHandler(eventKey)}>
 					<span className="text-uppercse fs-3">3. Получатель</span>
 				</Accordion.Header>
 				<Accordion.Body>
-					<Recipient />
+					<Recipient readyHandler={() => accordionHandler("4")} />
 				</Accordion.Body>
 			</Accordion.Item>
 			<Fade in={!!recipient?.phone && !!recipient?.name && !!recipient?.mail && activeKey !== "3"}>

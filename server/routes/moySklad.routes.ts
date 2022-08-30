@@ -7,7 +7,9 @@ import { Types } from "mongoose";
 import ProductModel from "../models/ProductModel";
 import CatalogModel from "../models/CatalogModel";
 import { currencySync, oneProductCreate, oneProductDelete, oneProductFolderDelete, oneVariantDelete, oneProductFolderSync, oneProductFolderUpdate, oneProductUpdate, productFolderSync, productSync, uomSync, variantSync } from "../moyskladAPI/synchronization"
-import { IMSHook } from "../../shared";
+import { IMSHook, IOrder } from "../../shared";
+import { getMsOrder } from '../moyskladAPI/orders';
+import OrderModel from '../models/OrderModel';
 
 const router = Router()
 
@@ -409,6 +411,54 @@ router.post("/handle/variant/delete", bodyParser.json(), async (
 
 		for (const i in events) {
 			await oneVariantDelete(events[i].meta.href)
+		}
+		return
+	} catch (e) {
+		console.log(e)
+		return res.end()
+	}
+})
+
+router.post("/handle/customerorder/update", bodyParser.json(), async (req: Request<{}, {}, { events: any[] }, { requestId: string }>, res) => {
+	try {
+		const { events } = req.body
+		const { requestId } = req.query
+		res.end()
+		const cursor = await ReqIdModel.findOne({ requestId })
+		if (cursor) {
+			return
+		}
+
+		await new ReqIdModel({ requestId }).save()
+
+		for (const i in events) {
+			if (events[i].updatedFields.includes("state")) {
+				const msOrderId = events[i].meta.href.split('/').pop()
+				const msOrder = await getMsOrder(msOrderId)
+				const statusId = msOrder.state.meta.split('/').pop()
+				let status: IOrder['status'] | undefined
+				if ( statusId === 'a3ab517a-f494-11e8-9ff4-34e80005d6af' ) {
+					status = "compiling"
+				}
+				if (statusId === "a3ab53d5-f494-11e8-9ff4-34e80005d6b0") {
+					status = "builded"
+				}
+				if (statusId === "a3ab5662-f494-11e8-9ff4-34e80005d6b2") {
+					status = "dispatch"
+				}
+				if (statusId === "a3ab5836-f494-11e8-9ff4-34e80005d6b4") {
+					status = "return"
+				}
+				if (statusId === "a3ab58e1-f494-11e8-9ff4-34e80005d6b5" || statusId === "70dc899b-ee2a-11ec-0a80-07c8000b5983") {
+					status = "canceled"
+				}
+				if ( typeof status !== 'undefined' ) {
+					const order = await OrderModel.findOne({ msOrderId })
+					if ( order ) {
+						order.status = status
+					}
+				}
+			}
 		}
 		return
 	} catch (e) {

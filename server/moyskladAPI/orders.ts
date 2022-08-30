@@ -78,6 +78,14 @@ export const getMsOrder = async (orderId: string) => {
 	}
 }
 
+export const getMsOrderStatuses = async () => {
+	try {
+		return await ms.GET(`${paths.order}/metadata`)
+	} catch (e) {
+		throw e
+	}
+}
+
 export const updateMsOrder = async (orderId: string, payload: any) => {
 	try {
 		await ms.PUT(`${paths.order}/${orderId}`, payload)

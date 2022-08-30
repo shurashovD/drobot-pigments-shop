@@ -39,7 +39,7 @@ const Products: FC<IProps> = ({ categoryId }) => {
 			document.documentElement.clientHeight
 		)
 		const trigger = (scrollHeight - windowHeignth - footerHeight - Math.round(window.pageYOffset)) < 0
-		if ( trigger && (Math.ceil(data.length / limit) <= page + 1) ) {
+		if ( trigger && (Math.ceil(data.length / limit) > page) ) {
 			dispatch(nextPage())
 		}
 	}, [isLoading, isFetching, data, dispatch, nextPage])
@@ -69,11 +69,6 @@ const Products: FC<IProps> = ({ categoryId }) => {
 
     return (
 		<Row className="g-4 gy-6">
-			{(isLoading || isFetching) && (
-				<Col xs={12} className="text-center p-4">
-					<Spinner animation="border" variant="secondary" />
-				</Col>
-			)}
 			{!isLoading && !isFetching && state.length === 0 && (
 				<Col xs={12} className="text-center p-4">
 					<span>Товары отсутсвуют</span>
@@ -84,13 +79,7 @@ const Products: FC<IProps> = ({ categoryId }) => {
 					<ProductCard
 						id={item.id}
 						img={item.photo?.[0]}
-						price={formatter.current.format(
-							Math.min(
-								...item.variants.map(({ price }) => price / 100)
-							) ||
-								item.price ||
-								0
-						)}
+						price={formatter.current.format(Math.min(...item.variants.map(({ price }) => price / 100)) || item.price || 0)}
 						title={item.name}
 						variantsLabel={item.variantsLabel}
 						variants={item.variants}
@@ -98,15 +87,17 @@ const Products: FC<IProps> = ({ categoryId }) => {
 				</Col>
 			))}
 			<Col xs={12} className="text-center">
-				{data && (Math.ceil(data.length / limit) > page) && (
-					<Button
-						variant="outline-primary"
-						onClick={() => (Math.ceil(data.length / limit) <= page + 1) ? dispatch(nextPage()) : {}}
-					>
+				{data && Math.ceil(data.length / limit) > page && (
+					<Button variant="outline-primary" onClick={() => (Math.ceil(data.length / limit) <= page + 1 ? dispatch(nextPage()) : {})}>
 						Ещё
 					</Button>
 				)}
 			</Col>
+			{(isLoading || isFetching) && (
+				<Col xs={12} className="text-center p-4">
+					<Spinner animation="border" variant="secondary" />
+				</Col>
+			)}
 		</Row>
 	)
 }
