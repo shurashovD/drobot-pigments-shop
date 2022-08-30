@@ -456,6 +456,7 @@ router.post("/handle/customerorder/update", bodyParser.json(), async (req: Reque
 					const order = await OrderModel.findOne({ msOrderId })
 					if ( order ) {
 						order.status = status
+						await order.save()
 					}
 				}
 			}
