@@ -289,7 +289,7 @@ export interface IOrderPop {
 	msOrderId?: string
 	msOrderSumRub?: number
 	number: number
-	status: "new" | "payCanceled" | "compiling" | "builded" | "delivering" | "complete"
+	status: "new" | "payCanceled" | "compiling" | "builded" | "dispatch" | "delivering" | "ready" | "complete" | "canceled" | "return"
 	total: number
 }
 
