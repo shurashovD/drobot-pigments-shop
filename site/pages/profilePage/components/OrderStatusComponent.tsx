@@ -20,7 +20,12 @@ const OrderStatusComponent: FC<{ status: string }> = ({ status }) => {
 			)}
 			{status === "builded" && (
 				<span className="text-uppercase text-muted" style={{ borderBottom: "1px dashed #ab9a9a" }}>
-					Передан в доставку
+					Собран
+				</span>
+			)}
+			{status === "dispatch" && (
+				<span className="text-uppercase text-muted" style={{ borderBottom: "1px dashed #ab9a9a" }}>
+					Передан в ТК
 				</span>
 			)}
 			{status === "delivering" && (
@@ -36,6 +41,16 @@ const OrderStatusComponent: FC<{ status: string }> = ({ status }) => {
 			{status === "complete" && (
 				<span className="text-uppercase text-muted" style={{ borderBottom: "1px dashed #ab9a9a" }}>
 					Получен
+				</span>
+			)}
+			{status === "canceled" && (
+				<span className="text-uppercase text-muted" style={{ borderBottom: "1px dashed #ab9a9a" }}>
+					Отменён
+				</span>
+			)}
+			{status === "return" && (
+				<span className="text-uppercase text-muted" style={{ borderBottom: "1px dashed #ab9a9a" }}>
+					Возврат
 				</span>
 			)}
 		</div>
