@@ -21,7 +21,7 @@ import profileRoutes from "./routes/profile.routes"
 import authMiddleware from './middleware/auth.middleware'
 import frontLogger from './routes/frontLogger.routes'
 import loyaltyRoutes from './routes/loyalty.routes'
-import { getMsOrderStatuses } from './moyskladAPI/orders'
+import { json } from 'body-parser'
 
 const PORT = 3000
 
@@ -30,7 +30,6 @@ const app = express()
 const start = async () => {
     try {
         await connect(config.get("mongoURI"))
-        const statuses = await getMsOrderStatuses()
         app.listen(PORT, () => {
             console.log(`Server is running on PORT ${PORT}...`)
         })
@@ -97,6 +96,10 @@ app.get('*', (req, res) => {
         console.log(e);
         return res.status(500).end()
     }
+})
+
+app.post('*', json(), (req, res) => {
+    console.log(req.body)
 })
 
 start()
