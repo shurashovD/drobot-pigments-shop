@@ -9,7 +9,8 @@ interface IProps {
 }
 
 const Footer: FC<IProps> = ({ disabled }) => {
-    const baseUrl = useRef("https://drobot-pigments-shop/api/moy-sklad/handle")
+    //const baseUrl = useRef("https://drobot-pigments-shop/api/moy-sklad/handle")
+	const baseUrl = useRef("")
     const [create, { isLoading }] = useCreateHookMutation()
     const [state, setState] = useState<IMSHook>({
 		action: "CREATE",
