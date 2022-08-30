@@ -30,15 +30,11 @@ const Item: FC<IProps> = ({ action, url, entityType, enabled, id, disabled }) =>
 				{entityType === "product" && <>Товар</>}
 				{entityType === "productfolder" && <>Группа товаров</>}
 				{entityType === "variant" && <>Модификация</>}
+				{entityType === "customerorder" && <>Заказ покупателя</>}
 			</td>
 			<td>{url}</td>
 			<td>
-				<Form.Check
-					type="switch"
-					checked={enabled}
-					disabled={disabled || enableLoading || disableLoading}
-					onChange={handler}
-				/>
+				<Form.Check type="switch" checked={enabled} disabled={disabled || enableLoading || disableLoading} onChange={handler} />
 			</td>
 			<td>
 				<ButtonComponent

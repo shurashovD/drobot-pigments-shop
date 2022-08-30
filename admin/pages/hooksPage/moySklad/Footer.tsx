@@ -41,6 +41,9 @@ const Footer: FC<IProps> = ({ disabled }) => {
         if ( entityType === 'variant' ) {
             setState((state) => ({ ...state, entityType: "variant" }))
         }
+		if (entityType === "customerorder") {
+			setState((state) => ({ ...state, entityType: "customerorder" }))
+		}
     }
 
     const urlHandler = (event: ChangeEvent<HTMLInputElement>) => {

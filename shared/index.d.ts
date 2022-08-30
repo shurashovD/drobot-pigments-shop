@@ -363,7 +363,7 @@ export interface ClientModel extends Model<IClient, {}, IClientMethods> {}
 export interface IMSHook {
 	url: string
 	action: "CREATE" | "UPDATE" | "DELETE"
-	entityType: "productfolder" | "product" | "variant" | string
+	entityType: "productfolder" | "product" | "variant" | "customerorder" | string
 	id?: string
 	method?: string
 	enabled?: boolean
