@@ -13,14 +13,11 @@ const Delivery: FC<IProps> = ({ readyHandler }) => {
     const { data, isFetching } = useGetDeliveryDetailQuery(undefined)
     const [value, setValue] = useState('')
     const [showModal, setShowModal] = useState(false)
-    const [setDetail, { isLoading, isSuccess }] = useSetDeliveryDetailMutation()
+    const [setDetail, { isLoading }] = useSetDeliveryDetailMutation()
 
-    const handler = (event: ChangeEvent<HTMLInputElement>) => {
-        const tariff_code = event.target.dataset.tariff
-        if ( tariff_code && !isNaN(parseInt(tariff_code))) {
-			setDetail({ sdek: true, tariff_code: parseInt(tariff_code) })
-		}
-    }
+    const handler = (tariff_code: number) => {
+		setDetail({ sdek: true, tariff_code })
+	}
 
 	const addressHandler = () => {
 		setDetail({ sdek: true, tariff_code: 139, address: value })
@@ -31,12 +28,6 @@ const Delivery: FC<IProps> = ({ readyHandler }) => {
 			setValue(data.address)
 		}
 	}, [data])
-
-	useEffect(() => {
-		if ( isSuccess ) {
-			readyHandler()
-		}
-	}, [isSuccess, readyHandler])
 
     return (
 		<Row>
@@ -52,9 +43,8 @@ const Delivery: FC<IProps> = ({ readyHandler }) => {
 								<RadioComponent
 									isLoading={isLoading || isFetching}
 									checked={!isLoading && !isFetching && (data?.tariff_code === 138 || data?.tariff_code === 366)}
-									onChange={handler}
+									onChange={() => handler(138)}
 									disabled={isLoading || isFetching}
-									data-tariff={138}
 								/>
 								<span className="text-muted ms-1">Самовывоз</span>
 							</Form.Label>
@@ -64,9 +54,8 @@ const Delivery: FC<IProps> = ({ readyHandler }) => {
 								<RadioComponent
 									isLoading={isLoading || isFetching}
 									checked={!isLoading && !isFetching && data?.tariff_code === 139}
-									onChange={handler}
+									onChange={() => handler(139)}
 									disabled={isLoading}
-									data-tariff={139}
 								/>
 								<span className="text-muted ms-1">Доставка курьером</span>
 							</Form.Label>

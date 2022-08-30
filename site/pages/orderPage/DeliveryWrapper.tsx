@@ -22,7 +22,7 @@ const DeliveryWrapper: FC<IProps> = ({ accordionHandler, activeKey }) => {
 					<Delivery readyHandler={() => accordionHandler("3")} />
 				</Accordion.Body>
 			</Accordion.Item>
-			<Fade in={!!deliveryDetail?.address && activeKey !== "2"}>
+			{/*<Fade in={!!deliveryDetail?.address && activeKey !== "2"}>
 				<Stack className="my-5" dir="verical" gap={3}>
 					<div>
 						<span>Выбрано: </span>
@@ -41,7 +41,7 @@ const DeliveryWrapper: FC<IProps> = ({ accordionHandler, activeKey }) => {
 						</b>
 					</div>
 				</Stack>
-			</Fade>
+			</Fade>*/}
 		</>
 	)
 }
