@@ -83,74 +83,45 @@ const HeaderComponent = () => {
 
     return (
 		<Container fluid className="p-0 sticky-top">
-			<NavCatalogMobile
-				show={mobileCatalogShow}
-				onHide={() => setMobileCatalogShow(false)}
-			/>
-			<Offcanvas
-				show={mobileMenuShow}
-				onHide={handleClose}
-				className="bg-dark"
-			>
+			<NavCatalogMobile show={mobileCatalogShow} onHide={() => setMobileCatalogShow(false)} />
+			<Offcanvas show={mobileMenuShow} onHide={handleClose} className="bg-dark">
 				<Offcanvas.Header closeButton closeVariant="white">
 					<Offcanvas.Title />
 				</Offcanvas.Header>
 				<Offcanvas.Body className="pb-6 px-5">
 					<Stack gap={4} className="h-100">
 						<div>
-							<Button
-								variant="link"
-								className="text-uppercase text-white m-0 p-0"
-								onClick={() => setMobileCatalogShow(true)}
-							>
+							<Button variant="link" className="text-uppercase text-white m-0 p-0" onClick={() => setMobileCatalogShow(true)}>
 								Каталог
 							</Button>
 						</div>
 						<div>
-							<NavLink
-								to="/"
-								className="text-uppercase text-white d-none"
-							>
+							<NavLink to="/" className="text-uppercase text-white d-none">
 								Обучение
 							</NavLink>
 						</div>
 						<div>
-							<NavLink
-								to="/"
-								className="text-uppercase text-white d-none"
-							>
+							<NavLink to="/" className="text-uppercase text-white d-none">
 								Спец.предложение %
 							</NavLink>
 						</div>
 						<div>
-							<NavLink
-								to="/"
-								className="text-uppercase text-white d-none"
-							>
+							<NavLink to="/partner-program" className="text-uppercase text-white">
 								Сотрудничество
 							</NavLink>
 						</div>
 						<div className="mt-auto">
-							<NavLink
-								to="/delivery"
-								className="text-uppercase text-white"
-							>
+							<NavLink to="/delivery" className="text-uppercase text-white">
 								Доставка
 							</NavLink>
 						</div>
 						<div>
-							<NavLink
-								to="/"
-								className="text-uppercase text-white d-none"
-							>
+							<NavLink to="/" className="text-uppercase text-white d-none">
 								Статус заказа
 							</NavLink>
 						</div>
 						<div>
-							<NavLink
-								to="/"
-								className="text-uppercase text-white"
-							>
+							<NavLink to="/" className="text-uppercase text-white">
 								Контакты
 							</NavLink>
 						</div>
@@ -163,41 +134,19 @@ const HeaderComponent = () => {
 					<div className="d-none d-lg-block bg-light p-2">
 						<Container>
 							<Row>
-								<Col
-									xs={3}
-									lg={2}
-									className="d-flex flex-column justify-content-center"
-								>
-									<a
-										href="tel:+79002020000"
-										className="text-dark"
-									>
+								<Col xs={3} lg={2} className="d-flex flex-column justify-content-center">
+									<a href="tel:+79002020000" className="text-dark">
 										+7(900)202-00-00
 									</a>
 								</Col>
-								<Col
-									xs={3}
-									lg={3}
-									className="d-flex flex-column justify-content-center"
-								>
-									<a
-										href="#"
-										className="w-100 d-flex align-items-center text-dark d-none"
-									>
-										<Image
-											src={waLogo}
-											width="24"
-											className="me-2"
-										/>
+								<Col xs={3} lg={3} className="d-flex flex-column justify-content-center">
+									<a href="#" className="w-100 d-flex align-items-center text-dark d-none">
+										<Image src={waLogo} width="24" className="me-2" />
 										<span>Напиcать в WhatsApp</span>
 									</a>
 								</Col>
-								<Col
-									xs={6}
-									lg={5}
-									className="offset-lg-2 d-flex align-items-center justify-content-evenly"
-								>
-									<NavLink to="/" className="text-dark d-none">
+								<Col xs={6} lg={5} className="offset-lg-2 d-flex align-items-center justify-content-evenly">
+									<NavLink to="/partner-program" className="text-dark">
 										Cотрудничество
 									</NavLink>
 									<NavLink to="/delivery" className="text-dark">
@@ -212,84 +161,42 @@ const HeaderComponent = () => {
 					</div>
 				</div>
 			</Collapse>
-			<Container
-				fluid
-				className="py-2 bg-primary position-relative"
-				id="header-menu"
-			>
+			<Container fluid className="py-2 bg-primary position-relative" id="header-menu">
 				<Container className="p-0 my-0">
 					<Row className="p-0 my-0">
-						<Col
-							xs={3}
-							lg={5}
-							className="d-flex justify-content-between align-items-center"
-						>
-							<Button
-								variant="link"
-								className="d-lg-none m-0 p-0 m-auto"
-								onClick={() => setMobileMenuShow(true)}
-							>
+						<Col xs={3} lg={5} className="d-flex justify-content-between align-items-center">
+							<Button variant="link" className="d-lg-none m-0 p-0 m-auto" onClick={() => setMobileMenuShow(true)}>
 								<IconMenu stroke="#ffffff" />
 							</Button>
-							{categories && (
-								<NavCatalogBtn
-									show={show}
-									onClick={toggleCatalogHandler}
-								/>
-							)}
+							{categories && <NavCatalogBtn show={show} onClick={toggleCatalogHandler} />}
 							<div className="p-0 m-0">
-								<a
-									href="#"
-									className="d-none d-lg-block text-white text-uppercase invisible"
-								>
+								<a href="#" className="d-none d-lg-block text-white text-uppercase invisible">
 									<span>Обучение</span>
 								</a>
 							</div>
 							<div className="p-0 m-0">
-								<a
-									href="#"
-									className="d-none d-lg-block text-white text-uppercase d-none invisible"
-								>
+								<a href="#" className="d-none d-lg-block text-white text-uppercase d-none invisible">
 									<span>Спец. предложение %</span>
 								</a>
 							</div>
 						</Col>
 						<Col xs={6} lg={2} className="text-center">
 							<NavLink to="/">
-								<img
-									src={logo}
-									ref={logoRef}
-									className="header-logo-increase"
-								/>
+								<img src={logo} ref={logoRef} className="header-logo-increase" />
 							</NavLink>
 						</Col>
-						<Col
-							xs={3}
-							lg={5}
-							className="d-flex align-items-center justify-content-between"
-						>
+						<Col xs={3} lg={5} className="d-flex align-items-center justify-content-between">
 							<NavLink to="/" className="text-white me-auto invisible">
 								<IconBox stroke={"#ffffff"} />
-								<span className="d-none d-md-inline ms-3">
-									Статус заказа
-								</span>
+								<span className="d-none d-md-inline ms-3">Статус заказа</span>
 							</NavLink>
-							<NavLink
-								to="/profile"
-								className="d-none d-lg-block text-white ms-4"
-							>
+							<NavLink to="/profile#main" className="d-none d-lg-block text-white ms-4">
 								<HeaderAccountComponent />
 							</NavLink>
-							<NavLink
-								to="/"
-								className="d-none d-lg-block text-white ms-4 invisible"
-							>
+							<NavLink to="/" className="d-none d-lg-block text-white ms-4 invisible">
 								<IconCompare stroke={"#ffffff"} />
 							</NavLink>
-							<NavLink
-								to="/"
-								className="d-none d-lg-block text-white ms-4 invisible"
-							>
+							<NavLink to="/" className="d-none d-lg-block text-white ms-4 invisible">
 								<IconFavourite stroke={"#ffffff"} />
 							</NavLink>
 							<div className="d-none d-lg-block">
@@ -299,10 +206,7 @@ const HeaderComponent = () => {
 					</Row>
 				</Container>
 			</Container>
-			<Container
-				fluid
-				className="p-0 m-0 position-relative d-none d-lg-block"
-			>
+			<Container fluid className="p-0 m-0 position-relative d-none d-lg-block">
 				<NavCatalog />
 			</Container>
 		</Container>

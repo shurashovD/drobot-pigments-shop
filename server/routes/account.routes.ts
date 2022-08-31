@@ -58,6 +58,13 @@ router.post('/auth/check-pin', json(), async (req: Request<{}, {}, { pin: string
                 await client.mergeCart(req.session.cartId)
                 delete req.session.cartId
             }
+            if (req.session.claimedStatus) {
+				client.claimedStatus = req.session.claimedStatus
+				await client.save()
+				delete req.session.claimedStatus
+				req.session.userId = client._id.toString()
+				return res.redirect("/partner-program")
+			}
 
             req.session.userId = client._id.toString()
             return res.end()
@@ -123,6 +130,12 @@ router.post('/register/check-pin', json(), async (req: Request<{}, {}, { pin: st
             }
             
             req.session.userId = client._id.toString()
+            if (req.session.claimedStatus) {
+				client.claimedStatus = req.session.claimedStatus
+				await client.save()
+				delete req.session.claimedStatus
+				return res.redirect("/partner-program")
+			}
             return res.end()
         }
         if (result === -3) {
@@ -134,6 +147,45 @@ router.post('/register/check-pin', json(), async (req: Request<{}, {}, { pin: st
         console.log(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
+})
+
+router.post("/change-status-request", json(), async (req: Request<{}, {}, { claimedStatus: string }>, res) => {
+	try {
+		const { claimedStatus } = req.body
+		const statuses = ["common", "agent", "delegate"]
+		if (!statuses.includes(claimedStatus)) {
+			return res.status(500).json({ message: "Неверное значение статуса пользователя" })
+		}
+		let client
+		if (req.session.userId) {
+			const cursor = await ClientModel.findById(req.session.userId)
+			if (cursor) {
+				client = cursor
+			}
+		}
+
+		if (typeof client === "undefined") {
+            req.session.claimedStatus = claimedStatus
+			return res.redirect("/profile")
+		}
+
+        if (!client.status) {
+            req.session.claimedStatus = claimedStatus
+			return res.redirect("/profile")
+		}
+
+        if ( client.status === 'agent' ) {
+            return res.status(500).json({ message: 'Вы уже являететсь агентом' })
+        }
+        
+        client.claimedStatus = claimedStatus
+        await client.save()
+
+        return res.end()
+	} catch (e) {
+		console.log(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
+	}
 })
 
 export default router

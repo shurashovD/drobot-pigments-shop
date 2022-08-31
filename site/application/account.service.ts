@@ -37,6 +37,14 @@ const accountApi = createApi({
 				url: "/register/check-pin",
 			}),
 		}),
+		setClaimedStatus: build.mutation<undefined, { claimedStatus: string }>({
+			query: (body) => ({
+				body,
+				method: "POST",
+				url: "/change-status-request",
+			}),
+			invalidatesTags: ['client']
+		}),
 	}),
 	reducerPath: "accountApi",
 	tagTypes: ["client"],
@@ -48,6 +56,7 @@ export const {
     useCheckPinMutation,
     useRegisterMutation,
     useRegisterCheckPinMutation,
+	useSetClaimedStatusMutation,
 } = accountApi
 
 export default accountApi

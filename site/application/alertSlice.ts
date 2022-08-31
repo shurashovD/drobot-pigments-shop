@@ -4,6 +4,7 @@ interface IInitialState {
     show: boolean
     text: string | undefined
     variant: 'danger' | 'success' | 'warning' | 'primary'
+	redirectUrl?: string
 }
 
 const initialState: IInitialState = {
@@ -30,9 +31,15 @@ const alertSlice = createSlice({
 			state.show = false
 			state.text = undefined
 		},
+		setRedirectUrl: (state, { payload }: PayloadAction<string>) => {
+			state.redirectUrl = payload
+		},
+		resetRedirectUrl: (state) => {
+			delete state.redirectUrl
+		}
 	},
 })
 
-export const { errorAlert, hideAlert, successAlert } = alertSlice.actions
+export const { errorAlert, hideAlert, successAlert, setRedirectUrl, resetRedirectUrl } = alertSlice.actions
 
 export default alertSlice

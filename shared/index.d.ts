@@ -799,6 +799,7 @@ declare module 'express-session' {
 	interface SessionData {
 		isAdmin?: boolean
 		cartId: string
+		claimedStatus?: string
 		orderId?: string
 		userId?: string
 		plusofonKey?: string

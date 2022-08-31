@@ -593,6 +593,10 @@ router.post("/", bodyParser.json(), async (req, res) => {
 				throw err
 			}
 
+			cart.products = cart.products.filter(({ checked }) => (!checked))
+			cart.variants = cart.variants.filter(({ checked }) => !checked)
+			await cart.save()
+
 			return res.json({ url, orderNumber: number })
 		} catch (e: any) {
 			errorHandler(e, req, res)

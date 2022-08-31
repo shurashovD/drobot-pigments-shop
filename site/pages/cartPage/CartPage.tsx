@@ -95,7 +95,7 @@ const CartPage = () => {
 					</Col>
 				</Row>
 			)}
-			{data && data.products.length + data.variants.length === 0 && <p className="text-muted">Коризна пуста</p>}
+			{data && data.products.length + data.variants.length === 0 && <p className="text-muted">Корзина пуста</p>}
 			{!rmLoading && data && data.products.length + data.variants.length > 0 && (
 				<Row>
 					<Col xs={12} lg={8}>

@@ -1,4 +1,5 @@
 import { Button, OverlayTrigger, Popover } from "react-bootstrap"
+import { useNavigate } from "react-router-dom"
 import { useAccountAuthQuery } from "../../../application/account.service"
 
 const popover = (
@@ -23,6 +24,11 @@ const popover = (
 
 const ClientStatus = () => {
 	const { data: auth } = useAccountAuthQuery(undefined)
+	const navigate = useNavigate()
+
+	const handler = () => {
+		navigate("/partner-program")
+	}
 	
     return (
 		<div>
@@ -37,7 +43,7 @@ const ClientStatus = () => {
 				</OverlayTrigger>
 			</div>
 			<div className="ps-md-2">
-				<Button className="ms-auto text-primary" variant="outline-dark">
+				<Button className="ms-auto text-primary" variant="outline-dark" onClick={handler}>
 					Повысить статус
 				</Button>
 			</div>

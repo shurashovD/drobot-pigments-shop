@@ -171,7 +171,8 @@ router.get('/discount', async (req, res) => {
         const discount = await client.getDiscount()
         return res.json(discount)
 	} catch (e: any) {
-		errorHandler(e, req, res)
+        console.log(e)
+        return res.end()
 	}
 })
 

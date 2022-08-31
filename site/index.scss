@@ -352,6 +352,15 @@ input:focus,
     border-bottom: 0;
 }
 
+#partner-programm-category-container {
+    overflow-x: scroll;
+}
+#partner-programm-category-container::-webkit-scrollbar {
+    width: 0px;
+    /* ширина scrollbar */
+    height: 0px;
+}
+
 hr {
     opacity: 1 !important;
 }

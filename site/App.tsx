@@ -15,6 +15,7 @@ import OrderPage from "./pages/orderPage/OrderPage"
 import ProductPage from "./pages/productPage/ProductPage"
 import ProfilePage from "./pages/profilePage/ProfilePage"
 import { useSendErrorMutation } from './application/error.service'
+import ParetnerProgramPage from './pages/partnerProgramPage/ParetnerProgramPage'
 
 const App = () => {
 	const [sendError] = useSendErrorMutation()
@@ -38,6 +39,7 @@ const App = () => {
 						<Route path="/order" element={<OrderPage />} />
 						<Route path="/profile" element={<ProfilePage />} />
 						<Route path="/delivery" element={<DeliveryPage />} />
+						<Route path="/partner-program" element={<ParetnerProgramPage />} />
 						<Route path="*" element={<Navigate to="/" />} />
 					</Routes>
 				</Container>
