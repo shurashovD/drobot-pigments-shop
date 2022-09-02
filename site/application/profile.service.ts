@@ -1,3 +1,4 @@
+import { IPromocodeDetails } from './../../shared/index.d';
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import { INearestOrder, IOrderPop, ISdekOrderInfo } from "../../shared";
 
@@ -23,9 +24,37 @@ const profileApi = createApi({
 		getDiscount: build.query<{ discountPercentValue?: string; nextLevelRequires: string[] }, undefined>({
 			query: () => "/discount",
 		}),
+		getPromocodes: build.query<{ length: number; promocodes: IPromocodeDetails[] }, { page: number; limit: number }>({
+			query: ({ page, limit }) => `/promocode?page=${page}&limit=${limit}`,
+			providesTags: () => ["promocodes"],
+		}),
+		createPromocode: build.mutation<undefined, { body: { dateStart: string; dateFinish: string; code: string } }>({
+			query: ({ body }) => ({
+				body,
+				method: "POST",
+				url: "/promocode",
+			}),
+			invalidatesTags: ["promocodes"],
+		}),
+		updatePromocode: build.mutation<undefined, { body: { dateStart: string; dateFinish: string; code: string }; id: string }>({
+			query: ({ body, id }) => ({
+				body,
+				method: "PUT",
+				url: `/promocode/${id}`,
+			}),
+			invalidatesTags: ["promocodes"],
+		}),
+		deletePromocode: build.mutation<undefined, { id: string }>({
+			query: ({ id }) => ({
+				method: "DELETE",
+				url: `/promocode/${id}`,
+			}),
+			invalidatesTags: ["promocodes"],
+		}),
 	}),
 	keepUnusedDataFor: 30,
 	reducerPath: "profileApi",
+	tagTypes: ["promocodes"],
 })
 
 export const {
@@ -34,5 +63,9 @@ export const {
 	useGetOrderQuery,
 	useGetSdekInfoQuery,
 	useGetDiscountQuery,
+	useGetPromocodesQuery,
+	useCreatePromocodeMutation,
+	useUpdatePromocodeMutation,
+	useDeletePromocodeMutation,
 } = profileApi
 export default profileApi

@@ -322,6 +322,24 @@ export interface IPromocodeDoc extends Document {
 	promocodeTotalCashBack: number
 }
 
+export interface IPromocodeDetails {
+	id: string
+	code: string
+	dateStart: Date
+	dateFinish: Date
+	status: "created" | "running" | "finished" | "stopped"
+	total: {
+		ordersLength: number
+		ordersTotal: number
+		totalCashBack: number
+	}
+	orders: {
+		buyer: string
+		orderTotal: number
+		orderCashBack: number
+	}[]
+}
+
 export interface IClient extends Document {
 	addresses: string[]
 	amoContactId?: number
@@ -339,13 +357,16 @@ export interface IClient extends Document {
 	promocodes?: Types.ObjectId[]
 	cashBack?: number
 	total?: number
-	createTempOrder(sdek: IOrder['delivery']['sdek']): Promise<string>
+	createTempOrder(sdek: IOrder["delivery"]["sdek"]): Promise<string>
 	deleteOrder(orderId: string): Promise<void>
 	getDiscount(): Promise<{ discountPercentValue?: number; nextLevelRequires: string[] }>
 	getOrder(id: string): Promise<IOrderPop>
 	getNearestOrder(): Promise<IOrderPop | undefined>
 	addCashBack(cashbackRub: number): Promise<void>
 	mergeCart(mergedCartId: string): Promise<void>
+	refreshPromocodes(): Promise<void>
+	getPromocodes(limit: number, skip: number): Promise<IPromocodeDetails[]>
+	createPromocode(code: string, dateFinish: string, dateStart: string): Promise<void>
 }
 
 export interface IClientMethods {
@@ -356,6 +377,9 @@ export interface IClientMethods {
 	getNearestOrder(): Promise<IOrderPop | undefined>
 	addCashback(cashbackRub: number): Promise<void>
 	mergeCart(mergedCartId: string): Promise<void>
+	refreshPromocodes(): Promise<void>
+	getPromocodes(limit: number, skip: number): Promise<IPromocodeDetails[]>
+	createPromocode(code: string, dateFinish: string, dateStart: string): Promise<void>
 }
 
 export interface ClientModel extends Model<IClient, {}, IClientMethods> {}

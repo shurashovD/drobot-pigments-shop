@@ -7,8 +7,15 @@ import DeliveryComponent from "./components/DeliveryComponent"
 import PrivateDataComponent from './components/PrivateDataComponent'
 import IconDiscount from "../../components/icons/IconDiscount"
 import DiscountComponent from "./components/DiscountComponent"
+import IconPromocode from "../../components/icons/IconPromocode"
+import PromocodeOrders from "./components/PromocodeOrders"
+import IconCashback from "../../components/icons/IconCashback"
+import CashbackComponent from "./components/CashbackComponent"
+import { useAccountAuthQuery } from "../../application/account.service"
 
 const Main = () => {
+	const { data: auth } = useAccountAuthQuery(undefined)
+	
     return (
 		<Container className="pt-5">
 			<Row xs={1} lg={2} className="g-4">
@@ -58,6 +65,30 @@ const Main = () => {
 								</div>
 							</div>
 						</Col>
+						{ auth && (auth.status === 'agent' || auth.status === 'delegate') && <Col>
+							<div className="border border-dark h-100">
+								<div className="bg-dark p-3 px-4 border border-dark border-2">
+									<IconPromocode stroke="#ffffff" />
+									<NavLink className="ms-2 text-uppercase text-white" to="/profile#promocodes">
+										Промокоды
+									</NavLink>
+								</div>
+								<div className="p-4">
+									<PromocodeOrders />
+								</div>
+							</div>
+						</Col>}
+						{ auth && (auth.status === 'agent' || auth.status === 'delegate') && <Col>
+							<div className="border border-dark h-100">
+								<div className="bg-dark p-3 px-4 border border-dark border-2">
+									<IconCashback stroke="#ffffff" />
+									<span className="ms-2 text-uppercase text-white">Кэшбэк</span>
+								</div>
+								<div className="p-4">
+									<CashbackComponent />
+								</div>
+							</div>
+						</Col>}
 					</Row>
 				</Col>
 			</Row>

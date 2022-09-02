@@ -40,6 +40,18 @@
     }
 }
 
+@keyframes blinkAnimate {
+    0% {
+        opacity: 0.5;
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.1;
+    }
+}
+
 $font-family-base: "gothic";
 $font-size-base:  .9375rem;
 $line-height-base: 1.2;
@@ -365,8 +377,33 @@ hr {
     opacity: 1 !important;
 }
 
+.promocodes-nav__btn {
+    color: $primary;
+}
+.promocodes-nav__btn:hover {
+    color: $dark;
+    transition: .2s;
+}
+.promocodes-nav__btn.active {
+    color: $dark;
+}
+
+.createdPromocode {
+    animation: blinkAnimate 1s infinite;
+}
+
 @media (max-width: 576px) {
     .cart-item-name {
         font-size: 80%;
+    }
+
+    .promocodes-accordion {
+        .accordion-button {
+            padding: 1rem 0;
+        }
+        .accordion-button::after {
+            content: none;
+            background-image: none;
+        }
     }
 }

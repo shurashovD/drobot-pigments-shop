@@ -1,10 +1,16 @@
 import OrderModel from './OrderModel'
-import { ClientModel, ICart, IClient, IOrder, IOrderPop } from '../../shared';
+import { ClientModel, IClient, IOrder, IOrderPop, IPromocode, IPromocodeDetails } from '../../shared';
 import { model, Schema, Types } from 'mongoose'
 import CommonDiscountModel from './CommonDiscountModel';
 import AgentDiscountModel from './AgentDiscountModel';
 import DelegateDiscountModel from './DelegateDiscountModel';
 import CartModel from './CartModel';
+import PromocodeModel from './PromocodeModel';
+
+interface IOrderPopulate {
+	cashBack: number,
+	orderId: IOrderPop,
+}
 
 const ClientSchema = new Schema<IClient, ClientModel>({
 	addresses: [String],
@@ -202,6 +208,99 @@ ClientSchema.methods.mergeCart = async function (this: IClient, mergedCartId: st
 		}
 		await this.save()
 	} catch (e) { throw e }
+}
+
+ClientSchema.methods.refreshPromocodes = async function (this: IClient): Promise<void> {
+	try {
+		if (this.status !== "agent" && this.status !== "delegate") {
+			return
+		}
+
+		const promocodes = await PromocodeModel.find({ _id: { $in: this.promocodes }, status: { $nin: ["stopped", "finished"] } })
+		for (const i in promocodes) {
+			const promocode = promocodes[i]
+			let freshStatus: IPromocode["status"] = "running"
+			if (promocode.dateStart < new Date(Date.now())) {
+				freshStatus = "running"
+			} else {
+				freshStatus = "created"
+			}
+			if (promocode.dateFinish < new Date(Date.now())) {
+				freshStatus = "finished"
+			}
+			if (promocode.status !== freshStatus) {
+				promocode.status = freshStatus
+				await promocode.save()
+			}
+		}
+	} catch (e) {
+		throw e
+	}
+}
+
+ClientSchema.methods.getPromocodes = async function (this: IClient, limit: number, skip: number): Promise<IPromocodeDetails[]> {
+	try {
+		if (this.status !== "agent" && this.status !== "delegate") {
+			return []
+		}
+
+		await this.refreshPromocodes()
+
+		const promocodes = await PromocodeModel.find({ _id: { $in: this.promocodes } })
+			.skip(skip).limit(limit).sort({ dateStart: -1 })
+			.populate<{ orders: IOrderPopulate[] }>({ path: "orders", populate: { path: "client" } })
+			.then((doc) =>
+				doc.map<IPromocodeDetails>((item) => {
+					const { code, dateFinish, dateStart, _id, status, promocodeTotalCashBack, orders } = item
+					const ordersRes: IPromocodeDetails["orders"][0][] = []
+					const ordersTotal = orders.reduce((sum, { orderId }) => (orderId.total + sum), 0)
+					const total: IPromocodeDetails["total"] = {
+						ordersLength: orders.length, ordersTotal, totalCashBack: promocodeTotalCashBack
+					} 
+					return { code, dateFinish, dateStart, id: _id.toString(), status, total, orders: ordersRes }
+				})
+			)
+
+		return promocodes
+
+	} catch (e) { throw e }
+}
+
+ClientSchema.methods.createPromocode = async function (this: IClient, code: string, dateFinish: string, dateStart: string): Promise<void> {
+	try {
+		if (this.status !== "agent" && this.status !== "delegate") {
+			return
+		}
+
+		if ( new Date(Date.parse(dateFinish)) < new Date(Date.now()) ) {
+			const error = new Error('Неверная дата окончания промокода')
+			error.userError = true
+			throw error
+		}
+
+		const cursor = await PromocodeModel.findOne({ code })
+		if ( cursor ) {
+			const error = new Error("Такой промокод уже есть")
+			error.userError = true
+			throw error
+		}
+
+		const promocode = await new PromocodeModel({
+			code,
+			dateFinish: new Date(Date.parse(dateFinish)),
+			dateStart: new Date(Date.parse(dateStart)),
+		}).save()
+
+		if ( !this.promocodes ) {
+			this.promocodes = [promocode._id]
+		} else {
+			this.promocodes.unshift(promocode._id)
+		}
+
+		await this.save()
+	} catch (e) {
+		throw e
+	}
 }
 
 const ClientModel = model<IClient, ClientModel>('Client', ClientSchema)

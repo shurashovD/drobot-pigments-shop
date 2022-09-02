@@ -19,7 +19,7 @@ const PromocodeSchema = new Schema<IPromocodeDoc, IPromocodeModel>({
 			orderId: { type: Schema.Types.ObjectId, ref: "Order" },
 		},
 	],
-	promocodeTotalCashBack: Number,
+	promocodeTotalCashBack: { type: Number, default: 0 },
 	status: String
 })
 

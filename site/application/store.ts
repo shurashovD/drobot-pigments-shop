@@ -11,6 +11,7 @@ import navCatalogSlice from "./navCatalogSlice";
 import orderApi from "./order.service";
 import productApi from "./product.service";
 import profileApi from "./profile.service";
+import profilePromocodesSlice from "./profilePromocodesSlice";
 import profileSlice from "./profileSlice";
 
 const store = configureStore({
@@ -37,6 +38,7 @@ const store = configureStore({
         [orderApi.reducerPath]: orderApi.reducer,
         [productApi.reducerPath]: productApi.reducer,
 		[profileApi.reducerPath]: profileApi.reducer,
+		[profilePromocodesSlice.name]: profilePromocodesSlice.reducer,
 		[profileSlice.name]: profileSlice.reducer,
 	},
 })

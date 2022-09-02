@@ -12,7 +12,7 @@ import Mobile from "./mobile/Mobile"
 import Orders from "./Orders"
 import Profile from "./profile/Profile"
 import ProfilePageNavigate from "./ProfilePageNavigate"
-import Promocodes from "./Promocodes"
+import Promocodes from "./promocodes/Promocodes"
 import SuccessModal from "./SuccessModal"
 
 const ProfilePage = () => {

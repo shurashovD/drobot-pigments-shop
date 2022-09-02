@@ -4,6 +4,7 @@ import { Request, Router } from "express"
 import { INearestOrder } from "../../shared"
 import { createContact, updateContact } from "../amoAPI/amoApi"
 import ClientModel from '../models/ClientModel'
+import PromocodeModel from '../models/PromocodeModel'
 import { createMsCounterParty, editMsCounterParty } from "../moyskladAPI/counterparty"
 import errorHandler from '../handlers/errorLogger';
 
@@ -102,14 +103,14 @@ router.get("/order/nearest", async (req, res) => {
                  
             } catch (e: any) {
                 e.sersviceInfo += ` Получение заказа с ближайшей доставкой в ЛК. Пользователь ${req.session.userId}.`
-				throw e
             }
             return res.json(response)
         } else {
             return res.end()
         }
 	} catch (e: any) {
-		errorHandler(e, req, res)
+        console.log(e);
+        return res.end()
 	}
 })
 
@@ -173,6 +174,145 @@ router.get('/discount', async (req, res) => {
 	} catch (e: any) {
         console.log(e)
         return res.end()
+	}
+})
+
+router.get("/promocode", async (req: Request<{}, {}, {}, { limit: number; page: number }>, res) => {
+	try {
+		const client = await ClientModel.findById(req.session.userId)
+		if (!client) {
+			return res.json({ length: 0, promocodes: [] })
+		}
+
+        const { limit = 12, page = 1 } = req.query
+        const skip = (page - 1) * limit
+		const promocodes = await client.getPromocodes(limit, skip)
+        const length = await PromocodeModel.find({ _id: { $in: client.promocodes } }).then(doc => doc.length)
+        return res.json({ length, promocodes })
+	} catch (e) {
+		console.log(e)
+		return res.status(500).json({ message: "Ошибка получения промокода" })
+	}
+})
+
+router.post("/promocode", json(), async (req: Request<{}, {}, { dateStart: string, dateFinish: string, code: string }>, res) => {
+	try {
+		const client = await ClientModel.findById(req.session.userId)
+		if (!client) {
+			return res.status(500).json({ message: 'Ошибка. Промокод не создан...' })
+		}
+
+        const { code, dateFinish, dateStart } = req.body
+        await client.createPromocode(code, dateFinish, dateStart)
+        return res.end()
+
+	} catch (e: any) {
+		console.log(e)
+        if ( e.userError ) {
+            return res.status(500).json({ message: e.message })
+        }
+		return res.status(500).json({ message: "Ошибка. Промокод не создан..." })
+	}
+})
+
+router.put("/promocode/:id", json(), async (req: Request<{id: string}, {}, { dateStart: string; dateFinish: string; code: string }>, res) => {
+	try {
+		const client = await ClientModel.findById(req.session.userId)
+		if (!client) {
+			return res.status(500).json({ message: "Ошибка. Промокод не обновлен..." })
+		}
+
+        await client.refreshPromocodes()
+
+        const { code, dateFinish, dateStart } = req.body
+        if ( new Date(Date.parse(dateFinish)) < new Date(Date.now()) ) {
+            return res.status(500).json({ message: "Неверная дата окончания промокода" })
+		}
+
+        const { id } = req.params
+        const promocode = await PromocodeModel.findById(id)
+        if ( !promocode ) {
+            throw new Error(`Промокод ${id} не найден`)
+        }
+		
+        if (promocode.status === 'running') {
+			return res.status(500).json({ message: 'Нельзя изменить действующий промокод' })
+		}
+
+        if (promocode.status === "stopped") {
+			return res.status(500).json({ message: "Нельзя изменить остановленный промокод" })
+		}
+
+        if (promocode.status === "finished") {
+			return res.status(500).json({ message: "Нельзя изменить завершенный промокод" })
+		}
+
+        const cursor = await PromocodeModel.findOne({ code, _id: { $ne: id } })
+		if (cursor) {
+			const error = new Error("Такой промокод уже есть")
+			error.userError = true
+			throw error
+		}
+
+        promocode.code = code
+        promocode.dateStart = new Date(Date.parse(dateStart))
+        promocode.dateFinish = new Date(Date.parse(dateFinish))
+        promocode.status = promocode.dateStart < new Date(Date.now()) ? "created" : "running"
+        await promocode.save()
+
+		return res.end()
+	} catch (e: any) {
+		console.log(e)
+        if ( e.userError ) {
+            return res.status(500).json({ message: e.message })
+        }
+		return res.status(500).json({ message: "Ошибка. Промокод не создан..." })
+	}
+})
+
+router.delete("/promocode/:id", async (req: Request<{ id: string }>, res) => {
+	try {
+		const client = await ClientModel.findById(req.session.userId)
+		if (!client) {
+			return res.status(500).json({ message: "Ошибка. Промокод не удален..." })
+		}
+
+		await client.refreshPromocodes()
+
+		const { id } = req.params
+		const promocode = await PromocodeModel.findById(id)
+		if (!promocode) {
+			throw new Error(`Промокод ${id} не найден`)
+		}
+
+		if (promocode.status === "running") {
+			return res.status(500).json({ message: "Нельзя удалить действующий промокод" })
+		}
+
+		if (promocode.status === "stopped") {
+			return res.status(500).json({ message: "Нельзя удалить остановленный промокод" })
+		}
+
+		if (promocode.status === "finished") {
+			return res.status(500).json({ message: "Нельзя удалить завершенный промокод" })
+		}
+
+        if ( client.promocodes ) {
+            const index = client.promocodes.findIndex((item) => item.toString() === id)
+			if (index !== -1) {
+				client.promocodes.splice(index, 1)
+                await client.save()
+			}
+        }
+        await PromocodeModel.findByIdAndDelete(id)
+
+		return res.end()
+	} catch (e: any) {
+		console.log(e)
+		if (e.userError) {
+			return res.status(500).json({ message: e.message })
+		}
+		return res.status(500).json({ message: "Ошибка. Промокод не удален..." })
 	}
 })
 

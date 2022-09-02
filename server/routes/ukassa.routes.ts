@@ -8,6 +8,8 @@ import { acceptPayment } from "../moyskladAPI/orders";
 import { createUKHook, deleteUKHooks, getUKHooks } from "../ukassaAPI/hooks";
 import createSdekOrderHandler from '../handlers/createSdekOrderHandler';
 import { getUKPayment } from '../ukassaAPI/payments';
+import ClientModel from '../models/ClientModel';
+import PromocodeModel from '../models/PromocodeModel';
 
 const router = Router()
 
@@ -73,6 +75,44 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
             await order.save()
 
             // обработка бонусов заказа;
+            const client = await ClientModel.findById(order.client)
+            if ( !client ) {
+                return
+            }
+            // если покупатель розничный;
+            if ( client.status === 'common' ) {
+				// если применён промокод;
+				if (order.promocode) {
+					// начислить кэшбэк владельцу промокода;
+                    const promocode = await PromocodeModel.findById(order.promocode)
+                    if ( promocode ) {
+                        const promocodeHolder = await ClientModel.findById(promocode.holderClient)
+                        if ( promocodeHolder ) {
+                            const cashBack = Math.round(order.total * 0.1)
+                            if ( promocodeHolder.status === 'agent' ) {
+                                await promocodeHolder.addCashBack(cashBack)
+                                promocodeHolder.agentOrders.unshift(order._id)
+                                await promocodeHolder.save()
+                                promocode.promocodeTotalCashBack += cashBack
+                                promocode.orders.unshift({ orderId: order._id, cashBack })
+                                await promocode.save()
+                            }
+                            if ( promocodeHolder.status === 'delegate' ) {
+                                await promocodeHolder.addCashBack(cashBack)
+                                promocodeHolder.delegateOrders.unshift(order._id)
+                                await promocodeHolder.save()
+                                promocode.promocodeTotalCashBack += cashBack
+                                promocode.orders.unshift({ orderId: order._id, cashBack })
+								await promocode.save()
+                            }
+                        }
+                    }
+				} else {
+					// начислить накопительную скидку покупателю;
+					client.commonOrders.unshift(order._id)
+					await client.save()
+				}
+			}
         }
         if (status === "canceled") {
             // получение причины отмены платежа;

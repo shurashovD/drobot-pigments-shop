@@ -10,6 +10,7 @@ import { useLocation } from "react-router-dom"
 import Orders from "../Orders"
 import OrdersAccordionComponent from "./Orders"
 import { useAccountAuthQuery } from "../../../application/account.service"
+import PromocodesMobile from "./PromocodesMobile"
 
 const Mobile = () => {
 	const { hash } = useLocation()
@@ -20,16 +21,17 @@ const Mobile = () => {
 		<Container fluid className="px-0 m-0">
 			{hash === "#profile" && <ProfileEditComponent />}
 			{hash === "#orders" && <Orders />}
-			{hash !== "#profile" && hash !== "#orders" && (
+			{hash === "#promocodes" && <PromocodesMobile />}
+			{hash !== "#profile" && hash !== "#orders" && hash !== '#promocodes' && (
 				<Accordion className="profile-mobile-accordion" activeKey={hash.substring(1)}>
 					<Private />
 					<Delivery />
 					<OrdersAccordionComponent />
 					<Promo />
-					{data && (data?.status === 'agent' || data?.status === 'delegate') && (
+					{data && (data?.status === "agent" || data?.status === "delegate") && (
 						<PromoOrders onClick={(key?: string) => setActiveKey(key)} activeKey={activeKey} />
 					)}
-					{data && (data?.status === 'agent' || data?.status === 'delegate') && (
+					{data && (data?.status === "agent" || data?.status === "delegate") && (
 						<CashBack onClick={(key?: string) => setActiveKey(key)} activeKey={activeKey} />
 					)}
 				</Accordion>
