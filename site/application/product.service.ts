@@ -23,7 +23,8 @@ const productApi = createApi({
 
 export const {
 	useGetProductByIdQuery,
-	useGetVariantQuery
+	useGetVariantQuery,
+	useLazyGetVariantQuery,
 } = productApi
 
 export default productApi
