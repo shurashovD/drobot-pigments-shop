@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from "react"
 import { Accordion } from "react-bootstrap"
 import { useLocation, useNavigate } from "react-router-dom"
 import IconDiscount from "../../../components/icons/IconDiscount"
-import DiscountComponent from "../components/DiscountComponent"
+import DiscountComponent from "../main/DiscountComponent"
 
 const Promo= () => {
 	const navigate = useNavigate()

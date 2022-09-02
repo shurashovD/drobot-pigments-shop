@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { Button, Col, Container, Row } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
-import { useAccountAuthQuery } from "../../application/account.service"
-import OrderComponent from "./components/OrderComponent"
+import { useAccountAuthQuery } from "../../../application/account.service"
+import OrderComponent from "./OrderComponent"
 
 const limit = 12
 

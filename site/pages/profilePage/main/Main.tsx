@@ -1,17 +1,18 @@
 import { Col, Container, Row } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
-import IconAccount from "../../components/icons/IconAccount"
-import IconOrders from "../../components/icons/IconOrders"
-import IconDelivery from "../../components/icons/IconDelivery"
-import DeliveryComponent from "./components/DeliveryComponent"
-import PrivateDataComponent from './components/PrivateDataComponent'
-import IconDiscount from "../../components/icons/IconDiscount"
-import DiscountComponent from "./components/DiscountComponent"
-import IconPromocode from "../../components/icons/IconPromocode"
-import PromocodeOrders from "./components/PromocodeOrders"
-import IconCashback from "../../components/icons/IconCashback"
-import CashbackComponent from "./components/CashbackComponent"
-import { useAccountAuthQuery } from "../../application/account.service"
+import IconAccount from "../../../components/icons/IconAccount"
+import IconOrders from "../../../components/icons/IconOrders"
+import IconDelivery from "../../../components/icons/IconDelivery"
+import DeliveryComponent from "./DeliveryComponent"
+import PrivateDataComponent from './PrivateDataComponent'
+import IconDiscount from "../../../components/icons/IconDiscount"
+import DiscountComponent from "./DiscountComponent"
+import IconPromocode from "../../../components/icons/IconPromocode"
+import PromocodeOrders from "./PromocodeOrders"
+import IconCashback from "../../../components/icons/IconCashback"
+import CashbackComponent from "./CashbackComponent"
+import { useAccountAuthQuery } from "../../../application/account.service"
+import OrdersComponent from "./OrdersComponent"
 
 const Main = () => {
 	const { data: auth } = useAccountAuthQuery(undefined)
@@ -50,7 +51,7 @@ const Main = () => {
 									</NavLink>
 								</div>
 								<div className="py-4">
-									<DeliveryComponent />
+									<OrdersComponent />
 								</div>
 							</div>
 						</Col>
@@ -65,7 +66,7 @@ const Main = () => {
 								</div>
 							</div>
 						</Col>
-						{ auth && (auth.status === 'agent' || auth.status === 'delegate') && <Col>
+						{ false && auth && (auth?.status === 'agent' || auth?.status === 'delegate') && <Col>
 							<div className="border border-dark h-100">
 								<div className="bg-dark p-3 px-4 border border-dark border-2">
 									<IconPromocode stroke="#ffffff" />

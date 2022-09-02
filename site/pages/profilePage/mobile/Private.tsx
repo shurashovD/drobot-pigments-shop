@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Accordion } from "react-bootstrap"
 import { useLocation, useNavigate } from "react-router-dom"
 import IconAccount from "../../../components/icons/IconAccount"
-import PrivateDataComponent from "../components/PrivateDataComponent"
+import PrivateDataComponent from "../main/PrivateDataComponent"
 
 const Private = () => {
 	const eventKey = "private"

@@ -1,9 +1,12 @@
-import { Button, Col, Row, Spinner } from "react-bootstrap"
+import { Col, Row, Spinner } from "react-bootstrap"
 import { useAccountAuthQuery } from "../../../application/account.service"
 import { NavLink } from 'react-router-dom'
 
 const CashbackComponent = () => {
 	const { data, isFetching } = useAccountAuthQuery(undefined)
+	const formatter = new Intl.NumberFormat('ru', {
+		style: 'decimal'
+	})
 
 	return (
 		<div>
@@ -12,19 +15,19 @@ const CashbackComponent = () => {
 					<Spinner variant="secondary" animation="border" />
 				</div>
 			)}
-			{data && (
+			{!isFetching && data && (
 				<Row className="mb-1">
 					<Col xs={9}>Активный кэшбэк</Col>
-					<Col xs={3}>1000Р</Col>
+					<Col xs={3}>{formatter.format(data.cashBack || 0)}Р</Col>
 				</Row>
 			)}
-			{data && (
+			{!isFetching && data && (
 				<Row className="mb-3 text-muted">
 					<Col xs={9}>За всё время</Col>
-					<Col xs={3}>1000Р</Col>
+					<Col xs={3}>{formatter.format(data.totalCashBack || 0)}Р</Col>
 				</Row>
 			)}
-			{data && (
+			{!isFetching && data && (
 				<NavLink to={"/profile#main"} className="btn btn-link border border-dark text-primary d-none">
 					Вывести кэш
 				</NavLink>

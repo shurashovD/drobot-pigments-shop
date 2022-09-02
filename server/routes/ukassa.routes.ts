@@ -79,6 +79,9 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
             if ( !client ) {
                 return
             }
+            client.total = (client.total || 0) + order.total
+            await client.save()
+
             // если покупатель розничный;
             if ( client.status === 'common' ) {
 				// если применён промокод;

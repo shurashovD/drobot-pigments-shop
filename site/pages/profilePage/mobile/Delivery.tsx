@@ -1,7 +1,7 @@
-import { FC, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { Accordion } from "react-bootstrap"
 import { useLocation, useNavigate } from "react-router-dom"
-import DeliveryComponent from "../components/DeliveryComponent"
+import DeliveryComponent from "../main/DeliveryComponent"
 
 const Delivery = () => {
 	const eventKey = "delivery"

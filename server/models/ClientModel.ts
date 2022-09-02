@@ -15,7 +15,7 @@ interface IOrderPopulate {
 const ClientSchema = new Schema<IClient, ClientModel>({
 	addresses: [String],
 	amoContactId: Number,
-	cartId: { type: Schema.Types.ObjectId, ref: 'Cart' },
+	cartId: { type: Schema.Types.ObjectId, ref: "Cart" },
 	counterpartyId: String,
 	mail: String,
 	name: String,
@@ -24,8 +24,9 @@ const ClientSchema = new Schema<IClient, ClientModel>({
 	commonOrders: [{ type: Types.ObjectId, ref: "Order" }],
 	delegateOrders: [{ type: Types.ObjectId, ref: "Order" }],
 	cashBack: Number,
+	totalCashBack: Number,
 	claimedStatus: String,
-	promocodes: [{ type: Schema.Types.ObjectId, ref: 'Promocode' }],
+	promocodes: [{ type: Schema.Types.ObjectId, ref: "Promocode" }],
 	status: String,
 	tel: { type: String, required: true },
 })
@@ -72,7 +73,6 @@ ClientSchema.methods.getNearestOrder = async function(this: IClient): Promise<IO
 
 ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ discountPercentValue?: number; nextLevelRequires: string[] }> {
 	try {
-		return { discountPercentValue: 5, nextLevelRequires: ['ТЕСТОВАЯ СКИДКА'] }
 		const formatter = new Intl.NumberFormat('ru', { currency: 'RUB', maximumFractionDigits: 0 })
 		if (this.status === 'common') {
 			const commonOrdersTotal = await OrderModel.find({ _id: { $in: this.commonOrders } })
@@ -82,14 +82,9 @@ ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ dis
 				return { nextLevelRequires: ["Бонусная программа не активна"] }
 			}
 
-			console.log(commonDiscounts);
-
 			const myDiscountLevelIndex = commonDiscounts.findIndex(({ lowerTreshold }) => (lowerTreshold <= commonOrdersTotal ))
-
-			console.log(myDiscountLevelIndex);
 			const discountPercentValue = commonDiscounts[myDiscountLevelIndex]?.percentValue || 0
 
-			console.log(discountPercentValue);
 			let nextLevelRequires = ['Максимальный уровень скидки']
 			if ( myDiscountLevelIndex !== 0 ) {
 				const nextDiscountPercentValue = commonDiscounts[myDiscountLevelIndex - 1].percentValue
@@ -173,6 +168,7 @@ ClientSchema.methods.deleteOrder = async function (this: IClient, orderId: strin
 ClientSchema.methods.addCashback = async function (this: IClient, cashbackRub: number): Promise<void> {
 	try {
 		this.cashBack = (this.cashBack || 0) + cashbackRub
+		this.totalCashBack = (this.totalCashBack || 0) + cashbackRub
 		await this.save()
 	} catch (e) {
 		throw e

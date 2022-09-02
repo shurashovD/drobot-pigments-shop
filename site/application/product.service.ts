@@ -25,6 +25,7 @@ export const {
 	useGetProductByIdQuery,
 	useGetVariantQuery,
 	useLazyGetVariantQuery,
+	useLazyGetProductByIdQuery
 } = productApi
 
 export default productApi

@@ -1,8 +1,8 @@
 import { Col, Row, Spinner } from "react-bootstrap"
-import { useGetDiscountQuery } from "../../../application/profile.service"
+import { useAccountAuthQuery } from "../../../application/account.service"
 
 const PromocodeOrders = () => {
-	const { data, isFetching } = useGetDiscountQuery(undefined, { refetchOnMountOrArgChange: true })
+	const { data, isFetching } = useAccountAuthQuery(undefined)
 
 	return (
 		<div>
@@ -11,19 +11,19 @@ const PromocodeOrders = () => {
 					<Spinner variant="secondary" animation="border" />
 				</div>
 			)}
-			{data && (
+			{isFetching && (
 				<Row className="mb-1">
 					<Col xs={9}>Сумма заказов</Col>
 					<Col xs={3}>1000Р</Col>
 				</Row>
 			)}
-			{data && (
+			{isFetching && (
 				<Row className="mb-3 text-muted">
 					<Col xs={9}>Всего заказов</Col>
 					<Col xs={3}>15</Col>
 				</Row>
 			)}
-        </div>
+		</div>
 	)
 }
 

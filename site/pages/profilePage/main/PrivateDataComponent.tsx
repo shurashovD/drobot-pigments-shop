@@ -3,7 +3,7 @@ import { Button, Col, Container, Row } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
 import { useAccountAuthQuery } from "../../../application/account.service"
 import MobAvatarComponent from "../../../components/MobAvatarComponent"
-import ClientStatus from "./ClientStatus"
+import ClientStatus from "../components/ClientStatus"
 
 const parsePhoneValue = (value?: string) => {
 	if (!value) return ""

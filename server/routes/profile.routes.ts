@@ -1,7 +1,8 @@
+import OrderModel from '../models/OrderModel'
 import { sdekGetOrderInfo } from './../sdekAPI/orders';
 import { json } from "body-parser"
 import { Request, Router } from "express"
-import { INearestOrder } from "../../shared"
+import { INearestOrder, IPromocode, IPromocodeDoc } from "../../shared"
 import { createContact, updateContact } from "../amoAPI/amoApi"
 import ClientModel from '../models/ClientModel'
 import PromocodeModel from '../models/PromocodeModel'
