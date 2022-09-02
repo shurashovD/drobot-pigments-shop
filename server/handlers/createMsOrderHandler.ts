@@ -33,12 +33,12 @@ const createMsOrderHandler = async (orderId: string) => {
 		}
 		
 		const positions: { quantity: number; price: number; productId?: string; variantId?: string; discount?: number }[] = [
-			...order.products.map(({ price, product, quantity, discountOn }) => {
-				const discount = discountOn ? Math.round(discountOn / price) * 100 : discountOn
+			...order.products.map(({ price, product, quantity, discountOn, paidByCashBack }) => {
+				const discount = discountOn ? Math.round((discountOn + (paidByCashBack || 0)) / price * 100) : discountOn
 				return { price: price, quantity, productId: product.identifier, discount }
 			}),
-			...order.variants.map(({ price, product, variant, quantity, discountOn }) => {
-				const discount = discountOn ? Math.round(discountOn / price) * 100 : discountOn
+			...order.variants.map(({ price, product, variant, quantity, discountOn, paidByCashBack }) => {
+				const discount = discountOn ? Math.round(((discountOn + (paidByCashBack || 0)) / price) * 100) : discountOn
 				const variantId = product.variants.find(({ _id }) => _id?.toString() === variant.toString())?.identifier
 				return { price: price, quantity, variantId, discount }
 			})]

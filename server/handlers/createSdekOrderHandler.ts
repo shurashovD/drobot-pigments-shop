@@ -32,19 +32,19 @@ const createSdekOrderHandler = async (orderId: string) => {
         if (tariff_code === 138 || tariff_code === 139 || tariff_code === 366) {
             const { products, variants } = order
             const items: ISdekOrderPayload["packages"][0]["items"] = products
-				.map(({ price, product, quantity, discountOn }) => ({
+				.map(({ price, product, quantity, discountOn, paidByCashBack }) => ({
 					amount: quantity,
-					cost: price - (discountOn || 0),
+					cost: price - (discountOn || 0) - (paidByCashBack || 0),
 					name: product.name,
 					payment: { value: 0 },
 					ware_key: product.identifier,
 					weight: product.weight || 25 * quantity,
 				}))
 				.concat(
-					variants.map(({ product, variant, quantity, price, discountOn }) => {
+					variants.map(({ product, variant, quantity, price, discountOn, paidByCashBack }) => {
 						const variantObj = product.variants.find(({ _id }) => _id?.toString() === variant.toString())
 						const name = `product.name (${variantObj?.name || ""})`
-						const cost = price - (discountOn || 0)
+						const cost = price - (discountOn || 0) - (paidByCashBack || 0)
 						const payment = { value: 0 }
 						const ware_key = variantObj?.identifier || ""
 						const weight = 25 * quantity

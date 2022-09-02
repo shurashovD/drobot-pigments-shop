@@ -72,6 +72,7 @@ ClientSchema.methods.getNearestOrder = async function(this: IClient): Promise<IO
 
 ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ discountPercentValue?: number; nextLevelRequires: string[] }> {
 	try {
+		return { discountPercentValue: 5, nextLevelRequires: ['ТЕСТОВАЯ СКИДКА'] }
 		const formatter = new Intl.NumberFormat('ru', { currency: 'RUB', maximumFractionDigits: 0 })
 		if (this.status === 'common') {
 			const commonOrdersTotal = await OrderModel.find({ _id: { $in: this.commonOrders } })
@@ -103,7 +104,7 @@ ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ dis
 			if (!agentDiscount) {
 				return { nextLevelRequires: ["Бонусная программа не активна"] }
 			}
-			return { discountPercentValue: agentDiscount.percentValue, nextLevelRequires: ["Максимальный уровень скидки"] }
+			return { discountPercentValue: agentDiscount?.percentValue || 0, nextLevelRequires: ["Максимальный уровень скидки"] }
 		}
 
 		if (this.status === 'delegate') {

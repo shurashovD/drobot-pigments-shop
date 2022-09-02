@@ -14,6 +14,9 @@ const CreateOrderBtn = () => {
     const [disabled, setDisabled] = useState(true)
     const [show, setShow] = useState(false)
     const navigate = useNavigate()
+	const formatter = new Intl.NumberFormat('ru', {
+		style: 'decimal',
+	})
 
     const hideHandler = () => {
 		setShow(false)
@@ -41,7 +44,7 @@ const CreateOrderBtn = () => {
 			<FinalModal number={data?.orderNumber} show={show} onHide={hideHandler} url={data?.url} />
 			<Col xs="auto">
 				<ButtonComponent onClick={() => createOrder()} isLoading={isLoading} disabled={disabled}>
-					<span className="text-uppercase">Оформить заказ</span>
+					<span className="text-uppercase">Оплатить { formatter.format((cart?.total || 0) + (detail?.total_sum || 0)) } руб.</span>
 				</ButtonComponent>
 			</Col>
 		</Row>

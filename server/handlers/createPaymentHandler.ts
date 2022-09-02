@@ -20,17 +20,17 @@ const createPaymentHandler = async (orderId: string) => {
 		}
 		
         const items: any[] = order.products
-			.map(({ price, product, quantity }) => ({
-				amount: { value: price.toFixed(2), currency: "RUB" },
+			.map(({ price, product, quantity, discountOn, paidByCashBack }) => ({
+				amount: { value: (price - (discountOn || 0) - (paidByCashBack || 0)).toFixed(2), currency: "RUB" },
 				description: product.name,
 				quantity,
 				vat_code: 1,
 			}))
 			.concat(
-				order.variants.map(({ product, variant, price, quantity }) => {
+				order.variants.map(({ product, variant, price, quantity, discountOn, paidByCashBack }) => {
 					const variantObj = product.variants.find(({ _id }) => _id?.toString() === variant.toString())
 					return {
-						amount: { value: price.toFixed(2), currency: "RUB" },
+						amount: { value: (price - (discountOn || 0) - (paidByCashBack || 0)).toFixed(2), currency: "RUB" },
 						description: `${product.name} ${variantObj?.name || ""}`,
 						quantity,
 						vat_code: 1,

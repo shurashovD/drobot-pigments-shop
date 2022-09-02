@@ -1,5 +1,6 @@
 import { FC, useEffect, useRef, useState } from "react"
-import { Button, Col, Form, ListGroup, Row, Spinner } from "react-bootstrap"
+import { Button, Col, Fade, Form, ListGroup, Row, Spinner } from "react-bootstrap"
+import { ICart } from "../../../shared"
 import { useDeleteFromCartMutation, useGetCartQuery, useToggleCheckOneMutation } from "../../application/order.service"
 import { useGetVariantQuery } from "../../application/product.service"
 import VariantCounter from "../../components/card/VariantCounter"
@@ -18,7 +19,10 @@ const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
     const { data, isLoading: variantLoading, isFetching } = useGetVariantQuery({ productId, variantId }, { refetchOnMountOrArgChange: true })
 	const [remove, { isLoading }] = useDeleteFromCartMutation()
 	const [toggle, { isLoading: toggleLoading }] = useToggleCheckOneMutation()
-	const [checked, setChecked] = useState(false)
+	const [variantInCart, setVariantInCart] = useState<ICart["products"][0] | undefined>()
+	const [price, setPrice] = useState<string | undefined>()
+	const [lastPrice, setLastPrice] = useState<string | undefined>()
+	const [discount, setDiscount] = useState<string | undefined>()
     const formatter = useRef(
 		Intl.NumberFormat("ru", {
 			style: "currency",
@@ -33,9 +37,21 @@ const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
 
 	useEffect(() => {
 		if (cart) {
-			setChecked(cart.variants.find((item) => item.variantId === variantId)?.checked || false)
+			const variant = cart.variants.find((item) => item.variantId === variantId)
+			if (variant) {
+				setVariantInCart(variant)
+				const price = (variant.price - (variant.discountOn || 0) - (variant.paidByCashBack || 0)) * variant.quantity
+				setPrice(formatter.current.format(price))
+				if (variant.discountOn && variant.discountOn > 0) {
+					setDiscount(formatter.current.format(variant.discountOn * variant.quantity))
+					setLastPrice(formatter.current.format(variant.price * variant.quantity))
+				} else {
+					setDiscount(undefined)
+					setLastPrice(undefined)
+				}
+			}
 		}
-	}, [cart])
+	}, [cart, formatter])
 
     return (
 		<ListGroup.Item className="py-4 bg-transparent">
@@ -44,12 +60,12 @@ const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
 					<Spinner animation="border" variant="secondary" />
 				</div>
 			)}
-			{!variantLoading && data && (
+			{!variantLoading && data && variantInCart && (
 				<Row>
 					<Col xs={0} md={1} className="d-flex align-items-center">
 						<CheckboxComponent
 							isLoading={toggleLoading}
-							checked={checked}
+							checked={variantInCart.checked}
 							className="d-none d-md-block"
 							disabled={isFetching || isLoading || cartFetching || toggleLoading}
 							onChange={() => toggle({ productId, variantId })}
@@ -59,7 +75,7 @@ const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
 						<div className="position-relative">
 							<ImageComponent src={data.photo || "/static"} />
 							<Form.Check
-								checked={checked}
+								checked={variantInCart.checked}
 								disabled={isFetching || isLoading || cartFetching || toggleLoading}
 								onChange={() => toggle({ productId, variantId })}
 								className="d-md-none position-absolute top-0 start-0 m-2"
@@ -72,17 +88,27 @@ const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
 							<VariantCounter productId={productId} variantId={variantId} />
 						</div>
 					</Col>
-					<Col xs={4} md={4} className="d-flex flex-column justify-content-between align-items-end">
-						{typeof data.price !== "undefined" && <div className="fs-3">{formatter.current.format(data.price / 100)}</div>}
-						<div className="w-100 d-none d-md-flex justify-content-between">
-							<Button variant="link" className="text-start w-100 m-0 p-0" disabled={isLoading}>
-								В избранное
-							</Button>
-							<Button disabled={isLoading} variant="link" className="text-end w-100 m-0 p-0" onClick={rmHandler}>
-								Удалить
-							</Button>
-						</div>
-					</Col>
+					<Fade in={!cartFetching && !toggleLoading}>
+						<Col xs={4} md={4} className="d-flex flex-column justify-content-between align-items-end">
+							<div className="fs-3 mb-1">{price}</div>
+							{lastPrice && <div className="text-muted text-decoration-line-through">{lastPrice}</div>}
+							{discount && (
+								<div className="text-danger">
+									<span className="d-inline d-lg-none">-</span>
+									<span className="d-none d-lg-inline">Скидка </span>
+									<span>{discount}</span>
+								</div>
+							)}
+							<div className="w-100 d-none d-md-flex justify-content-between mt-auto">
+								<Button variant="link" className="text-start w-100 m-0 p-0" disabled={isLoading}>
+									В избранное
+								</Button>
+								<Button disabled={isLoading} variant="link" className="text-end w-100 m-0 p-0" onClick={rmHandler}>
+									Удалить
+								</Button>
+							</div>
+						</Col>
+					</Fade>
 				</Row>
 			)}
 			{!variantLoading && data && (

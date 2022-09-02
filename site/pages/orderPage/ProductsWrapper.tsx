@@ -1,7 +1,6 @@
-import { FC, useState } from 'react'
-import { Accordion, ListGroup } from 'react-bootstrap'
-import { ICart } from '../../../shared'
-import { useGetCartQuery } from '../../application/order.service'
+import { FC } from 'react'
+import { Accordion, Col, ListGroup, Row } from 'react-bootstrap'
+import { useGetCartQuery, useGetDeliveryDetailQuery } from '../../application/order.service'
 import OrderItem from './OrderItem'
 
 interface IProps {
@@ -11,7 +10,13 @@ interface IProps {
 
 const ProductsWrapper: FC<IProps> = ({ accordionHandler, activeKey }) => {
 	const { data: cart } = useGetCartQuery(undefined)
+	const { data: deliveryDetail } = useGetDeliveryDetailQuery(undefined)
     const eventKey = "4"
+	const formatter = new Intl.NumberFormat('ru', {
+		style: 'currency',
+		currency: 'RUB',
+		maximumFractionDigits: 0
+	})
 
 	return (
 		<Accordion.Item eventKey={eventKey} className="border-0 border-bottom" id="order-products">
@@ -24,13 +29,40 @@ const ProductsWrapper: FC<IProps> = ({ accordionHandler, activeKey }) => {
 					{activeKey === "4" &&
 						cart?.products
 							.filter(({ checked }) => checked)
-							.map(({ productId, quantity }) => <OrderItem key={productId} productId={productId} quantity={quantity} />)}
+							.map(({ productId, quantity, price, discountOn, paidByCashBack }) => (
+								<OrderItem
+									key={productId}
+									productId={productId}
+									quantity={quantity}
+									price={formatter.format(quantity * (price - (discountOn || 0) - (paidByCashBack || 0)))}
+								/>
+							))}
 					{activeKey === "4" &&
 						cart?.variants
 							.filter(({ checked }) => checked)
-							.map(({ productId, variantId, quantity }) => (
-								<OrderItem key={variantId} productId={productId} quantity={quantity} variantId={variantId} />
+							.map(({ productId, variantId, quantity, price, discountOn, paidByCashBack }) => (
+								<OrderItem
+									key={variantId}
+									productId={productId}
+									quantity={quantity}
+									variantId={variantId}
+									price={formatter.format(quantity * (price - (discountOn || 0) - (paidByCashBack || 0)))}
+								/>
 							))}
+					<ListGroup.Item className="bg-transparent px-0">
+						<Row>
+							<Col xs={4} md={2}></Col>
+							<Col xs={7} md={4} className="d-flex flex-column">
+								Доставка
+							</Col>
+							<Col xs={1} md={3} className="d-flex justify-content-center align-items-center">
+								1 ШТ
+							</Col>
+							<Col xs={0} md={3} className="fs-3 d-none d-md-flex">
+								{formatter.format(deliveryDetail?.total_sum || 0)}
+							</Col>
+						</Row>
+					</ListGroup.Item>
 				</ListGroup>
 			</Accordion.Body>
 		</Accordion.Item>

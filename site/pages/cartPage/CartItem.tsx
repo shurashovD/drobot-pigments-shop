@@ -1,5 +1,6 @@
 import { FC, useEffect, useRef, useState } from "react"
-import { Button, Col, Form, ListGroup, Row, Spinner } from "react-bootstrap"
+import { Button, Col, Fade, Form, ListGroup, Row, Spinner } from "react-bootstrap"
+import { ICart } from "../../../shared"
 import { useDeleteFromCartMutation, useGetCartQuery, useToggleCheckOneMutation } from "../../application/order.service"
 import { useGetProductByIdQuery } from "../../application/product.service"
 import ProductCounter from "../../components/card/ProductCounter"
@@ -17,7 +18,10 @@ const CartItem: FC<IProps> = ({ productId }) => {
     const { data, isFetching, isLoading: productLoading } = useGetProductByIdQuery(productId, { refetchOnMountOrArgChange: true })
 	const [remove, { isLoading }] = useDeleteFromCartMutation()
 	const [toggle, { isLoading: toggleLoading }] = useToggleCheckOneMutation()
-	const [checked, setChecked] = useState(false)
+	const [productInCart, setProductInCart] = useState<ICart['products'][0] | undefined>()
+	const [price, setPrice] = useState<string | undefined>()
+	const [lastPrice, setLastPrice] = useState<string | undefined>()
+	const [discount, setDiscount] = useState<string | undefined>()
     const formatter = useRef(
 		Intl.NumberFormat("ru", {
 			style: "currency",
@@ -32,9 +36,21 @@ const CartItem: FC<IProps> = ({ productId }) => {
 
 	useEffect(() => {
 		if ( cart ) {
-			setChecked(cart.products.find((item) => item.productId === productId)?.checked || false)
+			const product = cart.products.find((item) => item.productId === productId)
+			if ( product ) {
+				setProductInCart(product)
+				const price = (product.price - (product.discountOn || 0) - (product.paidByCashBack || 0)) * product.quantity
+				setPrice(formatter.current.format(price))
+				if (product.discountOn && product.discountOn > 0) {
+					setDiscount(formatter.current.format(product.discountOn * product.quantity))
+					setLastPrice(formatter.current.format(product.price * product.quantity))
+				} else {
+					setDiscount(undefined)
+					setLastPrice(undefined)
+				}
+			}
 		}
-	}, [cart])
+	}, [cart, formatter])
 
     return (
 		<ListGroup.Item className="py-4 bg-transparent">
@@ -43,13 +59,13 @@ const CartItem: FC<IProps> = ({ productId }) => {
 					<Spinner animation="border" variant="secondary" />
 				</div>
 			)}
-			{!productLoading && data && (
+			{!productLoading && data && productInCart && (
 				<Row>
 					<Col xs={0} md={1} className="d-flex align-items-center">
 						<CheckboxComponent
 							isLoading={toggleLoading}
 							disabled={isFetching || isLoading || cartFetching || toggleLoading}
-							checked={checked}
+							checked={productInCart.checked}
 							className="d-none d-md-block"
 							onChange={() => toggle({ productId })}
 						/>
@@ -59,7 +75,7 @@ const CartItem: FC<IProps> = ({ productId }) => {
 							<ImageComponent src={data.photo?.[0] || "/static"} />
 							<Form.Check
 								disabled={isFetching || isLoading || cartFetching || toggleLoading}
-								checked={checked}
+								checked={productInCart.checked}
 								onChange={() => toggle({ productId })}
 								className="d-md-none position-absolute top-0 start-0 m-2"
 							/>
@@ -71,17 +87,27 @@ const CartItem: FC<IProps> = ({ productId }) => {
 							<ProductCounter productId={productId} />
 						</div>
 					</Col>
-					<Col xs={4} md={4} className="d-flex flex-column justify-content-between align-items-end">
-						{typeof data.price !== "undefined" && <div className="fs-3">{formatter.current.format(data.price)}</div>}
-						<div className="w-100 d-none d-md-flex justify-content-between">
-							<Button variant="link" className="text-start w-100 m-0 p-0" disabled={isLoading}>
-								В избранное
-							</Button>
-							<Button disabled={isLoading} variant="link" className="text-end w-100 m-0 p-0" onClick={rmHandler}>
-								Удалить
-							</Button>
-						</div>
-					</Col>
+					<Fade in={!cartFetching && !toggleLoading}>
+						<Col xs={4} md={4} className="d-flex flex-column justify-content-between align-items-end">
+							<div className="fs-3">{price}</div>
+							{lastPrice && <div className="text-muted text-decoration-line-through">{lastPrice}</div>}
+							{discount && (
+								<div className="text-danger">
+									<span className="d-inline d-lg-none">-</span>
+									<span className="d-none d-lg-inline">Скидка </span>
+									<span>{discount}</span>
+								</div>
+							)}
+							<div className="w-100 d-none d-md-flex justify-content-between">
+								<Button variant="link" className="text-start w-100 m-0 p-0" disabled={isLoading}>
+									В избранное
+								</Button>
+								<Button disabled={isLoading} variant="link" className="text-end w-100 m-0 p-0" onClick={rmHandler}>
+									Удалить
+								</Button>
+							</div>
+						</Col>
+					</Fade>
 				</Row>
 			)}
 			{!productLoading && data && (
