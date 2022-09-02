@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Col, Row, Spinner } from "react-bootstrap"
-import { useLazyGetVariantQuery } from "../../../application/product.service"
+import { useGetNearestOrderQuery } from "../../../application/profile.service"
 import SlideImgComponent from "./SlideImgComponent"
 
 const DeliveryComponent = () => {
