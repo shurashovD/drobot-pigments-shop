@@ -48,6 +48,12 @@ const ProfilePage = () => {
         }
     }, [client])
 
+	useEffect(() => {
+		if ( !hash || hash === '' ) {
+			navigate({ hash: '#main' })
+		}
+	}, [hash])
+
     return (
 		<Container fluid className="p-0 pb-6">
 			{isFetching && <LoaderComponent />}

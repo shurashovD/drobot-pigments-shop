@@ -1,6 +1,6 @@
 import { json } from 'body-parser';
 import { Router, Request } from 'express';
-import { getContactByPhone } from '../amoAPI/amoApi';
+import { createTask, getContactByPhone } from '../amoAPI/amoApi';
 import ClientModel from '../models/ClientModel';
 import getCounterPartyByNumber from '../moyskladAPI/counterparty';
 import { checkNumber, checkPin } from '../plusofonAPI/plusofonApi';
@@ -174,12 +174,20 @@ router.post("/change-status-request", json(), async (req: Request<{}, {}, { clai
 			return res.redirect("/profile")
 		}
 
-        if ( client.status === 'agent' ) {
-            return res.status(500).json({ message: 'Вы уже являететсь агентом' })
-        }
+        if (client.status === claimedStatus) {
+			return res.status(500).json({ message: "Запрашиваемый статус установлен" })
+		}
         
         client.claimedStatus = claimedStatus
         await client.save()
+
+        try {
+            let text = `Покупатель ${client.name} хочет сменить статус в интернет-магазине. `
+            text += "Пожалуйста зайдите в панель управления сайтом drobot-pigments-shop.ru/admin, вкладка пользователи."
+            await createTask(text, client.amoContactId)
+        } catch (e) {
+            console.log(e)
+        }
 
         return res.end()
 	} catch (e) {

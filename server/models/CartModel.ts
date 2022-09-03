@@ -2,6 +2,7 @@ import { model, Model, Schema } from 'mongoose';
 import { ICartDoc } from "../../shared";
 import rests from '../moyskladAPI/rests';
 import ClientModel from './ClientModel';
+import DelegateDiscountModel from './DelegateDiscountModel';
 import ProductModel from './ProductModel';
 import PromocodeModel from './PromocodeModel';
 
@@ -146,8 +147,25 @@ CartSchema.methods.refreshDiscounts = async function (this: ICartDoc): Promise<I
 		// если скидка промокода не применена, пробуем применить скидку покупателя;
 		if (typeof discountPercent === "undefined" && client) {
 			const clientDiscount = await client.getDiscount().then((doc) => doc?.discountPercentValue)
-			if (clientDiscount && clientDiscount > 0) {
+			if (clientDiscount) {
 				discountPercent = clientDiscount
+			}
+		}
+
+		// скидка для представителя;
+		if ( client?.status === 'delegate' ) {
+			const delegateDiscounts = await DelegateDiscountModel.find().sort({ lowerTreshold: 1 })
+			// вычисление общей суммы товаров;
+			const amount = this.products
+				.filter(({ checked }) => checked)
+				.map(({ price, quantity }) => price * quantity)
+				.concat(this.variants.filter(({ checked }) => checked).map(({ price, quantity }) => price * quantity))
+				.reduce((sum, item) => sum + item, 0)
+
+			// поиск подходящего уровня скидки;
+			const discountLevel = delegateDiscounts.find(({ lowerTreshold }) => (amount >= lowerTreshold))
+			if (discountLevel?.percentValue) {
+				discountPercent = discountLevel.percentValue
 			}
 		}
 
@@ -171,8 +189,8 @@ CartSchema.methods.refreshDiscounts = async function (this: ICartDoc): Promise<I
 		}
 		// если скидка отсутвует, нужно очистить все поля discountOn;
 		else {
-			this.products.forEach((product) => delete product.discountOn)
-			this.variants.forEach((variant) => delete variant.discountOn)
+			this.products.forEach((product) => product.discountOn = undefined)
+			this.variants.forEach((variant) => variant.discountOn = undefined)
 			await this.save()
 			return this
 		}
@@ -193,7 +211,7 @@ CartSchema.methods.refreshCashBack = async function (this: ICartDoc): Promise<IC
 
 		// получение даступного кэшбэка;
 		let availableCashBack: number | undefined
-		if (client && client?.cashBack && client.cashBack > 0 && client.status === "delegate") {
+		if (client && client?.cashBack && client.cashBack > 0 && (client.status === "delegate" || client.status === "agent")) {
 			availableCashBack = Math.min(preTotal - 1, client.cashBack)
 		}
 

@@ -86,9 +86,9 @@ ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ dis
 			const discountPercentValue = commonDiscounts[myDiscountLevelIndex]?.percentValue || 0
 
 			let nextLevelRequires = ['Максимальный уровень скидки']
-			if ( myDiscountLevelIndex !== 0 ) {
-				const nextDiscountPercentValue = commonDiscounts[myDiscountLevelIndex - 1].percentValue
-				const nextDiscountRemind = commonDiscounts[myDiscountLevelIndex - 1].lowerTreshold - commonOrdersTotal
+			if ( myDiscountLevelIndex > 0 ) {
+				const nextDiscountPercentValue = commonDiscounts[myDiscountLevelIndex - 1]?.percentValue
+				const nextDiscountRemind = commonDiscounts[myDiscountLevelIndex - 1]?.lowerTreshold - commonOrdersTotal
 				nextLevelRequires = [`До скидки ${nextDiscountPercentValue}% осталось ${formatter.format(nextDiscountRemind)}`]
 			}
 			return { discountPercentValue, nextLevelRequires }
@@ -295,6 +295,70 @@ ClientSchema.methods.createPromocode = async function (this: IClient, code: stri
 		}
 
 		await this.save()
+	} catch (e) {
+		throw e
+	}
+}
+
+ClientSchema.methods.setPromocodeInCart = async function (this: IClient, code: string): Promise<string | void> {
+	try {
+		if ( this.status !== 'common' ) {
+			return 'Вы не можете использовать промокод'
+		}
+		
+		const check = await PromocodeModel.check({ code })
+		if ( check === 'invalid' ) {
+			return 'Неверный промокод'
+		}
+
+		if ( check === 'expired' ) {
+			return 'Промокод не действителен'
+		}
+
+		const cart = await CartModel.findById(this.cartId)
+		if ( !cart ) {
+			return
+		}
+
+		const promocode = await PromocodeModel.findOne({ code })
+		if ( !promocode ) {
+			return
+		}
+
+		cart.promocode = { code, promocodeId: promocode._id.toString() }
+		await cart.save()
+		
+	} catch (e) { throw e }
+}
+
+ClientSchema.methods.resetPromocodeInCart = async function (this: IClient): Promise<void> {
+	try {
+		const cart = await CartModel.findById(this.cartId)
+		if (!cart) {
+			return
+		}
+
+		cart.promocode = undefined
+		delete cart.promocode
+		await cart.save()
+	} catch (e) {
+		throw e
+	}
+}
+
+ClientSchema.methods.useCashbackToggle = async function (this: IClient): Promise<void> {
+	try {
+		if ( !(this.status === 'agent' || this.status === 'delegate') ) {
+			return
+		}
+
+		const cart = await CartModel.findById(this.cartId)
+		if (!cart) {
+			return
+		}
+
+		cart.useCashBack = !cart.useCashBack
+		await cart.save()
 	} catch (e) {
 		throw e
 	}

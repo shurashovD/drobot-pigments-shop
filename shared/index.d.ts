@@ -368,6 +368,9 @@ export interface IClient extends Document {
 	refreshPromocodes(): Promise<void>
 	getPromocodes(limit: number, skip: number): Promise<IPromocodeDetails[]>
 	createPromocode(code: string, dateFinish: string, dateStart: string): Promise<void>
+	setPromocodeInCart(code: string): Promise<void>
+	resetPromocodeInCart(): Promise<void>
+	useCashbackToggle(): Promise<void>
 }
 
 export interface IClientMethods {
@@ -381,6 +384,9 @@ export interface IClientMethods {
 	refreshPromocodes(): Promise<void>
 	getPromocodes(limit: number, skip: number): Promise<IPromocodeDetails[]>
 	createPromocode(code: string, dateFinish: string, dateStart: string): Promise<void>
+	setPromocodeInCart(code: string): Promise<void>
+	resetPromocodeInCart(): Promise<void>
+	useCashbackToggle(): Promise<void>
 }
 
 export interface ClientModel extends Model<IClient, {}, IClientMethods> {}
@@ -698,6 +704,13 @@ export interface IAmoRefreshTokenPayload {
 }
 
 export interface IAmoRefreshTokenResponse {}
+
+export interface IAmoCreateTaskPayload {
+	entity_id?: number
+	entity_type?: "contacts" | string
+	complete_till: number
+	text: string
+}
 
 export interface ICart {
 	products: {

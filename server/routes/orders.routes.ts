@@ -481,6 +481,59 @@ router.put("/cart/check/toggle", json(), async (req: Request<{}, {}, { productId
 	}
 })
 
+// применить промокод;
+router.put('/cart/promocode', json(), async (req: Request<{}, {}, { code: string }>, res) => {
+	try {
+		const client = await ClientModel.findById(req.session.userId)
+		if ( !client ) {
+			return res.end()
+		}
+
+		const { code } = req.body
+		const message = await client.setPromocodeInCart(code)
+		if (typeof message === 'string') {
+			return res.json({ message })
+		}
+		return res.end()
+	} catch (e) {
+		console.log(e)
+		return res.status(500).json({ message: 'Что-то пошло не так...' })
+	}
+})
+
+// отменить промокод;
+router.delete('/cart/promocode', async (req, res) => {
+	try {
+		const client = await ClientModel.findById(req.session.userId)
+		if ( !client ) {
+			return
+		}
+
+		await client.resetPromocodeInCart()
+		return res.end()
+	} catch (e) {
+		console.log(e)
+		return res.status(500).json({ message: 'Что-то пошло не так...' })
+	}
+})
+
+//переключатель использования кэшбэка;
+router.put('/cart/use-cashback-toggle', async (req, res) => {
+	try {
+		const client = await ClientModel.findById(req.session.userId)
+		if ( !client ) {
+			return res.end()
+		}
+
+		await client.useCashbackToggle()
+		return res.end()
+
+	} catch (e) {
+		console.log(e)
+		return res.end()
+	}
+})
+
 // установить город доставки;
 router.put('/set/city/:city_code', async (req: Request<{city_code: number}>, res) => {
 	try {

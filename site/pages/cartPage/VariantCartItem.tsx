@@ -65,7 +65,7 @@ const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
 					<Col xs={0} md={1} className="d-flex align-items-center">
 						<CheckboxComponent
 							isLoading={toggleLoading}
-							checked={variantInCart.checked}
+							checked={variantInCart.checked || false}
 							className="d-none d-md-block"
 							disabled={isFetching || isLoading || cartFetching || toggleLoading}
 							onChange={() => toggle({ productId, variantId })}
@@ -75,7 +75,7 @@ const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
 						<div className="position-relative">
 							<ImageComponent src={data.photo || "/static"} />
 							<Form.Check
-								checked={variantInCart.checked}
+								checked={variantInCart.checked || false}
 								disabled={isFetching || isLoading || cartFetching || toggleLoading}
 								onChange={() => toggle({ productId, variantId })}
 								className="d-md-none position-absolute top-0 start-0 m-2"

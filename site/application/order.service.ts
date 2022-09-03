@@ -62,6 +62,28 @@ const orderApi = createApi({
 			}),
 			invalidatesTags: ["cart"],
 		}),
+		resetPromocode: build.mutation<undefined, void>({
+			query: () => ({
+				method: "DELETE",
+				url: "/cart/promocode",
+			}),
+			invalidatesTags: ["cart"],
+		}),
+		toggleUseCahback: build.mutation<undefined, void>({
+			query: () => ({
+				method: "PUT",
+				url: "/cart/use-cashback-toggle",
+			}),
+			invalidatesTags: ["cart"],
+		}),
+		setPromocode: build.mutation<{ message?: string }, { code: string }>({
+			query: (body) => ({
+				body,
+				method: "PUT",
+				url: "/cart/promocode",
+			}),
+			invalidatesTags: ["cart"],
+		}),
 		getRelevantCities: build.query<{ city: string; city_code: number }[], string>({
 			query: (str) => `/delivery/cities/${str}`,
 		}),
@@ -170,6 +192,9 @@ export const {
 	useResetCheckProductsMutation,
 	useToggleCheckAllMutation,
 	useToggleCheckOneMutation,
+	useSetPromocodeMutation,
+	useResetPromocodeMutation,
+	useToggleUseCahbackMutation,
 } = orderApi
 
 export default orderApi

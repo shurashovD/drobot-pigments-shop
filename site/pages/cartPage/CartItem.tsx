@@ -65,7 +65,7 @@ const CartItem: FC<IProps> = ({ productId }) => {
 						<CheckboxComponent
 							isLoading={toggleLoading}
 							disabled={isFetching || isLoading || cartFetching || toggleLoading}
-							checked={productInCart.checked}
+							checked={productInCart.checked || false}
 							className="d-none d-md-block"
 							onChange={() => toggle({ productId })}
 						/>
@@ -75,7 +75,7 @@ const CartItem: FC<IProps> = ({ productId }) => {
 							<ImageComponent src={data.photo?.[0] || "/static"} />
 							<Form.Check
 								disabled={isFetching || isLoading || cartFetching || toggleLoading}
-								checked={productInCart.checked}
+								checked={productInCart.checked || false}
 								onChange={() => toggle({ productId })}
 								className="d-md-none position-absolute top-0 start-0 m-2"
 							/>

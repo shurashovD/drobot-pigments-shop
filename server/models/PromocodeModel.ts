@@ -47,12 +47,18 @@ PromocodeSchema.statics.check = async function (args: { id?: string; code?: stri
 	try {
 		const { code, id } = args
 		if ( id ) {
-			const promocode = await PromocodeModel.findOne({ _id: id, dateStart: { $gte: Date.now() }, dateFinish: { $lte: Date.now() } })
+			const promocode = await PromocodeModel.findOne({ _id: id, dateStart: { $lte: Date.now() }, dateFinish: { $gte: Date.now() } })
+			if ( promocode?.status === 'stopped' ) {
+				return "invalid"
+			}
 			return !!promocode ? "valid" : "invalid"
 		}
 		if ( code ) {
 			const promocode = await PromocodeModel.findOne({ code })
 			if ( promocode ) {
+				if (promocode.status === "stopped") {
+					return "invalid"
+				}
 				if ( (Date.now() >= Date.parse(promocode.dateStart.toString())) && (Date.now() <= Date.parse(promocode.dateFinish.toString())) ) {
 					return "valid"
 				}
@@ -72,7 +78,7 @@ PromocodeSchema.statics.getDiscountPercentValue = async (id: string) => {
 			return
 		}
 
-		const promocode = await PromocodeModel.findOne()
+		const promocode = await PromocodeModel.findById(id)
 		if ( !promocode ) {
 			return 
 		}

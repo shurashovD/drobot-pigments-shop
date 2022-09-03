@@ -1,17 +1,18 @@
 import axios, { AxiosResponse } from 'axios'
 import config from 'config'
-import { IAmoAuthCodeExchangePayload, IAmoAuthCodeExchangeResponse, IAmoPipeline, IAmoRefreshTokenPayload, IAmoRefreshTokenResponse, IAmoTag } from '../../shared'
+import { IAmoAuthCodeExchangePayload, IAmoAuthCodeExchangeResponse, IAmoCreateTaskPayload, IAmoPipeline, IAmoRefreshTokenPayload, IAmoRefreshTokenResponse, IAmoTag } from '../../shared'
 import AmoCredModel from '../models/AmoCredModel'
 
 const { auth, contact, domain, pipelineId } = config.get("amo")
 
 const paths = {
 	oauth: "/oauth2/access_token",
-	catalogs: '/api/v4/catalogs',
+	catalogs: "/api/v4/catalogs",
 	contacts: "/api/v4/contacts",
 	contactsCustomFields: "/api/v4/contacts/custom_fields",
-    pipelines: '/api/v4/leads/pipelines',
+	pipelines: "/api/v4/leads/pipelines",
 	trade: "/api/v4/leads",
+	tasks: "/api/v4/tasks",
 }
 
 export const amoGetToken = async (code: string) => {
@@ -395,4 +396,28 @@ export const createTrade = async (contactId: number, products: {name: string, qu
 		console.log(e.response.data["validation-errors"][0].errors)
 	}
     
+}
+
+export const createTask = async (text: string, contactId?: number) => {
+	try {
+		const authorization = await amoAuth()
+		if (!authorization) {
+			return
+		}
+
+		const payload: IAmoCreateTaskPayload = {
+			complete_till: Date.now() + 24 * 3600 * 1000,
+			text,
+			entity_id: contactId,
+			entity_type: "contact",
+		}
+
+		return await axios
+			.post(`${domain}${paths.tasks}`, payload, {
+				headers: { "Content-Type": "application/json", authorization },
+			})
+			.then(({ data }) => data)
+	} catch (e: any) {
+		console.log(e.response.data["validation-errors"][0].errors)
+	}
 }

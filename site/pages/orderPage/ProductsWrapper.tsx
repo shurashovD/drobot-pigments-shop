@@ -51,14 +51,13 @@ const ProductsWrapper: FC<IProps> = ({ accordionHandler, activeKey }) => {
 							))}
 					<ListGroup.Item className="bg-transparent px-0">
 						<Row>
-							<Col xs={4} md={2}></Col>
-							<Col xs={7} md={4} className="d-flex flex-column">
+							<Col xs={4} md={2}>
 								Доставка
 							</Col>
-							<Col xs={1} md={3} className="d-flex justify-content-center align-items-center">
+							<Col xs={4} md={7} className="d-flex justify-content-center align-items-center">
 								1 ШТ
 							</Col>
-							<Col xs={0} md={3} className="fs-3 d-none d-md-flex">
+							<Col xs={4} md={3} className="fs-3">
 								{formatter.format(deliveryDetail?.total_sum || 0)}
 							</Col>
 						</Row>
