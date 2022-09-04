@@ -1,7 +1,8 @@
 const path = require("path");
 const nodeExternals = require('webpack-node-externals')
 const CopyPlugin = require('copy-webpack-plugin')
-const mode = process.env.NODE_ENV || 'development'
+//const mode = process.env.NODE_ENV || 'development'
+const mode = 'development'
 
 module.exports = {
     name: 'server',

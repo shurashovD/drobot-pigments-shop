@@ -299,6 +299,7 @@ ClientSchema.methods.createPromocode = async function (this: IClient, code: stri
 			code,
 			dateFinish: new Date(Date.parse(dateFinish)),
 			dateStart: new Date(Date.parse(dateStart)),
+			holderClient: this._id
 		}).save()
 
 		if ( !this.promocodes ) {

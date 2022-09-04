@@ -94,11 +94,11 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 					console.log('Промокод', promocode)
 					if (promocode) {
 						const promocodeHolder = await ClientModel.findById(promocode.holderClient)
+						console.log('Держатель промокода', promocodeHolder)
 						if (promocodeHolder) {
 							const cashBack = Math.round(order.total * 0.1)
 							if (promocodeHolder.status === "agent") {
 								await promocodeHolder.addCashBack(cashBack)
-								promocodeHolder.agentOrders.unshift(order._id)
 								await promocodeHolder.save()
 								promocode.promocodeTotalCashBack += cashBack
 								promocode.orders.unshift({ orderId: order._id, cashBack })
@@ -106,7 +106,6 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 							}
 							if (promocodeHolder.status === "delegate") {
 								await promocodeHolder.addCashBack(cashBack)
-								promocodeHolder.delegateOrders.unshift(order._id)
 								await promocodeHolder.save()
 								promocode.promocodeTotalCashBack += cashBack
 								promocode.orders.unshift({ orderId: order._id, cashBack })
