@@ -156,6 +156,11 @@ ClientSchema.methods.createTempOrder = async function (this: IClient, sdek: IOrd
 			total: cart.total,
 		}).save()
 
+		if ( cart.promocode?.promocodeId ) {
+			order.promocode = new Types.ObjectId(cart.promocode.promocodeId)
+			await order.save()
+		}
+
 		this.orders.unshift(order._id)
 		await this.save()
 		return order._id.toString()
