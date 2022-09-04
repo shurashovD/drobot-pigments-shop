@@ -89,7 +89,13 @@ ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ dis
 
 			console.log('Уровень', myDiscountLevelIndex);
 
-			let nextLevelRequires = ['Максимальный уровень скидки']
+			let nextLevelRequires = ["Максимальный уровень скидки"]
+			if ( myDiscountLevelIndex === -1 ) {
+				const nextDiscountPercentValue = commonDiscounts[0]?.percentValue
+				const nextDiscountRemind = commonDiscounts[0]?.lowerTreshold - commonOrdersTotal
+				nextLevelRequires = [`До скидки ${nextDiscountPercentValue}% осталось ${formatter.format(nextDiscountRemind)}`]
+			}
+
 			if ( myDiscountLevelIndex > 0 ) {
 				const nextDiscountPercentValue = commonDiscounts[myDiscountLevelIndex - 1]?.percentValue
 				const nextDiscountRemind = commonDiscounts[myDiscountLevelIndex - 1]?.lowerTreshold - commonOrdersTotal
