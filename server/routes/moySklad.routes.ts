@@ -432,7 +432,7 @@ router.post("/handle/customerorder/update", bodyParser.json(), async (req: Reque
 		await new ReqIdModel({ requestId }).save()
 
 		for (const i in events) {
-			if (events[i].updatedFields.includes("state")) {
+			if (events[i].updatedFields?.includes("state")) {
 				const msOrderId = events[i].meta.href.split('/').pop()
 				const msOrder = await getMsOrder(msOrderId)
 				const statusId = msOrder.state.meta.href.split('/').pop()
