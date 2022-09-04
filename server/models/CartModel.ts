@@ -222,34 +222,43 @@ CartSchema.methods.refreshCashBack = async function (this: ICartDoc): Promise<IC
 			delete this.availableCashBack
 		}
 
+		console.log('Корзина', this)
+		console.log('Доступный кэбэк', availableCashBack);
+
 		// если кэшбэк доступен и пользователь хочет его использовать;
 		if (typeof availableCashBack !== "undefined" && availableCashBack > 0 && this.useCashBack) {
 			let cashBackWallet = availableCashBack
 			this.products.forEach((product) => {
 				if (cashBackWallet > 0) {
 					const priceWithDiscount = product.price - (product.discountOn || 0)
-					const factPrice = Math.max(0, priceWithDiscount - cashBackWallet)
+					const amountWithDiscount = priceWithDiscount * product.quantity
+					const factPrice = Math.round(Math.max(0, amountWithDiscount - cashBackWallet) / product.quantity)
 					product.paidByCashBack = priceWithDiscount - factPrice
-					cashBackWallet -= product.paidByCashBack
+					cashBackWallet -= product.paidByCashBack * product.quantity
 				} else {
+					product.paidByCashBack = undefined
 					delete product.paidByCashBack
 				}
 			})
 			this.variants.forEach((variant) => {
 				if (cashBackWallet > 0) {
 					const priceWithDiscount = variant.price - (variant.discountOn || 0)
-					const factPrice = Math.max(0, priceWithDiscount - cashBackWallet)
+					const amountWithDiscount = priceWithDiscount * variant.quantity
+					const factPrice = Math.round(Math.max(0, amountWithDiscount - cashBackWallet) / variant.quantity)
 					variant.paidByCashBack = priceWithDiscount - factPrice
-					cashBackWallet -= variant.paidByCashBack
+					cashBackWallet -= variant.paidByCashBack * variant.quantity
 				} else {
+					variant.paidByCashBack = undefined
 					delete variant.paidByCashBack
 				}
 			})
+
+			console.log('Корзина с кэшбэком', );
 			await this.save()
 			return this
 		} else {
-			this.products.forEach((product) => delete product.paidByCashBack)
-			this.variants.forEach((variant) => delete variant.paidByCashBack)
+			this.products.forEach((product) => product.paidByCashBack = undefined)
+			this.variants.forEach((variant) => variant.paidByCashBack = undefined)
 			await this.save()
 			return this
 		}
@@ -261,6 +270,8 @@ CartSchema.methods.refreshCashBack = async function (this: ICartDoc): Promise<IC
 // обновление общих показателей корзины;
 CartSchema.methods.refreshTotal = async function (this: ICartDoc): Promise<ICartDoc | null> {
 	try {
+		console.log(this)
+
 		// обновление полной суммы корзины без скидок и оплаты кэшбэком;
 		const amount = this.products
 			.filter(({ checked }) => checked)
@@ -286,6 +297,8 @@ CartSchema.methods.refreshTotal = async function (this: ICartDoc): Promise<ICart
 			.filter((item) => typeof item === "number")
 			.reduce<number>((sum, item) => sum + (item || 0), 0)
 		this.total = amount - discount - paidByCashBack
+
+		console.log(paidByCashBack)
 
 		await this.save()
 		return this

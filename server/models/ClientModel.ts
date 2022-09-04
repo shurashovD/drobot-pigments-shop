@@ -257,16 +257,30 @@ ClientSchema.methods.getPromocodes = async function (this: IClient, limit: numbe
 		await this.refreshPromocodes()
 
 		const promocodes = await PromocodeModel.find({ _id: { $in: this.promocodes } })
-			.skip(skip).limit(limit).sort({ dateStart: -1 })
-			.populate<{ orders: IOrderPopulate[] }>({ path: "orders", populate: { path: "client" } })
+			.skip(skip)
+			.limit(limit)
+			.sort({ dateStart: -1 })
+			.populate<{ orders: { cashBack: number; orderId: Omit<IOrder, 'client'> & { client: IClient } }[] }>({
+				path: "orders",
+				populate: {
+					path: "orderId",
+					populate: { path: "client" },
+				},
+			})
 			.then((doc) =>
 				doc.map<IPromocodeDetails>((item) => {
 					const { code, dateFinish, dateStart, _id, status, promocodeTotalCashBack, orders } = item
 					const ordersRes: IPromocodeDetails["orders"][0][] = []
-					const ordersTotal = orders.reduce((sum, { orderId }) => (orderId.total + sum), 0)
+					orders.map<IPromocodeDetails["orders"][0]>(({ cashBack, orderId }) => {
+						const { client, total } = orderId
+						return { buyer: client.name || 'Неизвестный покупатель', orderCashBack: cashBack, orderTotal: total }
+					})
+					const ordersTotal = orders.reduce((sum, { orderId }) => orderId.total + sum, 0)
 					const total: IPromocodeDetails["total"] = {
-						ordersLength: orders.length, ordersTotal, totalCashBack: promocodeTotalCashBack
-					} 
+						ordersLength: orders.length,
+						ordersTotal,
+						totalCashBack: promocodeTotalCashBack,
+					}
 					return { code, dateFinish, dateStart, id: _id.toString(), status, total, orders: ordersRes }
 				})
 			)

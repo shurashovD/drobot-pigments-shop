@@ -382,8 +382,8 @@ export const createTrade = async (contactId: number, products: {name: string, qu
 					),
 				},
 			],
-			price,
-			pipeline_id: pipelineId,
+			price: [price],
+			pipeline_id: [pipelineId],
 			_embedded: {
 				contacts: [contact]
 			}

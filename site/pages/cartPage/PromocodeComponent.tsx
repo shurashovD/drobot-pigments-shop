@@ -63,7 +63,7 @@ const PromocodeComponent = () => {
 					{validation ? (
 						<span className="text-danger">{validation}</span>
 					) : (
-						<>{cart?.promocode?.promocodeId && <span style={{ color: "#58FF3D" }}>Прменён</span>}</>
+						<>{cart?.promocode?.promocodeId && <span style={{ color: "#58FF3D" }}>Применён</span>}</>
 					)}
 					<span className="invisible">1</span>
 				</div>

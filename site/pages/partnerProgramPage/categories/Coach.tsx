@@ -8,7 +8,7 @@ const Coach = () => {
 				<span className="text-dark">Становись тренером</span>{" "}
 				Drobot Pigments и обучай работе на пигментах в соответствии с фирменной колористикой.
 			</div>
-			<ButtonComponent variant="outline-secondary text-primary">Скоро будет досутпно</ButtonComponent>
+			<ButtonComponent variant="outline-secondary text-primary">Скоро будет доступно</ButtonComponent>
 		</div>
 	)
 }
