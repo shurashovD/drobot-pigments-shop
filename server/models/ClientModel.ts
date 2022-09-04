@@ -152,6 +152,7 @@ ClientSchema.methods.createTempOrder = async function (this: IClient, sdek: IOrd
 			total: cart.total,
 		}).save()
 
+		console.log(cart)
 		if ( cart.useCashBack && cart.availableCashBack ) {
 			if (!this.cashBack || (this.cashBack < cart.availableCashBack)) {
 				throw new Error('У клиента не достаточно кэшбэка для оплаты')

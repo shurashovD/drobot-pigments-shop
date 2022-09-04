@@ -270,8 +270,6 @@ CartSchema.methods.refreshCashBack = async function (this: ICartDoc): Promise<IC
 // обновление общих показателей корзины;
 CartSchema.methods.refreshTotal = async function (this: ICartDoc): Promise<ICartDoc | null> {
 	try {
-		console.log(this)
-
 		// обновление полной суммы корзины без скидок и оплаты кэшбэком;
 		const amount = this.products
 			.filter(({ checked }) => checked)
@@ -296,8 +294,6 @@ CartSchema.methods.refreshTotal = async function (this: ICartDoc): Promise<ICart
 			.concat(this.variants.filter(({ checked }) => checked).map(({ paidByCashBack, quantity }) => (paidByCashBack || 0) * quantity))
 			.reduce<number>((sum, item) => sum + (item || 0), 0)
 		this.total = amount - discount - Math.round(paidByCashBack)
-
-		console.log(paidByCashBack)
 
 		await this.save()
 		return this
