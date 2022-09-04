@@ -29,6 +29,7 @@ const ClientSchema = new Schema<IClient, ClientModel>({
 	promocodes: [{ type: Schema.Types.ObjectId, ref: "Promocode" }],
 	status: String,
 	tel: { type: String, required: true },
+	total: { type: Number, default: 0 }
 })
 
 ClientSchema.methods.getOrder = async function(this: IClient, id: string): Promise<IOrderPop> {
