@@ -39,21 +39,21 @@ const OrderComponent: FC<IProps> = ({ id }) => {
 				<div className="px-2 px-lg-5">
 					<Row>
 						<Col xs={12} md={6}>
-							{data.products.map(({ product, quantity }) => (
+							{data.products.map(({ product, quantity, price, discountOn, paidByCashBack }) => (
 								<OrderProductComponent
 									key={product._id.toString()}
 									name={product.name}
 									imageSrc={product.photo[0]}
-									price={product.price || 0}
+									price={price - (discountOn || 0) - (paidByCashBack || 0)}
 									quantity={quantity}
 								/>
 							))}
-							{data.variants.map(({ product, variant, quantity }) => (
+							{data.variants.map(({ product, variant, quantity, price, discountOn, paidByCashBack }) => (
 								<OrderProductComponent
 									key={variant.toString()}
 									name={product.name}
 									imageSrc={product.photo[0]}
-									price={product.variants.find(({ _id }) => _id?.toString() === variant.toString())?.price || 0}
+									price={price - (discountOn || 0) - (paidByCashBack || 0)}
 									quantity={quantity}
 									variant={product.variants.find(({ _id }) => _id?.toString() === variant.toString())?.name}
 								/>
@@ -75,10 +75,12 @@ const OrderComponent: FC<IProps> = ({ id }) => {
 									{data.payment?.status === "canceled" && <span className="text-danger">Ошибка оплаты</span>}
 								</div>
 							</div>
-							{!!data.delivery.sdek?.uuid && <div className="mb-5">
-								<div className="text-uppercase mb-2">Способ получения:</div>
-								<OrderSdekComponent id={id} cost={data.delivery.sdek.cost} />
-							</div>}
+							{!!data.delivery.sdek?.uuid && (
+								<div className="mb-5">
+									<div className="text-uppercase mb-2">Способ получения:</div>
+									<OrderSdekComponent id={id} cost={data.delivery.sdek.cost} />
+								</div>
+							)}
 						</Col>
 						<Container className="d-md-none px-2">
 							<hr className="d-md-none opacity-25" />
@@ -101,10 +103,12 @@ const OrderComponent: FC<IProps> = ({ id }) => {
 											{data.payment?.status === "canceled" && <span className="text-danger">Ошибка оплаты</span>}
 										</div>
 									</div>
-									{!!data.delivery.sdek?.uuid && <div className="mb-5">
-										<div className="text-uppercase mb-2">Способ получения:</div>
-										<OrderSdekComponent id={id} cost={data.delivery.sdek.cost} />
-									</div>}
+									{!!data.delivery.sdek?.uuid && (
+										<div className="mb-5">
+											<div className="text-uppercase mb-2">Способ получения:</div>
+											<OrderSdekComponent id={id} cost={data.delivery.sdek.cost} />
+										</div>
+									)}
 								</Col>
 							</Collapse>
 						</Container>

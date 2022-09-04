@@ -26,7 +26,7 @@ const OrderProductComponent: FC<IProps> = (props) => {
 				<div className="text-uppercase mb-1">{props.name}</div>
 				<small className="text-muted mb-1">{props.variant}</small>
 				<div className="my-auto">
-					{formatter.format(props.price / 100)} <span className="text-muted">х{props.quantity}</span>
+					{formatter.format(props.price)} <span className="text-muted">х{props.quantity}</span>
 				</div>
 			</Col>
 		</Row>
