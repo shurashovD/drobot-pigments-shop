@@ -83,17 +83,13 @@ ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ dis
 				return { nextLevelRequires: ["Бонусная программа не активна"] }
 			}
 
-			console.log('Сумма заказов', commonOrdersTotal);
-
 			const myDiscountLevelIndex = commonDiscounts.findIndex(({ lowerTreshold }) => (lowerTreshold <= commonOrdersTotal ))
 			const discountPercentValue = commonDiscounts[myDiscountLevelIndex]?.percentValue || 0
 
-			console.log('Уровень', myDiscountLevelIndex);
-
 			let nextLevelRequires = ["Максимальный уровень скидки"]
 			if ( myDiscountLevelIndex === -1 ) {
-				const nextDiscountPercentValue = commonDiscounts[0]?.percentValue
-				const nextDiscountRemind = commonDiscounts[0]?.lowerTreshold - commonOrdersTotal
+				const nextDiscountPercentValue = commonDiscounts[commonDiscounts.length - 1]?.percentValue
+				const nextDiscountRemind = commonDiscounts[commonDiscounts.length - 1]?.lowerTreshold - commonOrdersTotal
 				nextLevelRequires = [`До скидки ${nextDiscountPercentValue}% осталось ${formatter.format(nextDiscountRemind)}`]
 			}
 
@@ -156,6 +152,7 @@ ClientSchema.methods.createTempOrder = async function (this: IClient, sdek: IOrd
 			total: cart.total,
 		}).save()
 
+		console.log('Промокод', cart.promocode);
 		if ( cart.promocode?.promocodeId ) {
 			order.promocode = new Types.ObjectId(cart.promocode.promocodeId)
 			await order.save()

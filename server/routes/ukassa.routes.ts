@@ -87,9 +87,11 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 			// если покупатель розничный;
 			if (client.status === "common") {
 				// если применён промокод;
+				console.log("Промокод в заказе", order.promocode)
 				if (order.promocode) {
 					// начислить кэшбэк владельцу промокода;
 					const promocode = await PromocodeModel.findById(order.promocode)
+					console.log('Промокод', promocode)
 					if (promocode) {
 						const promocodeHolder = await ClientModel.findById(promocode.holderClient)
 						if (promocodeHolder) {
