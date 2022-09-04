@@ -206,8 +206,8 @@ CartSchema.methods.refreshCashBack = async function (this: ICartDoc): Promise<IC
 
 		// предварительная сумма корзины с учетом скидок;
 		const preTotal =
-			this.products.reduce((total, { price, discountOn }) => total + price - (discountOn || 0), 0) +
-			this.variants.reduce((total, { price, discountOn }) => total + price - (discountOn || 0), 0)
+			this.products.filter(({ checked }) => (checked)).reduce((total, { price, discountOn }) => total + price - (discountOn || 0), 0) +
+			this.variants.filter(({ checked }) => (checked)).reduce((total, { price, discountOn }) => total + price - (discountOn || 0), 0)
 
 		// получение даступного кэшбэка;
 		let availableCashBack: number | undefined
@@ -228,7 +228,7 @@ CartSchema.methods.refreshCashBack = async function (this: ICartDoc): Promise<IC
 		// если кэшбэк доступен и пользователь хочет его использовать;
 		if (typeof availableCashBack !== "undefined" && availableCashBack > 0 && this.useCashBack) {
 			let cashBackWallet = availableCashBack
-			this.products.forEach((product) => {
+			this.products.filter(({ checked }) => (checked)).forEach((product) => {
 				if (cashBackWallet > 0) {
 					const priceWithDiscount = product.price - (product.discountOn || 0)
 					const amountWithDiscount = priceWithDiscount * product.quantity
@@ -240,7 +240,7 @@ CartSchema.methods.refreshCashBack = async function (this: ICartDoc): Promise<IC
 					delete product.paidByCashBack
 				}
 			})
-			this.variants.forEach((variant) => {
+			this.variants.filter(({ checked }) => (checked)).forEach((variant) => {
 				if (cashBackWallet > 0) {
 					const priceWithDiscount = variant.price - (variant.discountOn || 0)
 					const amountWithDiscount = priceWithDiscount * variant.quantity
