@@ -219,6 +219,7 @@ CartSchema.methods.refreshCashBack = async function (this: ICartDoc): Promise<IC
 		if (typeof availableCashBack !== "undefined" && availableCashBack > 0) {
 			this.availableCashBack = availableCashBack
 		} else {
+			this.availableCashBack = undefined
 			delete this.availableCashBack
 		}
 
