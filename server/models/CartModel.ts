@@ -232,7 +232,7 @@ CartSchema.methods.refreshCashBack = async function (this: ICartDoc): Promise<IC
 				if (cashBackWallet > 0) {
 					const priceWithDiscount = product.price - (product.discountOn || 0)
 					const amountWithDiscount = priceWithDiscount * product.quantity
-					const factPrice = Math.round(Math.max(0, amountWithDiscount - cashBackWallet) / product.quantity)
+					const factPrice = Math.max(0, amountWithDiscount - cashBackWallet) / product.quantity
 					product.paidByCashBack = priceWithDiscount - factPrice
 					cashBackWallet -= product.paidByCashBack * product.quantity
 				} else {
@@ -244,7 +244,7 @@ CartSchema.methods.refreshCashBack = async function (this: ICartDoc): Promise<IC
 				if (cashBackWallet > 0) {
 					const priceWithDiscount = variant.price - (variant.discountOn || 0)
 					const amountWithDiscount = priceWithDiscount * variant.quantity
-					const factPrice = Math.round(Math.max(0, amountWithDiscount - cashBackWallet) / variant.quantity)
+					const factPrice = Math.max(0, amountWithDiscount - cashBackWallet) / variant.quantity
 					variant.paidByCashBack = priceWithDiscount - factPrice
 					cashBackWallet -= variant.paidByCashBack * variant.quantity
 				} else {
@@ -292,9 +292,8 @@ CartSchema.methods.refreshTotal = async function (this: ICartDoc): Promise<ICart
 		// обновление финальной стоимости корзины;
 		const paidByCashBack = this.products
 			.filter(({ checked }) => checked)
-			.map(({ paidByCashBack }) => paidByCashBack)
-			.concat(this.variants.filter(({ checked }) => checked).map(({ paidByCashBack }) => paidByCashBack))
-			.filter((item) => typeof item === "number")
+			.map(({ paidByCashBack, quantity }) => (paidByCashBack || 0) * quantity)
+			.concat(this.variants.filter(({ checked }) => checked).map(({ paidByCashBack, quantity }) => (paidByCashBack || 0) * quantity))
 			.reduce<number>((sum, item) => sum + (item || 0), 0)
 		this.total = amount - discount - paidByCashBack
 

@@ -270,8 +270,7 @@ ClientSchema.methods.getPromocodes = async function (this: IClient, limit: numbe
 			.then((doc) =>
 				doc.map<IPromocodeDetails>((item) => {
 					const { code, dateFinish, dateStart, _id, status, promocodeTotalCashBack, orders } = item
-					const ordersRes: IPromocodeDetails["orders"][0][] = []
-					orders.map<IPromocodeDetails["orders"][0]>(({ cashBack, orderId }) => {
+					const ordersRes = orders.map<IPromocodeDetails["orders"][0]>(({ cashBack, orderId }) => {
 						const { client, total } = orderId
 						return { buyer: client.name || 'Неизвестный покупатель', orderCashBack: cashBack, orderTotal: total }
 					})
