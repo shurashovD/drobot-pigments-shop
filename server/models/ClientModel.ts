@@ -152,7 +152,13 @@ ClientSchema.methods.createTempOrder = async function (this: IClient, sdek: IOrd
 			total: cart.total,
 		}).save()
 
-		console.log('Промокод', cart.promocode);
+		if ( cart.useCashBack && cart.availableCashBack ) {
+			if (!this.cashBack || (this.cashBack < cart.availableCashBack)) {
+				throw new Error('У клиента не достаточно кэшбэка для оплаты')
+			}
+			this.cashBack -= cart.availableCashBack
+		}
+
 		if ( cart.promocode?.promocodeId ) {
 			order.promocode = new Types.ObjectId(cart.promocode.promocodeId)
 			await order.save()

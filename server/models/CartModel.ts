@@ -295,7 +295,7 @@ CartSchema.methods.refreshTotal = async function (this: ICartDoc): Promise<ICart
 			.map(({ paidByCashBack, quantity }) => (paidByCashBack || 0) * quantity)
 			.concat(this.variants.filter(({ checked }) => checked).map(({ paidByCashBack, quantity }) => (paidByCashBack || 0) * quantity))
 			.reduce<number>((sum, item) => sum + (item || 0), 0)
-		this.total = amount - discount - paidByCashBack
+		this.total = amount - discount - Math.round(paidByCashBack)
 
 		console.log(paidByCashBack)
 

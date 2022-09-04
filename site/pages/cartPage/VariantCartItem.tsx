@@ -40,7 +40,7 @@ const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
 			const variant = cart.variants.find((item) => item.variantId === variantId)
 			if (variant) {
 				setVariantInCart(variant)
-				const price = (variant.price - (variant.discountOn || 0) - (variant.paidByCashBack || 0)) * variant.quantity
+				const price = (variant.price - (variant.discountOn || 0)) * variant.quantity
 				setPrice(formatter.current.format(price))
 				if (variant.discountOn && variant.discountOn > 0) {
 					setDiscount(formatter.current.format(variant.discountOn * variant.quantity))

@@ -39,7 +39,7 @@ const CartItem: FC<IProps> = ({ productId }) => {
 			const product = cart.products.find((item) => item.productId === productId)
 			if ( product ) {
 				setProductInCart(product)
-				const price = (product.price - (product.discountOn || 0) - (product.paidByCashBack || 0)) * product.quantity
+				const price = (product.price - (product.discountOn || 0)) * product.quantity
 				setPrice(formatter.current.format(price))
 				if (product.discountOn && product.discountOn > 0) {
 					setDiscount(formatter.current.format(product.discountOn * product.quantity))
