@@ -1,7 +1,7 @@
 import { ChangeEvent, FC, useEffect, useState } from "react"
 import { Form, Modal, ModalProps } from "react-bootstrap"
-import { useCheckNumberPinMutation } from "../../application/order.service"
-import ButtonComponent from "../../components/ButtonComponent"
+import { useCheckNumberPinMutation } from "../../../application/order.service"
+import ButtonComponent from "../../../components/ButtonComponent"
 
 const CheckPhoneModal: FC<ModalProps> = ({ show, onHide }) => {
     const [value, setValue] = useState('')

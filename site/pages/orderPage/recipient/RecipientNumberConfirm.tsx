@@ -1,6 +1,6 @@
 import { FC } from "react"
 import { Button } from "react-bootstrap"
-import IconGreenCheckmark from "../../components/icons/IconGreenCheckmark"
+import IconGreenCheckmark from "../../../components/icons/IconGreenCheckmark"
 
 interface IProps {
 	isConfirm: boolean

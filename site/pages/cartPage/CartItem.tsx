@@ -53,14 +53,14 @@ const CartItem: FC<IProps> = ({ productId }) => {
 	}, [cart, formatter])
 
     return (
-		<ListGroup.Item className="py-4 bg-transparent">
+		<ListGroup.Item className="py-4 bg-transparent px-0">
 			{productLoading && (
 				<div className="text-center p-4">
 					<Spinner animation="border" variant="secondary" />
 				</div>
 			)}
 			{!productLoading && data && productInCart && (
-				<Row>
+				<Row className="g-1">
 					<Col xs={0} md={1} className="d-flex align-items-center">
 						<CheckboxComponent
 							isLoading={toggleLoading}
@@ -70,14 +70,14 @@ const CartItem: FC<IProps> = ({ productId }) => {
 							onChange={() => toggle({ productId })}
 						/>
 					</Col>
-					<Col xs={4} md={2} className="px-md-0">
+					<Col xs={5} md={2} className="px-md-0">
 						<div className="position-relative">
 							<ImageComponent src={data.photo?.[0] || "/static"} />
 							<Form.Check
 								disabled={isFetching || isLoading || cartFetching || toggleLoading}
 								checked={productInCart.checked || false}
 								onChange={() => toggle({ productId })}
-								className="d-md-none position-absolute top-0 start-0 m-2"
+								className="d-md-none position-absolute top-0 start-0 m-2 bg-white"
 							/>
 						</div>
 					</Col>
@@ -88,7 +88,7 @@ const CartItem: FC<IProps> = ({ productId }) => {
 						</div>
 					</Col>
 					<Fade in={!cartFetching && !toggleLoading}>
-						<Col xs={4} md={4} className="d-flex flex-column justify-content-between align-items-end">
+						<Col xs={3} md={4} className="d-flex flex-column justify-content-between align-items-end">
 							<div className="fs-3">{price}</div>
 							{lastPrice && <div className="text-muted text-decoration-line-through">{lastPrice}</div>}
 							{discount && (
@@ -111,11 +111,11 @@ const CartItem: FC<IProps> = ({ productId }) => {
 				</Row>
 			)}
 			{!productLoading && data && (
-				<Row className="d-md-none mt-4">
-					<Col xs={4}>
+				<Row className="d-md-none mt-4 g-1">
+					<Col xs={5}>
 						<ProductCounter productId={productId} />
 					</Col>
-					<Col xs={4} className="offset-4">
+					<Col xs={4} className="offset-3">
 						<div className="w-100 d-flex d-md-none justify-content-between">
 							<Button variant="link" className="text-start w-100 m-0 p-0" disabled={isLoading}>
 								<IconFavourite stroke="#9E9E9E" />

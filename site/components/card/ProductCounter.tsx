@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useEffect, useState } from "react"
+import { ChangeEvent, FC, useEffect, useRef, useState } from "react"
 import { Button, Form } from "react-bootstrap"
 import { useChangeProductInCartMutation, useGetCartQuery } from "../../application/order.service"
 
@@ -8,33 +8,54 @@ interface IProps {
 
 const ProductCounter: FC<IProps> = ({ productId }) => {
 	const { data: cart, isFetching } = useGetCartQuery(undefined)
-	const [quantity, setQuantity] = useState(0)
+	const [quantity, setQuantity] = useState("")
 	const [changeProduct, { isLoading }] = useChangeProductInCartMutation()
+	const debounceTimerId = useRef<ReturnType<typeof setTimeout> | undefined>()
 
     const inputHandler = (event: ChangeEvent<HTMLInputElement>) => {
 		if (isFetching || isLoading) return
         const { value } = event.target
+		if (value === "") {
+			setQuantity("")
+			if (debounceTimerId.current) {
+				clearTimeout(debounceTimerId.current)
+			}
+			return
+		}
         if ( isNaN(parseInt(value)) ) return
-        changeProduct({ productId, quantity: parseInt(value) })
+		if ( debounceTimerId.current ) {
+			clearTimeout(debounceTimerId.current)
+		}
+		setQuantity(value)
+		debounceTimerId.current = setTimeout(() => {
+			changeProduct({ productId, quantity: parseInt(value) })
+		}, 500)
     }
 
 	const handlerInc = () => {
-		changeProduct({ productId, quantity: quantity + 1 })
+		changeProduct({ productId, quantity: +quantity + 1 })
 	}
 
 	const handlerDec = () => {
-		changeProduct({ productId, quantity: Math.max(quantity - 1, 0) })
+		changeProduct({ productId, quantity: Math.max(+quantity - 1, 0) })
+	}
+
+	const blurHandler = () => {
+		if (quantity === "") {
+			const quantity = cart?.products.find((item) => item.productId === productId)?.quantity || 0
+			setQuantity(quantity.toString())
+		}
 	}
 
 	useEffect(() => {
 		if (cart) {
-			const quantity = cart.variants.find((item) => item.productId === productId)?.quantity || 0
-			setQuantity(quantity)
+			const quantity = cart.products.find((item) => item.productId === productId)?.quantity || 0
+			setQuantity(quantity.toString())
 		}
 	}, [cart, productId])
 
     return (
-		<div className="d-flex w-100 justify-content-between align-items-center" style={{ maxWidth: "116px" }}>
+		<div className="d-flex w-100 justify-content-between align-items-center" style={{ maxWidth: "140px" }}>
 			<Button
 				disabled={isFetching || isLoading}
 				variant="link"
@@ -51,7 +72,13 @@ const ProductCounter: FC<IProps> = ({ productId }) => {
 			>
 				-
 			</Button>
-			<Form.Control disabled={isFetching || isLoading} className="border-0 text-center p-0" value={quantity} onChange={inputHandler} />
+			<Form.Control
+				disabled={isFetching || isLoading}
+				className="border-0 text-center p-0"
+				value={quantity}
+				onChange={inputHandler}
+				onBlur={blurHandler}
+			/>
 			<Button
 				disabled={isFetching || isLoading}
 				variant="link"

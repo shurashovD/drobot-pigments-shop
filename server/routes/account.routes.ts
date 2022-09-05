@@ -196,4 +196,15 @@ router.post("/change-status-request", json(), async (req: Request<{}, {}, { clai
 	}
 })
 
+router.post('/logout', async (req, res) => {
+    try {
+        req.session.destroy(() => {
+            return res.end()
+        })
+    } catch (e) {
+        console.log(e)
+        return res.status(500).json({ message: 'Что-то пошло не так...' })
+    }
+})
+
 export default router

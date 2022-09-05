@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useEffect, useState } from "react"
+import { ChangeEvent, FC, useEffect, useRef, useState } from "react"
 import { Button, Form } from "react-bootstrap"
 import { useChangeVariantInCartMutation, useGetCartQuery } from "../../application/order.service"
 
@@ -8,34 +8,55 @@ interface IProps {
 }
 
 const VariantCounter: FC<IProps> = ({ productId, variantId }) => {
-	const { data: cart, isFetching } = useGetCartQuery(undefined)
-	const [quantity, setQuantity] = useState(0)
+	const { data: cart, isFetching, isSuccess } = useGetCartQuery(undefined)
+	const [quantity, setQuantity] = useState("")
 	const [changeVariantInCart, { isLoading }] = useChangeVariantInCartMutation()
+	const debounceTimerId = useRef<ReturnType<typeof setTimeout> | undefined>()
 
 	const inputHandler = (event: ChangeEvent<HTMLInputElement>) => {
 		if (isFetching || isLoading) return
 		const { value } = event.target
+		if ( value === "" ) {
+			setQuantity("")
+			if (debounceTimerId.current) {
+				clearTimeout(debounceTimerId.current)
+			}
+			return
+		}
 		if (isNaN(parseInt(value))) return
-		changeVariantInCart({ productId, variantId, quantity: parseInt(value) })
+		if (debounceTimerId.current) {
+			clearTimeout(debounceTimerId.current)
+		}
+		setQuantity(value)
+		debounceTimerId.current = setTimeout(() => {
+			changeVariantInCart({ productId, variantId, quantity: parseInt(value) })
+		}, 500)
 	}
 
 	const handlerDec = () => {
-		changeVariantInCart({ productId, variantId, quantity: Math.max(quantity - 1, 0) })
+		changeVariantInCart({ productId, variantId, quantity: Math.max(+quantity - 1, 0) })
 	}
 
 	const handlerInc = () => {
-		changeVariantInCart({ productId, variantId, quantity: quantity + 1 })
+		changeVariantInCart({ productId, variantId, quantity: +quantity + 1 })
+	}
+
+	const blurHandler = () => {
+		if ( quantity === "" ) {
+			const quantity = cart?.variants.find((item) => item.variantId === variantId)?.quantity || 0
+			setQuantity(quantity.toString())
+		}
 	}
 
 	useEffect(() => {
-		if ( cart ) {
+		if ( cart && isSuccess ) {
 			const quantity = cart.variants.find(item => item.variantId === variantId)?.quantity || 0
-			setQuantity(quantity)
+			setQuantity(quantity.toString())
 		}
 	}, [cart, variantId])
 
 	return (
-		<div className="d-flex w-100 justify-content-between align-items-center" style={{ maxWidth: "116px" }}>
+		<div className="d-flex w-100 justify-content-between align-items-center" style={{ maxWidth: "140px" }}>
 			<Button
 				disabled={isFetching || isLoading}
 				variant="link"
@@ -52,7 +73,7 @@ const VariantCounter: FC<IProps> = ({ productId, variantId }) => {
 			>
 				-
 			</Button>
-			<Form.Control className="border-0 text-center p-0" value={quantity} onChange={inputHandler} />
+			<Form.Control className="border-0 text-center p-0" value={quantity} onChange={inputHandler} onBlur={blurHandler} />
 			<Button
 				disabled={isFetching || isLoading}
 				variant="link"

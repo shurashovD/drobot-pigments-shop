@@ -2,10 +2,10 @@ import { useEffect, useState } from "react"
 import { Accordion, Button, Col, Container, Row } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
 import CreateOrderBtn from "./CreateOrderBtn"
-import DeliveryWrapper from "./DeliveryWrapper"
-import ProductsWrapper from "./ProductsWrapper"
-import RecipientWrapper from "./RecipientWrapper"
-import RegionWrapper from "./RegionWrapper"
+import DeliveryWrapper from "./delivery/DeliveryWrapper"
+import ProductsWrapper from "./products/ProductsWrapper"
+import RecipientWrapper from "./recipient/RecipientWrapper"
+import RegionWrapper from "./region/RegionWrapper"
 
 const OrderPage = () => {
 	const idMap = new Map([

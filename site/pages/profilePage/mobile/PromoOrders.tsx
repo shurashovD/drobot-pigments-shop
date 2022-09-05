@@ -10,18 +10,13 @@ interface IProps {
 
 const PromoOrders: FC<IProps> = ({ activeKey, onClick }) => {
 	const eventKey = 'promoOrders'
-	const [stroke, setStroke] = useState("white")
-
-	useEffect(() => {
-		setStroke(activeKey === eventKey ? "#39261F" : "white")
-	}, [activeKey])
 
 	return (
 		<Accordion.Item eventKey={eventKey} className="border-secondary mb-4">
 			<Accordion.Header className="text-uppercase" onClick={() => onClick(activeKey === eventKey ? undefined : eventKey)}>
-				<IconPromocode stroke={stroke} />
+				<IconPromocode stroke="white" />
 				<NavLink to="/profile#promocodes">
-					<span className={`ms-2 text-uppercase ${activeKey !== eventKey && "text-white"}`}>Заказы по промокодам</span>
+					<span className="ms-2 text-uppercase text-white">Заказы по промокодам</span>
 				</NavLink>
 			</Accordion.Header>
 			<Accordion.Body></Accordion.Body>

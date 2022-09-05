@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import { Accordion, Col, ListGroup, Row } from 'react-bootstrap'
-import { useGetCartQuery, useGetDeliveryDetailQuery } from '../../application/order.service'
+import { useGetCartQuery, useGetDeliveryDetailQuery } from '../../../application/order.service'
 import OrderItem from './OrderItem'
 
 interface IProps {

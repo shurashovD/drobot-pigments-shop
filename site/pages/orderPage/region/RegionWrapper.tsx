@@ -1,6 +1,6 @@
 import { FC } from "react"
 import { Accordion, Fade } from "react-bootstrap"
-import { useGetDeliveryCityQuery } from "../../application/order.service"
+import { useGetDeliveryCityQuery } from "../../../application/order.service"
 import Region from "./Region"
 
 interface IProps {

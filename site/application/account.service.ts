@@ -9,6 +9,13 @@ const accountApi = createApi({
 			query: () => "/auth",
 			providesTags: () => ["client"],
 		}),
+		logout: build.mutation<undefined, void>({
+			query: () => ({
+				method: 'POST',
+				url: '/logout'
+			}),
+			invalidatesTags: ['client']
+		}),
 		checkNumber: build.mutation<undefined, { phone: string }>({
 			query: (body) => ({
 				body,
@@ -52,6 +59,7 @@ const accountApi = createApi({
 
 export const {
     useAccountAuthQuery,
+	useLogoutMutation,
     useCheckNumberMutation,
     useCheckPinMutation,
     useRegisterMutation,

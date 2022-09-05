@@ -1,7 +1,7 @@
 import { ChangeEvent, FC, useEffect, useState } from 'react'
 import { Col, Form, Row, Spinner } from 'react-bootstrap'
-import { useCheckNumberInitMutation, useGetRecipientQuery, useSetRecipientMutation } from '../../application/order.service'
-import ButtonComponent from '../../components/ButtonComponent'
+import { useCheckNumberInitMutation, useGetRecipientQuery, useSetRecipientMutation } from '../../../application/order.service'
+import ButtonComponent from '../../../components/ButtonComponent'
 import CheckPhoneModal from './CheckPhoneModal'
 import RecipientNumberConfirm from './RecipientNumberConfirm'
 
@@ -145,7 +145,7 @@ const Recipient: FC<IProps> = ({ readyHandler }) => {
 					<Row className="mt-5">
 						<Col xs="auto">
 							<ButtonComponent
-								disabled={nameVal === "" || mailVal === ""}
+								disabled={nameVal === "" || mailVal === "" || !data?.phone}
 								onClick={() =>
 									setRecipient({
 										name: nameVal,

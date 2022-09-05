@@ -1,7 +1,7 @@
 import { ChangeEvent, FC, useEffect, useRef, useState } from "react"
 import { Col, Dropdown, Form, Row, Spinner } from "react-bootstrap"
-import { useGetRelevantCitiesQuery, useSetDeliveryCityMutation } from "../../application/order.service"
-import ButtonComponent from "../../components/ButtonComponent"
+import { useGetRelevantCitiesQuery, useSetDeliveryCityMutation } from "../../../application/order.service"
+import ButtonComponent from "../../../components/ButtonComponent"
 import DropdownCityItem from "./DropdownCityItem"
 
 interface IProps {
@@ -94,7 +94,7 @@ const Region: FC<IProps> = ({ city, isBusy, readyHandler }) => {
 					<div className="d-lg-none text-muted mt-2 mb-3">Выберите свой город в списке.</div>
 					<div className="d-flex d-lg-block">
 						<ButtonComponent disabled={city === value ? false : !cityCode} onClick={nextHandler} isLoading={isLoading || isBusy}>
-							Далее
+							{ city === value ? <>Далее</> : <>Выбрать</> }
 						</ButtonComponent>
 					</div>
 				</Col>

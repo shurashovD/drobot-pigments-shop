@@ -96,7 +96,7 @@ const orderApi = createApi({
 				method: "PUT",
 				url: `/set/city/${city_code}`,
 			}),
-			invalidatesTags: ["deliveryCity", "points"],
+			invalidatesTags: ["deliveryCity", "points", "deliveryDetail"],
 		}),
 		getDeliveryDetail: build.query<
 			{

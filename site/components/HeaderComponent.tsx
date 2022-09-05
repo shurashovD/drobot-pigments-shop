@@ -190,9 +190,9 @@ const HeaderComponent = () => {
 								<IconBox stroke={"#ffffff"} />
 								<span className="d-none d-md-inline ms-3">Статус заказа</span>
 							</NavLink>
-							<NavLink to="/profile#main" className="d-none d-lg-block text-white ms-4">
+							<div className="d-none d-lg-block text-white ms-4 position-realative">
 								<HeaderAccountComponent />
-							</NavLink>
+							</div>
 							<NavLink to="/" className="d-none d-lg-block text-white ms-4 invisible">
 								<IconCompare stroke={"#ffffff"} />
 							</NavLink>

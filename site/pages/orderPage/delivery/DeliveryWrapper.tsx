@@ -1,6 +1,6 @@
 import { FC } from "react"
 import { Accordion, Fade, Stack } from "react-bootstrap"
-import { useGetDeliveryDetailQuery } from "../../application/order.service"
+import { useGetDeliveryDetailQuery } from "../../../application/order.service"
 import Delivery from "./Delivery"
 
 interface IProps {
@@ -11,6 +11,11 @@ interface IProps {
 const DeliveryWrapper: FC<IProps> = ({ accordionHandler, activeKey }) => {
     const eventKey = "2"
     const { data: deliveryDetail } = useGetDeliveryDetailQuery(undefined)
+	const formatter = new Intl.NumberFormat('ru', {
+		style: 'unit',
+		unit: 'day',
+		notation: 'standard'
+	})
 
     return (
 		<>
@@ -36,9 +41,9 @@ const DeliveryWrapper: FC<IProps> = ({ accordionHandler, activeKey }) => {
 					</div>
 					<div>
 						<span>Стоимость: </span>
-						<b>
-							{deliveryDetail?.total_sum} руб., {deliveryDetail?.period_min}-{deliveryDetail?.period_max} дней
-						</b>
+						{ deliveryDetail?.period_max && <b>
+							{deliveryDetail?.total_sum} руб., {deliveryDetail.period_min}-{formatter.format(deliveryDetail.period_max)}
+						</b>}
 					</div>
 				</Stack>
 			</Fade>

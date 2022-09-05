@@ -71,7 +71,7 @@ const CartPage = () => {
 				<Row>
 					<Col xs={12} lg={8}>
 						<Row className="m-0">
-							<Col xs={"auto"} className="ps-4">
+							<Col xs="auto" className="ps-4">
 								<CheckboxComponent
 									isLoading={checkAllLoading}
 									label="Выбрать все"

@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from "react"
 import { Col, ListGroup, Row, Spinner } from "react-bootstrap"
-import { useGetProductByIdQuery, useGetVariantQuery } from "../../application/product.service"
-import ImageComponent from "../../components/ImageComponent"
+import { useGetProductByIdQuery, useGetVariantQuery } from "../../../application/product.service"
+import ImageComponent from "../../../components/ImageComponent"
 
 interface IProps {
     productId: string

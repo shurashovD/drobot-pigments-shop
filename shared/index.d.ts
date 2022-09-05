@@ -850,7 +850,7 @@ declare module 'express-session' {
 				address?: string
 				code?: string
 				cost?: number
-			},
+			}
 			recipientName?: string
 			recipientMail?: string
 		}

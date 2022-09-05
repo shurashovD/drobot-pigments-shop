@@ -542,6 +542,17 @@ router.put('/set/city/:city_code', async (req: Request<{city_code: number}>, res
 			req.session.delivery = { city_code }
 		} else {
 			req.session.delivery.city_code = city_code
+			if ( req.session.delivery.sdek ) {
+				req.session.delivery.sdek.address = undefined
+				req.session.delivery.sdek.checked = false
+				req.session.delivery.sdek.code = undefined
+				req.session.delivery.sdek.cost = undefined
+				delete req.session.delivery.sdek.address
+				delete req.session.delivery.sdek.code
+				delete req.session.delivery.sdek.cost
+				delete req.session.delivery.sdek
+			}
+			
 		}
 		return res.end()
 	}

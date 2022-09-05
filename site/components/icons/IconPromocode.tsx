@@ -1,12 +1,12 @@
 import { FC } from "react"
 
 interface IProps {
-	width?: number
-	height?: number
+	width?: string
+	height?: string
 	stroke: string
 }
 
-const IconPromocode: FC<IProps> = ({ height = 30, width = 30, stroke }) => {
+const IconPromocode: FC<IProps> = ({ height = "30", width = "30", stroke }) => {
     return (
 		<svg
 			width={width}

@@ -1,6 +1,6 @@
 import { FC } from "react"
 import { Accordion, Fade, Stack } from "react-bootstrap"
-import { useGetRecipientQuery } from "../../application/order.service"
+import { useGetRecipientQuery } from "../../../application/order.service"
 import Recipient from "./Recipient"
 
 interface IProps {
