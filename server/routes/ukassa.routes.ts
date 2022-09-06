@@ -142,7 +142,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
                     products.concat(variants)
 
                     const price = orderObj.total
-                    const trage = await createTrade(client.amoContactId, products, price)
+                    const trade = await createTrade(client.amoContactId, products, price)
 					console.log(trade._embedded)
                 } catch (e) {
                     console.log(e)
