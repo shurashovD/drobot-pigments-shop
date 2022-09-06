@@ -873,7 +873,7 @@ export const oneProductUpdate = async (href: string) => {
 
 export const oneProductDelete = async (href: string) => {
 	try {
-		const goods = await ms.GET(`${paths.product}/${href}`)
+		const goods = await ms.GET(href)
 		const Authorization = ms.getAuthHeader()
 
 		const id = goods.rows.map(({ id }: any) => (id))[0]
@@ -900,7 +900,7 @@ export const oneProductDelete = async (href: string) => {
 
 export const oneVariantCreate = async (href: string) => {
 	try {
-		const variants = await ms.GET(`${paths.varaint}/${href}`)
+		const variants = await ms.GET(href)
 		const Authorization = ms.getAuthHeader()
 		const normalize = variants.rows.map((item: any) => ({
 			identifier: item.id,
@@ -965,7 +965,7 @@ export const oneVariantCreate = async (href: string) => {
 
 export const oneVariantUpdate = async (href: string) => {
 	try {
-		const variants = await ms.GET(`${paths.varaint}/${href}`)
+		const variants = await ms.GET(href)
 		const Authorization = ms.getAuthHeader()
 		const normalize = variants.rows.map((item: any) => ({
 			identifier: item.id,
@@ -1026,7 +1026,7 @@ export const oneVariantUpdate = async (href: string) => {
 
 export const oneVariantDelete = async (href: string) => {
 	try {
-		const variants = await ms.GET(`${paths.varaint}/${href}`)
+		const variants = await ms.GET(href)
 		const normalize = variants.rows.map((item: any) => ({
 			identifier: item.id,
 			name: item.name,
