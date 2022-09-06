@@ -132,15 +132,15 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
             // отправление заказа м Амо;
             if ( client.status && client.amoContactId ) {
                 try {
-                    const products = orderObj.products.map(({ product, quantity }) => ({ name: product.name, quantity }))
+                    let products = orderObj.products.map(({ product, quantity }) => ({ name: product.name, quantity }))
 
 					console.log('Варианты', orderObj.variants)
 					console.log('Варианты товаров', orderObj.variants.map(({ product }) => (product.variants)))
                     const variants = orderObj.variants.map(({ product, variant, quantity }) => {
-                        const name = product.variants.find(({ id }) => (id?.toString() === variant.toString()))?.name || 'Неизвестный товар'
+                        const name = product.variants.find(({ _id }) => (_id?.toString() === variant.toString()))?.name || 'Неизвестный товар'
                         return { name, quantity }
                     })
-                    products.concat(variants)
+                    products = products.concat(variants)
 
                     const price = orderObj.total
                     const trade = await createTrade(client.amoContactId, products, price)
