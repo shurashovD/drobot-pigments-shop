@@ -42,7 +42,7 @@ const SdekDetail: FC = () => {
 			)}
 			{(data?.tariff_code === 138 || data?.tariff_code === 366) && (
 				<>
-                    <div className="mb-3">Выберите пункт выдачи</div>
+					<div className="mb-3">Выберите пункт выдачи</div>
 					<Row className="d-none d-lg-flex">
 						<Col xs={6}>
 							<PvzList />
@@ -53,28 +53,30 @@ const SdekDetail: FC = () => {
 							</div>
 						</Col>
 					</Row>
-					<Tab.Container activeKey={activeKey}>
-						<Row className="mb-3">
-							<Col xs={6} className="text-center">
-								<Button variant="link" size="sm" onClick={() => setActivekey("1")}>
-									Список
-								</Button>
-							</Col>
-							<Col xs={6} className="text-center">
-								<Button variant="link" size="sm" onClick={() => setActivekey("2")}>
-									Карта
-								</Button>
-							</Col>
-						</Row>
-						<Tab.Content>
-							<Tab.Pane eventKey="1">
-								<PvzList />
-							</Tab.Pane>
-							<Tab.Pane eventKey="2">
-								<PvzMap />
-							</Tab.Pane>
-						</Tab.Content>
-					</Tab.Container>
+					<div className="d-lg-none">
+						<Tab.Container activeKey={activeKey}>
+							<Row className="mb-3">
+								<Col xs={6} className="text-center">
+									<Button variant="link" size="sm" onClick={() => setActivekey("1")}>
+										Список
+									</Button>
+								</Col>
+								<Col xs={6} className="text-center">
+									<Button variant="link" size="sm" onClick={() => setActivekey("2")}>
+										Карта
+									</Button>
+								</Col>
+							</Row>
+							<Tab.Content>
+								<Tab.Pane eventKey="1">
+									<PvzList />
+								</Tab.Pane>
+								<Tab.Pane eventKey="2">
+									<PvzMap />
+								</Tab.Pane>
+							</Tab.Content>
+						</Tab.Container>
+					</div>
 				</>
 			)}
 		</div>
