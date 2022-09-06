@@ -60,7 +60,7 @@ const CartItem: FC<IProps> = ({ productId }) => {
 				</div>
 			)}
 			{!productLoading && data && productInCart && (
-				<Row className="g-1">
+				<Row className="g-1 g-md-2">
 					<Col xs={0} md={1} className="d-flex align-items-center">
 						<CheckboxComponent
 							isLoading={toggleLoading}
@@ -111,7 +111,7 @@ const CartItem: FC<IProps> = ({ productId }) => {
 				</Row>
 			)}
 			{!productLoading && data && (
-				<Row className="d-md-none mt-4 g-1">
+				<Row className="d-md-none mt-4 g-1 g-md-2">
 					<Col xs={5}>
 						<ProductCounter productId={productId} />
 					</Col>

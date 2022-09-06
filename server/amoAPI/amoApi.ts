@@ -372,6 +372,7 @@ export const createTrade = async (contactId: number, products: {name: string, qu
 			return
 		}
 
+		console.log(products)
 		const payload = [{
 			custom_fields_values: [
 				{
