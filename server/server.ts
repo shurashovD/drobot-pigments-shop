@@ -21,7 +21,6 @@ import profileRoutes from "./routes/profile.routes"
 import authMiddleware from './middleware/auth.middleware'
 import frontLogger from './routes/frontLogger.routes'
 import loyaltyRoutes from './routes/loyalty.routes'
-import { json } from 'body-parser'
 
 const PORT = 3000
 

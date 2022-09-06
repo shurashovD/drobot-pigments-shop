@@ -372,22 +372,21 @@ export const createTrade = async (contactId: number, products: {name: string, qu
 			return
 		}
 
-		const contact = await getContactById(contactId)
-		const payload = {
+		const payload = [{
 			custom_fields_values: [
 				{
 					field_id: 986327,
 					values: products.map(
-						({ name, quantity }) => `${name} ${quantity}шт.`
+						({ name, quantity }) => ({ value: `${name} ${quantity}шт.` })
 					),
 				},
 			],
-			price: [price],
-			pipeline_id: [pipelineId],
+			price: price,
+			pipeline_id: pipelineId,
 			_embedded: {
-				contacts: [contact]
+				contacts: [{ id: contactId }]
 			}
-		}
+		}]
 
 		return await axios.post(`${domain}${paths.trade}`, payload, {
 			headers: { "Content-Type": "application/json", authorization },
@@ -405,12 +404,13 @@ export const createTask = async (text: string, contactId?: number) => {
 			return
 		}
 
-		const payload: IAmoCreateTaskPayload = {
-			complete_till: Date.now() + 24 * 3600 * 1000,
-			text,
+		const created_at = Math.round(Date.now() / 1000)
+		const complete_till = created_at + 2 * 3600
+		const payload: IAmoCreateTaskPayload[] = [{
+			created_at, complete_till, text,
 			entity_id: contactId,
-			entity_type: "contact",
-		}
+			entity_type: "contacts",
+		}]
 
 		return await axios
 			.post(`${domain}${paths.tasks}`, payload, {

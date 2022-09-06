@@ -708,6 +708,7 @@ export interface IAmoRefreshTokenResponse {}
 export interface IAmoCreateTaskPayload {
 	entity_id?: number
 	entity_type?: "contacts" | string
+	created_at?: number
 	complete_till: number
 	text: string
 }
