@@ -133,9 +133,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
             if ( client.status && client.amoContactId ) {
                 try {
                     let products = orderObj.products.map(({ product, quantity }) => ({ name: product.name, quantity }))
-
-					console.log('Варианты', orderObj.variants)
-					console.log('Варианты товаров', orderObj.variants.map(({ product }) => (product.variants)))
+					
                     const variants = orderObj.variants.map(({ product, variant, quantity }) => {
                         const name = product.variants.find(({ _id }) => (_id?.toString() === variant.toString()))?.name || 'Неизвестный товар'
                         return { name, quantity }

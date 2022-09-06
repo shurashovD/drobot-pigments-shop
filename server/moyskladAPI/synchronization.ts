@@ -965,8 +965,10 @@ export const oneVariantCreate = async (href: string) => {
 
 export const oneVariantUpdate = async (href: string) => {
 	try {
+		console.log(href);
 		const variants = await ms.GET(href)
 		const Authorization = ms.getAuthHeader()
+		console.log(variants);
 		const normalize = variants.rows.map((item: any) => ({
 			identifier: item.id,
 			name: item.name,
