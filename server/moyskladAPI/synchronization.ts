@@ -643,7 +643,7 @@ export const oneProductFolderDelete = async (href: string) => {
 
 export const oneProductCreate = async (href: string) => {
 	try {
-		const goods = await ms.GET(`${paths.product}/${href}`)
+		const goods = await ms.GET(href)
 		const Authorization = ms.getAuthHeader()
 
 		const normalize = goods.rows.map(
@@ -747,7 +747,8 @@ export const oneProductCreate = async (href: string) => {
 
 export const oneProductUpdate = async (href: string) => {
 	try {
-		const goods = await ms.GET(`${paths.product}/${href}`)
+		console.log(href);
+		const goods = await ms.GET(href)
 		const Authorization = ms.getAuthHeader()
 
 		const normalize = goods.rows.map(
