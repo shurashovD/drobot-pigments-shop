@@ -134,8 +134,8 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
                 try {
                     const products = orderObj.products.map(({ product, quantity }) => ({ name: product.name, quantity }))
 
-					console.log(orderObj.variants)
-					console.log(orderObj.variants.map(({ product }) => (product)))
+					console.log('Варианты', orderObj.variants)
+					console.log('Варианты товаров', orderObj.variants.map(({ product }) => (product.variants)))
                     const variants = orderObj.variants.map(({ product, variant, quantity }) => {
                         const name = product.variants.find(({ id }) => (id?.toString() === variant.toString()))?.name || 'Неизвестный товар'
                         return { name, quantity }
