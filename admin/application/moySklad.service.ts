@@ -4,31 +4,25 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 const moySkladApi = createApi({
 	baseQuery: fetchBaseQuery({ baseUrl: "/api/moy-sklad" }),
 	endpoints: (build) => ({
-		getMoySklad: build.query<
-			{ catalogs: ICatalog[]; products: IProduct[]; catalog?: ICatalog },
-			string | undefined
-		>({
+		getMoySklad: build.query<{ catalogs: ICatalog[]; products: IProduct[]; catalog?: ICatalog }, string | undefined>({
 			query: (id) => `/folder/${id ? id : ""}`,
 			providesTags: () => ["folder"],
 		}),
-		getFreeProducts: build.query<
-			{ catalogs: ICatalog[]; products: IProduct[]; catalog?: ICatalog },
-			string | undefined
-		>({
+		getFreeProducts: build.query<{ catalogs: ICatalog[]; products: IProduct[]; catalog?: ICatalog }, string | undefined>({
 			query: (id) => `/folder-free-products/${id ? id : ""}`,
 		}),
 		syncMoySklad: build.mutation({
 			query: () => "/sync",
 			invalidatesTags: ["folder"],
 		}),
+		getSyncStatus: build.query<{ running: boolean; state?: string }, void>({
+			query: () => "/sync-status",
+		}),
 		getHooks: build.query<IMSHook[], undefined>({
 			query: () => "/hooks",
 			providesTags: () => ["hooks"],
 		}),
-		createHook: build.mutation<
-			undefined,
-			{ payload: IMSHook }
-		>({
+		createHook: build.mutation<undefined, { payload: IMSHook }>({
 			query: (body) => ({
 				body,
 				method: "POST",
@@ -70,7 +64,9 @@ export const {
 	useCreateHookMutation,
 	useEnableHookMutation,
 	useDisableHookMutation,
-	useDeleteHookMutation
+	useDeleteHookMutation,
+	useGetSyncStatusQuery,
+	useLazyGetSyncStatusQuery,
 } = moySkladApi
 
 export default moySkladApi

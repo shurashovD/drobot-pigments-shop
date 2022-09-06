@@ -644,34 +644,22 @@ export const oneProductFolderDelete = async (href: string) => {
 export const oneProductCreate = async (href: string) => {
 	try {
 		console.log('Создание товара', href);
-		const goods = await ms.GET(href)
+		const good: any = await ms.GET(href)
 		const Authorization = ms.getAuthHeader()
 
-		console.log(goods);
-		const normalize = goods.map(
-			({
-				id,
-				archived,
-				description,
-				images,
-				name,
-				productFolder,
-				salePrices,
-				uom,
-				weight,
-			}: any) => ({
-				id,
-				archived,
-				description,
-				name,
-				price: salePrices[0].value,
-				weight,
-				parentId: productFolder?.meta.href.split("/").pop(),
-				currency: salePrices[0].currency.meta.href.split("/").pop(),
-				photo: images?.meta?.href,
-				uom: uom?.meta.href.split("/").pop(),
-			})
-		)[0]
+		console.log(good);
+		const normalize = {
+			id: good.id,
+			archived: good.archived,
+			description: good.description,
+			name: good.name,
+			price: good.salePrices[0].value,
+			weight: good.weight,
+			parentId: good.productFolder?.meta.href.split("/").pop(),
+			currency: good.salePrices[0].currency.meta.href.split("/").pop(),
+			photo: good.images?.meta?.href,
+			uom: good.uom?.meta.href.split("/").pop(),
+		}
 
 		const cursor = await ProductModel.findOne({
 			identifier: { $eq: normalize.id },

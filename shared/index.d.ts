@@ -811,6 +811,11 @@ export interface IVariantFromClient {
 	quantity: number
 }
 
+export interface ISyncState extends Document {
+	state: string
+	running: boolean
+}
+
 declare global {
 	interface Error {
 		userError?: boolean

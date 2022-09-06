@@ -10,6 +10,7 @@ import { currencySync, oneProductCreate, oneProductDelete, oneProductFolderDelet
 import { IMSHook, IOrder } from "../../shared";
 import { getMsOrder } from '../moyskladAPI/orders';
 import OrderModel from '../models/OrderModel';
+import SyncModel from '../models/SyncModel';
 
 const router = Router()
 
@@ -100,21 +101,57 @@ router.get("/folder/:id", async (req: Request<{ id: string }, {}, {}>, res) => {
 
 router.get('/sync', async (req, res) => {
     try {
+		let sync = await SyncModel.findOne()
+		if ( !sync ) {
+			sync = await new SyncModel({
+				state: 'Синхронизация валюты',
+				running: true
+			}).save()
+		} else {
+			sync.running = true
+			sync.state = "Синхронизация валюты"
+			await sync.save()
+		}
+		res.end()
+
         await currencySync()
 		console.log("Валюта синхронизирована")
+		sync.state = 'Синхронизация измерений'
+		await sync.save()
         await uomSync()
 		console.log("Измерения синхронизированы")
+		sync.state = "Синхронизация папок"
+		await sync.save()
         await productFolderSync()
 		console.log('Папки синхронизированы');
+		sync.state = "Синхронизация продуктов"
+		await sync.save()
         await productSync()
 		console.log('Продукты синхронизированы');
+		sync.state = "Синхронизация модификаций"
+		await sync.save()
 		await variantSync()
-        return res.end()
+		sync.state = "Завершена"
+		sync.running = false
+		await sync.save()
     }
     catch (e) {
         console.log(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
+})
+
+router.get("/sync-status", async (req, res) => {
+	try {
+		const sync = await SyncModel.findOne()
+		if ( !sync ) {
+			return res.json({ running: false })
+		}
+		res.json(sync)
+	} catch (e) {
+		console.log(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
+	}
 })
 
 

@@ -1,8 +1,8 @@
 import { useEffect } from "react"
-import { Col, Container, ListGroup, Row } from "react-bootstrap"
+import { Col, Container, ListGroup, Row, Spinner } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
 import { useParams } from "react-router-dom"
-import { useGetMoySkladQuery, useSyncMoySkladMutation } from "../../application/moySklad.service"
+import { useGetMoySkladQuery, useGetSyncStatusQuery, useLazyGetSyncStatusQuery, useSyncMoySkladMutation } from "../../application/moySklad.service"
 import ButtonComponent from "../../components/ButtonComponent"
 import { useAppDispatch } from '../../application/hooks'
 import { errorAlert, successAlert } from "../../application/alertSlice"
@@ -11,6 +11,7 @@ import { useSyncPointsMutation } from "../../application/sdek.service"
 const MoySkladPage = () => {
     const {id} = useParams()
     const { data, isLoading } = useGetMoySkladQuery(id)
+	const [trigger, result] = useLazyGetSyncStatusQuery({ pollingInterval: 10000 })
 	const [sync, { isLoading: syncProcess, isError, isSuccess }] = useSyncMoySkladMutation()
 	const [pointsSync, {isLoading: pointsSuncProcess, isError: pointsSyncError, isSuccess: pointsSyncSuccess }] = useSyncPointsMutation()
 	const dispatch = useAppDispatch()
@@ -23,9 +24,9 @@ const MoySkladPage = () => {
 	
 	useEffect(() => {
 		if (isSuccess) {
-			dispatch(successAlert("Синхронизация выполнена успешно"))
+			trigger()
 		}
-	}, [isSuccess])
+	}, [isSuccess, trigger])
 
 	useEffect(() => {
 		if (pointsSyncError) {
@@ -56,9 +57,10 @@ const MoySkladPage = () => {
 					<ButtonComponent
 						onClick={sync}
 						isLoading={syncProcess}
-						disabled={isLoading}
+						disabled={isLoading || result.isFetching || result.data?.running}
 					>
-						Синхронизация с Мой склад
+						{ result?.data?.running && <Spinner animation="border" variant="white" size="sm" className="me-2" /> }
+						{ result?.data?.running ? <>{result.data.state}</> : <>Синхронизация с Мой склад</>}
 					</ButtonComponent>
 				</Col>
 			</Row>
