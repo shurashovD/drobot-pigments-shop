@@ -750,35 +750,23 @@ export const oneProductCreate = async (href: string) => {
 export const oneProductUpdate = async (href: string) => {
 	try {
 		console.log('Обновление товара', href);
-		const goods = await ms.GET(href)
+		const good: any = await ms.GET(href)
 		const Authorization = ms.getAuthHeader()
 
-		console.log(goods);
+		console.log(good);
 
-		const normalize = goods.map(
-			({
-				id,
-				archived,
-				description,
-				images,
-				name,
-				productFolder,
-				salePrices,
-				uom,
-				weight,
-			}: any) => ({
-				id,
-				archived,
-				description,
-				name,
-				price: salePrices[0].value,
-				weight,
-				parentId: productFolder?.meta.href.split("/").pop(),
-				currency: salePrices[0].currency.meta.href.split("/").pop(),
-				photo: images?.meta?.href,
-				uom: uom?.meta.href.split("/").pop(),
-			})
-		)[0]
+		const normalize = {
+			id: good.id,
+			archived: good.archived,
+			description: good.description,
+			name: good.name,
+			price: good.salePrices[0].value,
+			weight: good.weight,
+			parentId: good.productFolder?.meta.href.split("/").pop(),
+			currency: good.salePrices[0].currency.meta.href.split("/").pop(),
+			photo: good.images?.meta?.href,
+			uom: good.uom?.meta.href.split("/").pop(),
+		}
 
 		const cursor = await ProductModel.findOne({
 			identifier: { $eq: normalize.id },
@@ -974,18 +962,18 @@ export const oneVariantCreate = async (href: string) => {
 export const oneVariantUpdate = async (href: string) => {
 	try {
 		console.log("Обновление модификации", href)
-		const variants = await ms.GET(href)
+		const variant = await ms.GET(href)
 		const Authorization = ms.getAuthHeader()
-		console.log(variants);
-		const normalize = variants.map((item: any) => ({
-			identifier: item.id,
-			name: item.name,
-			photo: item.images?.meta?.href,
-			price: item.salePrices[0].value,
-			productId: item.product.meta.href.split("/").pop(),
-			value: item.characteristics[0].value,
-			variantsLabel: item.characteristics[0].name,
-		}))[0]
+		console.log(variant)
+		const normalize = {
+			identifier: variant.id,
+			name: variant.name,
+			photo: variant.images?.meta?.href,
+			price: variant.salePrices[0].value,
+			productId: variant.product.meta.href.split("/").pop(),
+			value: variant.characteristics[0].value,
+			variantsLabel: variant.characteristics[0].name,
+		}
 
 		const mod = normalize
 		const product = await ProductModel.findOne({
