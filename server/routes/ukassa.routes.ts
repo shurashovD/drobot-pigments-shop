@@ -87,14 +87,11 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 			// если покупатель розничный;
 			if (client.status === "common") {
 				// если применён промокод;
-				console.log("Промокод в заказе", order.promocode)
 				if (order.promocode) {
 					// начислить кэшбэк владельцу промокода;
 					const promocode = await PromocodeModel.findById(order.promocode)
-					console.log('Промокод', promocode)
 					if (promocode) {
 						const promocodeHolder = await ClientModel.findById(promocode.holderClient)
-						console.log('Держатель промокода', promocodeHolder)
 						if (promocodeHolder) {
 							const cashBack = Math.round(order.total * 0.1)
 							if (promocodeHolder.status === "agent") {
@@ -133,6 +130,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 			}
 
             // отправление заказа м Амо;
+			console.log('Статус', client.status, 'амоИД', client.amoContactId)
             if ( client.status && client.amoContactId ) {
                 try {
                     const products = orderObj.products.map(({ product, quantity }) => ({ name: product.name, quantity }))
@@ -144,7 +142,8 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
                     products.concat(variants)
 
                     const price = orderObj.total
-                    await createTrade(client.amoContactId, products, price)
+                    const trage = await createTrade(client.amoContactId, products, price)
+					console.log(trade._embedded)
                 } catch (e) {
                     console.log(e)
                 }
