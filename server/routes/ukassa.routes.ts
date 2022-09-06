@@ -130,11 +130,11 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 			}
 
             // отправление заказа м Амо;
-			console.log('Статус', client.status, 'амоИД', client.amoContactId)
             if ( client.status && client.amoContactId ) {
                 try {
                     const products = orderObj.products.map(({ product, quantity }) => ({ name: product.name, quantity }))
 
+					console.log(orderObj)
                     const variants = orderObj.variants.map(({ product, variant, quantity }) => {
                         const name = product.variants.find(({ _id }) => (_id?.toString() === variant.toString()))?.name || 'Неизвестный товар'
                         return { name, quantity }
