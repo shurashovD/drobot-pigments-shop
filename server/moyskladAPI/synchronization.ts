@@ -643,10 +643,12 @@ export const oneProductFolderDelete = async (href: string) => {
 
 export const oneProductCreate = async (href: string) => {
 	try {
+		console.log('Создание товара', href);
 		const goods = await ms.GET(href)
 		const Authorization = ms.getAuthHeader()
 
-		const normalize = goods.rows.map(
+		console.log(goods);
+		const normalize = goods.map(
 			({
 				id,
 				archived,
@@ -747,11 +749,13 @@ export const oneProductCreate = async (href: string) => {
 
 export const oneProductUpdate = async (href: string) => {
 	try {
-		console.log(href);
+		console.log('Обновление товара', href);
 		const goods = await ms.GET(href)
 		const Authorization = ms.getAuthHeader()
 
-		const normalize = goods.rows.map(
+		console.log(goods);
+
+		const normalize = goods.map(
 			({
 				id,
 				archived,
@@ -873,6 +877,7 @@ export const oneProductUpdate = async (href: string) => {
 
 export const oneProductDelete = async (href: string) => {
 	try {
+		console.log('Удаление товара', href);
 		const goods = await ms.GET(href)
 		const Authorization = ms.getAuthHeader()
 
@@ -900,9 +905,12 @@ export const oneProductDelete = async (href: string) => {
 
 export const oneVariantCreate = async (href: string) => {
 	try {
+		console.log('Создание модификации', href);
 		const variants = await ms.GET(href)
 		const Authorization = ms.getAuthHeader()
-		const normalize = variants.rows.map((item: any) => ({
+
+		console.log(variants);
+		const normalize = variants.map((item: any) => ({
 			identifier: item.id,
 			name: item.name,
 			photo: item.images?.meta?.href,
@@ -965,11 +973,11 @@ export const oneVariantCreate = async (href: string) => {
 
 export const oneVariantUpdate = async (href: string) => {
 	try {
-		console.log(href);
+		console.log("Обновление модификации", href)
 		const variants = await ms.GET(href)
 		const Authorization = ms.getAuthHeader()
 		console.log(variants);
-		const normalize = variants.rows.map((item: any) => ({
+		const normalize = variants.map((item: any) => ({
 			identifier: item.id,
 			name: item.name,
 			photo: item.images?.meta?.href,
@@ -1028,6 +1036,7 @@ export const oneVariantUpdate = async (href: string) => {
 
 export const oneVariantDelete = async (href: string) => {
 	try {
+		console.log('Удаление модификации', href);
 		const variants = await ms.GET(href)
 		const normalize = variants.rows.map((item: any) => ({
 			identifier: item.id,
