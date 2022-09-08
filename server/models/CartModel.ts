@@ -223,9 +223,6 @@ CartSchema.methods.refreshCashBack = async function (this: ICartDoc): Promise<IC
 			delete this.availableCashBack
 		}
 
-		console.log('Корзина', this)
-		console.log('Доступный кэбэк', availableCashBack);
-
 		// если кэшбэк доступен и пользователь хочет его использовать;
 		if (typeof availableCashBack !== "undefined" && availableCashBack > 0 && this.useCashBack) {
 			let cashBackWallet = availableCashBack

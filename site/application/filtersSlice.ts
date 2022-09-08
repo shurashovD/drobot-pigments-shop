@@ -8,13 +8,19 @@ interface IState {
     filters: string[][]
     limit: number
     page: number
+	variantsFilter: string[]
+	minPrice?: number
+	maxPrice?: number
 }
 
 const initialState: IState = {
     filterObject: [],
     filters: [[]],
     limit: 4,
-    page: 1
+    page: 1,
+	variantsFilter: [],
+	minPrice: undefined,
+	maxPrice: undefined
 }
 
 const generateFilters = (filterObject: IState['filterObject']) =>
@@ -44,26 +50,49 @@ const filtersSlice = createSlice({
 			{ payload }: PayloadAction<{ filterId: string; valueId: string }>
 		) => {
 			const { filterId, valueId } = payload
-			const values = state.filterObject.find(
-				(item) => item.filterId === filterId
-			)?.values
-			if (!values) return
+			const filter = state.filterObject.find((item) => item.filterId === filterId)
 
-			const index = values.findIndex((item: string) => item === valueId)
-			if (index === -1) {
-				values.push(valueId)
+			if (!filter) {
+				const filterObject = state.filterObject.concat({ filterId, values: [valueId] })
+				const filters = generateFilters(filterObject)
+				state.filterObject = filterObject
+				state.filters = filters
+				state.page = initialState.page
 			} else {
-				values.splice(index, 1)
+				const index = filter.values.findIndex((item: string) => item === valueId)
+				if (index === -1) {
+					filter.values.push(valueId)
+				} else {
+					filter.values.splice(index, 1)
+				}
+				const filters = generateFilters(state.filterObject)
+				state.filters = filters
+				state.page = initialState.page
 			}
-			state.page = initialState.page
-            state.filters = generateFilters(state.filterObject)
 		},
 		nextPage: (state) => {
 			++state.page
+		},
+		toggleVariantsFilter: (state, { payload }: PayloadAction<string>) => {
+			const index = state.variantsFilter.findIndex(item => item === payload)
+			if ( index === -1 ) {
+				state.variantsFilter.push(payload)
+			} else {
+				state.variantsFilter.splice(index, 1)
+			}
+			state.page = 1
+		},
+		setMinPrice: (state, { payload }: PayloadAction<number>) => {
+			state.minPrice = payload
+			state.page = 1
+		},
+		setMaxPrice: (state, { payload }: PayloadAction<number>) => {
+			state.maxPrice = payload
+			state.page = 1
 		},
 		resetFilters: () => initialState,
 	},
 })
 
-export const { initFilterObject, nextPage, toggleFilterValue, resetFilters } = filtersSlice.actions
+export const { initFilterObject, nextPage, toggleFilterValue, resetFilters, toggleVariantsFilter, setMaxPrice, setMinPrice } = filtersSlice.actions
 export default filtersSlice

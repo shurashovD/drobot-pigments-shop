@@ -1,6 +1,6 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Button, Col, Container, Fade, Row, Spinner } from "react-bootstrap"
-import { useParams } from "react-router-dom"
+import { useParams, useLocation } from "react-router-dom"
 import { useGetProductByIdQuery } from "../../application/product.service"
 import Raiting from "../../components/card/Raiting"
 import ImageComponent from "../../components/ImageComponent"
@@ -8,6 +8,7 @@ import ToCartBtn from "./ToCartBtn"
 
 const ProductPage = () => {
     const {id} = useParams()
+	const { search } = useLocation()
     const { data, isLoading } = useGetProductByIdQuery(id || '', { refetchOnMountOrArgChange: true })
 	const [toCart, setToCart] = useState<string | undefined>()
 	const formatter = useRef(
@@ -17,6 +18,15 @@ const ProductPage = () => {
 			minimumFractionDigits: 2,
 		})
 	)
+
+	useEffect(() => {
+		if ( search ) {
+			const variantId = search.split("=")?.[1]
+			if ( variantId ) {
+				setToCart(variantId)
+			}
+		}
+	}, [search])
 
     return (
 		<Container className="py-6">

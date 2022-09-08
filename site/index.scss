@@ -416,6 +416,12 @@ hr {
     animation: blinkAnimate 1s infinite;
 }
 
+#filter-accordion  {
+    .accordion-button {
+        background-color: transparent !important;
+    }
+}
+
 #pvz-list {
     max-height: 40vh;
     overflow-y: scroll;

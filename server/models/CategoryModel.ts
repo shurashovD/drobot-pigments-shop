@@ -1,4 +1,4 @@
-import { CategoryModel, ICategory, Product, IFilter, IProduct, ICategoryMethods } from './../../shared/index.d';
+import { CategoryModel, ICategory, Product, IFilter, IProduct, ICategoryMethods, ICategorySiteProduct } from './../../shared/index.d';
 import { model, Schema, Types } from 'mongoose'
 import ProductModel from './ProductModel'
 
@@ -55,6 +55,73 @@ CategorySchema.methods.getProducts = function(filters: string[][] = [], limit?: 
         return { length, products: result.slice(start, end) }
     }
     return { length, products: result }
+}
+
+// получить товары и модификации в категории;
+CategorySchema.methods.getProductsAndVariants = function (args: {
+	filters: string[][]
+	limit?: number
+	page?: number
+	variantsFilter?: string[]
+	sortByPrice?: boolean
+	minPrice?: number
+	maxPrice?: number
+}): { length: number; products: ICategorySiteProduct[] } {
+	const { filters = [], limit, page, sortByPrice, variantsFilter, minPrice, maxPrice } = args
+	let products = this.products as any[]
+	for (const i in filters) {
+		const filter = filters[i]
+		if (filter.length === 0) continue
+		products = products.filter(({ properties }) => {
+			return properties.some((prop: Types.ObjectId) => filter.some((item) => item === prop.toString()))
+		})
+	}
+	let result = products.reduce<ICategorySiteProduct[]>((res, item) => {
+		if (item.variants) {
+			const arr = item.variants.map((el: any) => {
+				const res: ICategorySiteProduct = {
+					price: (el.price || 0) / 100,
+					productId: item._id.toString(),
+					productTitle: item.name,
+					img: el.photo,
+					variantId: el._id.toString(),
+					variantTitle: el.name,
+					variantValue: el.value,
+				}
+				return res
+			})
+			return [...res, ...arr]
+		} else {
+			const element: ICategorySiteProduct = {
+				price: (item.price || 0) / 100,
+				productId: item._id.toString(),
+				productTitle: item.name,
+				img: item.photo[0],
+			}
+			return [...res, element]
+		}
+	}, [])
+    if ( minPrice && maxPrice ) {
+        result = result.filter(({ price }) => (price >= minPrice && price <= maxPrice))
+    }
+	if (variantsFilter && variantsFilter.length > 0) {
+		result = result.filter((item) => variantsFilter.includes(item.variantValue || ""))
+	}
+	const { length } = result
+	if (sortByPrice) {
+		result = result.sort((a, b) => {
+			if (!(a.price && b.price)) {
+				return 1
+			}
+			return a.price - b.price
+		})
+	}
+	if (limit && page) {
+		const start = limit * (page - 1)
+		const end = limit * page
+		return { length, products: result.slice(start, end) }
+	}
+	return { length, products: result }
 }
 
 // добавить фильтр в категорию;

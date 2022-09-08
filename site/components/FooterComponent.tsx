@@ -7,59 +7,33 @@ const youtubeLogo = require("../img/youtube.svg")
 
 const FooterComponent = () => {
     return (
-		<Container
-			fluid
-			className="bg-primary pt-5 pb-5 pb-md-4"
-			id="footer-component"
-		>
+		<Container fluid className="bg-primary pt-5 pb-5 pb-md-4" id="footer-component">
 			<Container className="pb-1">
 				<Row xs={1} md={3} className="mb-6">
 					<Col className="mb-6 mb-md-0">
 						<Row>
 							<Col xs={"auto"} className="mb-3">
-								<span className="text-white">
-									Присоединяйся:
-								</span>
+								<span className="text-white">Присоединяйся:</span>
 							</Col>
 							<Col xs={"auto"}>
-								<Stack
-									direction="horizontal"
-									className="mx-auto"
-									gap={4}
-								>
+								<Stack direction="horizontal" className="mx-auto" gap={4}>
 									<div>
-										<a
-											href="https://vk.com/drobot_pigments"
-											target="_blank"
-											rel="noopener noreferrer"
-										>
+										<a href="https://vk.com/drobot_pigments" target="_blank" rel="noopener noreferrer">
 											<Image src={vkLogo} />
 										</a>
 									</div>
-									<div className="d-none">
-										<a
-											href="http://instagram.com"
-											target="_blank"
-											rel="noopener noreferrer"
-										>
+									<div>
+										<a href="http://instagram.com/drobot_pigments" target="_blank" rel="noopener noreferrer">
 											<Image src={instaLogo} />
 										</a>
 									</div>
-									<div className="d-none">
-										<a
-											href="http://tg.com"
-											target="_blank"
-											rel="noopener noreferrer"
-										>
+									<div>
+										<a href="http://t.me/drobot_pigments" target="_blank" rel="noopener noreferrer">
 											<Image src={tgLogo} />
 										</a>
 									</div>
-									<div className="d-none">
-										<a
-											href="http://youtube.com"
-											target="_blank"
-											rel="noopener noreferrer"
-										>
+									<div>
+										<a href="https://www.youtube.com/channel/UCZv-qFu8fT3BU5WvjNbJnYA" target="_blank" rel="noopener noreferrer">
 											<Image src={youtubeLogo} />
 										</a>
 									</div>
@@ -70,9 +44,7 @@ const FooterComponent = () => {
 					<Col className="mb-5 mb-md-0">
 						<Stack gap={2}>
 							<div className="mb-3 text-center text-md-start">
-								<span className="text-uppercase text-secondary">
-									Покупателю
-								</span>
+								<span className="text-uppercase text-secondary">Покупателю</span>
 							</div>
 							<div className="text-center text-md-start d-none">
 								<NavLink to="/" className="footer__link">
@@ -80,11 +52,8 @@ const FooterComponent = () => {
 								</NavLink>
 							</div>
 							<div className="text-center text-md-start">
-								<NavLink
-									to="/delivery"
-									className="footer__link"
-								>
-									Доставка
+								<NavLink to="/delivery" className="footer__link">
+									Доставка и оплата
 								</NavLink>
 							</div>
 							<div className="text-center text-md-start d-none">
@@ -93,30 +62,28 @@ const FooterComponent = () => {
 								</NavLink>
 							</div>
 							<div className="text-center text-md-start">
-								<NavLink to="/" className="footer__link">
+								<NavLink to="/contacts" className="footer__link">
 									Контакты
 								</NavLink>
 							</div>
 						</Stack>
 					</Col>
-					<Col className="d-none">
+					<Col>
 						<Stack gap={2}>
 							<div className="mb-3 text-center text-md-start">
-								<span className="text-uppercase text-secondary">
-									Сотрудничество
-								</span>
+								<span className="text-uppercase text-secondary">Сотрудничество</span>
 							</div>
 							<div className="text-center text-md-start">
-								<NavLink to="/" className="footer__link">
+								<NavLink to="/partner-program" className="footer__link">
 									Как стать представителем?
 								</NavLink>
 							</div>
 							<div className="text-center text-md-start">
-								<NavLink to="/" className="footer__link">
+								<NavLink to="/partner-program" className="footer__link">
 									Как стать агентом?
 								</NavLink>
 							</div>
-							<div className="text-center text-md-start">
+							<div className="text-center text-md-start d-none">
 								<NavLink to="/" className="footer__link">
 									Как стать амбассадором?
 								</NavLink>
@@ -124,11 +91,7 @@ const FooterComponent = () => {
 						</Stack>
 					</Col>
 				</Row>
-				<Row
-					xs={1}
-					md={"auto"}
-					className="justify-content-center mb-5 gap-4 d-none"
-				>
+				<Row xs={1} md={"auto"} className="justify-content-center mb-5 gap-4 d-none">
 					<Col className="text-center text-md-start">
 						<NavLink to="/" className="footer-light__link">
 							Политика конфиденциальности
@@ -151,10 +114,7 @@ const FooterComponent = () => {
 						<p className="m-0">Все права защищены.</p>
 					</Col>
 					<Col className="d-flex justify-content-center justify-content-md-start mt-4 mt-md-0">
-						<a
-							href="https://www.behance.net/natali_shurashova"
-							className="footer-light__link mt-auto"
-						>
+						<a href="https://www.behance.net/natali_shurashova" className="footer-light__link mt-auto">
 							Разработка сайта: PAZZL
 						</a>
 					</Col>

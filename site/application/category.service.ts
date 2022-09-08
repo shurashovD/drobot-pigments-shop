@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { ICategory, Product } from '../../shared'
+import { ICategory, ICategorySiteProduct } from '../../shared'
 
 const categoryApi = createApi({
 	baseQuery: fetchBaseQuery({ baseUrl: "/api/categories" }),
@@ -13,17 +13,20 @@ const categoryApi = createApi({
 			providesTags: () => ["category"],
 		}),
 		getProducts: build.query<
-			{ length: number; products: Product[] },
+			{ length: number; products: ICategorySiteProduct[] },
 			{
 				id: string
 				filters?: string[][]
 				limit?: number
 				page?: number
 				sortByPrice?: boolean
+				variantsFilter?: string[]
+				minPrice?: number
+				maxPrice?: number
 			}
 		>({
-			query: ({ id, filters, limit, page, sortByPrice }) => {
-				let url = `/products/${id}`
+			query: ({ id, filters, limit, page, sortByPrice, maxPrice, minPrice, variantsFilter }) => {
+				let url = `/products-and-variants/${id}`
 				if (filters) {
 					url += `?filters=${JSON.stringify(filters)}`
 				}
@@ -35,6 +38,15 @@ const categoryApi = createApi({
 				}
 				if (sortByPrice) {
 					url += "&sortByPrice=true"
+				}
+				if (variantsFilter) {
+					url += `&variantsFilter=${JSON.stringify(variantsFilter)}`
+				}
+				if (maxPrice) {
+					url += `&maxPrice=${maxPrice}`
+				}
+				if (minPrice) {
+					url += `&minPrice=${minPrice}`
 				}
 				return url
 			},

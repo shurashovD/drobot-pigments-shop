@@ -1,38 +1,36 @@
 import { FC } from "react"
 import { Col, Row } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
-import { Product } from "../../../shared"
 import ImageComponent from "../ImageComponent"
 import ButtonCart from "./ButtonCart"
 import Raiting from "./Raiting"
 
 interface IProps {
-	id?: string
+	id: string
 	img?: string
 	price?: string
 	title?: string
-	variantsLabel?: string
-	variants?: Product["variants"]
+	variantId?: string
+	variantTitle?: string
 }
 
 
 const ProductCard: FC<IProps> = (props) => {
     return (
 		<div className="d-flex flex-column justify-content-start align-items-stretch h-100">
-			<ImageComponent src={props.img || "/static"} />
-			<NavLink to={`/product/${props.id || ""}`} className="my-1">
-				{props.title}
+			<NavLink to={props.variantId ? `/product/${props.id}?variantId=${props.variantId}` : `/product/${props.id}`} className="my-1">
+				<ImageComponent src={props.img || "/static"} />
+				<div className="mt-1">
+					{props.title} {props.variantTitle}
+				</div>
 			</NavLink>
 			<div className="mt-auto">
 				<Raiting />
 			</div>
-			<span className="fs-3 my-4">от {props.price}</span>
+			<span className="fs-3 my-4">{props.price}</span>
 			<Row className="d-flex justify-content-between">
 				<Col xs={10}>
-					<ButtonCart
-						productId={props.id || ""}
-						variants={props.variants}
-						variantsLabel={props.variantsLabel} />
+					<ButtonCart productId={props.id || ""} variantId={props.variantId} />
 				</Col>
 			</Row>
 		</div>

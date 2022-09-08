@@ -41,6 +41,11 @@ const HeaderComponent = () => {
 		}
 	}
 
+	const onHide = () => {
+		setMobileCatalogShow(false)
+		setMobileMenuShow(false)
+	}
+
 	useEffect(() => {
 		if ( isSuccess && categories ) {
 			dispatch(setCategories(categories))
@@ -83,7 +88,7 @@ const HeaderComponent = () => {
 
     return (
 		<Container fluid className="p-0 sticky-top">
-			<NavCatalogMobile show={mobileCatalogShow} onHide={() => setMobileCatalogShow(false)} />
+			<NavCatalogMobile show={mobileCatalogShow} onHide={onHide} />
 			<Offcanvas show={mobileMenuShow} onHide={handleClose} className="bg-dark">
 				<Offcanvas.Header closeButton closeVariant="white">
 					<Offcanvas.Title />
@@ -96,32 +101,32 @@ const HeaderComponent = () => {
 							</Button>
 						</div>
 						<div>
-							<NavLink to="/" className="text-uppercase text-white d-none">
+							<NavLink to="/" className="text-uppercase text-white d-none" onClick={() => setMobileMenuShow(false)}>
 								Обучение
 							</NavLink>
 						</div>
 						<div>
-							<NavLink to="/" className="text-uppercase text-white d-none">
+							<NavLink to="/" className="text-uppercase text-white d-none" onClick={() => setMobileMenuShow(false)}>
 								Спец.предложение %
 							</NavLink>
 						</div>
 						<div>
-							<NavLink to="/partner-program" className="text-uppercase text-white">
+							<NavLink to="/partner-program" className="text-uppercase text-white" onClick={() => setMobileMenuShow(false)}>
 								Сотрудничество
 							</NavLink>
 						</div>
 						<div className="mt-auto">
-							<NavLink to="/delivery" className="text-uppercase text-white">
+							<NavLink to="/delivery" className="text-uppercase text-white" onClick={() => setMobileMenuShow(false)}>
 								Доставка
 							</NavLink>
 						</div>
 						<div>
-							<NavLink to="/" className="text-uppercase text-white d-none">
+							<NavLink to="/" className="text-uppercase text-white d-none" onClick={() => setMobileMenuShow(false)}>
 								Статус заказа
 							</NavLink>
 						</div>
 						<div>
-							<NavLink to="/" className="text-uppercase text-white">
+							<NavLink to="/contacts" className="text-uppercase text-white" onClick={() => setMobileMenuShow(false)}>
 								Контакты
 							</NavLink>
 						</div>
@@ -135,8 +140,8 @@ const HeaderComponent = () => {
 						<Container>
 							<Row>
 								<Col xs={3} lg={2} className="d-flex flex-column justify-content-center">
-									<a href="tel:+79002020000" className="text-dark">
-										+7(900)202-00-00
+									<a href="tel:+79189787010" className="text-dark">
+										+7(918)97-87-010
 									</a>
 								</Col>
 								<Col xs={3} lg={3} className="d-flex flex-column justify-content-center">
@@ -150,9 +155,9 @@ const HeaderComponent = () => {
 										Cотрудничество
 									</NavLink>
 									<NavLink to="/delivery" className="text-dark">
-										Доставка
+										Доставка и оплата
 									</NavLink>
-									<NavLink to="/" className="text-dark">
+									<NavLink to="/contacts" className="text-dark">
 										Контакты
 									</NavLink>
 								</Col>

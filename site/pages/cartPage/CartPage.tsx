@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Button, Col, Container, Form, ListGroup, Row, Spinner } from "react-bootstrap"
+import { Button, Col, Container, ListGroup, Row, Spinner } from "react-bootstrap"
 import { useDeleteFromCartMutation, useGetCartQuery, useResetCheckProductsMutation, useToggleCheckAllMutation } from "../../application/order.service"
 import CheckboxComponent from "../../components/CheckboxComponent"
 import CartItem from "./CartItem"

@@ -3,6 +3,7 @@ import { Request, Router } from "express";
 import { access, mkdir, readdir, rm } from "fs/promises";
 import multer, { diskStorage } from "multer";
 import path from "path";
+import { ICategory, IProduct } from "../../shared";
 import CategoryModel from "../models/CategoryModel";
 import ProductModel from "../models/ProductModel";
 
@@ -63,7 +64,37 @@ router.get("/:id", async (req: Request<{id: string}>, res) => {
         if ( !category ) {
             return res.status(500).json({ message: 'Категория не найдена' })
         }
-		return res.json(category)
+        const variantsFilter = await CategoryModel.findById(id)
+			.populate<{ products: IProduct[] }>({ path: "products", model: ProductModel })
+			.then((doc) => {
+                if ( !doc ) return doc
+				return doc.products.reduce<ICategory["variantsFilter"]>((res, { variants, variantsLabel }) => {
+                    if ( !variants || !variantsLabel || !res ) return res
+                    const index = res.findIndex(item => item.variantsLabel === variantsLabel)
+                    const variantsValues = variants.map(({ value }) => value)
+                    if ( index === -1 ) {
+                        res.push({ variantsLabel, variantsValues })
+                    } else {
+                        res[index].variantsValues = Array.from(new Set(res[index].variantsValues.concat(variantsValues)))
+                    }
+                    return res
+                }, [])
+			})
+
+        const prices = await CategoryModel.findById(id)
+			.populate<{ products: IProduct[] }>({ path: "products", model: ProductModel })
+			.then((doc) => {
+				if (!doc) return doc
+				return doc.products.reduce<number[]>((res, { variants, price }) => {
+					if (!variants && !price) return res
+                    if (!variants && price) return res.concat(price)
+					return res.concat(variants.map(({ price }) => price || 0))
+				}, []).filter(item => item > 0).map(item => item / 100).sort((a, b) => a - b)
+			})
+        if ( prices && prices?.length > 1 ) {
+            return res.json({ ...category.toObject(), variantsFilter, minPrice: prices[0], maxPrice: prices[prices.length - 1] })
+        }
+		return res.json({ ...category.toObject(), variantsFilter })
 	} catch (e) {
 		console.log(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
@@ -87,6 +118,46 @@ router.get("/products/:id", async (req: Request<{ id: string }, {}, {},
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
+
+// получение товаров и модификаций категории;
+router.get(
+	"/products-and-variants/:id",
+	async (
+		req: Request<
+			{ id: string },
+			{},
+			{},
+			{ filters?: string; limit?: number; page?: number; sortByPrice?: boolean; variantsFilter?: string; minPrice?: number; maxPrice?: number }
+		>,
+		res
+	) => {
+		try {
+			const { filters: filtersJSON, limit, page, sortByPrice, variantsFilter: variantsFilterJSON, minPrice, maxPrice } = req.query
+			let filters, variantsFilter
+			try {
+				if (filtersJSON) {
+					filters = JSON.parse(filtersJSON)
+				}
+			} catch {}
+			try {
+				if (variantsFilterJSON) {
+					variantsFilter = JSON.parse(variantsFilterJSON)
+				}
+			} catch {}
+
+			const { id } = req.params
+			const category = await CategoryModel.findById(id).populate({ path: "products", model: ProductModel })
+			if (!category) {
+				return res.status(500).json({ message: "Категория не найдена" })
+			}
+			const products = category.getProductsAndVariants({ filters, limit, page, variantsFilter, sortByPrice, minPrice, maxPrice })
+			return res.json(products)
+		} catch (e) {
+			console.log(e)
+			return res.status(500).json({ message: "Что-то пошло не так..." })
+		}
+	}
+)
 
 // добавление товаров в категорию;
 router.post('/products/:id', bodyParser.json(), async (req: Request<{id: string}, {}, {products: string []}>, res) => {

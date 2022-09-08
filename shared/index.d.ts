@@ -146,27 +146,46 @@ export interface ICategory extends Document {
 	description?: string
 	filters: Types.DocumentArray<IFilter>
 	photo: string[]
-	frontEndKey: 'pigments' | 'clothes' | 'brows' | 'remove' | 'eqipment'
+	frontEndKey: "pigments" | "clothes" | "brows" | "remove" | "eqipment"
 	products: Types.ObjectId[]
 	title: string
+	variantsFilter?: {
+		variantsLabel: string
+		variantsValues: string[]
+	}[]
+	minPrice?: number
+	maxPrice?: number
 	addFilter(title: string): Promise<ICategory>
 	rmFilter(filterId: string): Promise<ICategory>
 	updFilter(filterId: string, title: string): Promise<ICategory>
 	addField(filterId: string, value: string): Promise<ICategory>
 	rmField(filterId: string, fieldId: string): Promise<ICategory>
-	updField(
-		filterId: string,
-		fieldId: string,
-		value: string
-	): Promise<ICategory>
+	updField(filterId: string, fieldId: string, value: string): Promise<ICategory>
 	addProduct(productId: string): Promise<ICategory>
 	rmProduct(productId: string): Promise<ICategory>
-	getProducts(
-		filters?: string[][],
-		limit?: number,
-		page?: number,
+	getProducts(filters?: string[][], limit?: number, page?: number, sortByPrice?: boolean): Product[]
+	getProductsAndVariants(args: {
+		filters?: string[][]
+		limit?: number
+		page?: number
+		variantsFilter?: string[]
 		sortByPrice?: boolean
-	): Product[]
+		minPrice?: number
+		maxPrice?: number
+	}): {
+		length: number
+		products: ICategorySiteProduct[]
+	}
+}
+
+export interface ICategorySiteProduct {
+	productId: string
+	productTitle: string
+	price: number
+	img?: string
+	variantId?: string
+	variantTitle?: string
+	variantValue?: string
 }
 
 export interface ICategoryMethods {
@@ -178,12 +197,19 @@ export interface ICategoryMethods {
 	updField(filterId: string, fieldId: string, value: string): Promise<ICategory>
 	addProduct(productId: string): Promise<ICategory>
 	rmProduct(productId: string): Promise<ICategory>
-	getProducts(
-		filters?: string[][],
-		limit?: number,
-		page?: number,
+	getProducts(filters?: string[][], limit?: number, page?: number, sortByPrice?: boolean): { length: number; products: Product[] }
+	getProductsAndVariants(args: {
+		filters?: string[][]
+		limit?: number
+		page?: number
+		variantsFilter?: string[]
 		sortByPrice?: boolean
-	): { length: number, products: Product[] }
+		minPrice?: number
+		maxPrice?: number
+	}): {
+		length: number
+		products: ICategorySiteProduct[]
+	}
 }
 
 export type CategoryModel = Model<ICategory, {}, ICategoryMethods>

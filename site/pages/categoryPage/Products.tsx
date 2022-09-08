@@ -1,6 +1,7 @@
 import { FC, useCallback, useEffect, useRef, useState } from "react"
 import { Button, Col, Row, Spinner } from "react-bootstrap"
-import { Product } from "../../../shared"
+import { useNavigate } from "react-router-dom"
+import { ICategorySiteProduct } from "../../../shared"
 import { useGetProductsQuery } from "../../application/category.service"
 import { nextPage } from "../../application/filtersSlice"
 import { useAppDispatch, useAppSelector } from "../../application/hooks"
@@ -13,10 +14,13 @@ interface IProps {
 const limit = 4
 
 const Products: FC<IProps> = ({ categoryId }) => {
-    const [state, setState] = useState<Product[]>([])
-	const { filters, page } = useAppSelector(state => state.filtersSlice)
-    const {data, isLoading, isFetching, isSuccess} = useGetProductsQuery({ id: categoryId, filters, limit, page }, { refetchOnMountOrArgChange: true })
+    const [state, setState] = useState<ICategorySiteProduct[]>([])
+	const [prices, setPrices] = useState<{ min?: number, max?: number }>({ min: undefined, max: undefined })
+	const { filters, page, variantsFilter, minPrice, maxPrice } = useAppSelector(state => state.filtersSlice)
+    const {data, isLoading, isFetching, isSuccess} =
+		useGetProductsQuery({ id: categoryId, filters, limit, page, variantsFilter, minPrice: prices.min, maxPrice: prices.max }, { refetchOnMountOrArgChange: true })
 	const dispatch = useAppDispatch()
+	const timerId = useRef<ReturnType <typeof setTimeout>>()
     const formatter = useRef(
         Intl.NumberFormat('ru', {
             style: 'currency',
@@ -49,13 +53,16 @@ const Products: FC<IProps> = ({ categoryId }) => {
 			if ( page === 1 ) {
 				setState(data.products)
 			} else {
-				setState((state) =>
-					state.concat(
-						data.products.filter(
-							({ id }) => !state.some((item) => item.id === id)
-						)
-					)
-				)
+				setState((state) => {
+					const goods = data.products.filter(({ productId, variantId }) => {
+						if ( variantId ) {
+							return !state.some((item) => (item.variantId === variantId))
+						} else {
+							return !state.some((item) => (item.productId === productId))
+						}
+					})
+					return state.concat(goods)
+				})
 			}
         }
     }, [data, page])
@@ -67,6 +74,15 @@ const Products: FC<IProps> = ({ categoryId }) => {
 		}
 	}, [scrollHandler])
 
+	useEffect(() => {
+		if ( timerId.current ) {
+			clearTimeout(timerId.current)
+		}
+		timerId.current = setTimeout(() => {
+			setPrices({ max: maxPrice, min: minPrice })
+		}, 400)
+	}, [maxPrice, minPrice])
+
     return (
 		<Row className="g-4 gy-6">
 			{!isLoading && !isFetching && state.length === 0 && (
@@ -75,27 +91,29 @@ const Products: FC<IProps> = ({ categoryId }) => {
 				</Col>
 			)}
 			{state.map((item) => (
-				<Col key={item.id} xs={12} md={6} lg={3}>
+				<Col key={`${item.productId}_${item.variantId}`} xs={12} md={6} lg={3}>
 					<ProductCard
-						id={item.id}
-						img={item.photo?.[0]}
-						price={formatter.current.format(Math.min(...item.variants.map(({ price }) => price / 100)) || item.price || 0)}
-						title={item.name}
-						variantsLabel={item.variantsLabel}
-						variants={item.variants}
+						id={item.productId}
+						img={item.img}
+						price={formatter.current.format(item.price)}
+						title={item.productTitle}
+						variantId={item.variantId}
+						variantTitle={item.variantTitle}
 					/>
 				</Col>
 			))}
-			<Col xs={12} className="text-center">
-				{data && Math.ceil(data.length / limit) > page && (
-					<Button variant="outline-primary" onClick={() => (Math.ceil(data.length / limit) <= page + 1 ? dispatch(nextPage()) : {})}>
-						Ещё
-					</Button>
-				)}
-			</Col>
-			{(isLoading || isFetching) && (
+
+			{isLoading || isFetching ? (
 				<Col xs={12} className="text-center p-4">
 					<Spinner animation="border" variant="secondary" />
+				</Col>
+			) : (
+				<Col xs={12} className="text-center">
+					{data && Math.ceil(data.length / limit) > page && (
+						<Button variant="outline-primary" onClick={() => (Math.ceil(data.length / limit) <= page + 1 ? dispatch(nextPage()) : {})}>
+							Ещё
+						</Button>
+					)}
 				</Col>
 			)}
 		</Row>

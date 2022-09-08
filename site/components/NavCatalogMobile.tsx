@@ -27,6 +27,9 @@ const NavCatalogMobile: FC<OffcanvasProps> = ({ onHide, show }) => {
 			<Offcanvas.Body>
 				{openedCategory ? (
 					<Accordion flush>
+						<Button className="text-muted" variant="link" onClick={() => setOpenedCategory(undefined)}>
+							&larr; назад
+						</Button>
 						{categories
 							.find(
 								({ _id }) => _id?.toString() === openedCategory

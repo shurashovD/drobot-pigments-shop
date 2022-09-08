@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { Button, Col, Collapse, Nav, Row, Stack, Tab } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { resetFilters } from "../application/filtersSlice";
 import { useAppDispatch, useAppSelector } from "../application/hooks";
 import { hideNavCatalog } from "../application/navCatalogSlice";
 
@@ -11,6 +12,7 @@ const NavCatalog = () => {
 	const dispatch = useAppDispatch()
 
 	const clickHandler = (to: string) => {
+		dispatch(resetFilters())
 		navigate(to)
 		dispatch(hideNavCatalog())
 	}
