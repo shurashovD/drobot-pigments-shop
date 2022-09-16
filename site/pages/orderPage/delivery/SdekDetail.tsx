@@ -1,15 +1,18 @@
 import { ChangeEvent, FC, useEffect, useState } from "react"
 import { Button, Col, Form, Row, Tab } from "react-bootstrap"
+import { useAppDispatch } from "../../../application/hooks"
 import { useGetDeliveryDetailQuery, useSetDeliveryDetailMutation } from "../../../application/order.service"
+import { setActive } from "../../../application/orderSlice"
 import ButtonComponent from "../../../components/ButtonComponent"
 import PvzList from "./PvzList"
 import PvzMap from "./PvzMap"
 
 const SdekDetail: FC = () => {
     const { data } = useGetDeliveryDetailQuery(undefined)
-	const [setDetail, { isLoading }] = useSetDeliveryDetailMutation()
+	const [setDetail, { isLoading, isSuccess }] = useSetDeliveryDetailMutation()
 	const [value, setValue] = useState("")
     const [activeKey, setActivekey] = useState("1")
+	const dispatch = useAppDispatch()
 
     const addressHandler = () => {
 		setDetail({ sdek: true, tariff_code: 139, address: value })
@@ -21,10 +24,16 @@ const SdekDetail: FC = () => {
 		}
 	}, [data])
 
+	useEffect(() => {
+		if ( isSuccess ) {
+			dispatch(setActive("3"))
+		}
+	}, [isSuccess])
+
     return (
 		<div>
 			{data?.tariff_code === 139 && (
-				<Row>
+				<Row className="g-2">
 					<Col xs={12} md={10} lg={8}>
 						<Form.Control
 							value={value}
@@ -33,7 +42,7 @@ const SdekDetail: FC = () => {
 							className="h-100"
 						/>
 					</Col>
-					<Col xs={12} md={2}>
+					<Col xs="auto" md={2}>
 						<ButtonComponent onClick={addressHandler} isLoading={isLoading} disabled={value === ""}>
 							Выбрать
 						</ButtonComponent>

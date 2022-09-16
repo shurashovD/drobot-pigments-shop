@@ -9,7 +9,7 @@ const CheckPhoneModal: FC<ModalProps> = ({ show, onHide }) => {
 
     const handler = (event: ChangeEvent<HTMLInputElement>) => {
         const { value } = event.target
-        if ( !isNaN(parseInt(value)) ) {
+        if ( !isNaN(parseInt(value)) || value === '' ) {
             setValue(value)
         }
     }

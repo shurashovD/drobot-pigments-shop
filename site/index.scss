@@ -63,8 +63,9 @@ $h4-font-size: $font-size-base * 1.6;
 $h5-font-size: $font-size-base * 1.6;
 $h6-font-size: $font-size-base;
 
-$primary: #39261F;
+$primary: #52372D;
 $secondary: #F7DFB1;
+$success: #B9FD75;
 $dark: #B88E5B;
 $light: #F7F0F0;
 $danger: #FD7575;
@@ -107,10 +108,10 @@ small {
 
 a, .btn-link {
     text-decoration: none;
-    color: $dark;
+    color: $primary;
 }
 a:hover {
-    color: $secondary;
+    color: $dark;
     transition: .2s;
 }
 
@@ -126,7 +127,7 @@ a:hover {
 }
 
 *::-webkit-scrollbar-thumb {
-    background-color: #fff;
+    background-color: $body-bg;
     /* цвет плашки */
     border-radius: 20px;
     /* закругления плашки */
@@ -241,14 +242,13 @@ input:focus,
 
 #navCatalogTab {
     .nav-link {
-        color: $dark;
         cursor: pointer;
     }
 
     .nav-link.active {
         color: $primary;
         background: #fff;
-        border-right: 2px solid $primary;
+        border-right: 2px solid $dark;
     }
 }
 
@@ -283,14 +283,72 @@ input:focus,
     min-height: 60px;
 }
 .category-card__label:hover {
-    color: $primary !important;
-    background-color: $secondary !important;
+    color: $secondary !important;
+    background-color: $primary !important;
     transition: .2s;
 }
 
-.sign-order-accordion button.accordion-button {
+.order-accordion__btn {
+    display: flex;
+    text-transform: uppercase;
+    text-align: start;
+    width: 100%;
     padding-left: 0;
     padding-right: 0;
+}
+.order-accordion__btn:not(.collapsed) {
+    border-bottom: 1px solid rgba($gray, 0.25);
+}
+.order-accordion__btn.empty::after {
+    content: "";
+    width: 1rem;
+    height: 1rem;
+    margin-right: 1rem;
+    background-size: 1rem;
+    background-image: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%23000000%27%3e%3cpath fill-rule=%27evenodd%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z%27/%3e%3c/svg%3e');
+    transform: rotate(0deg);
+    transition: transform .2s;
+    margin-left: auto;
+    align-self: center;
+}
+.order-accordion__btn:not(.empty)::after {
+    content: "Изменить";
+    text-transform: none;
+    color: $dark;
+    height: 1rem;
+    margin-left: auto;
+    align-self: center;
+}
+.order-accordion__btn.collapsed::after {
+    content: "";
+    width: 1rem;
+    height: 1rem;
+    background-size: 1rem;
+    background-image: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27%23000000%27%3e%3cpath fill-rule=%27evenodd%27 d=%27M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z%27/%3e%3c/svg%3e');
+    transform: rotate(180deg);
+    transition: transform .2s;
+    margin-left: auto;
+    align-self: center;
+}
+.order-accordion__btn:disabled::after {
+    content: none;
+}
+
+.sign-order-accordion button.accordion-button {
+    
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.sign-order-accordion button.accordion-button:not(.collapsed) {
+    color: $dark;
+}
+
+.sign-order-accordion button.accordion-button:disabled {
+    color: $gray2;
+}
+.sign-order-accordion button.accordion-button:disabled::after {
+    content: "";
 }
 
 .sign-order-accordion button.accordion-button::after {
@@ -317,23 +375,6 @@ input:focus,
     padding-left: 0;
     padding-right: 0;
     margin: 0;
-}
-
-.sign-tel-btn {
-    padding: 0;
-    color: $danger;
-    border-bottom: 1px dotted $danger;
-}
-.sign-tel-btn:hover {
-    color: $danger;
-}
-
-.sign-tel-btn-success {
-    padding: 0;
-    color: #93FA82;
-}
-.sign-tel-btn-success:hover {
-    color: #93FA82;
 }
 
 .white-space {
@@ -419,12 +460,78 @@ hr {
 #filter-accordion  {
     .accordion-button {
         background-color: transparent !important;
+        z-index: 0;
     }
 }
 
 #pvz-list {
     max-height: 40vh;
     overflow-y: scroll;
+}
+
+#delivery-description-accordion {
+    margin-top: 90px;
+
+    .accordion-button::after {
+        background-image: url("data:image/svg+xml,%3Csvg width='20' height='12' viewBox='0 0 20 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.400005 1.20019L10.4535 10.8002L19.6 1.2002' stroke='%2339261F'/%3E%3C/svg%3E%0A");
+    }
+    .accordion-button:not(.collapsed) {
+        color: $dark;
+    }
+    .accordion-button:not(.collapsed):after {
+        background-image: url("data:image/svg+xml,%3Csvg width='20' height='12' viewBox='0 0 20 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.400005 1.20019L10.4535 10.8002L19.6 1.2002' stroke='%23B88E5B'/%3E%3C/svg%3E%0A");
+    }
+}
+
+.product-page-variant__btn {
+    border: 1px solid $gray2;
+    color: $gray2;
+    min-width: 45px;
+    height: 45px;
+    padding: 5px;
+    white-space: nowrap;
+    
+    &.checked {
+        border: 1px solid $dark;
+        color: $dark;
+    }
+}
+.product-page-variant__btn:hover {
+    border: 1px solid $primary;
+    color: $primary;
+    transition: .2s;
+}
+
+.custom-checkbox {
+    position: absolute;
+    visibility: hidden;
+}
+
+.alert-container {
+    left: 75%;
+    z-index: 1100;
+}
+
+.to-cart__btn {
+    color: $secondary !important;
+    background-color: #39261F;
+}
+.to-cart__btn:hover {
+    color: $secondary !important;
+    background-color: $primary;
+}.to-cart__btn.in-cart {
+    color: $primary !important;
+    border: 1px solid $primary;
+    background-color: white;
+}
+
+.alert-success {
+    background-color: $success;
+}
+
+.alert-danger {
+    background-color: $danger;
+    color: $light;
 }
 
 @media (max-width: 576px) {
@@ -444,5 +551,9 @@ hr {
 
     #pvz-list {
         max-height: 30vh;
+    }
+
+    .alert-container {
+        left: 0%;
     }
 }

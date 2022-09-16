@@ -21,7 +21,7 @@ const ProductCard: FC<IProps> = (props) => {
 			<NavLink to={props.variantId ? `/product/${props.id}?variantId=${props.variantId}` : `/product/${props.id}`} className="my-1">
 				<ImageComponent src={props.img || "/static"} />
 				<div className="mt-1">
-					{props.title} {props.variantTitle}
+					{props.variantTitle || props.title}
 				</div>
 			</NavLink>
 			<div className="mt-auto">

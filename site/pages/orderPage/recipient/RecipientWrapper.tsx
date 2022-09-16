@@ -1,12 +1,9 @@
-import { FC } from "react"
-import { Accordion, Fade, Stack } from "react-bootstrap"
+import classNames from "classnames"
+import { Button, Collapse, Fade, Stack } from "react-bootstrap"
+import { useAppDispatch, useAppSelector } from "../../../application/hooks"
 import { useGetRecipientQuery } from "../../../application/order.service"
+import { setActive } from "../../../application/orderSlice"
 import Recipient from "./Recipient"
-
-interface IProps {
-	activeKey?: string
-	accordionHandler: (key: string) => void
-}
 
 const parsePhoneValue = (value: string) => {
 	const code = value.substring(0, 3)
@@ -29,20 +26,30 @@ const parsePhoneValue = (value: string) => {
 	return result
 }
 
-const RecipientWrapper: FC<IProps> = ({ accordionHandler, activeKey }) => {
+const RecipientWrapper = () => {
     const eventKey = "3"
     const { data: recipient } = useGetRecipientQuery(undefined)
+	const { active: activeKey } = useAppSelector((state) => state.orderSlice)
+	const disabled = useAppSelector((state) => !state.orderSlice.available.includes(eventKey))
+	const empty = useAppSelector((state) => state.orderSlice.empty.includes(eventKey))
+	const dispatch = useAppDispatch()
 
     return (
 		<>
-			<Accordion.Item eventKey="3" className="border-0 border-bottom" id="order-recipient">
-				<Accordion.Header onClick={() => accordionHandler(eventKey)}>
-					<span className="text-uppercse fs-3">3. Получатель</span>
-				</Accordion.Header>
-				<Accordion.Body>
-					<Recipient readyHandler={() => accordionHandler("4")} />
-				</Accordion.Body>
-			</Accordion.Item>
+			<Button
+				id="order-recipient"
+				variant="link"
+				onClick={() => dispatch(setActive(eventKey))}
+				disabled={disabled}
+				className={classNames("order-accordion__btn", { collapsed: activeKey === eventKey, empty: empty })}
+			>
+				<span className="text-uppercse fs-3">3. Получатель</span>
+			</Button>
+			<Collapse in={activeKey === eventKey}>
+				<div className="mt-2">
+					<Recipient />
+				</div>
+			</Collapse>
 			<Fade in={!!recipient?.phone && !!recipient?.name && !!recipient?.mail && activeKey !== "3"}>
 				<Stack className="my-5" dir="verical" gap={3}>
 					<div>

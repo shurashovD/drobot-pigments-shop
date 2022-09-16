@@ -1,7 +1,9 @@
 import { Image, Modal, ModalProps, Spinner } from 'react-bootstrap'
 import { FC, useEffect, useState } from 'react'
 import { useCheckPaymentProbablyQuery, useGetCartQuery } from '../../application/order.service'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { useAppDispatch } from '../../application/hooks'
+import { setOrderAlert } from '../../application/alertSlice'
 const logo = require('../../img/logo.svg')
  
 interface IProps extends ModalProps {
@@ -13,16 +15,23 @@ const FinalModal: FC<IProps> = ({ show, onHide, number, url }) => {
 	const [isPaying, setIsPaying] = useState(false)
 	const { data } = useCheckPaymentProbablyQuery({ orderNumber: number || '' }, { pollingInterval: 3000, skip: !show || isPaying })
 	const { refetch } = useGetCartQuery(undefined)
+	const navigate = useNavigate()
+	const dispatch = useAppDispatch()
 
 	useEffect(() => {
 		if (data && data.status === "succeeded") {
 			setIsPaying(true)
+			navigate("/")
+			dispatch(setOrderAlert({ orderNumber: number || '', failedOrder: false }))
 			refetch()
 		}
 		if (data && data.status === "canceled") {
+			dispatch(setOrderAlert({ orderNumber: number || "", failedOrder: true }))
+			navigate("/")
+			refetch()
 			setIsPaying(true)
 		}
-	}, [data, refetch])
+	}, [data, refetch, dispatch, navigate, setOrderAlert, number])
 
 	useEffect(() => {
 		setIsPaying(false)
@@ -44,11 +53,9 @@ const FinalModal: FC<IProps> = ({ show, onHide, number, url }) => {
 				/>
 				<div className="text-uppercase text-white text-center mb-3">
 					{(!data || data.status === "pending") && <>Заказ №{number} ожидает оплаты...</>}
-					{data && data.status === "canceled" && <>Ошибка оплаты заказа!</>}
 					{data && data.status === "probably" && (
 						<>Процесс оплаты завершен, но деньги к нам еще не поступили. Пожалуйста, подождите еще немного до завершения платежа.</>
 					)}
-					{data && data.status === "succeeded" && <>Заказ №{number} успешно оформлен</>}
 				</div>
 				{(!data || data.status === "pending" || data.status === "probably") && (
 					<div className="text-center mb-4">

@@ -1,6 +1,6 @@
+import classNames from "classnames"
 import { FC } from "react"
 import { Button } from "react-bootstrap"
-import IconGreenCheckmark from "../../../components/icons/IconGreenCheckmark"
 
 interface IProps {
 	isConfirm: boolean
@@ -10,26 +10,22 @@ interface IProps {
 }
 
 const RecipientNumberConfirm: FC<IProps> = ({ checkNumber, isConfirm, numberIsChanged, shortNumber }) => {
+	const handler = () => {
+		if ( isConfirm && numberIsChanged ) {
+			checkNumber()
+		}
+		if ( !isConfirm ) {
+			checkNumber()
+		}
+	}
+
 	return (
-		<div>
-			{isConfirm ? (
-				<div className="d-flex align-items-center">
-					{!numberIsChanged && <IconGreenCheckmark stroke="#93FA82" />}
-					<Button
-						variant="link"
-						className="sign-tel-btn-success ms-2"
-						disabled={shortNumber}
-						onClick={() => (numberIsChanged ? checkNumber() : {})}
-					>
-						{numberIsChanged ? <>Привязать новый</> : <>Номер подтверждён</>}
-					</Button>
-				</div>
-			) : (
-				<Button variant="link" className="sign-tel-btn" disabled={shortNumber} onClick={() => checkNumber()}>
-					Подтвердить номер
-				</Button>
-			)}
-		</div>
+		<Button variant={isConfirm ? "light" : "outline-danger"} className={classNames({"border border-muted": isConfirm})}
+			disabled={shortNumber} onClick={handler}>
+			{isConfirm && numberIsChanged && <>Привязать новый</>}
+			{isConfirm && !numberIsChanged && <>Номер подтверждён</>}
+			{!isConfirm && <>Подтвердить номер</>}
+		</Button>
 	)
 }
 

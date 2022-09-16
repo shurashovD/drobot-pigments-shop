@@ -109,16 +109,9 @@ const Profile = () => {
 						</Col>
 					</Row>
 					<ButtonComponent
-						disabled={
-							state.name.length *
-								state.phone.length *
-								state.mail.length ===
-							0
-						}
+						disabled={state.name.length * state.phone.length * state.mail.length === 0}
 						isLoading={isLoading}
-						onClick={() =>
-							action({ name: state.name, email: state.mail })
-						}
+						onClick={() => action({ name: state.name, email: state.mail })}
 					>
 						Сохранить
 					</ButtonComponent>

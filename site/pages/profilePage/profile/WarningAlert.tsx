@@ -1,18 +1,14 @@
 import { Collapse } from "react-bootstrap"
-import { useAppSelector } from "../../../application/hooks"
+import { useAccountAuthQuery } from "../../../application/account.service"
 
 const WarningAlert = () => {
-    const { client } = useAppSelector(state => state.profileSlice)
+	const { data: client } = useAccountAuthQuery(undefined)
 
     return (
-		<Collapse in={!client?.name || !client?.mail}>
-			<div
-				className="p-4 text-center text-white"
-				style={{ backgroundColor: "#AB9A9A" }}
-			>
+		<Collapse in={!client?.name || !client?.mail || !client?.counterpartyId}>
+			<div className="p-4 text-center text-white" style={{ backgroundColor: "#AB9A9A" }}>
 				В вашем профиле не хватает данных. <br />
-				Заполните недостающие поля, чтобы оформлять покупки максимально
-				удобно.
+				Сохраните личные данные, чтобы получить доступ ко всем функциям интернет магазина.
 			</div>
 		</Collapse>
 	)

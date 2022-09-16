@@ -140,26 +140,22 @@ const HeaderComponent = () => {
 						<Container>
 							<Row>
 								<Col xs={3} lg={2} className="d-flex flex-column justify-content-center">
-									<a href="tel:+79189787010" className="text-dark">
-										+7(918)97-87-010
-									</a>
+									<a href="tel:+79189787010">+7(918)97-87-010</a>
 								</Col>
 								<Col xs={3} lg={3} className="d-flex flex-column justify-content-center">
-									<a href="#" className="w-100 d-flex align-items-center text-dark d-none">
+									<a
+										href="https://wa.me/79189787010?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5!%20%F0%9F%91%8B"
+										className="w-100 d-flex align-items-center"
+									>
 										<Image src={waLogo} width="24" className="me-2" />
 										<span>Напиcать в WhatsApp</span>
 									</a>
 								</Col>
-								<Col xs={6} lg={5} className="offset-lg-2 d-flex align-items-center justify-content-evenly">
-									<NavLink to="/partner-program" className="text-dark">
-										Cотрудничество
-									</NavLink>
-									<NavLink to="/delivery" className="text-dark">
-										Доставка и оплата
-									</NavLink>
-									<NavLink to="/contacts" className="text-dark">
-										Контакты
-									</NavLink>
+								<Col xs={6} lg={6} className="offset-lg-1 d-flex align-items-center justify-content-between">
+									<NavLink to="/about">О бренде</NavLink>
+									<NavLink to="/partner-program">Cотрудничество</NavLink>
+									<NavLink to="/delivery">Доставка и оплата</NavLink>
+									<NavLink to="/contacts">Контакты</NavLink>
 								</Col>
 							</Row>
 						</Container>

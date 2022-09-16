@@ -1,11 +1,12 @@
 import { useEffect } from "react"
-import { Alert, Container } from "react-bootstrap"
+import { Alert } from "react-bootstrap"
+import { NavLink } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
 import { hideAlert, resetRedirectUrl } from "../application/alertSlice"
 import { useAppDispatch, useAppSelector } from "../application/hooks"
 
 const AlertComponent = () => {
-    const { show, text, variant, redirectUrl } = useAppSelector(state => state.alertSlice)
+    const { show, text, variant = "success", redirectUrl, orderNumber, failedOrder } = useAppSelector(state => state.alertSlice)
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
 
@@ -34,12 +35,25 @@ const AlertComponent = () => {
     }, [redirectUrl, dispatch, resetRedirectUrl, navigate])
     
     return (
-        <Container fluid className="position-fixed start-0 end-0 top-0 p-1" style={{ zIndex: 1100 }}>
-            <Alert show={show} variant={variant}>
-                {text}
-            </Alert>
-        </Container>
-    )
+		<div className="position-fixed bottom-0 end-0 p-1 pb-4 alert-container">
+			<Alert show={show} variant={variant} className="p-5">
+				{orderNumber && (
+					<Alert.Heading className="text-uppercase fs-6">
+						{failedOrder ? <>Ошибка оплаты заказа {orderNumber}</> : <>Заказ {orderNumber} оплачен</>}
+					</Alert.Heading>
+				)}
+				{!orderNumber && <>{text}</>}
+				{orderNumber && (
+					<>
+						Отслеживайте заказы <br />
+						<span className="no-wrap">
+							в <NavLink to="/profile#orders">личном кабинете</NavLink>
+						</span>
+					</>
+				)}
+			</Alert>
+		</div>
+	)
 }
 
 export default AlertComponent

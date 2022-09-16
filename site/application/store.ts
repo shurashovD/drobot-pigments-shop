@@ -9,6 +9,7 @@ import fileApi from "./file.service";
 import filtersSlice from "./filtersSlice";
 import navCatalogSlice from "./navCatalogSlice";
 import orderApi from "./order.service";
+import orderSlice from "./orderSlice";
 import productApi from "./product.service";
 import profileApi from "./profile.service";
 import profilePromocodesSlice from "./profilePromocodesSlice";
@@ -36,6 +37,7 @@ const store = configureStore({
 		[filtersSlice.name]: filtersSlice.reducer,
 		[navCatalogSlice.name]: navCatalogSlice.reducer,
         [orderApi.reducerPath]: orderApi.reducer,
+		[orderSlice.name]: orderSlice.reducer,
         [productApi.reducerPath]: productApi.reducer,
 		[profileApi.reducerPath]: profileApi.reducer,
 		[profilePromocodesSlice.name]: profilePromocodesSlice.reducer,

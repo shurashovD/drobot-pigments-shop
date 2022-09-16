@@ -21,6 +21,7 @@ import profileRoutes from "./routes/profile.routes"
 import authMiddleware from './middleware/auth.middleware'
 import frontLogger from './routes/frontLogger.routes'
 import loyaltyRoutes from './routes/loyalty.routes'
+import rests from './moyskladAPI/rests'
 
 const PORT = 3000
 
@@ -47,9 +48,12 @@ app.use(
 		secret: config.get("sessionSecret"),
 		resave: true,
 		saveUninitialized: true,
+        cookie: {
+            maxAge: 40 * 24 * 3600 * 1000
+        },
 		store: MongoStore.create({
 			mongoUrl: config.get("mongoURI"),
-            ttl: 60 * 24 * 3600
+            ttl: 40 * 24 * 3600 * 1000
 		}),
 	})
 )

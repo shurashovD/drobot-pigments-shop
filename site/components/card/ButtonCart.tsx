@@ -1,8 +1,10 @@
-import { Button, Col, Row } from "react-bootstrap"
+import { Button } from "react-bootstrap"
 import { FC, useEffect, useState } from "react"
 import { ButtonProps } from "react-bootstrap"
 import IconCart from "../icons/IconCart"
+import classnames from 'classnames'
 import { useChangeProductInCartMutation, useChangeVariantInCartMutation, useGetCartQuery } from "../../application/order.service"
+import { useNavigate } from "react-router-dom"
 
 interface IProps extends ButtonProps {
     productId: string
@@ -14,8 +16,13 @@ const ButtonCart: FC<IProps> = ({ productId, variantId }) => {
 	const [inCart, setInCart] = useState(false)
 	const [addProductToCart, { isLoading: addProductLoading }] = useChangeProductInCartMutation()
 	const [addVariantToCart, { isLoading: addVariantLoading }] = useChangeVariantInCartMutation()
+	const navigate = useNavigate()
 
 	const addProductHandler = () => {
+		if ( inCart ) {
+			navigate('/cart')
+			return
+		}
 		if (variantId) {
 			addVariantToCart({ productId, variantId, quantity: 1 })
 		} else {
@@ -34,34 +41,18 @@ const ButtonCart: FC<IProps> = ({ productId, variantId }) => {
 	}, [cart, productId, variantId])
 
     return (
-		<div className="w-100">
-			<Button
-				disabled={isFetching || addProductLoading || addVariantLoading || inCart}
-				variant={inCart ? "white" : "primary"}
-				className={`${
-					inCart && "border border-primary"
-				} px-md-0 d-flex justify-content-center align-items-center w-100`}
-				style={{ maxWidth: "264px", minWidth: "210px" }}
-				onClick={addProductHandler}
-			>
-				<Row className="g-0 m-0 w-100">
-					<Col xs={3}>
-						<div
-							className={`${
-								inCart ? "invisible" : "visible"
-							} p-0 m-0 text-end`}
-						>
-							<IconCart stroke="#F7DFB1" width={22} height={27} />
-						</div>
-					</Col>
-					<Col xs={6} className="d-flex">
-						<span className="text-uppercase m-auto">
-							В корзин{inCart ? <>е</> : <>у</>}
-						</span>
-					</Col>
-				</Row>
-			</Button>
-		</div>
+		<Button
+			disabled={isFetching || addProductLoading || addVariantLoading}
+			variant="link"
+			className={classnames("p-0 px-2 d-flex justify-content-center align-items-center to-cart__btn", {'in-cart': inCart})}
+			style={{ maxWidth: "264px", minHeight: '45px' }}
+			onClick={addProductHandler}
+		>
+			<span className={classnames({"invisible": inCart}, "me-1 me-md-2")}>
+				<IconCart stroke="#F7DFB1" width={22} height={27} strokeWidth={0.7} />
+			</span>
+			<span className="text-uppercase" style={{ transform: `translateX(${inCart ? "-16px" : "0"})` }}>В корзин{inCart ? <>е</> : <>у</>}</span>
+		</Button>
 	)
 }
 

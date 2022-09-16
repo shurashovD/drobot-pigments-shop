@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Button, Col, Container, ListGroup, Row, Spinner } from "react-bootstrap"
+import { Button, Col, Container, Fade, ListGroup, Row, Spinner } from "react-bootstrap"
 import { useDeleteFromCartMutation, useGetCartQuery, useResetCheckProductsMutation, useToggleCheckAllMutation } from "../../application/order.service"
 import CheckboxComponent from "../../components/CheckboxComponent"
 import CartItem from "./CartItem"
@@ -70,26 +70,27 @@ const CartPage = () => {
 			{data && data.products.length + data.variants.length > 0 && (
 				<Row>
 					<Col xs={12} lg={8}>
-						<Row className="m-0">
-							<Col xs="auto" className="ps-4">
+						<Row className="m-0 g-0">
+							<Col xs="auto" className="pe-3">
 								<CheckboxComponent
 									isLoading={checkAllLoading}
 									label="Выбрать все"
-									className="align-item-center m-0"
 									onChange={() => toggleChekAll()}
 									checked={checked}
 									disabled={rmLoading || checkAllLoading}
 								/>
 							</Col>
-							<Col xs={"auto"}>
-								<Button
-									variant="link"
-									className="text-muted m-0 p-0 border-0 border-bottom border-2 border-gray"
-									disabled={rmLoading}
-									onClick={rmHandler}
-								>
-									Удалить выбранные
-								</Button>
+							<Col xs={"auto"} className="d-flex align-items-center">
+								<Fade in={checked}>
+									<Button
+										variant="link"
+										className="text-muted m-0 p-0 border-0 border-bottom border-2 border-gray"
+										disabled={rmLoading}
+										onClick={rmHandler}
+									>
+										Удалить выбранные
+									</Button>
+								</Fade>
 							</Col>
 						</Row>
 					</Col>

@@ -227,7 +227,9 @@ export interface IOrder extends Document {
 			uuid?: string
 			cost?: number
 			tariff_code: number
-		}
+		},
+		recipientName?: string
+		recipientMail?: string
 	}
 	payment?: {
 		paymentId: string
@@ -285,6 +287,8 @@ export interface IOrderPop {
 			cost?: number
 			tariff_code: number
 		}
+		recipientName?: string
+		recipientMail?: string
 	}
 	id: string
 	payment?: {
@@ -384,7 +388,7 @@ export interface IClient extends Document {
 	cashBack?: number
 	totalCashBack?: number
 	total?: number
-	createTempOrder(sdek: IOrder["delivery"]["sdek"]): Promise<string>
+	createTempOrder(sdek: IOrder["delivery"]["sdek"], recipientName?: string, recipientMail?: string): Promise<string>
 	deleteOrder(orderId: string): Promise<void>
 	getDiscount(): Promise<{ discountPercentValue?: number; nextLevelRequires: string[] }>
 	getOrder(id: string): Promise<IOrderPop>
@@ -400,7 +404,7 @@ export interface IClient extends Document {
 }
 
 export interface IClientMethods {
-	createTempOrder(sdek: IOrder["delivery"]["sdek"]): Promise<string>
+	createTempOrder(sdek: IOrder["delivery"]["sdek"], recipientName?: string, recipientMail?: string): Promise<string>
 	deleteOrder(orderId: string): Promise<void>
 	getOrder(id: string): Promise<IOrderPop>
 	getDiscount(): Promise<{ discountPercentValue?: number; nextLevelRequires: string[] }>

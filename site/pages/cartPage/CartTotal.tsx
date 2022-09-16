@@ -1,14 +1,17 @@
 import { useRef } from "react"
-import { Col, Collapse, Fade, Row } from "react-bootstrap"
+import { Button, Col, Collapse, Fade, Row } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
 import { useAccountAuthQuery } from "../../application/account.service"
+import { useAppDispatch } from "../../application/hooks"
 import { useGetCartQuery } from "../../application/order.service"
+import { setShowAuthModal } from "../../application/profileSlice"
 import CashBackComponent from "./CashBackComponent"
 import PromocodeComponent from "./PromocodeComponent"
 
 const CartTotal = () => {
 	const { data: auth } = useAccountAuthQuery(undefined)
 	const { data: cart, isFetching } = useGetCartQuery(undefined, { refetchOnMountOrArgChange: true })
+	const dispatch = useAppDispatch()
 	const formatter = useRef(
 		Intl.NumberFormat("ru", {
 			style: "currency",
@@ -51,6 +54,15 @@ const CartTotal = () => {
 					</Fade>
 				</div>
 			</Collapse>
+			{(!auth || !auth.status) && (
+				<div className="mb-5">
+					Для доступа к скидкам{" "}
+					<Button variant="link"
+						onClick={() => dispatch(setShowAuthModal(true))}
+						className="m-0 p-0 text-dark text-decoration-underline"
+					>Авторизуйтесь или Зарестирируйтесь</Button>
+				</div>
+			)}
 			{auth?.status === "common" && (
 				<Fade in={!!cart?.total && !isFetching}>
 					<div className="mb-5">

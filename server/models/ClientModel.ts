@@ -86,7 +86,7 @@ ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ dis
 			const myDiscountLevelIndex = commonDiscounts.findIndex(({ lowerTreshold }) => (lowerTreshold <= commonOrdersTotal ))
 			const discountPercentValue = commonDiscounts[myDiscountLevelIndex]?.percentValue || 0
 
-			let nextLevelRequires = ["Максимальный уровень скидки"]
+			let nextLevelRequires = ["У вас максимальный уровень скидки"]
 			if ( myDiscountLevelIndex === -1 ) {
 				const nextDiscountPercentValue = commonDiscounts[commonDiscounts.length - 1]?.percentValue
 				const nextDiscountRemind = commonDiscounts[commonDiscounts.length - 1]?.lowerTreshold - commonOrdersTotal
@@ -106,7 +106,7 @@ ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ dis
 			if (!agentDiscount) {
 				return { nextLevelRequires: ["Бонусная программа не активна"] }
 			}
-			return { discountPercentValue: agentDiscount?.percentValue || 0, nextLevelRequires: ["Максимальный уровень скидки"] }
+			return { discountPercentValue: agentDiscount?.percentValue || 0, nextLevelRequires: ["У вас максимальный уровень скидки"] }
 		}
 
 		if (this.status === 'delegate') {
@@ -126,7 +126,7 @@ ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ dis
 	}
 }
 
-ClientSchema.methods.createTempOrder = async function (this: IClient, sdek: IOrder["delivery"]["sdek"]): Promise<string> {
+ClientSchema.methods.createTempOrder = async function (this: IClient, sdek: IOrder["delivery"]["sdek"], recipientMail?: string, recipientName?: string): Promise<string> {
 	try {
 		if ( !this.cartId ) {
 			throw new Error(`Корзина не найдена у клиента ${this._id.toString()}`)
@@ -146,7 +146,7 @@ ClientSchema.methods.createTempOrder = async function (this: IClient, sdek: IOrd
 		const order = await new OrderModel({
 			client: this._id,
 			date: new Date(),
-			delivery: { sdek },
+			delivery: { sdek, recipientMail, recipientName },
 			products: productsForOrder,
 			variants: variantsForOrder,
 			total: cart.total,

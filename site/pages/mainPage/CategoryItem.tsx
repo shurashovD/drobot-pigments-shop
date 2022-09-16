@@ -54,7 +54,7 @@ const CategoryItem: FC<IProps> = ({ category }) => {
 		<div className="position-relative" ref={container}>
 			<ImageComponent src={category?.photo[0] || "/static/"} />
 			<NavLink
-				className="w-100 p-2 px-xl-4 text-uppercase text-secondary bg-primary position-absolute bottom-0 start-0 end-0 d-flex align-items-center category-card__label"
+				className="w-100 p-2 px-xl-4 text-uppercase text-primary bg-secondary position-absolute bottom-0 start-0 end-0 d-flex align-items-center category-card__label"
 				to={`/category/${category?._id?.toString()}/[]`}
 			>
 				<div className="text-wrap" style={{ width }}>

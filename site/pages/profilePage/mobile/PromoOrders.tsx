@@ -16,7 +16,7 @@ const PromoOrders: FC<IProps> = ({ activeKey, onClick }) => {
 			<Accordion.Header className="text-uppercase" onClick={() => onClick(activeKey === eventKey ? undefined : eventKey)}>
 				<IconPromocode stroke="white" />
 				<NavLink to="/profile#promocodes">
-					<span className="ms-2 text-uppercase text-white">Заказы по промокодам</span>
+					<span className="ms-2 text-uppercase text-white">Промокоды</span>
 				</NavLink>
 			</Accordion.Header>
 			<Accordion.Body></Accordion.Body>

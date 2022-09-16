@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
 import { Collapse } from "react-bootstrap"
-import { useAppSelector } from "../../../application/hooks"
+import { useAccountAuthQuery } from "../../../application/account.service"
 
 const SuccessAlert = () => {
-    const isCounterparty = useAppSelector(state => !state.profileSlice.client?.isCounterparty)
-    const [show, setShow] = useState(isCounterparty)
+    const { data } = useAccountAuthQuery(undefined)
+    const [show, setShow] = useState(false)
     
     useEffect(() => {
         const handler = () => setShow(false)
@@ -16,6 +16,12 @@ const SuccessAlert = () => {
             document.removeEventListener('click', handler)
         }
     }, [])
+
+    useEffect(() => {
+        if ( data ) {
+            setShow(!data.counterpartyId)
+        }
+    }, [data])
 
     return (
 		<Collapse in={show}>

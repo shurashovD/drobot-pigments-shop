@@ -1,6 +1,5 @@
-import { FC, useCallback, useEffect, useRef, useState } from "react"
+import { FC, UIEvent, useCallback, useEffect, useRef, useState } from "react"
 import { Button, Col, Row, Spinner } from "react-bootstrap"
-import { useNavigate } from "react-router-dom"
 import { ICategorySiteProduct } from "../../../shared"
 import { useGetProductsQuery } from "../../application/category.service"
 import { nextPage } from "../../application/filtersSlice"
@@ -28,11 +27,10 @@ const Products: FC<IProps> = ({ categoryId }) => {
             minimumFractionDigits: 0
         })
     )
-
+	
 	const scrollHandler = useCallback(() => {
-		if ( !data || isLoading || isFetching ) return
-		const footerHeight =
-			document.getElementById("footer-component")?.offsetHeight || 100
+		if (!data || isLoading || isFetching) return
+		const footerHeight = document.getElementById("footer-component")?.offsetHeight || 100
 		const windowHeignth = document.documentElement.clientHeight
 		const scrollHeight = Math.max(
 			document.body.scrollHeight,
@@ -42,11 +40,11 @@ const Products: FC<IProps> = ({ categoryId }) => {
 			document.body.clientHeight,
 			document.documentElement.clientHeight
 		)
-		const trigger = (scrollHeight - windowHeignth - footerHeight - Math.round(window.pageYOffset)) < 0
-		if ( trigger && (Math.ceil(data.length / limit) > page) ) {
+		const trigger = scrollHeight - windowHeignth - footerHeight - Math.round(window.pageYOffset) - 100 < 0
+		if (trigger && Math.ceil(data.length / limit) > page) {
 			dispatch(nextPage())
 		}
-	}, [isLoading, isFetching, data, dispatch, nextPage])
+	}, [data, isLoading, isFetching, dispatch, nextPage])
 
     useEffect(() => {
         if ( isSuccess && data && data.products ) {
@@ -68,13 +66,6 @@ const Products: FC<IProps> = ({ categoryId }) => {
     }, [data, page])
 
 	useEffect(() => {
-		document.addEventListener('scroll', scrollHandler)
-		return () => {
-			document.removeEventListener('scroll', scrollHandler)
-		}
-	}, [scrollHandler])
-
-	useEffect(() => {
 		if ( timerId.current ) {
 			clearTimeout(timerId.current)
 		}
@@ -82,6 +73,13 @@ const Products: FC<IProps> = ({ categoryId }) => {
 			setPrices({ max: maxPrice, min: minPrice })
 		}, 400)
 	}, [maxPrice, minPrice])
+
+	useEffect(() => {
+		document.addEventListener('scroll', scrollHandler)
+		return () => {
+			document.removeEventListener("scroll", scrollHandler)
+		}
+	}, [scrollHandler])
 
     return (
 		<Row className="g-4 gy-6">
@@ -91,7 +89,7 @@ const Products: FC<IProps> = ({ categoryId }) => {
 				</Col>
 			)}
 			{state.map((item) => (
-				<Col key={`${item.productId}_${item.variantId}`} xs={12} md={6} lg={3}>
+				<Col key={`${item.productId}_${item.variantId}`} xs={6} md={6} lg={3}>
 					<ProductCard
 						id={item.productId}
 						img={item.img}
@@ -110,7 +108,7 @@ const Products: FC<IProps> = ({ categoryId }) => {
 			) : (
 				<Col xs={12} className="text-center">
 					{data && Math.ceil(data.length / limit) > page && (
-						<Button variant="outline-primary" onClick={() => (Math.ceil(data.length / limit) <= page + 1 ? dispatch(nextPage()) : {})}>
+						<Button variant="outline-primary" onClick={() => (Math.ceil(data.length / limit) > page ? dispatch(nextPage()) : {})}>
 							Ещё
 						</Button>
 					)}

@@ -7,7 +7,7 @@ const youtubeLogo = require("../img/youtube.svg")
 
 const FooterComponent = () => {
     return (
-		<Container fluid className="bg-primary pt-5 pb-5 pb-md-4" id="footer-component">
+		<Container fluid className="bg-primary pt-5 pb-6 pb-md-4" id="footer-component">
 			<Container className="pb-1">
 				<Row xs={1} md={3} className="mb-6">
 					<Col className="mb-6 mb-md-0">
@@ -75,12 +75,12 @@ const FooterComponent = () => {
 							</div>
 							<div className="text-center text-md-start">
 								<NavLink to="/partner-program" className="footer__link">
-									Как стать представителем?
+									Стать представителем?
 								</NavLink>
 							</div>
 							<div className="text-center text-md-start">
 								<NavLink to="/partner-program" className="footer__link">
-									Как стать агентом?
+									Стать агентом?
 								</NavLink>
 							</div>
 							<div className="text-center text-md-start d-none">

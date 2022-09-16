@@ -1,5 +1,6 @@
 import { ChangeEvent, FC, useEffect, useState } from "react"
-import { Button, Form, Modal, ModalProps } from "react-bootstrap"
+import { Button, Col, Form, Modal, ModalProps, Row } from "react-bootstrap"
+import { NavLink } from "react-router-dom"
 import { useAccountAuthQuery, useCheckNumberMutation, useCheckPinMutation, useRegisterCheckPinMutation, useRegisterMutation } from "../application/account.service"
 import { useAppDispatch, useAppSelector } from "../application/hooks"
 import { setProfileClient, setShowAuthModal } from "../application/profileSlice"
@@ -133,94 +134,50 @@ const AuthComponent: FC<ModalProps> = () => {
     return (
 		<Modal show={show} onHide={hideHandler}>
 			<Modal.Body className="bg-primary p-5">
-				<Modal.Header
-					closeButton
-					closeVariant="white"
-					className="border-0"
-				/>
+				<Modal.Header closeButton closeVariant="white" className="border-0" />
 				{!checkPin && (
 					<div className="text-white text-center text-uppercase mb-5">
-						{authorization ? <>Войти</> : <>Зарегистрироваться</>}{" "}
-						под номером телефона
+						{authorization ? <>Войти</> : <>Зарегистрироваться</>} под номером телефона
 					</div>
 				)}
-				{checkPin && (
-					<div className="text-white text-center text-uppercase mb-4">
-						Введите последние 4 цифры номера
-					</div>
-				)}
+				{checkPin && <div className="text-white text-center text-uppercase mb-4">Введите последние 4 цифры номера</div>}
 				{checkPin && (
 					<div className="text-white text-center mb-4">
-						Сейчас поступит входящий звонок на номер{" "}
-						<span className="white-space">
-							{parsePhoneValue(phone)}
-						</span>{" "}
-						<Button
-							variant="link"
-							className="m-0 p-0 text-secondary"
-							onClick={() => setCheckPin(false)}
-						>
+						Сейчас поступит входящий звонок на номер <span className="white-space">{parsePhoneValue(phone)}</span>{" "}
+						<Button variant="link" className="m-0 p-0 text-secondary" onClick={() => setCheckPin(false)}>
 							Изменить
 						</Button>
 					</div>
 				)}
 				{checkPin ? (
-					<Form.Control
-						value={pin}
-						className="mb-4 p-2 py-4 text-white text-center"
-						placeholder="4 цифры"
-						onChange={codeHandler}
-					/>
+					<Form.Control value={pin} className="mb-4 p-2 py-4 text-white text-center" placeholder="4 цифры" onChange={codeHandler} />
 				) : (
-					<Form.Control
-						value={parsePhoneValue(phone)}
-						className="mb-4 p-2 py-4 text-white"
-						placeholder="Телефон"
-						onChange={telHandler}
-					/>
+					<Form.Control value={parsePhoneValue(phone)} className="mb-4 p-2 py-4 text-white" placeholder="Телефон" onChange={telHandler} />
 				)}
-				{!checkPin && (
-					<div className="text-white text-center mb-5">
-						На указанный номер поступит звонок, отвечать на звонок
-						не нужно.
-					</div>
-				)}
+				{!checkPin && <div className="text-white text-center mb-5">На указанный номер поступит звонок, отвечать на звонок не нужно.</div>}
 				<div className="text-center mb-4">
 					<ButtonComponent
 						variant="secondary"
-						disabled={
-							checkPin ? pin.length !== 4 : phone.length !== 10
-						}
-						isLoading={
-							isLoading ||
-							pinLoading ||
-							registerPinLoading ||
-							registerLoading ||
-							authLoading
-						}
+						disabled={checkPin ? pin.length !== 4 : phone.length !== 10}
+						isLoading={isLoading || pinLoading || registerPinLoading || registerLoading || authLoading}
 						onClick={clickHandler}
 					>
-						{checkPin ? (
-							<>Отправить</>
-						) : authorization ? (
-							<>Войти</>
-						) : (
-							<>Зарегистрироваться</>
-						)}
+						{checkPin ? <>Отправить</> : authorization ? <>Войти</> : <>Зарегистрироваться</>}
 					</ButtonComponent>
 				</div>
+				{!checkPin && (
+					<Row className="text-white justify-content-center mb-5 g-2">
+						<Col xs="auto" className="d-flex align-items-center">
+							<input type="checkbox" checked={true} className="bg-dark" />
+						</Col>
+						<Col xs={8}>
+							Принимаю условия <NavLink to="/" className="text-white text-decoration-underline">соглашения о конфиденциальности</NavLink>
+						</Col>
+					</Row>
+				)}
 				<div className="text-center">
-					<Button
-						variant="link"
-						className="text-muted"
-						size="sm"
-						onClick={authToggle}
-					>
-						{authorization ? (
-							<small>К регистрации</small>
-						) : (
-							<small>К авторизации</small>
-						)}
+					<Button variant="link" className="text-muted" size="sm" onClick={authToggle}>
+						{authorization ? <small>К регистрации</small> : <small>К авторизации</small>}
 					</Button>
 				</div>
 			</Modal.Body>

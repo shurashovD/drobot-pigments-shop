@@ -1,5 +1,6 @@
 import { FC, useEffect, useRef, useState } from "react"
 import { Button, Col, Fade, Form, ListGroup, Row, Spinner } from "react-bootstrap"
+import { NavLink } from "react-router-dom"
 import { ICart } from "../../../shared"
 import { useDeleteFromCartMutation, useGetCartQuery, useToggleCheckOneMutation } from "../../application/order.service"
 import { useGetProductByIdQuery } from "../../application/product.service"
@@ -60,29 +61,36 @@ const CartItem: FC<IProps> = ({ productId }) => {
 				</div>
 			)}
 			{!productLoading && data && productInCart && (
-				<Row className="g-1 g-md-2">
+				<Row className="g-2">
 					<Col xs={0} md={1} className="d-flex align-items-center">
-						<CheckboxComponent
-							isLoading={toggleLoading}
-							disabled={isFetching || isLoading || cartFetching || toggleLoading}
-							checked={productInCart.checked || false}
-							className="d-none d-md-block"
-							onChange={() => toggle({ productId })}
-						/>
-					</Col>
-					<Col xs={5} md={2} className="px-md-0">
-						<div className="position-relative">
-							<ImageComponent src={data.photo?.[0] || "/static"} />
-							<Form.Check
+						<div className="d-none d-md-block">
+							<CheckboxComponent
+								isLoading={toggleLoading}
 								disabled={isFetching || isLoading || cartFetching || toggleLoading}
 								checked={productInCart.checked || false}
+								className="d-none d-md-block"
 								onChange={() => toggle({ productId })}
-								className="d-md-none position-absolute top-0 start-0 m-2 bg-white"
 							/>
 						</div>
 					</Col>
-					<Col xs={4} md={5} className="d-flex flex-column justify-content-between">
-						<span>{data.name}</span>
+					<Col xs={5} md={2}>
+						<div className="position-relative">
+							<ImageComponent src={data.photo?.[0] || "/static"} />
+							<div className="position-absolute top-0 start-0 bg-white d-md-none p-0 m-2">
+								<CheckboxComponent
+									isLoading={toggleLoading}
+									disabled={isFetching || isLoading || cartFetching || toggleLoading}
+									checked={productInCart.checked || false}
+									className="d-none d-md-block"
+									onChange={() => toggle({ productId })}
+								/>
+							</div>
+						</div>
+					</Col>
+					<Col xs={4} md={5} className="d-flex flex-column justify-content-between ps-md-2">
+						<NavLink className="cart-item-name" to={`/product/${productId}`}>
+							{data.name}
+						</NavLink>
 						<div className="d-none d-md-block">
 							<ProductCounter productId={productId} />
 						</div>
@@ -99,10 +107,10 @@ const CartItem: FC<IProps> = ({ productId }) => {
 								</div>
 							)}
 							<div className="w-100 d-none d-md-flex justify-content-between">
-								<Button variant="link" className="text-start w-100 m-0 p-0" disabled={isLoading}>
+								<Button variant="link" className="text-start w-100 m-0 p-0 text-muted" disabled={isLoading}>
 									В избранное
 								</Button>
-								<Button disabled={isLoading} variant="link" className="text-end w-100 m-0 p-0" onClick={rmHandler}>
+								<Button disabled={isLoading} variant="link" className="text-end w-100 m-0 p-0 text-muted" onClick={rmHandler}>
 									Удалить
 								</Button>
 							</div>

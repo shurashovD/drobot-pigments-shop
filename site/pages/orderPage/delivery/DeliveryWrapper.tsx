@@ -1,16 +1,17 @@
-import { FC } from "react"
-import { Accordion, Fade, Stack } from "react-bootstrap"
+import classNames from "classnames"
+import { Button, Collapse, Fade, Stack } from "react-bootstrap"
+import { useAppDispatch, useAppSelector } from "../../../application/hooks"
 import { useGetDeliveryDetailQuery } from "../../../application/order.service"
+import { setActive } from "../../../application/orderSlice"
 import Delivery from "./Delivery"
 
-interface IProps {
-	activeKey?: string
-	accordionHandler: (key: string) => void
-}
-
-const DeliveryWrapper: FC<IProps> = ({ accordionHandler, activeKey }) => {
+const DeliveryWrapper = () => {
     const eventKey = "2"
+	const { active: activeKey } = useAppSelector((state) => state.orderSlice)
+	const disabled = useAppSelector((state) => !state.orderSlice.available.includes(eventKey))
+	const empty = useAppSelector((state) => state.orderSlice.empty.includes(eventKey))
     const { data: deliveryDetail } = useGetDeliveryDetailQuery(undefined)
+	const dispatch = useAppDispatch()
 	const formatter = new Intl.NumberFormat('ru', {
 		style: 'unit',
 		unit: 'day',
@@ -19,15 +20,21 @@ const DeliveryWrapper: FC<IProps> = ({ accordionHandler, activeKey }) => {
 
     return (
 		<>
-			<Accordion.Item eventKey="2" className="border-0 border-bottom" id="order-delivery">
-				<Accordion.Header onClick={() => accordionHandler(eventKey)}>
-					<span className="text-uppercse fs-3">2. Способ доставки</span>
-				</Accordion.Header>
-				<Accordion.Body>
-					<Delivery readyHandler={() => accordionHandler("3")} />
-				</Accordion.Body>
-			</Accordion.Item>
-			<Fade in={!!deliveryDetail?.address && activeKey !== "2"}>
+			<Button
+				id="order-delivery"
+				variant="link"
+				onClick={() => dispatch(setActive(eventKey))}
+				disabled={disabled}
+				className={classNames("order-accordion__btn", { collapsed: activeKey === eventKey, empty: empty })}
+			>
+				<span className="text-uppercse fs-3">2. Способ доставки</span>
+			</Button>
+			<Collapse in={activeKey === eventKey}>
+				<div className="mt-2">
+					<Delivery />
+				</div>
+			</Collapse>
+			<Fade in={!!deliveryDetail?.address && activeKey !== eventKey}>
 				<Stack className="my-5" dir="verical" gap={3}>
 					<div>
 						<span>Выбрано: </span>
@@ -41,9 +48,11 @@ const DeliveryWrapper: FC<IProps> = ({ accordionHandler, activeKey }) => {
 					</div>
 					<div>
 						<span>Стоимость: </span>
-						{ deliveryDetail?.period_max && <b>
-							{deliveryDetail?.total_sum} руб., {deliveryDetail.period_min}-{formatter.format(deliveryDetail.period_max)}
-						</b>}
+						{deliveryDetail?.period_max && (
+							<b>
+								{deliveryDetail?.total_sum} руб., {deliveryDetail.period_min}-{formatter.format(deliveryDetail.period_max)}
+							</b>
+						)}
 					</div>
 				</Stack>
 			</Fade>

@@ -28,7 +28,8 @@ const createSdekOrderHandler = async (orderId: string) => {
 			err.sersviceInfo = "Создание заказа в СДЭК"
 			throw err
 		}
-        const { city_code, number, address, name = 'Покупатель', point_code, tariff_code } = order.delivery.sdek
+        const { city_code, number, address, point_code, tariff_code } = order.delivery.sdek
+		const { recipientName: name = 'Покупатель' } = order.delivery
         if (tariff_code === 138 || tariff_code === 139 || tariff_code === 366) {
             const { products, variants } = order
             const items: ISdekOrderPayload["packages"][0]["items"] = products
@@ -43,7 +44,7 @@ const createSdekOrderHandler = async (orderId: string) => {
 				.concat(
 					variants.map(({ product, variant, quantity, price, discountOn, paidByCashBack }) => {
 						const variantObj = product.variants.find(({ _id }) => _id?.toString() === variant.toString())
-						const name = `product.name (${variantObj?.name || ""})`
+						const name = `${product.name} (${variantObj?.name || ""})`
 						const cost = price - (discountOn || 0) - (paidByCashBack || 0)
 						const payment = { value: 0 }
 						const ware_key = variantObj?.identifier || ""

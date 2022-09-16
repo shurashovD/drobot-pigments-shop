@@ -14,27 +14,27 @@ const OrderStatusComponent: FC<{ status: string }> = ({ status }) => {
 				</span>
 			)}
 			{status === "compiling" && (
-				<span className="text-uppercase text-muted" style={{ borderBottom: "1px dashed #ab9a9a" }}>
+				<span className="text-uppercase" style={{ borderBottom: "1px dashed #39261F" }}>
 					Оплачен, формируется
 				</span>
 			)}
 			{status === "builded" && (
-				<span className="text-uppercase text-muted" style={{ borderBottom: "1px dashed #ab9a9a" }}>
+				<span className="text-uppercase" style={{ borderBottom: "1px dashed #39261F" }}>
 					Собран
 				</span>
 			)}
 			{status === "dispatch" && (
-				<span className="text-uppercase text-muted" style={{ borderBottom: "1px dashed #ab9a9a" }}>
-					Передан в ТК
+				<span className="text-uppercase" style={{ borderBottom: "1px dashed #39261F" }}>
+					Передан в доставку
 				</span>
 			)}
 			{status === "delivering" && (
-				<span className="text-uppercase text-muted" style={{ borderBottom: "1px dashed #ab9a9a" }}>
+				<span className="text-uppercase" style={{ borderBottom: "1px dashed #39261F" }}>
 					В пути
 				</span>
 			)}
 			{status === "ready" && (
-				<span className="text-uppercase text-success" style={{ borderBottom: "1px dashed #ab9a9a" }}>
+				<span className="text-uppercase text-success" style={{ borderBottom: "1px dashed #58FF3D" }}>
 					Готов к выдаче
 				</span>
 			)}

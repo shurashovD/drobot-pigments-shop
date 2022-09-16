@@ -20,7 +20,7 @@ const SdekTariff = () => {
 			<Button variant="link" className="m-0 p-0 mb-3">
 				СДЭК
 			</Button>
-			<Row className="justify-content-between mb-3">
+			<Row className="justify-content-between mb-3 g-2">
 				<Col xs="auto">
 					<Form.Label className="d-flex mb-2 mb-md-0">
 						<RadioComponent

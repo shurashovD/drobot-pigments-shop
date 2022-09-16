@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react"
 import { Toast, ToastContainer } from "react-bootstrap"
+import { useAppDispatch } from "../../../application/hooks"
 import { useGetDeliveryDetailQuery, useGetPointsQuery, useSetDeliveryDetailMutation } from "../../../application/order.service"
+import { setActive } from "../../../application/orderSlice"
 import ButtonComponent from "../../../components/ButtonComponent"
 
 const reactYandexMaps = require("react-yandex-maps")
@@ -12,6 +14,7 @@ const PvzMap = () => {
     const { YMaps, Map, Placemark } = reactYandexMaps
     const [size, setSize] = useState({ width: 200, height: 200 })
     const [checkedPvz, setCheckedPvz] = useState<{code: string, name: string, address: string} | undefined>()
+	const dispatch = useAppDispatch()
 
     const clickHandler = (event: any) => {
 		const pvzName = event.originalEvent.target.properties._data.hintContent
@@ -34,8 +37,9 @@ const PvzMap = () => {
     useEffect(() => {
         if ( isSuccess ) {
             setCheckedPvz(undefined)
+			dispatch(setActive("3"))
         }
-    }, [isSuccess])
+    }, [dispatch, isSuccess, setActive])
 
 	return (
 		<div ref={container} className="position-relative overflow-hidden mw-100">

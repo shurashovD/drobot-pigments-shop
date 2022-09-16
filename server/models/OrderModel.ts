@@ -18,6 +18,8 @@ const OrderSchema = new Schema<IOrder, OrderModel>({
 			uuid: String,
 			cost: Number,
 		},
+		recipientMail: String,
+		recipientName: String
 	},
 	payment: {
 		paymentId: String,

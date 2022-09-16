@@ -11,7 +11,7 @@ const createPaymentHandler = async (orderId: string) => {
 			throw err
 		}
 
-		const { sdek } = order.delivery
+		const { sdek, recipientMail } = order.delivery
 		if (!sdek) {
 			const err = new Error(`Отсутвуют параметры СДЭК в заказе ${orderId}`)
 			err.userError = true
@@ -48,7 +48,7 @@ const createPaymentHandler = async (orderId: string) => {
 			description: `Оплата заказа ${order.number} из drobot-pigments-shop`,
 			metadata: { orderSum: order.msOrderSumRub || 0, deliverySum: sdek.cost || 0, msOrderId: order.msOrderId },
 			receipt: {
-				email: order.client.mail || "",
+				email: recipientMail || "shurashovd@yandex.ru",
 				phone: order.client.tel,
 				items: items.concat({
 					amount: { value: (sdek.cost || 0).toFixed(2), currency: "RUB" },

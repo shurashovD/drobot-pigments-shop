@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { Accordion, Button, Col, Container, Row } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
+import { useAppSelector } from '../../application/hooks'
 import CreateOrderBtn from "./CreateOrderBtn"
 import DeliveryWrapper from "./delivery/DeliveryWrapper"
 import ProductsWrapper from "./products/ProductsWrapper"
@@ -15,11 +16,7 @@ const OrderPage = () => {
 		["4", "order-products"],
 	])
     const navigate = useNavigate()
-	const [activeKey, setActiveKey] = useState<string | undefined>("1")
-
-	const accordionHandler = (key: string) => {
-		setActiveKey(key === activeKey ? undefined : key)
-	}
+	const { active: activeKey } = useAppSelector(state => state.orderSlice)
 
 	useEffect(() => {
 		if ( !activeKey ) return
@@ -34,7 +31,7 @@ const OrderPage = () => {
 		}
 	}, [activeKey])
 
-    return (
+	return (
 		<Container className="pb-6">
 			<Button variant="link" className="text-muted pb-4 pb-lg-6" onClick={() => navigate(-1)}>
 				<span>&larr; назад</span>
@@ -43,10 +40,10 @@ const OrderPage = () => {
 			<Row>
 				<Col xs={12} lg={8}>
 					<Accordion className="sign-order-accordion" activeKey={activeKey}>
-						<RegionWrapper accordionHandler={accordionHandler} activeKey={activeKey} />
-						<DeliveryWrapper accordionHandler={accordionHandler} activeKey={activeKey} />
-						<RecipientWrapper accordionHandler={accordionHandler} activeKey={activeKey} />
-						<ProductsWrapper accordionHandler={accordionHandler} activeKey={activeKey} />
+						<RegionWrapper />
+						<DeliveryWrapper />
+						<RecipientWrapper />
+						<ProductsWrapper />
 					</Accordion>
 				</Col>
 				<Col xs={12} lg={4}></Col>

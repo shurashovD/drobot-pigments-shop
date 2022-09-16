@@ -1,16 +1,15 @@
-import { FC, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { Button, Col, Fade, Row } from "react-bootstrap"
+import { useAppDispatch } from "../../../application/hooks"
 import { useGetDeliveryDetailQuery } from "../../../application/order.service"
+import { setActive, setSdek, setSdekTariff } from "../../../application/orderSlice"
 import SdekDetail from "./SdekDetail"
 import SdekTariff from "./SdekTariff"
 
-interface IProps {
-	readyHandler: () => void
-}
-
-const Delivery: FC<IProps> = ({ readyHandler }) => {
+const Delivery = () => {
     const { data, isLoading } = useGetDeliveryDetailQuery(undefined)
 	const [show, setShow] = useState(false)
+	const dispatch = useAppDispatch()
 
 	useEffect(() => {
 		if ( data?.sdek ) {
@@ -25,6 +24,11 @@ const Delivery: FC<IProps> = ({ readyHandler }) => {
 			}
 		}
 	}, [data])
+
+	useEffect(() => {
+		dispatch(setSdek(!!data?.sdek))
+		dispatch(setSdekTariff({ address: data?.address, pvz: data?.code, tariff: data?.tariff_code }))
+	}, [data, dispatch, setSdek, setSdekTariff])
 
     return (
 		<Row>
@@ -45,7 +49,7 @@ const Delivery: FC<IProps> = ({ readyHandler }) => {
 							{data?.tariff_code === 366 && <>постамат, </>}
 							{data?.address}
 						</div>
-						<Button onClick={() => readyHandler()}>Далее</Button>
+						<Button onClick={() => dispatch(setActive("3"))}>Далее</Button>
 					</div>
 				</Fade>
 			</Col>

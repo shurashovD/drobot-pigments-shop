@@ -34,6 +34,13 @@ const OrderComponent: FC<IProps> = ({ id }) => {
 					<OrderStatusComponent status={data.status} />
 				</div>
 			)}
+			{data?.payment && data?.payment?.status === "canceled" && data.payment.paymentUrl && (
+				<div className="mb-3">
+					<a href={data.payment.paymentUrl} className="border border-dark p-2 px-4 text-uppercase">
+						Оплатить
+					</a>
+				</div>
+			)}
 			{data && !isLoading && <hr className="bg-dark mb-6" style={{ height: "4px" }} />}
 			{data && !isLoading && (
 				<div className="px-2 px-lg-5">

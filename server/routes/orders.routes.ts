@@ -101,7 +101,7 @@ router.get('/delivery/city', async (req, res) => {
 			throw new Error(`Пункт выдачи в городе ${city_code} не найден`)
 		}
 
-		return res.json({ region: point.location.region, city: point.location.city })
+		return res.json({ region: point.location.region, city: point.location.city, city_code })
 	}
 	catch (e) {
 		console.log(e)
@@ -150,7 +150,7 @@ router.get("/delivery/detail", async (req, res) => {
 			)
 			const sdekInfo = await sdekCalcDelivery({
 				from_location: { code: 435 },
-				to_location: { code: city_code },
+				to_location: { code: +city_code },
 				packages, tariff_code
 			})
 			const { total_sum } = sdekInfo.data
@@ -604,6 +604,12 @@ router.post("/", bodyParser.json(), async (req, res) => {
 				err.sersviceInfo = `Корзина не найдена. Клиент ${req.session.userId}. Создание заказа`
 				throw err
 			}
+			if (cart.products.length + cart.variants.length === 0) {
+				const err = new Error("Корзина пуста")
+				err.userError = true
+				err.sersviceInfo = `Корзина пуста. Клиент ${req.session.userId}. Создание заказа`
+				throw err
+			}
 			if (!req.session.delivery) {
 				const err = new Error("Не найдены параметры доставки")
 				err.userError = true
@@ -632,10 +638,10 @@ router.post("/", bodyParser.json(), async (req, res) => {
 				address,
 				point_code: code,
 				cost: req.session.delivery.sdek?.cost || 0,
-				name: client.name,
+				name: req.session.delivery.recipientName,
 				tariff_code,
 			}
-			const orderId = await client.createTempOrder(sdekForOrder)
+			const orderId = await client.createTempOrder(sdekForOrder, req.session.delivery.recipientMail, req.session.delivery.recipientName)
 
 			// создание заказа в "Мой склад";
 			const { name: number, id: msOrderId, sum } = await createMsOrderHandler(orderId)
@@ -731,12 +737,8 @@ router.post('/check-number/pin', bodyParser.json(), async (req: Request<{}, {}, 
 			throw new Error("К сессии не привязан номер")
 		}
 		const result = await checkPin(req.session.plusofonKey, pin)
-		if (result === 1 ) {
+		if (result === 1) {
 			let client = await ClientModel.findOne({ tel: req.session.candidateNumber })
-			if ( req.session.cartId && client ) {
-				client.cartId = new Types.ObjectId(req.session.cartId)
-				await client.save()
-			}
 			if ( !client ) {
 				const counterparty = await getCounterPartyByNumber(req.session.candidateNumber)
 				if (counterparty) {
@@ -751,6 +753,10 @@ router.post('/check-number/pin', bodyParser.json(), async (req: Request<{}, {}, 
 						tel: req.session.candidateNumber,
 					}).save()
 				}
+			}
+			if (req.session.cartId && client) {
+				client.cartId = new Types.ObjectId(req.session.cartId)
+				await client.save()
 			}
 			req.session.userId = client._id.toString()
 			if ( client.name ) {
@@ -787,7 +793,9 @@ router.post("/check-payment/probably", bodyParser.json(), async (req: Request<{}
 			throw new Error(`Заказ с номером ${number} не найден...`)
 		}
 
-		const response = { status: 'pending' }
+		const func = `<div>Отслеживайте заказы в <NavLink to="/profile">личном кабинете</NavLink></div>`
+
+		const response = { status: "pending", title: `Заказ ${number} оплачен!`, func }
 		if ( order.payment && order.payment.status === 'succeeded' ) {
 			response.status = 'succeeded'
 		}

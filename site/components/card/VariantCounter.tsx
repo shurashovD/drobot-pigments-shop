@@ -56,11 +56,11 @@ const VariantCounter: FC<IProps> = ({ productId, variantId }) => {
 	}, [cart, variantId])
 
 	return (
-		<div className="d-flex w-100 justify-content-between align-items-center" style={{ maxWidth: "140px" }}>
+		<div className="d-flex align-items-center">
 			<Button
 				disabled={isFetching || isLoading}
 				variant="link"
-				className="border border-dark p-0 d-flex justify-content-center align-items-center"
+				className="border border-muted p-0 d-flex justify-content-center align-items-center"
 				style={{
 					width: "28px",
 					minWidth: "28px",
@@ -73,11 +73,11 @@ const VariantCounter: FC<IProps> = ({ productId, variantId }) => {
 			>
 				-
 			</Button>
-			<Form.Control className="border-0 text-center p-0" value={quantity} onChange={inputHandler} onBlur={blurHandler} />
+			<Form.Control className="border-0 text-center p-0" value={quantity} onChange={inputHandler} onBlur={blurHandler} style={{ width: '50px' }} />
 			<Button
 				disabled={isFetching || isLoading}
 				variant="link"
-				className="border border-dark p-0 d-flex justify-content-center align-items-center"
+				className="border border-muted p-0 d-flex justify-content-center align-items-center"
 				style={{
 					width: "28px",
 					minWidth: "28px",
