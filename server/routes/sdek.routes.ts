@@ -6,6 +6,7 @@ import { json } from 'body-parser';
 import { ISdekCreateWebhookPayload, ISdekWebhookPayload } from '../../shared';
 import OrderModel from '../models/OrderModel';
 import { updateMsOrder } from '../moyskladAPI/orders';
+import { logger } from '../handlers/errorLogger';
 
 const router = Router()
 
@@ -31,7 +32,7 @@ router.post('/update-pvz', async (req, res) => {
         return res.end()
     }
     catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
 })
@@ -41,7 +42,7 @@ router.get('/hooks', async (req, res) => {
         const hooks = await getSdekHooks()
         return res.json(hooks)
     } catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
 })
@@ -51,7 +52,7 @@ router.post("/hooks", json(), async (req: Request<{}, {}, ISdekCreateWebhookPayl
 		await createSdekHook(req.body)
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -62,7 +63,7 @@ router.delete("/hooks/:id", async (req: Request<{id: string}>, res) => {
 		await deleteSdekHook(id)
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -116,7 +117,7 @@ router.post('/handle/order', async (req: Request<{}, {}, ISdekWebhookPayload>, r
         
         return res.end()
     } catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.end()
     }
 })

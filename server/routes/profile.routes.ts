@@ -7,7 +7,7 @@ import { createContact, updateContact } from "../amoAPI/amoApi"
 import ClientModel from '../models/ClientModel'
 import PromocodeModel from '../models/PromocodeModel'
 import { createMsCounterParty, editMsCounterParty } from "../moyskladAPI/counterparty"
-import errorHandler from '../handlers/errorLogger';
+import errorHandler, { logger } from '../handlers/errorLogger';
 
 const router = Router()
 
@@ -66,7 +66,10 @@ router.put('/edit', json(), async (req: Request<{}, {}, {name: string, email: st
         await client.save()
         return res.end()
     }
-    catch (e: any) { errorHandler(e, req, res) }
+    catch (e: any) {
+        logger.error(e)
+        errorHandler(e, req, res)
+    }
 })
 
 router.get("/order/nearest", async (req, res) => {
@@ -110,7 +113,7 @@ router.get("/order/nearest", async (req, res) => {
             return res.end()
         }
 	} catch (e: any) {
-        console.log(e);
+        logger.error(e)
         return res.end()
 	}
 })
@@ -129,7 +132,10 @@ router.get('/order/:id', async (req: Request<{id: string}>, res) => {
         const order = await client.getOrder(id)
         return res.json(order) 
     }
-    catch (e: any) { errorHandler(e, req, res) }
+    catch (e: any) {
+        logger.error(e)
+        errorHandler(e, req, res)
+    }
 })
 
 router.get("/order/sdek-info/:id", async (req: Request<{ id: string }>, res) => {
@@ -156,6 +162,7 @@ router.get("/order/sdek-info/:id", async (req: Request<{ id: string }>, res) => 
         return res.json(info)
         
 	} catch (e: any) {
+        logger.error(e)
 		errorHandler(e, req, res)
 	}
 })
@@ -173,7 +180,7 @@ router.get('/discount', async (req, res) => {
         const discount = await client.getDiscount()
         return res.json(discount)
 	} catch (e: any) {
-        console.log(e)
+        logger.error(e)
         return res.end()
 	}
 })
@@ -191,7 +198,7 @@ router.get("/promocode", async (req: Request<{}, {}, {}, { limit: number; page: 
         const length = await PromocodeModel.find({ _id: { $in: client.promocodes } }).then(doc => doc.length)
         return res.json({ length, promocodes })
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Ошибка получения промокода" })
 	}
 })
@@ -208,7 +215,7 @@ router.post("/promocode", json(), async (req: Request<{}, {}, { dateStart: strin
         return res.end()
 
 	} catch (e: any) {
-		console.log(e)
+		logger.error(e)
         if ( e.userError ) {
             return res.status(500).json({ message: e.message })
         }
@@ -263,7 +270,7 @@ router.put("/promocode/:id", json(), async (req: Request<{id: string}, {}, { dat
 
 		return res.end()
 	} catch (e: any) {
-		console.log(e)
+		logger.error(e)
         if ( e.userError ) {
             return res.status(500).json({ message: e.message })
         }
@@ -309,7 +316,7 @@ router.delete("/promocode/:id", async (req: Request<{ id: string }>, res) => {
 
 		return res.end()
 	} catch (e: any) {
-		console.log(e)
+		logger.error(e)
 		if (e.userError) {
 			return res.status(500).json({ message: e.message })
 		}

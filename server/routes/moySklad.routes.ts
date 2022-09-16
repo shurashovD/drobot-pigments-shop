@@ -11,6 +11,7 @@ import { IMSHook, IOrder } from "../../shared";
 import { getMsOrder } from '../moyskladAPI/orders';
 import OrderModel from '../models/OrderModel';
 import SyncModel from '../models/SyncModel';
+import { logger } from '../handlers/errorLogger';
 
 const router = Router()
 
@@ -26,7 +27,7 @@ router.get("/folder", async (req, res) => {
 		})
 		return res.json({ catalogs, products })
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -43,7 +44,7 @@ router.get("/folder-free-products", async (req, res) => {
 		})
 		return res.json({ catalogs, products })
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -68,7 +69,7 @@ router.get('/folder-free-products/:id', async (req: Request<{id: string}, {}, {}
 		return res.json({ catalog, catalogs, products })
     }
     catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.status(500).json({ message: "Что-то пошло не так..." })
     }
 })
@@ -94,7 +95,7 @@ router.get("/folder/:id", async (req: Request<{ id: string }, {}, {}>, res) => {
 		})
 		return res.json({ catalog, catalogs, products })
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -136,7 +137,7 @@ router.get('/sync', async (req, res) => {
 		await sync.save()
     }
     catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
 })
@@ -149,7 +150,7 @@ router.get("/sync-status", async (req, res) => {
 		}
 		res.json(sync)
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -161,7 +162,7 @@ router.get('/hooks', async (req, res) => {
 		return res.json(hooks)
 	}
 	catch (e) {
-		console.log(e)
+		logger.error(e)
 	}
 })
 
@@ -171,7 +172,7 @@ router.post("/hooks", bodyParser.json(), async (req: Request<{}, {}, { payload: 
 		await createHook(payload)
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 	}
 })
 
@@ -181,7 +182,7 @@ router.put("/hooks/enable/:id", async (req: Request<{id: string}>, res) => {
 		await enableHook(id)
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 	}
 })
 
@@ -191,7 +192,7 @@ router.put("/hooks/disable/:id", async (req: Request<{ id: string }>, res) => {
 		await disableHook(id)
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 	}
 })
 
@@ -201,7 +202,7 @@ router.delete("/hooks/:id", async (req: Request<{ id: string }>, res) => {
 		await deleteHook(id)
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 	}
 })
 
@@ -226,7 +227,7 @@ router.post(
 			}
 			return
 		} catch (e) {
-			console.log(e)
+			logger.error(e)
 			return res.end()
 		}
 	}
@@ -255,7 +256,7 @@ router.post(
 			}
 			return
 		} catch (e) {
-			console.log(e)
+			logger.error(e)
 			return res.end()
 		}
 	}
@@ -284,7 +285,7 @@ router.post(
 			}
 			return
 		} catch (e) {
-			console.log(e)
+			logger.error(e)
 			return res.end()
 		}
 	}
@@ -313,7 +314,7 @@ router.post(
 			}
 			return
 		} catch (e) {
-			console.log(e)
+			logger.error(e)
 			return res.end()
 		}
 	}
@@ -342,7 +343,7 @@ router.post(
 			}
 			return
 		} catch (e) {
-			console.log(e)
+			logger.error(e)
 			return res.end()
 		}
 	}
@@ -371,7 +372,7 @@ router.post(
 			}
 			return
 		} catch (e) {
-			console.log(e)
+			logger.error(e)
 			return res.end()
 		}
 	}
@@ -400,7 +401,7 @@ router.post(
 			}
 			return
 		} catch (e) {
-			console.log(e)
+			logger.error(e)
 			return res.end()
 		}
 	}
@@ -426,7 +427,7 @@ router.post("/handle/variant/update", bodyParser.json(), async (
 		}
 		return
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.end()
 	}
 })
@@ -451,7 +452,7 @@ router.post("/handle/variant/delete", bodyParser.json(), async (
 		}
 		return
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.end()
 	}
 })
@@ -500,7 +501,7 @@ router.post("/handle/customerorder/update", bodyParser.json(), async (req: Reque
 		}
 		return
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.end()
 	}
 })

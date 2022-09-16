@@ -19,6 +19,7 @@ const FinalModal: FC<IProps> = ({ show, onHide, number, url }) => {
 	const dispatch = useAppDispatch()
 
 	useEffect(() => {
+		console.log(data, data.status);
 		if (data && data.status === "succeeded") {
 			setIsPaying(true)
 			navigate("/")

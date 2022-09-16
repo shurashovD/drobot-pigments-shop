@@ -1,3 +1,4 @@
+import { logger } from './../handlers/errorLogger';
 import bodyParser from "body-parser";
 import { Request, Router } from "express";
 import { access, mkdir, readdir, rm } from "fs/promises";
@@ -52,7 +53,7 @@ router.get('/:id', async (req: Request<{id: string}>, res) => {
 
 		return res.json(product)
 	} catch (e: any) {
-		console.log(e)
+		logger.error(e)
 		const message = e.userError ? e.message : "Что-то пошло не так..."
 		return res.status(500).json({ message })
 	}
@@ -75,7 +76,7 @@ router.get('/variant/:id', async (req: Request<{id: string}, {}, {}, {productId:
 
 		return res.json(variant)
 	} catch (e: any) {
-		console.log(e)
+		logger.error(e)
 		const message = e.userError ? e.message : "Что-то пошло не так..."
 		return res.status(500).json({ message })
 	}
@@ -97,7 +98,7 @@ router.put('/photo/:id', upload.single('photo'), async (req: Request<{id: string
 
 		return res.end()
 	} catch (e: any) {
-		console.log(e)
+		logger.error(e)
 		const message = e.userError ? e.message : "Что-то пошло не так..."
 		return res.status(500).json({ message })
 	}
@@ -128,7 +129,7 @@ router.delete('/photo/:id', async (req: Request<{id: string}>, res) => {
 
 		return res.end()
 	} catch (e: any) {
-		console.log(e)
+		logger.error(e)
 		const message = e.userError ? e.message : "Что-то пошло не так..."
 		return res.status(500).json({ message })
 	}
@@ -148,7 +149,7 @@ router.put('/description/:id', bodyParser.json(), async (req: Request<{id: strin
 		await product.save()
 		return res.end()
 	} catch (e: any) {
-		console.log(e)
+		logger.error(e)
 		const message = e.userError ? e.message : "Что-то пошло не так..."
 		return res.status(500).json({ message })
 	}
@@ -170,7 +171,7 @@ router.put(
 			await product.setFilter(new Types.ObjectId(fieldId))
 			return res.end()
 		} catch (e: any) {
-			console.log(e)
+			logger.error(e)
 			const message = e.userError ? e.message : "Что-то пошло не так..."
 			return res.status(500).json({ message })
 		}
@@ -193,7 +194,7 @@ router.delete(
 			await product.resetFilter(new Types.ObjectId(fieldId))
 			return res.end()
 		} catch (e: any) {
-			console.log(e)
+			logger.error(e)
 			const message = e.userError ? e.message : "Что-то пошло не так..."
 			return res.status(500).json({ message })
 		}

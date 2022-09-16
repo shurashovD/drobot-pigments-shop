@@ -1,11 +1,12 @@
 import { json } from 'body-parser';
 import { Router } from "express";
+import { logger } from '../handlers/errorLogger';
 
 const router = Router()
 
 router.post('/', json(), (req, res) => {
     const { body } = req
-    console.log(body)
+    logger.error(body)
     return res.end()
 })
 

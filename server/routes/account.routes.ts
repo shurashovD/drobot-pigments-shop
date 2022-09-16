@@ -1,6 +1,7 @@
 import { json } from 'body-parser';
 import { Router, Request } from 'express';
 import { createTask, getContactByPhone } from '../amoAPI/amoApi';
+import { logger } from '../handlers/errorLogger';
 import ClientModel from '../models/ClientModel';
 import getCounterPartyByNumber from '../moyskladAPI/counterparty';
 import { checkNumber, checkPin } from '../plusofonAPI/plusofonApi';
@@ -16,7 +17,7 @@ router.get('/auth', json(), async (req, res) => {
         return res.json(client)
     }
     catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
 })
@@ -34,7 +35,7 @@ router.post('/auth/check-number', json(), async (req: Request<{}, {}, { phone: s
         return res.end()
     }
     catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
 })
@@ -54,6 +55,8 @@ router.post('/auth/check-pin', json(), async (req: Request<{}, {}, { pin: string
             if ( !client ) {
                 return res.status(500).json({ message: "Пользователь не найден" })
             }
+            client.sid = req.session.id
+            await client.save()
             if ( req.session.cartId ) {
                 await client.mergeCart(req.session.cartId)
                 delete req.session.cartId
@@ -75,7 +78,7 @@ router.post('/auth/check-pin', json(), async (req: Request<{}, {}, { pin: string
 		return res.status(500).json({ message: "Ошибка, попробуйте ещё раз" })
     }
     catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
 })
@@ -93,7 +96,7 @@ router.post('/register', json(), async (req: Request<{}, {}, { phone: string }>,
         return res.end()
     }
     catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
 })
@@ -113,7 +116,7 @@ router.post('/register/check-pin', json(), async (req: Request<{}, {}, { pin: st
             if (client) {
 			    return res.status(500).json({ message: "Пользователь с таким номером уже зарегистрирован" })
 		    }
-            client = await new ClientModel({ tel: req.session.candidateNumber }).save()
+            client = await new ClientModel({ tel: req.session.candidateNumber, sid: req.session.id }).save()
 
             const contact = await getContactByPhone(req.session.candidateNumber)
 			if (contact) {
@@ -144,7 +147,7 @@ router.post('/register/check-pin', json(), async (req: Request<{}, {}, { pin: st
 		return res.status(500).json({ message: "Ошибка, попробуйте ещё раз" })
     }
     catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
 })
@@ -191,7 +194,7 @@ router.post("/change-status-request", json(), async (req: Request<{}, {}, { clai
 
         return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -202,7 +205,7 @@ router.post('/logout', async (req, res) => {
             return res.end()
         })
     } catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
 })

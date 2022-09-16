@@ -4,6 +4,7 @@ import { access, mkdir, readdir, rm } from "fs/promises";
 import multer, { diskStorage } from "multer";
 import path from "path";
 import { ICategory, IProduct } from "../../shared";
+import { logger } from "../handlers/errorLogger";
 import CategoryModel from "../models/CategoryModel";
 import ProductModel from "../models/ProductModel";
 
@@ -51,7 +52,7 @@ router.get("/", async (req, res) => {
         const categories = await CategoryModel.find({ archived: false })
         return res.json(categories)
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -96,7 +97,7 @@ router.get("/:id", async (req: Request<{id: string}>, res) => {
         }
 		return res.json({ ...category.toObject(), variantsFilter })
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -114,7 +115,7 @@ router.get("/products/:id", async (req: Request<{ id: string }, {}, {},
         const products = category.getProducts(filters ? JSON.parse(filters) : undefined, limit, page, sortByPrice)
 		return res.json(products)
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -153,7 +154,7 @@ router.get(
 			const products = category.getProductsAndVariants({ filters, limit, page, variantsFilter, sortByPrice, minPrice, maxPrice })
 			return res.json(products)
 		} catch (e) {
-			console.log(e)
+			logger.error(e)
 			return res.status(500).json({ message: "Что-то пошло не так..." })
 		}
 	}
@@ -174,7 +175,7 @@ router.post('/products/:id', bodyParser.json(), async (req: Request<{id: string}
         }
 		return res.end()
 	} catch (e: any) {
-		console.log(e)
+		logger.error(e)
 		const message = e.userError ? e.message : "Что-то пошло не так..."
 		return res.status(500).json({ message })
 	}
@@ -193,7 +194,7 @@ router.delete('/products/:id', bodyParser.json(), async (req: Request<{id: strin
         await category.rmProduct(productId)
 		return res.end()
 	} catch (e: any) {
-		console.log(e)
+		logger.error(e)
 		const message = e.userError ? e.message : "Что-то пошло не так..."
 		return res.status(500).json({ message })
 	}
@@ -209,7 +210,7 @@ router.post("/", bodyParser.json(), async (req: Request<{}, {}, {title: string}>
         if (e.code === 11000) {
             return res.status(500).json({ message: "Категория с таким именем уже существует" })
         }
-        console.log(e)
+        logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -235,7 +236,7 @@ router.put("/:id", bodyParser.json(), async (req: Request<{id: string}, {}, {des
 				.status(500)
 				.json({ message: "Категория с таким именем уже существует" })
 		}
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -247,7 +248,7 @@ router.delete("/:id", bodyParser.json(), async (req: Request<{id: string}, {}, {
         await CategoryModel.findByIdAndUpdate(id, { archived: true })
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -268,7 +269,7 @@ router.put("/photo/:id", upload.single('photo'), async (req: Request<{id: string
 		await category.save()
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -296,7 +297,7 @@ router.delete("/photo/:id", async (req: Request<{id: string}, {}, {}>, res) => {
 		await category.save()
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -315,7 +316,7 @@ router.post('/filter/:id', bodyParser.json(),async (req: Request<{id: string}, {
         return res.end()
     }
     catch (e: any) {
-        console.log(e)
+        logger.error(e)
 		const message = e.userError ? e.message : "Что-то пошло не так..."
 		return res.status(500).json({ message })
     }
@@ -335,7 +336,7 @@ router.put("/filter/:id", bodyParser.json(), async (req: Request<{id: string}, {
         return res.end()
     }
     catch (e: any) {
-        console.log(e)
+        logger.error(e)
         const message = e.userError ? e.message : "Что-то пошло не так..."
 		return res.status(500).json({ message })
     }
@@ -355,7 +356,7 @@ router.delete('/filter/:id', bodyParser.json(), async (req: Request<{id: string}
         return res.end()
     }
     catch (e: any) {
-        console.log(e)
+        logger.error(e)
         const message = e.userError ? e.message : "Что-то пошло не так..."
 		return res.status(500).json({ message })
     }
@@ -375,7 +376,7 @@ router.post('/filter/value/:id', bodyParser.json(), async (req: Request<{id: str
         return res.end()
     }
     catch (e: any) {
-        console.log(e)
+        logger.error(e)
 		const message = e.userError ? e.message : "Что-то пошло не так..."
 		return res.status(500).json({ message })
     }
@@ -396,7 +397,7 @@ router.put('/filter/value/:id', bodyParser.json(),
         return res.end()
     }
     catch (e: any) {
-        console.log(e)
+        logger.error(e)
         const message = e.userError ? e.message : "Что-то пошло не так..."
 		return res.status(500).json({ message })
     }
@@ -417,7 +418,7 @@ router.delete('/filter/value/:id', bodyParser.json(),
         return res.end()
     }
     catch (e: any) {
-        console.log(e)
+        logger.error(e)
         const message = e.userError ? e.message : "Что-то пошло не так..."
 		return res.status(500).json({ message })
     }

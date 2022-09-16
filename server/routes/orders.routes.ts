@@ -11,7 +11,7 @@ import PointsModel from '../models/PointsModel';
 import ProductModel, { VariantModel } from '../models/ProductModel'
 import { sdekCalcDelivery } from '../sdekAPI/calc';
 import getCounterPartyByNumber from '../moyskladAPI/counterparty';
-import errorHandler from '../handlers/errorLogger';
+import errorHandler, { logger } from '../handlers/errorLogger';
 import createMsOrderHandler from '../handlers/createMsOrderHandler';
 import createPaymentHandler from '../handlers/createPaymentHandler';
 import CartModel from '../models/CartModel';
@@ -40,7 +40,7 @@ router.get('/', async (req, res) => {
         return res.json(orders)
     }
     catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
 })
@@ -84,6 +84,7 @@ router.get('/cart', async (req, res) => {
 		return res.json(newCart)// и отдаём её;
 	}
 	catch (e) {
+		logger.error(e)
 		return res.status(500).json({ message: 'Ошибка получения корзины...' })
 	}
 })
@@ -104,7 +105,7 @@ router.get('/delivery/city', async (req, res) => {
 		return res.json({ region: point.location.region, city: point.location.city, city_code })
 	}
 	catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: 'Что-то пошло не так...' })
 	}
 })
@@ -172,7 +173,7 @@ router.get("/delivery/detail", async (req, res) => {
 		}
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -200,7 +201,7 @@ router.get("/delivery/recipient", async (req, res) => {
 
 		return res.json(result)
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -246,7 +247,7 @@ router.put("/delivery/recipient", bodyParser.json(), async (req: Request<{}, {},
 
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -280,7 +281,7 @@ router.put("/cart/product", bodyParser.json(), async (req: Request<{}, {}, { pro
 		
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -314,7 +315,7 @@ router.put("/cart/variant", json(), async (req: Request<{}, {}, { productId: str
 
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -370,7 +371,7 @@ router.delete("/cart", async (req: Request<{}, {}, {}, { productIds: string; var
 
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -405,7 +406,7 @@ router.put("/cart/check/reset", async (req, res) => {
 		await cart.resetCheckAll()
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: 'Что-то пошло не так...' })
 	}
 })
@@ -440,7 +441,7 @@ router.put("/cart/check/toggle-all", async (req, res) => {
 		await cart.toggleCheckAll()
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -476,7 +477,7 @@ router.put("/cart/check/toggle", json(), async (req: Request<{}, {}, { productId
 		await cart.toggleCheck(productId, variantId)
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -496,7 +497,7 @@ router.put('/cart/promocode', json(), async (req: Request<{}, {}, { code: string
 		}
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: 'Что-то пошло не так...' })
 	}
 })
@@ -512,7 +513,7 @@ router.delete('/cart/promocode', async (req, res) => {
 		await client.resetPromocodeInCart()
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: 'Что-то пошло не так...' })
 	}
 })
@@ -529,7 +530,7 @@ router.put('/cart/use-cashback-toggle', async (req, res) => {
 		return res.end()
 
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.end()
 	}
 })
@@ -557,7 +558,7 @@ router.put('/set/city/:city_code', async (req: Request<{city_code: number}>, res
 		return res.end()
 	}
 	catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: 'Что-то пошло не так...' })
 	}
 })
@@ -582,7 +583,7 @@ router.put("/set/delivery", bodyParser.json(), async (req: Request<{}, {}, { sde
 		}
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -669,7 +670,8 @@ router.post("/", bodyParser.json(), async (req, res) => {
 
 			return res.json({ url, orderNumber: number })
 		} catch (e: any) {
-			errorHandler(e, req, res)
+			logger.error(e)
+			return res.status(500).json({ message: 'Что-то пошло не так...' })
 		}
 	}
 )
@@ -690,7 +692,7 @@ router.get('/delivery/cities/:str', async (req: Request<{str: string}>, res) => 
 		return res.json(relevant)
 	}
 	catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: 'Что-то пошло не так...' })
 	}
 })
@@ -706,7 +708,7 @@ router.get('/delivery/points', async (req, res) => {
 		return res.json(points)
 	}
 	catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: 'Что-то пошло не так...' })
 	}
 })
@@ -721,7 +723,7 @@ router.post('/check-number/init', bodyParser.json(), async (req: Request<{}, {},
 		return res.end()
 	}
 	catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: 'Что-то пошло не так...' })
 	}
 })
@@ -779,7 +781,7 @@ router.post('/check-number/pin', bodyParser.json(), async (req: Request<{}, {}, 
 		return res.status(500).json({ message: "Ошибка, попробуйте ещё раз" })
 	}
 	catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: 'Что-то пошло не так...' })
 	}
 })
@@ -808,7 +810,7 @@ router.post("/check-payment/probably", bodyParser.json(), async (req: Request<{}
 		
 		res.json(response)
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.end()
 	}
 })
@@ -848,7 +850,7 @@ router.get("/:id", async (req: Request<{ id: string }>, res) => {
 
 		return res.json(order)
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })

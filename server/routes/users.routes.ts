@@ -1,5 +1,6 @@
 import { json } from "body-parser";
 import { Request, Router } from "express"
+import { logger } from "../handlers/errorLogger";
 import ClientModel from "../models/ClientModel";
 
 const router = Router()
@@ -22,7 +23,7 @@ router.get('/', async (req: Request<{}, {}, {}, {page?: number, limit?: number, 
         return res.json({ clients, length })
     }
     catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
 })
@@ -48,7 +49,7 @@ router.put("/:id", json(), async (req: Request<{id: string}, {}, {status: string
 		}
         return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })

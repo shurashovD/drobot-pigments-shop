@@ -1,6 +1,7 @@
 import bodyParser from 'body-parser';
 import { Request, Router } from "express"
 import { amoGetToken } from '../amoAPI/amoApi';
+import { logger } from '../handlers/errorLogger';
 import AmoCredModel from '../models/AmoCredModel';
 
 const router = Router()
@@ -23,7 +24,7 @@ router.get("/check-auth", async (req, res) => {
 			: "Отсутсвует актуальный ключ для интеграции с АМО"
 		return res.json({ message, tokenIsActual })
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -35,7 +36,7 @@ router.post('/auth', bodyParser.json(), async (req: Request<{}, {}, {code: strin
         return res.end()
     }
     catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
 })
@@ -45,7 +46,7 @@ router.get('/handle', async (req, res) => {
         return res.end()
     }
     catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.end()
     }
 })

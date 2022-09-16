@@ -258,7 +258,7 @@ export const updateContact = async (id: string, name = 'Покупатель с 
 			.then(({ data }) => data?._embedded?.contacts?.[0]?.id)
     }
     catch (e: any) {
-        console.log(e.response?.data?.['validation-errors']?.[0])
+        throw e
     }
 }
 
@@ -392,7 +392,7 @@ export const createTrade = async (contactId: number, products: {name: string, qu
 			headers: { "Content-Type": "application/json", authorization },
 		}).then(({ data }) => data)
 	} catch (e: any) {
-		console.log(e.response.data["validation-errors"][0].errors)
+		throw e
 	}
     
 }
@@ -418,6 +418,6 @@ export const createTask = async (text: string, contactId?: number) => {
 			})
 			.then(({ data }) => data)
 	} catch (e: any) {
-		console.log(e.response.data["validation-errors"][0].errors)
+		throw e
 	}
 }

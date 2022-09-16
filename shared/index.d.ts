@@ -386,6 +386,7 @@ export interface IClient extends Document {
 	claimedStatus?: string
 	promocodes?: Types.ObjectId[]
 	cashBack?: number
+	sid?: string
 	totalCashBack?: number
 	total?: number
 	createTempOrder(sdek: IOrder["delivery"]["sdek"], recipientName?: string, recipientMail?: string): Promise<string>

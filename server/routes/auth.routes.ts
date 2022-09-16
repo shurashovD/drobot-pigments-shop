@@ -1,5 +1,6 @@
 import bodyParser from 'body-parser';
 import { Request, Router } from 'express';
+import { logger } from '../handlers/errorLogger';
 import ClientModel from '../models/ClientModel';
 
 const router = Router()
@@ -15,7 +16,7 @@ router.post('/', bodyParser.json(), async (req: Request<{}, {}, { tel: string }>
         return res.end()
     }
     catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
 })

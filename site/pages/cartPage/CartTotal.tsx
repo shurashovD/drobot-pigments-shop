@@ -54,13 +54,20 @@ const CartTotal = () => {
 					</Fade>
 				</div>
 			</Collapse>
-			{(!auth || !auth.status) && (
+			{!auth && (
 				<div className="mb-5">
 					Для доступа к скидкам{" "}
-					<Button variant="link"
-						onClick={() => dispatch(setShowAuthModal(true))}
-						className="m-0 p-0 text-dark text-decoration-underline"
-					>Авторизуйтесь или Зарестирируйтесь</Button>
+					<Button variant="link" onClick={() => dispatch(setShowAuthModal(true))} className="m-0 p-0 text-dark text-decoration-underline">
+						Авторизуйтесь или Зарестирируйтесь
+					</Button>
+				</div>
+			)}
+			{!!auth && !auth.status && (
+				<div className="mb-5">
+					Для доступа к скидкам{" "}
+					<NavLink to="/profile#profile" className="text-decorarion-underline text-dark">
+						завершите регистрацию
+					</NavLink>
 				</div>
 			)}
 			{auth?.status === "common" && (

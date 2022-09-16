@@ -126,7 +126,7 @@ const createDemand = async (orderId: string) => {
 		await ms.POST(paths.demand, { ...template, store })
 	}
 	catch (e) {
-		console.log(e)
+		throw e
 	}
 }
 

@@ -11,6 +11,7 @@ import createSdekOrderHandler from '../handlers/createSdekOrderHandler';
 import { getUKPayment } from '../ukassaAPI/payments';
 import ClientModel from '../models/ClientModel';
 import PromocodeModel from '../models/PromocodeModel';
+import { logger } from '../handlers/errorLogger';
 
 const router = Router()
 
@@ -20,7 +21,7 @@ router.get('/hooks', async (req, res) => {
         return res.json({ hooks })
     }
     catch (e) {
-        console.log(e)
+        logger.error(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
 })
@@ -30,7 +31,7 @@ router.post("/hooks", bodyParser.json(), async (req: Request<{}, {}, ICreateWebH
         await createUKHook(req.body)
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -41,7 +42,7 @@ router.delete("/hooks/:id", bodyParser.json(), async (req: Request<{id: string}>
         await deleteUKHooks(id)
 		return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
 })
@@ -172,7 +173,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 		}
         return res.end()
 	} catch (e) {
-		console.log(e)
+		logger.error(e)
 		return res.end()
 	}
 })

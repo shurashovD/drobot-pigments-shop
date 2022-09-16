@@ -7,11 +7,6 @@ import DelegateDiscountModel from './DelegateDiscountModel';
 import CartModel from './CartModel';
 import PromocodeModel from './PromocodeModel';
 
-interface IOrderPopulate {
-	cashBack: number,
-	orderId: IOrderPop,
-}
-
 const ClientSchema = new Schema<IClient, ClientModel>({
 	addresses: [String],
 	amoContactId: Number,
@@ -28,6 +23,7 @@ const ClientSchema = new Schema<IClient, ClientModel>({
 	claimedStatus: String,
 	promocodes: [{ type: Schema.Types.ObjectId, ref: "Promocode" }],
 	status: String,
+	sid: String,
 	tel: { type: String, required: true },
 	total: { type: Number, default: 0 }
 })
