@@ -350,7 +350,7 @@ CartSchema.methods.addVariant = async function (
 			throw new Error("Товар не найден")
 		}
 
-		const variant = product.variants.find(({ _id }) => _id?.toString())
+		const variant = product.variants.find(({ _id }) => _id?.toString() === variantId)
 		if (!variant) {
 			throw new Error("Вариант не найден")
 		}

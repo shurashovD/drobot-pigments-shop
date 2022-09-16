@@ -498,11 +498,6 @@ export const variantSync = async () => {
 			}
 
 			const index = product.variants.findIndex(({ identifier }) => identifier === mod.identifier)
-			if ( mod.identifier === '1d82d920-ddc2-11ec-0a80-02f6000f00cc' ) {
-				console.log(mod)
-				console.log(index)
-				console.log(product)
-			}
 			if ( index === -1 ) {
 				product.variants.push({
 					identifier: mod.identifier,
