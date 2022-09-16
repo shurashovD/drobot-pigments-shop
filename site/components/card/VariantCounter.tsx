@@ -51,7 +51,6 @@ const VariantCounter: FC<IProps> = ({ productId, variantId }) => {
 	useEffect(() => {
 		if ( cart && isSuccess && !isFetching ) {
 			const quantity = cart.variants.find(item => item.variantId === variantId)?.quantity || 0
-			console.log(quantity);
 			setQuantity(quantity.toString())
 		}
 	}, [cart, variantId, isSuccess, isFetching])

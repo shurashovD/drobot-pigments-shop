@@ -12,7 +12,7 @@ const errorHandler = (err: Error, req: Request, res: Response) => {
 log4js.configure({
 	appenders: {
 		out: { type: "stdout" },
-		app: { type: "file", filename: "application.log" },
+		app: { type: "file", filename: "application.log", encoding: 'utf-8' },
 	},
 	categories: {
 		default: { appenders: ["out", "app"], level, enableCallStack: true },
