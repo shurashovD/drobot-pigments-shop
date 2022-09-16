@@ -356,6 +356,7 @@ CartSchema.methods.addVariant = async function (
 		}
 
 		const stock = await rests({ assortmentId: [variant.identifier] })
+		console.log(variant.identifier)
 		console.log(stock);
 		if (!stock) {
 			throw new Error("Остаток не получен")
