@@ -17,6 +17,7 @@ log4js.configure({
 	categories: {
 		default: { appenders: ["out", "app"], level, enableCallStack: true },
 	},
+	pm2: true
 })
 
 export const logger = log4js.getLogger()
