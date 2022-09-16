@@ -25,7 +25,7 @@ const DeliveryWrapper = () => {
 				variant="link"
 				onClick={() => dispatch(setActive(eventKey))}
 				disabled={disabled}
-				className={classNames("order-accordion__btn", { collapsed: activeKey === eventKey, empty: empty })}
+				className={classNames("order-accordion__btn mt-5", { collapsed: activeKey === eventKey, empty: empty })}
 			>
 				<span className="text-uppercse fs-3">2. Способ доставки</span>
 			</Button>
@@ -34,8 +34,8 @@ const DeliveryWrapper = () => {
 					<Delivery />
 				</div>
 			</Collapse>
-			<Fade in={!!deliveryDetail?.address && activeKey !== eventKey}>
-				<Stack className="my-5" dir="verical" gap={3}>
+			<Collapse in={!!deliveryDetail?.address && activeKey !== eventKey}>
+				<Stack className="mt-5" dir="verical" gap={3}>
 					<div>
 						<span>Выбрано: </span>
 						<b>
@@ -55,7 +55,7 @@ const DeliveryWrapper = () => {
 						)}
 					</div>
 				</Stack>
-			</Fade>
+			</Collapse>
 		</>
 	)
 }

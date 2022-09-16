@@ -1,7 +1,8 @@
 import { useEffect } from "react"
 import { Accordion, Button, Col, Container, Row } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
-import { useAppSelector } from '../../application/hooks'
+import { useAppDispatch, useAppSelector } from '../../application/hooks'
+import { setActive } from "../../application/orderSlice"
 import CreateOrderBtn from "./CreateOrderBtn"
 import DeliveryWrapper from "./delivery/DeliveryWrapper"
 import ProductsWrapper from "./products/ProductsWrapper"
@@ -17,6 +18,7 @@ const OrderPage = () => {
 	])
     const navigate = useNavigate()
 	const { active: activeKey } = useAppSelector(state => state.orderSlice)
+	const dispatch = useAppDispatch()
 
 	useEffect(() => {
 		if ( !activeKey ) return
@@ -30,6 +32,10 @@ const OrderPage = () => {
 			}, 500)
 		}
 	}, [activeKey])
+
+	useEffect(() => {
+		dispatch(setActive("1"))
+	}, [dispatch, setActive])
 
 	return (
 		<Container className="pb-6">

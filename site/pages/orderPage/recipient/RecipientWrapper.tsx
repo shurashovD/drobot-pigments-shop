@@ -41,7 +41,7 @@ const RecipientWrapper = () => {
 				variant="link"
 				onClick={() => dispatch(setActive(eventKey))}
 				disabled={disabled}
-				className={classNames("order-accordion__btn", { collapsed: activeKey === eventKey, empty: empty })}
+				className={classNames("order-accordion__btn mt-5", { collapsed: activeKey === eventKey, empty: empty })}
 			>
 				<span className="text-uppercse fs-3">3. Получатель</span>
 			</Button>
@@ -50,8 +50,8 @@ const RecipientWrapper = () => {
 					<Recipient />
 				</div>
 			</Collapse>
-			<Fade in={!!recipient?.phone && !!recipient?.name && !!recipient?.mail && activeKey !== "3"}>
-				<Stack className="my-5" dir="verical" gap={3}>
+			<Collapse in={!!recipient?.phone && !!recipient?.name && !!recipient?.mail && activeKey !== "3"}>
+				<Stack className="mt-5" dir="verical" gap={3}>
 					<div>
 						<span>Получатель: </span>
 						<b>{recipient?.name}</b>
@@ -65,7 +65,7 @@ const RecipientWrapper = () => {
 						<b>{recipient?.mail}</b>
 					</div>
 				</Stack>
-			</Fade>
+			</Collapse>
 		</>
 	)
 }

@@ -168,7 +168,7 @@ const AuthComponent: FC<ModalProps> = () => {
 				{!checkPin && (
 					<Row className="text-white justify-content-center mb-5 g-2">
 						<Col xs="auto" className="d-flex align-items-center">
-							<input type="checkbox" checked={true} className="bg-dark" />
+							<input type="checkbox" checked={true} className="bg-dark" readOnly />
 						</Col>
 						<Col xs={8}>
 							Принимаю условия <NavLink to="/" className="text-white text-decoration-underline">соглашения о конфиденциальности</NavLink>

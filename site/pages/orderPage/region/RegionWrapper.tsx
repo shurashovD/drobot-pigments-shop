@@ -31,14 +31,14 @@ const RegionWrapper = () => {
 					<Region city={deliveryCity?.city} code={deliveryCity?.city_code} />
 				</div>
 			</Collapse>
-			<Fade in={!!deliveryCity && activeKey !== eventKey}>
-				<div className="my-5">
+			<Collapse in={!!deliveryCity && activeKey !== eventKey}>
+				<div className="mt-5">
 					<span>Город доставки: </span>
 					<b>
 						{deliveryCity?.region}, {deliveryCity?.city}
 					</b>
 				</div>
-			</Fade>
+			</Collapse>
 		</>
 	)
 }

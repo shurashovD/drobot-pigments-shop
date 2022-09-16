@@ -124,7 +124,7 @@ const Recipient = () => {
 				</Row>
 				<Row className="justify-content-start g-1">
 					<Col xs="auto" className="d-flex align-items-center">
-						<input type="checkbox" checked={true} className="bg-dark" />
+						<input type="checkbox" checked={true} className="bg-dark" readOnly />
 					</Col>
 					<Col xs={8}>
 						Принимаю условия{" "}

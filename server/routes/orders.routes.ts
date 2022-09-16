@@ -400,7 +400,7 @@ router.put("/cart/check/reset", async (req, res) => {
 		}
 
 		if ( typeof cart === 'undefined' ) {
-			throw new Error('Корзина не найдена')
+			return res.end()
 		}
 
 		await cart.resetCheckAll()
@@ -748,14 +748,16 @@ router.post('/check-number/pin', bodyParser.json(), async (req: Request<{}, {}, 
 						counterpartyId: counterparty.id,
 						name: counterparty.name,
 						tel: req.session.candidateNumber,
-						cartId: req.session.cartId
+						cartId: req.session.cartId,
 					}).save()
 				} else {
 					client = await new ClientModel({
-						tel: req.session.candidateNumber,
+						tel: req.session.candidateNumber
 					}).save()
 				}
 			}
+			client.sid = req.session.id
+			await client.save()
 			if (req.session.cartId && client) {
 				client.cartId = new Types.ObjectId(req.session.cartId)
 				await client.save()

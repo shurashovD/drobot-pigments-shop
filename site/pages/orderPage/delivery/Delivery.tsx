@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Button, Col, Fade, Row } from "react-bootstrap"
+import { Button, Col, Collapse, Fade, Row } from "react-bootstrap"
 import { useAppDispatch } from "../../../application/hooks"
 import { useGetDeliveryDetailQuery } from "../../../application/order.service"
 import { setActive, setSdek, setSdekTariff } from "../../../application/orderSlice"
@@ -40,7 +40,7 @@ const Delivery = () => {
 				{!isLoading && !!data?.sdek && <SdekDetail />}
 			</Col>
 			<Col xs={12}>
-				<Fade in={show}>
+				<Collapse in={show}>
 					<div>
 						<div className="mb-2">
 							{data?.sdek && <>СДЭК, </>}
@@ -51,7 +51,7 @@ const Delivery = () => {
 						</div>
 						<Button onClick={() => dispatch(setActive("3"))}>Далее</Button>
 					</div>
-				</Fade>
+				</Collapse>
 			</Col>
 		</Row>
 	)

@@ -102,7 +102,7 @@ const Region: FC<IProps> = ({ city, code }) => {
 				</Col>
 				<Col xs={12} md={4} lg={2}>
 					<div className="d-lg-none text-muted mt-2 mb-3">Выберите свой город в списке.</div>
-					<div className="d-flex d-lg-block">
+					<div className="d-flex">
 						<ButtonComponent disabled={city === value ? false : !cityCode} onClick={nextHandler} isLoading={isLoading}>
 							{ city === value ? <>Далее</> : <>Выбрать</> }
 						</ButtonComponent>

@@ -26,7 +26,7 @@ const ProductsWrapper = () => {
 				variant="link"
 				onClick={() => dispatch(setActive(eventKey))}
 				disabled={disabled}
-				className={classNames("order-accordion__btn", { collapsed: activeKey === eventKey, empty: empty })}
+				className={classNames("order-accordion__btn mt-5", { collapsed: activeKey === eventKey, empty: empty })}
 			>
 				<span className="text-uppercse fs-3">4. Товары в заказе</span>
 			</Button>
