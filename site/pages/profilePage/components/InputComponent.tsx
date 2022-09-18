@@ -16,29 +16,15 @@ const InputComponent: FC<IProps> = ({ disabled, label, handler, invalid, placeho
 
     return (
 		<div className="d-flex align-items-center w-100">
-			{label && (
-				<div className="text-muted me-2 white-space">{label}: </div>
+			{label && <div className="text-muted me-2 white-space">{label}: </div>}
+			<Form.Control disabled={disabled} value={value} className="profile-input" onChange={handler} ref={input} placeholder={placeholder} />
+			{title ? (
+				<OverlayTrigger placement="auto-end" trigger={["hover"]} overlay={<Tooltip>{title}</Tooltip>}>
+					<Button variant="link" className={`profile-edit__btn ms-auto ${invalid && "invalid"}`} onClick={() => input?.current?.focus()} />
+				</OverlayTrigger>
+			) : (
+				<Button variant="link" className={`profile-edit__btn ms-auto ${invalid && "invalid"}`} onClick={() => input?.current?.focus()} />
 			)}
-			<Form.Control
-				disabled={disabled}
-				value={value}
-				className="profile-input"
-				onChange={handler}
-				ref={input}
-				placeholder={placeholder}
-			/>
-			<OverlayTrigger
-                placement="right"
-                overlay={<Tooltip>{title}</Tooltip>}
-            >
-				<Button
-					variant="link"
-					className={`profile-edit__btn ms-auto ${
-						invalid && "invalid"
-					}`}
-					onClick={() => input?.current?.focus()}
-				/>
-			</OverlayTrigger>
 		</div>
 	)
 }

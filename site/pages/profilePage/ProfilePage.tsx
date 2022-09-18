@@ -11,6 +11,7 @@ import Main from "./main/Main"
 import Mobile from "./mobile/Mobile"
 import Orders from "./orders/Orders"
 import Profile from "./profile/Profile"
+import SaveAlert from "./profile/SaveAlert"
 import ProfilePageNavigate from "./ProfilePageNavigate"
 import Promocodes from "./promocodes/Promocodes"
 import SuccessModal from "./SuccessModal"
@@ -62,6 +63,9 @@ const ProfilePage = () => {
 				<div className="d-md-none">
 					<MobileAlerts />
 					<Mobile />
+					<div className="position-fixed start-0 end-0 bottom-0 p-2" style={{ zIndex: 1 }}>
+						<SaveAlert />
+					</div>
 				</div>
 			)}
 			{!!client && (
@@ -69,7 +73,7 @@ const ProfilePage = () => {
 					<ProfilePageNavigate />
 					{hash === "#main" && <Main />}
 					{hash === "#orders" && <Orders />}
-					{hash === "#promocodes" &&  (client.status === 'agent' || client.status === 'delegate') && <Promocodes />}
+					{hash === "#promocodes" && (client.status === "agent" || client.status === "delegate") && <Promocodes />}
 					{hash === "#favourite" && <Favourite />}
 					{hash === "#profile" && <Profile />}
 				</div>

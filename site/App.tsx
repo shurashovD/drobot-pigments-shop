@@ -18,6 +18,10 @@ import { useSendErrorMutation } from './application/error.service'
 import ParetnerProgramPage from './pages/partnerProgramPage/ParetnerProgramPage'
 import ContactsPage from './pages/contactsPage/ContactsPage'
 import AboutPage from './pages/aboutPage/AboutPage'
+import UserAgreementPage from './pages/userAgreementPage/UserAgreementPage'
+import PrivacyPolicyPage from './pages/privacyPolicyPage/PrivacyPolicyPage'
+import CookiesPage from './pages/cookiesPage/CookiesPage'
+import GaranteesAndRefund from './pages/garanteesAndRefund/GaranteesAndRefund'
 
 const App = () => {
 	const [sendError] = useSendErrorMutation()
@@ -44,6 +48,10 @@ const App = () => {
 						<Route path="/partner-program" element={<ParetnerProgramPage />} />
 						<Route path="/contacts" element={<ContactsPage />} />
 						<Route path="/about" element={<AboutPage />} />
+						<Route path="/user-agreement" element={<UserAgreementPage />} />
+						<Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+						<Route path="/cookies" element={<CookiesPage />} />
+						<Route path="/garantees" element={<GaranteesAndRefund />} />
 						<Route path="*" element={<Navigate to="/" />} />
 					</Routes>
 				</Container>
