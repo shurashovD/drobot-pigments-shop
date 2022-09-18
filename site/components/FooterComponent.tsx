@@ -56,6 +56,11 @@ const FooterComponent = () => {
 									Доставка и оплата
 								</NavLink>
 							</div>
+							<div className="text-center text-md-start">
+								<NavLink to="/garantees" className="footer__link">
+									Гарантии и возврат
+								</NavLink>
+							</div>
 							<div className="text-center text-md-start d-none">
 								<NavLink to="/" className="footer__link">
 									Бонусная программа
@@ -91,19 +96,19 @@ const FooterComponent = () => {
 						</Stack>
 					</Col>
 				</Row>
-				<Row xs={1} md={"auto"} className="justify-content-center mb-5 gap-4 d-none">
-					<Col className="text-center text-md-start">
-						<NavLink to="/" className="footer-light__link">
+				<Row xs={1} md={3} className="justify-content-center mb-5">
+					<Col className="text-center text-md-end">
+						<NavLink to="/privacy-policy" className="footer-light__link">
 							Политика конфиденциальности
 						</NavLink>
 					</Col>
-					<Col className="text-center text-md-start">
-						<NavLink to="/" className="footer-light__link">
+					<Col className="text-center">
+						<NavLink to="/user-agreement" className="footer-light__link">
 							Пользовательское соглашение
 						</NavLink>
 					</Col>
 					<Col className="text-center text-md-start">
-						<NavLink to="/" className="footer-light__link">
+						<NavLink to="/cookies" className="footer-light__link">
 							Cookie
 						</NavLink>
 					</Col>

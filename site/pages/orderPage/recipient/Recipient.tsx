@@ -128,7 +128,7 @@ const Recipient = () => {
 					</Col>
 					<Col xs={8}>
 						Принимаю условия{" "}
-						<NavLink to="/" className="text-decoration-underline">
+						<NavLink to="/privacy-policy" className="text-decoration-underline">
 							соглашения о конфиденциальности
 						</NavLink>
 					</Col>

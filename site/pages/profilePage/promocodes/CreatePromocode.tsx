@@ -1,17 +1,19 @@
-import { useEffect } from "react"
-import { Col, Row } from "react-bootstrap"
+import { useEffect, useRef } from "react"
+import { Button, Col, Fade, Row } from "react-bootstrap"
 import { useAppDispatch, useAppSelector } from "../../../application/hooks"
 import { useCreatePromocodeMutation, useUpdatePromocodeMutation } from "../../../application/profile.service"
-import { promocodeIsCreated, promocodeIsUpdated, setForm } from "../../../application/profilePromocodesSlice"
+import { promocodeIsCreated, promocodeIsUpdated, setForm, setShowCalendar } from "../../../application/profilePromocodesSlice"
 import ButtonComponent from "../../../components/ButtonComponent"
+import CalendarComponent from "../components/CalendarComponent"
 import CodeInput from "./CodeInput"
 import DateInput from "./DateInput"
 
 const CreatePromocode = () => {
-	const { editedPromocode, form } = useAppSelector(state => state.profilePromocodesSlice)
+	const { editedPromocode, form, showCalendar } = useAppSelector(state => state.profilePromocodesSlice)
 	const dispatch = useAppDispatch()
     const [create, { isLoading, isSuccess, reset }] = useCreatePromocodeMutation()
 	const [update, { isLoading: updateLaoding, isSuccess: updateSuccess, reset: updateReset }] = useUpdatePromocodeMutation()
+	const target = useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {
 		if (isSuccess) {
@@ -29,7 +31,7 @@ const CreatePromocode = () => {
 
 	return (
 		<Row className="g-2 gy-5 justify-content-center mt-xs-5 mt-2">
-			<Col xs={10} lg={4}>
+			<Col xs={10} xl={4}>
 				<CodeInput
 					placeholder="Название промокода"
 					value={form.code}
@@ -37,13 +39,16 @@ const CreatePromocode = () => {
 					disabled={false}
 				/>
 			</Col>
-			<Col xs={12} lg={6}>
-				<Row className="justify-content-center g-0">
+			<Col xs={12} xl={6} className="position-relative">
+				<Row className="justify-content-center g-0 position-relative" ref={target}>
 					<Col xs={5}>
 						<DateInput
 							value={form.dateStart}
 							placeholder="с"
-							onChange={(value) => dispatch(setForm({ key: "dateStart", value }))}
+							onClean={() => {
+								dispatch(setForm({ key: "dateStart", value: "" }))
+								dispatch(setForm({ key: "dateFinish", value: "" }))
+							}}
 							disabled={false}
 						/>
 					</Col>
@@ -54,13 +59,23 @@ const CreatePromocode = () => {
 						<DateInput
 							value={form.dateFinish}
 							placeholder="по"
-							onChange={(value) => dispatch(setForm({ key: "dateFinish", value }))}
+							onClean={() => dispatch(setForm({ key: "dateFinish", value: "" }))}
 							disabled={false}
 						/>
 					</Col>
+					<div className="position-absolute top-100 w-100 d-flex justify-content-center">
+						<Fade in={showCalendar}>
+							<div className="bg-secondary" style={{ width: 'min-content' }}>
+								<div className="text-end">
+									<Button className="text-muted m-0 pb-0" variant="link" onClick={() => dispatch(setShowCalendar(false))}>Закрыть</Button>
+								</div>
+								<CalendarComponent />
+							</div>
+						</Fade>
+					</div>
 				</Row>
 			</Col>
-			<Col xs={12} lg={2} className="d-flex align-items-center justify-content-center">
+			<Col xs={12} lg={2} className="d-flex align-items-center justify-content-center" style={{ zIndex: -1 }}>
 				<ButtonComponent
 					disabled={
 						form.code === "" ||

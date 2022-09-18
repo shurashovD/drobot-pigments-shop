@@ -171,7 +171,10 @@ const AuthComponent: FC<ModalProps> = () => {
 							<input type="checkbox" checked={true} className="bg-dark" readOnly />
 						</Col>
 						<Col xs={8}>
-							Принимаю условия <NavLink to="/" className="text-white text-decoration-underline">соглашения о конфиденциальности</NavLink>
+							Принимаю условия{" "}
+							<NavLink to="/privacy-policy" className="text-white text-decoration-underline">
+								соглашения о конфиденциальности
+							</NavLink>
 						</Col>
 					</Row>
 				)}

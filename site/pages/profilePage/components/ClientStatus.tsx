@@ -1,4 +1,4 @@
-import { Button, OverlayTrigger, Popover } from "react-bootstrap"
+import { Button, Col, OverlayTrigger, Popover, Row } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
 import { useAccountAuthQuery } from "../../../application/account.service"
 
@@ -31,23 +31,25 @@ const ClientStatus = () => {
 	}
 	
     return (
-		<div>
-			<div className="d-flex align-items-center mb-3 mb-md-4">
-				<span className="text-uppercase fs-3 me-2">
-					{auth?.status === "common" && <>Розничный покупатель</>}
-					{auth?.status === "agent" && <>Агент</>}
-					{auth?.status === "delegate" && <>Представитель</>}
-				</span>
-				<OverlayTrigger placement="top" overlay={popover}>
-					<Button variant="link" className="info-icon-bg" />
-				</OverlayTrigger>
-			</div>
-			<div className="ps-md-2">
+		<Row>
+			<Col xs={12} md="auto">
+				<div className="d-flex align-items-center mb-3 mb-md-4 h-100">
+					<span className="text-uppercase fs-3 me-2">
+						{auth?.status === "common" && <>Розничный покупатель</>}
+						{auth?.status === "agent" && <>Агент</>}
+						{auth?.status === "delegate" && <>Представитель</>}
+					</span>
+					<OverlayTrigger placement="top" overlay={popover}>
+						<Button variant="link" className="info-icon-bg" />
+					</OverlayTrigger>
+				</div>
+			</Col>
+			<Col xs={12} md="auto">
 				<Button className="ms-auto text-primary" variant="outline-dark" onClick={handler}>
 					Повысить статус
 				</Button>
-			</div>
-		</div>
+			</Col>
+		</Row>
 	)
 }
 

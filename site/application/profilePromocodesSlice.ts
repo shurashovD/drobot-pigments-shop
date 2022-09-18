@@ -1,6 +1,7 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { IPromocodeDetails } from './../../shared/index.d';
 import { createSlice } from '@reduxjs/toolkit';
+import { Ref, RefCallback } from 'react';
 
 interface IState {
     activeTab: string
@@ -12,13 +13,15 @@ interface IState {
         dateFinish: string
     }
     isCreate?: boolean
+	showCalendar: boolean
 }
 
 const initialState: IState = {
     activeTab: "1",
     form: {
         code: '', dateFinish: "", dateStart: ""
-    }
+    },
+	showCalendar: false
 }
 
 const profilePromocodesSlice = createSlice({
@@ -58,7 +61,10 @@ const profilePromocodesSlice = createSlice({
         resetLastPromocodeName: state => {
             delete state.isCreate
             delete state.lastPromocodeName
-        }
+        },
+		setShowCalendar: (state, {payload}: PayloadAction<boolean>) => {
+			state.showCalendar = payload
+		}
 	},
 })
 
@@ -69,6 +75,7 @@ export const {
     promocodeIsUpdated,
     resetLastPromocodeName,
     setForm,
+	setShowCalendar,
     watchAllPromocodes
 } = profilePromocodesSlice.actions
 

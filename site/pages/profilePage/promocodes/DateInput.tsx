@@ -1,41 +1,32 @@
-import { ChangeEvent, FC, useRef } from "react"
-import { Button, Col, Form, Row } from "react-bootstrap"
+import { FC } from "react"
+import { Button, Col, Row } from "react-bootstrap"
+import { useAppDispatch } from "../../../application/hooks"
+import { setShowCalendar } from "../../../application/profilePromocodesSlice"
 
 interface IProps {
     value: string
     disabled: boolean
-    onChange: (value: string) => void
+    onClean: () => void
     placeholder?: string
 }
 
-const DateInput: FC<IProps> = ({ disabled, onChange, placeholder, value }) => {
-    const input = useRef<any | null>(null)
-    const formatter = new Intl.DateTimeFormat('ru', {
-        day: 'numeric', month: '2-digit', year: '2-digit'
-    })
+const DateInput: FC<IProps> = ({ disabled, onClean, placeholder, value }) => {
+	const formatter = new Intl.DateTimeFormat("ru", { day: "numeric", month: "2-digit", year: "2-digit" })
+	const dispatch = useAppDispatch()
 
-    const handler = () => {
-        if ( input.current ) {
-            input.current.showPicker()
-        }
-    }
+	const handler = () => {
+		dispatch(setShowCalendar(true))
+	}
 
-    return (
+	return (
 		<Row className="border border-primary p-0 py-3 flex-nowrap m-0">
 			<Col xs={2} className="text-muted d-flex align-items-center">
 				{placeholder}
 			</Col>
 			<Col xs={6} className="d-flex align-items-center">
-				{value !== "" && <>{formatter.format(Date.parse(value))}</>}
-				<Form.Control
-					type="date"
-					style={{ width: "0", height: "0" }}
-					className="border-0 p-0 m-0"
-					disabled={disabled}
-					value={value}
-					onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
-					ref={input}
-				/>
+				<Button variant="link" onClick={() => dispatch(setShowCalendar(true))} className="m-0 p-0">
+					{value !== "" && <>{formatter.format(Date.parse(value))}</>}
+				</Button>
 			</Col>
 			<Col xs="auto" className="d-flex">
 				{value === "" ? (
@@ -68,7 +59,7 @@ const DateInput: FC<IProps> = ({ disabled, onChange, placeholder, value }) => {
 						className="m-auto p-0 bg-secondary rounded-circle border-0 d-flex justify-content-center align-items-center"
 						style={{ width: "24px", height: "24px" }}
 						disabled={disabled}
-						onClick={() => onChange("")}
+						onClick={onClean}
 					>
 						<svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path d="M0.591797 0.592773L7.58834 7.58932" stroke="#39261F" strokeWidth="0.5" />

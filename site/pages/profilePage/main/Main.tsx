@@ -32,7 +32,7 @@ const Main = () => {
 					</div>
 				</Col>
 				<Col>
-					<div className="border border-secondary">
+					<div className="border border-secondary m-0">
 						<div className="bg-secondary p-3 px-4 border border-secondary border-2">
 							<IconDelivery stroke="#141515" />
 							<span className="ms-2 text-uppercase">Доставка</span>
@@ -41,7 +41,7 @@ const Main = () => {
 							<DeliveryComponent />
 						</div>
 					</div>
-					<Row xs={1} xl={2} className="mt-4 g-4">
+					<Row xs={1} xl={2} className="mt-2 g-4">
 						<Col>
 							<div className="border border-dark h-100">
 								<div className="bg-dark p-3 px-4 border border-dark border-2">
@@ -66,30 +66,34 @@ const Main = () => {
 								</div>
 							</div>
 						</Col>
-						{ false && auth && (auth?.status === 'agent' || auth?.status === 'delegate') && <Col>
-							<div className="border border-dark h-100">
-								<div className="bg-dark p-3 px-4 border border-dark border-2">
-									<IconPromocode stroke="#ffffff" />
-									<NavLink className="ms-2 text-uppercase text-white" to="/profile#promocodes">
-										Промокоды
-									</NavLink>
+						{false && auth && (auth?.status === "agent" || auth?.status === "delegate") && (
+							<Col>
+								<div className="border border-dark h-100">
+									<div className="bg-dark p-3 px-4 border border-dark border-2">
+										<IconPromocode stroke="#ffffff" />
+										<NavLink className="ms-2 text-uppercase text-white" to="/profile#promocodes">
+											Промокоды
+										</NavLink>
+									</div>
+									<div className="p-4">
+										<PromocodeOrders />
+									</div>
 								</div>
-								<div className="p-4">
-									<PromocodeOrders />
+							</Col>
+						)}
+						{auth && (auth.status === "agent" || auth.status === "delegate") && (
+							<Col>
+								<div className="border border-dark h-100">
+									<div className="bg-dark p-3 px-4 border border-dark border-2">
+										<IconCashback stroke="#ffffff" />
+										<span className="ms-2 text-uppercase text-white">Кэшбэк</span>
+									</div>
+									<div className="p-4">
+										<CashbackComponent />
+									</div>
 								</div>
-							</div>
-						</Col>}
-						{ auth && (auth.status === 'agent' || auth.status === 'delegate') && <Col>
-							<div className="border border-dark h-100">
-								<div className="bg-dark p-3 px-4 border border-dark border-2">
-									<IconCashback stroke="#ffffff" />
-									<span className="ms-2 text-uppercase text-white">Кэшбэк</span>
-								</div>
-								<div className="p-4">
-									<CashbackComponent />
-								</div>
-							</div>
-						</Col>}
+							</Col>
+						)}
 					</Row>
 				</Col>
 			</Row>

@@ -60,12 +60,14 @@ const CategoryPage = () => {
 								<div className="d-flex align-items-center">
 									<IconFilter stroke="#141515" />
 									<Button variant="link" onClick={() => setShow(true)} style={{ zIndex: 2 }} className="text-primary">
-										Фильтры
+										Фильтры ({filterObject.reduce((sum, { values }) => sum + values.length, 0) + variantsFilter.length})
 									</Button>
 								</div>
 								<Offcanvas show={show} onHide={() => setShow(false)}>
 									<Offcanvas.Header closeButton className="d-flex align-items-center">
-										<Offcanvas.Title>Фильтры</Offcanvas.Title>
+										<Offcanvas.Title>
+											Фильтры ({filterObject.reduce((sum, { values }) => sum + values.length, 0) + variantsFilter.length})
+										</Offcanvas.Title>
 										<Button variant="link" onClick={() => dispatch(resetFilters())} className="ms-auto me-2 p-0 text-muted">
 											Сбросить
 										</Button>

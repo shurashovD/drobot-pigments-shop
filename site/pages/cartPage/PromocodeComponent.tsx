@@ -81,7 +81,7 @@ const PromocodeComponent = () => {
 					</Col>
 					<Col xs={3} className="p-0">
 						{!cart?.promocode?.promocodeId && (
-							<Button variant="dark" className="w-100 p-0 h-100" onClick={clickHandler}>
+							<Button variant="dark" className="w-100 p-0 h-100" onClick={clickHandler} style={{ zIndex: 0 }}>
 								{isLoading ? (
 									<Spinner animation="border" variant="secondary" size="sm" />
 								) : (
@@ -93,7 +93,7 @@ const PromocodeComponent = () => {
 							</Button>
 						)}
 						{cart?.promocode?.promocodeId && (
-							<Button variant="link" className="w-100 p-0 h-100 border-dark border-start-0" onClick={rmHandler}>
+							<Button variant="link" className="w-100 p-0 h-100 border-dark border-start-0" onClick={rmHandler} style={{ zIndex: 0 }}>
 								{isLoading ? (
 									<Spinner animation="border" variant="light" size="sm" />
 								) : (
