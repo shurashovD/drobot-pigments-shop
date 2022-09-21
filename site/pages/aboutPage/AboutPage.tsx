@@ -1,7 +1,7 @@
 import { Col, Container, Image, Row } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
 const OD = require("../../img/Olga_Drobot.jpg")
-const IMG = require('../../img/about_2.jpg')
+const IMG = require('../../img/about_2.jpeg')
 
 const AboutPage = () => {
     return (

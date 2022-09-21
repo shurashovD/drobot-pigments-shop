@@ -207,6 +207,10 @@ input:focus,
     box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
 }
 
+.btn-outline-dark:hover {
+    color: white !important;
+}
+
 .form-control:disabled {
     background-color: transparent !important;
 }
