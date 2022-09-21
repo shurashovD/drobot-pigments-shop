@@ -632,6 +632,20 @@ hr {
     }
 }
 
+.line-card {
+    min-height: 204px;
+    border: 1px solid $dark;
+    background-image: linear-gradient(transparent 0%, transparent 35%, $dark 35%, $dark 65%, transparent 65%, transparent 100%);
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+@media (max-width: 1024px) {
+    .line-card {
+        background-image: linear-gradient(transparent 0%, transparent 30%, $dark 30%, $dark 70%, transparent 70%, transparent 100%);
+    }
+}
+
 @media (max-width: 576px) {
     .cart-item-name {
         font-size: 80%;

@@ -155,7 +155,14 @@ router.get("/delivery/detail", async (req, res) => {
 				packages, tariff_code
 			})
 			const { total_sum } = sdekInfo.data
-			req.session.delivery.sdek.cost = total_sum
+
+			// доставка на заказ от 20.000 рублей бесплатна;
+			if ( cart.amount && cart?.amount >= 20000 ) {
+				req.session.delivery.sdek.cost = 0
+			} else {
+				req.session.delivery.sdek.cost = total_sum
+			}
+			
 			if ( tariff_code === 139 ) {
 				if ( req.session.delivery.sdek.address ) {
 					return res.json({ sdek: checked, tariff_code, address, ...sdekInfo.data })

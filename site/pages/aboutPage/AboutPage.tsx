@@ -1,5 +1,7 @@
 import { Col, Container, Image, Row } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
+import PigmentsFavourites from "./PigmentsFavourites"
+import PigmentsLines from "./PigmentsLines"
 const OD = require("../../img/Olga_Drobot.jpg")
 const IMG = require('../../img/about_2.jpeg')
 
@@ -35,14 +37,22 @@ const AboutPage = () => {
 					</div>
 				</Col>
 			</Row>
-			<Row>
+			<Row className="mb-6 gy-4">
+				<h3 className="my-0 text-center border-0 p-0 d-lg-none">
+					<span className="white-space text-color-bg">DROBOT PIGMENTS SHOP </span>
+					<span className="text-color-bg">является </span>
+					<span className="white-space text-color-bg">лидирующим магазином </span>
+					<span className="text-color-bg">для </span>
+					<span className="white-space text-color-bg">перманентного макияжа </span>
+					<span className="white-space text-color-bg">в России.</span>
+				</h3>
 				<Col xs={12} lg={5}>
 					<div>
 						<Image src={IMG} alt="drobot-pigments-shop" fluid style={{ maxHeight: "80vh" }} />
 					</div>
 				</Col>
 				<Col xs={12} lg={7} className="d-flex flex-column">
-					<h3 className="mt-0 mb-5 text-center border-0 p-0">
+					<h3 className="mt-0 mb-5 text-center border-0 p-0 d-none d-lg-block">
 						<span className="white-space text-color-bg">DROBOT PIGMENTS SHOP </span>
 						<span className="text-color-bg">является </span>
 						<span className="white-space text-color-bg">лидирующим магазином </span>
@@ -76,6 +86,23 @@ const AboutPage = () => {
 					</div>
 				</Col>
 			</Row>
+			<Row className="mb-2 justify-content-center">
+				<h3 className="m-0 text-center border-0">
+					<span className="text-color-bg">Пигменты </span>
+					<span className="white-space text-color-bg">DROBOT pigments - </span>
+					<br />
+					<span className="text-color-bg">пигменты, </span>
+					<span className="white-space text-color-bg">созданные мастером </span>
+					<span className="white-space text-color-bg">для мастеров!</span>
+				</h3>
+			</Row>
+			<div className="mb-6 text-uppercase text-muted text-center">
+				создавались на протяжении 5 лет и собрали в себе многие свойства пигментов, которые ценятся мастерами
+			</div>
+			<div className="mb-5 text-uppercase text-center">линейки пигментов DROBOT pigments:</div>
+			<PigmentsLines />
+			<div className="mb-5 mt-6 text-uppercase text-center">почему DROBOT pigments идеальные пигменты</div>
+			<PigmentsFavourites />
 		</Container>
 	)
 }

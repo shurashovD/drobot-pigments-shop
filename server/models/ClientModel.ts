@@ -210,8 +210,15 @@ ClientSchema.methods.mergeCart = async function (this: IClient, mergedCartId: st
 				return
 			}
 			// если корзина есть, то в неё добавляются товары из присоединяемой корзины;
-			myCart.products.concat(mergedCart.products)
-			myCart.variants.concat(mergedCart.variants)
+			const myCartProductIds = myCart.products.map(({ productId }) => (productId.toString()))
+			const myCartVariantIds = myCart.variants.map(({ variantId }) => (variantId.toString()))
+			myCart.products = myCart.products.concat(
+				mergedCart.products.filter(({ productId }) => !(myCartProductIds.includes(productId.toString())))
+			)
+			myCart.variants = myCart.variants.concat(
+				mergedCart.variants.filter(({ variantId }) => !(myCartVariantIds.includes(variantId.toString())))
+			)
+			await myCart.save()
 			
 			// удаление присоединяемой корзины;
 			await CartModel.findByIdAndDelete(mergedCartId)

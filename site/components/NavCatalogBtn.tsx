@@ -13,7 +13,7 @@ const NavCatalogBtn: FC<IProps> = (({ onClick, show }) => {
 			onClick={onClick}
 		>
 			<span className={`nav-catalog-btn-${show ? 'show' : 'hide'}`} />
-			<span>Каталог</span>
+			<span className="ms-1">Каталог</span>
 		</Button>
 	)
 })
