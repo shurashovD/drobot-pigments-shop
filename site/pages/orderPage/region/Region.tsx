@@ -43,12 +43,12 @@ const Region: FC<IProps> = ({ city, code }) => {
 
 	const nextHandler = () => {
 		if ( cityCode ) {
+			setDropdownShow(false)
 			if (cityCode === code) {
+				dispatch(setActive("2"))
+			} else {
 				setDeliveryCity({ city_code: cityCode })
-				setDropdownShow(false)
 			}
-		} else {
-			dispatch(setActive("2"))
 		}
 	}
 

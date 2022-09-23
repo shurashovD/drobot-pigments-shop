@@ -66,7 +66,7 @@ const PigmentsLines = () => {
 				</Col>
 				<Col xs={1}></Col>
 			</Row>
-			<Stack className="text-center d-flex justify-content-center" direction='horizontal' gap={3}>
+			<Stack className="text-center d-flex justify-content-center d-md-none" direction='horizontal' gap={3}>
 				{
 					[0, 1, 2, 3, 4, 5].map(item => (
 						<div key={`carousel-about_${item}`}>
