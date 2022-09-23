@@ -19,14 +19,14 @@ const Categories = () => {
     return (
 		<div>
 			<div className="text-center fs-3 text-uppercase my-6">Выбери свою категорию</div>
-			<Row id="partner-programm-category-container" xs={1} md={3} className="flex-nowrap mb-6 mb-md-0" ref={container}>
-				<Col>
+			<Row id="partner-programm-category-container" className="justify-content-center flex-nowrap mb-6 mb-md-0" ref={container}>
+				<Col xs={12} md="auto">
 					<Agent />
 				</Col>
-				<Col>
+				<Col xs={12} md="auto">
 					<Delegate />
 				</Col>
-				<Col>
+				<Col xs={12} md="auto">
 					<Coach />
 				</Col>
 			</Row>

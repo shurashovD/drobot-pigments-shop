@@ -6,9 +6,9 @@ interface IProps {
 	height?: string
 }
 
-const IconOrders: FC<IProps> = ({ stroke, width = "25", height = "23" }) => {
+const IconOrders: FC<IProps> = ({ stroke, width = "21", height = "21" }) => {
 	return (
-		<svg width={width} height={height} viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<svg width={width} height={height} viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path
 				d="M3.35732 7.48127L0.371386 5.93752C0.365166 5.93521 0.359802 5.93105 0.356014 5.92561C0.352226 5.92016 0.350197 5.91369 0.350197 5.90705C0.350197 5.90042 0.352226 5.89394 0.356014 5.88849C0.359802 5.88305 0.365166 5.87889 0.371386 5.87658L8.84576 1.27783H8.87826L17.637 5.93752C17.6432 5.93983 17.6486 5.94399 17.6524 5.94943C17.6562 5.95488 17.6582 5.96135 17.6582 5.96799C17.6582 5.97462 17.6562 5.9811 17.6524 5.98655C17.6486 5.99199 17.6432 5.99615 17.637 5.99846L9.30482 10.5403H9.27232L5.7217 8.70002"
 				stroke={stroke}

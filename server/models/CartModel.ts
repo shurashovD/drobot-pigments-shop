@@ -396,8 +396,8 @@ CartSchema.methods.addVariant = async function (
 CartSchema.methods.resetCheckAll = async function (this: ICartDoc): Promise<ICartDoc | null> {
 	try {
 		// удаляем выбор в модели корзины;
-		this.products.forEach(item => item.checked = false)
-		this.variants.forEach(item => item.checked = false)
+		this.products.forEach(item => item.checked = true)
+		this.variants.forEach(item => item.checked = true)
 		this.promocode = undefined
 		delete this.promocode
 		await this.save()

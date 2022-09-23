@@ -25,7 +25,7 @@ const PvzListItem: FC<IProps> = ({ code, name }) => {
             variant="link"
             className={`m-1 p-1 text-start text-${detail?.code === code ? "dark" : "primary"}`}
             disabled={!detail?.tariff_code || isLoading}
-            onClick={() => setDetail({ sdek: true, tariff_code: detail?.tariff_code || 138, code })}
+            onClick={() => setDetail({ sdek: true, pickup: false, tariff_code: detail?.tariff_code || 138, code })}
             data-code={code}
         >
             {name}

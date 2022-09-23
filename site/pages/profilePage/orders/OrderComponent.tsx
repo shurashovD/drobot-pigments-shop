@@ -110,10 +110,11 @@ const OrderComponent: FC<IProps> = ({ id }) => {
 											{data.payment?.status === "canceled" && <span className="text-danger">Ошибка оплаты</span>}
 										</div>
 									</div>
-									{!!data.delivery.sdek?.uuid && (
+									{(!!data.delivery.sdek?.uuid || data.delivery.pickup?.checked) && (
 										<div className="mb-5">
 											<div className="text-uppercase mb-2">Способ получения:</div>
-											<OrderSdekComponent id={id} cost={data.delivery.sdek.cost} />
+											{data.delivery.sdek && <OrderSdekComponent id={id} cost={data.delivery.sdek.cost} />}
+											{data.delivery.pickup?.checked && <div>самовывоз из магазина (г. Краснодар, ул. Дзержинского 87/1)</div>}
 										</div>
 									)}
 								</Col>

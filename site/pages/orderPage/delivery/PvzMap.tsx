@@ -48,10 +48,14 @@ const PvzMap = () => {
 					<Toast.Header className="d-flex justify-content-between align-items-center">{checkedPvz?.name}</Toast.Header>
 					<Toast.Body>
 						<div className="text-muted mb-3">{checkedPvz?.address}</div>
-						{detail && checkedPvz && <ButtonComponent
-                            isLoading={isLoading}
-                            onClick={() => setDetail({ sdek: true, tariff_code: detail.tariff_code, code: checkedPvz.code })}
-                        >Выбрать</ButtonComponent>}
+						{detail && checkedPvz && (
+							<ButtonComponent
+								isLoading={isLoading}
+								onClick={() => setDetail({ sdek: true, pickup: false, tariff_code: detail.tariff_code, code: checkedPvz.code })}
+							>
+								Выбрать
+							</ButtonComponent>
+						)}
 					</Toast.Body>
 				</Toast>
 			</ToastContainer>

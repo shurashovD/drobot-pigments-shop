@@ -18,6 +18,9 @@ const OrderSchema = new Schema<IOrder, OrderModel>({
 			uuid: String,
 			cost: Number,
 		},
+		pickup: {
+			checked: Boolean
+		},
 		recipientMail: String,
 		recipientName: String
 	},

@@ -58,7 +58,7 @@ const HowUse = () => {
 				</svg>
 			</div>
 			<div className="text-center">
-				<Button variant="secondary" className="text-primary" onClick={handler}>Отправь заявку сейчас</Button>
+				<Button variant="secondary" className="text-primary text-uppercase" onClick={handler}>Отправь заявку сейчас</Button>
 			</div>
 		</div>
 	)

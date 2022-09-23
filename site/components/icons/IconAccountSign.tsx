@@ -14,7 +14,7 @@ const IconAccountSign: FC<IProps> = () => {
 			xmlns="http://www.w3.org/2000/svg"
 			xmlnsXlink="http://www.w3.org/1999/xlink"
 		>
-			<circle cx="15" cy="16" r="15" fill="#F7DFB1" />
+			<circle cx="16" cy="16" r="15" fill="#F7DFB1" />
 			<path
 				fillRule="evenodd"
 				clipRule="evenodd"

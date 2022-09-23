@@ -27,7 +27,6 @@ const CheckboxComponent: FC<IProps> = ({ checked, className, isLoading, label, o
 						)}
 					</div>
 				)}
-
 				{label && <span className="ms-2">{label}</span>}
 			</label>
 		</div>

@@ -11,7 +11,7 @@ const UserAgreementPage = () => {
     return (
 		<Container>
 			<h3>Пользовательское соглашение</h3>
-			<Accordion className="custom-accordion mb-6" flush>
+			<Accordion className="custom-accordion mb-6" flush defaultActiveKey="1">
 				<Accordion.Item eventKey="1">
 					<Accordion.Header className="text-uppercase">1. Общие положения</Accordion.Header>
 					<Accordion.Body>

@@ -139,10 +139,10 @@ const HeaderComponent = () => {
 					<div className="d-none d-lg-block bg-light p-2">
 						<Container>
 							<Row>
-								<Col xs={3} lg={2} className="d-flex flex-column justify-content-center">
+								<Col xs={3} lg="auto" className="d-flex flex-column justify-content-center">
 									<a href="tel:+79189787010">+7(918)97-87-010</a>
 								</Col>
-								<Col xs={3} lg={3} className="d-flex flex-column justify-content-center">
+								<Col xs={3} lg={3} className="d-flex flex-column">
 									<a
 										href="https://wa.me/79189787010?text=%D0%97%D0%B4%D1%80%D0%B0%D0%B2%D1%81%D1%82%D0%B2%D1%83%D0%B9%D1%82%D0%B5!%20%F0%9F%91%8B"
 										className="w-100 d-flex align-items-center"
@@ -151,7 +151,7 @@ const HeaderComponent = () => {
 										<span>Напиcать в WhatsApp</span>
 									</a>
 								</Col>
-								<Col xs={6} lg={6} className="offset-lg-1 d-flex align-items-center justify-content-between">
+								<Col xs={6} lg={5} className="ms-auto d-flex align-items-center justify-content-between">
 									<NavLink to="/about">О бренде</NavLink>
 									<NavLink to="/partner-program">Cотрудничество</NavLink>
 									<NavLink to="/delivery">Доставка и оплата</NavLink>

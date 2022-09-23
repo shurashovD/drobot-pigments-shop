@@ -87,7 +87,7 @@ const orderApi = createApi({
 		getRelevantCities: build.query<{ city: string; city_code: number }[], string>({
 			query: (str) => `/delivery/cities/${str}`,
 		}),
-		getDeliveryCity: build.query<{ region: string; city: string; city_code: number }, undefined>({
+		getDeliveryCity: build.query<{ region: string; city: string; city_code?: number }, undefined>({
 			query: () => "/delivery/city",
 			providesTags: () => ["deliveryCity"],
 		}),
@@ -96,12 +96,13 @@ const orderApi = createApi({
 				method: "PUT",
 				url: `/set/city/${city_code}`,
 			}),
-			invalidatesTags: ["deliveryCity", "points", "deliveryDetail"],
+			invalidatesTags: ["deliveryCity", "points", "deliveryDetail", 'deliveryWays'],
 		}),
 		getDeliveryDetail: build.query<
 			{
-				sdek: boolean
-				tariff_code: number
+				pickup?: boolean
+				sdek?: boolean
+				tariff_code?: number
 				address?: string
 				code?: string
 				period_max?: number
@@ -113,11 +114,16 @@ const orderApi = createApi({
 			query: () => "/delivery/detail",
 			providesTags: () => ["deliveryDetail"],
 		}),
+		getDeliveryWays: build.query<{ pickup?: boolean; sdek?: boolean }, void>({
+			query: () => "/delivery/ways",
+			providesTags: () => ['deliveryWays']
+		}),
 		setDeliveryDetail: build.mutation<
 			undefined,
 			{
+				pickup: boolean
 				sdek: boolean
-				tariff_code: number
+				tariff_code?: number
 				address?: string
 				code?: string
 			}
@@ -160,7 +166,7 @@ const orderApi = createApi({
 			}),
 			invalidatesTags: ["recipient"],
 		}),
-		checkPaymentProbably: build.query<{ status: string, title: string, func: string }, { orderNumber: string }>({
+		checkPaymentProbably: build.query<{ status: string; title: string; func: string }, { orderNumber: string }>({
 			query: (body) => ({
 				body,
 				method: "POST",
@@ -169,7 +175,7 @@ const orderApi = createApi({
 		}),
 	}),
 	reducerPath: "orderApi",
-	tagTypes: ["cart", "orders", "deliveryCity", "deliveryDetail", "recipient", "points"],
+	tagTypes: ["cart", "orders", "deliveryCity", "deliveryDetail", "recipient", "points", 'deliveryWays'],
 })
 
 export const {
@@ -182,6 +188,7 @@ export const {
 	useGetDeliveryCityQuery,
 	useGetRelevantCitiesQuery,
 	useGetDeliveryDetailQuery,
+	useGetDeliveryWaysQuery,
 	useSetDeliveryDetailMutation,
 	useGetPointsQuery,
 	useCheckNumberInitMutation,

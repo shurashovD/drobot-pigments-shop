@@ -4,7 +4,7 @@ const Delegates = () => {
     return (
 		<div>
 			<div className="text-center fs-3 text-uppercase my-6">Какая система скидок у представителей?</div>
-			<Row className="justify-content-center g-4">
+			<Row className="justify-content-center g-4 g-xl-5">
 				<Col xs={12} md={3}>
 					<div className="bg-dark p-4 text-white">
 						<div className="text-center fs-3">

@@ -303,7 +303,7 @@ export const getContactByPhone = async (phone: string) => {
     }
 }
 
-const getPipelines = async (id?: string) => {
+export const getPipelines = async (id?: string) => {
     try {
         const authorization = await amoAuth()
 		if (!authorization) {

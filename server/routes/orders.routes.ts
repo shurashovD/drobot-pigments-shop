@@ -93,6 +93,7 @@ router.get('/cart', async (req, res) => {
 router.get('/delivery/city', async (req, res) => {
 	try {
 		const city_code = req.session.delivery?.city_code
+
 		if ( !city_code ) {
 			return res.end()
 		}
@@ -135,6 +136,12 @@ router.get("/delivery/detail", async (req, res) => {
 			return res.end()
 		}
 
+		// если самовывоз из магазина;
+		if ( req.session.delivery?.pickup?.checked ) {
+			return res.json({ pickup: true, address: "ул. Дзержинского 87/1" })
+		}
+
+		// если доставка СДЭК;
 		if ( req.session.delivery?.sdek && req.session.delivery?.city_code && cart ) {
 			const { checked, tariff_code, address, code } = req.session.delivery.sdek
 			const { city_code } = req.session.delivery
@@ -182,6 +189,24 @@ router.get("/delivery/detail", async (req, res) => {
 	} catch (e) {
 		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
+	}
+})
+
+// получить доступные способы доставки;
+router.get('/delivery/ways', async (req, res) => {
+	try {
+		const city_code = req.session.delivery?.city_code
+		if ( !city_code ) {
+			return res.end()
+		}
+
+		if ( +city_code === 435 ) {
+			return res.json({ pickup: true, sdek: true })
+		}
+		return res.json({ sdek: true })
+ 	} catch (e) {
+		logger.error(e)
+		return res.status(500).json({ message: 'Что-то пошло не так...' })
 	}
 })
 
@@ -525,7 +550,7 @@ router.delete('/cart/promocode', async (req, res) => {
 	}
 })
 
-//переключатель использования кэшбэка;
+// переключатель использования кэшбэка;
 router.put('/cart/use-cashback-toggle', async (req, res) => {
 	try {
 		const client = await ClientModel.findById(req.session.userId)
@@ -560,7 +585,9 @@ router.put('/set/city/:city_code', async (req: Request<{city_code: number}>, res
 				delete req.session.delivery.sdek.cost
 				delete req.session.delivery.sdek
 			}
-			
+			if ( req.session.delivery.pickup ) {
+				req.session.delivery.pickup.checked = false
+			}
 		}
 		return res.end()
 	}
@@ -571,13 +598,18 @@ router.put('/set/city/:city_code', async (req: Request<{city_code: number}>, res
 })
 
 // установка деталей доставки;
-router.put("/set/delivery", bodyParser.json(), async (req: Request<{}, {}, { sdek: boolean, tariff_code: 138 | 139 | 366, address?: string, code?: string }>, res) => {
+router.put(
+	"/set/delivery",
+	bodyParser.json(),
+	async (req: Request<{}, {}, { pickup: boolean, sdek: boolean, tariff_code?: 138 | 139 | 366, address?: string, code?: string }>,
+res) => {
 	try {
 		if (!req.session.delivery?.city_code) {
 			throw new Error(`Город доставки не определён`)
 		}
-		const { sdek, tariff_code, address, code } = req.body
-		if ( sdek ) {
+		const { sdek, tariff_code, address, code, pickup } = req.body
+		if ( sdek && tariff_code ) {
+			req.session.delivery.pickup = undefined
 			req.session.delivery.sdek = {
 				checked: true, tariff_code
 			}
@@ -587,6 +619,14 @@ router.put("/set/delivery", bodyParser.json(), async (req: Request<{}, {}, { sde
 			if ( tariff_code !== 139 && code ) {
 				req.session.delivery.sdek.code = code
 			}
+		}
+		if ( pickup ) {
+			req.session.delivery.pickup = { checked: true }
+			if ( req.session.delivery.sdek?.checked ) {
+				req.session.delivery.sdek.checked = false
+			}
+		} else {
+			req.session.delivery.pickup = { checked: false }
 		}
 		return res.end()
 	} catch (e) {
@@ -630,26 +670,39 @@ router.post("/", bodyParser.json(), async (req, res) => {
 				err.sersviceInfo = `Не найден город доставки. Клиент ${req.session.userId}. Создание заказа`
 				throw err
 			}
-			const { city_code, sdek } = req.session.delivery
-			if (!sdek) {
-				const err = new Error("Не найдены параметры СДЭК")
+			const { city_code, sdek, pickup } = req.session.delivery
+			if (!sdek && !pickup) {
+				const err = new Error("Не найдены параметры доставки")
 				err.userError = true
-				err.sersviceInfo = `Не найдены параметры СДЭК. Клиент ${req.session.userId}. Создание заказа`
+				err.sersviceInfo = `Не найдены параметры доставки. Клиент ${req.session.userId}. Создание заказа`
 				throw err
 			}
 
 			// создание шаблона заказа в БД;
-			const { tariff_code, address, code } = sdek
-			const sdekForOrder: IOrder["delivery"]["sdek"] = {
-				city_code,
-				number: `+7${client.tel}`,
-				address,
-				point_code: code,
-				cost: req.session.delivery.sdek?.cost || 0,
-				name: req.session.delivery.recipientName,
-				tariff_code,
+			const { recipientMail, recipientName } = req.session.delivery
+			let orderId
+			if ( sdek && sdek.checked ) {
+				const { tariff_code, address, code } = sdek
+				const sdekForOrder: IOrder["delivery"]["sdek"] = {
+					city_code,
+					number: `+7${client.tel}`,
+					address,
+					point_code: code,
+					cost: req.session.delivery.sdek?.cost || 0,
+					name: req.session.delivery.recipientName,
+					tariff_code,
+				}
+				orderId = await client.createTempOrder({ recipientMail, recipientName, sdek: sdekForOrder })
 			}
-			const orderId = await client.createTempOrder(sdekForOrder, req.session.delivery.recipientMail, req.session.delivery.recipientName)
+
+			if ( pickup && pickup.checked ) {
+				orderId = await client.createTempOrder({ recipientMail, recipientName, pickup })
+			}
+
+			if ( !orderId ) {
+				logger.error(`Не удалось создать заказ. Пользователь ${client._id.toString()}`)
+				return res.status(500).json({ message: 'Не удалось создать заказ' })
+			}
 
 			// создание заказа в "Мой склад";
 			const { name: number, id: msOrderId, sum } = await createMsOrderHandler(orderId)

@@ -2,7 +2,7 @@ import { Col, Row } from "react-bootstrap"
 
 const PigmentsFavourites = () => {
     return (
-		<Row className="d-none d-md-flex g-5" md={2} xl={3}>
+		<Row className="g-5" xs={1} md={2} xl={3}>
 			<Col>
 				<Row className="m-0 border-bottom border-dark">
 					<Col xs={2} className="d-flex justify-content-center align-items-center">
@@ -40,7 +40,10 @@ const PigmentsFavourites = () => {
 					</Col>
 					<Col xs={10} className="d-flex justify-content-center align-items-center">
 						<div className="text-uppercase text-center">
-							<span className="text-dark">Не сохнет</span> во время работы, хорошо <span className="text-dark">стирается!</span>
+							<span className="text-dark">Не сохнет</span> во время работы,{" "}
+							<span className="white-space">
+								хорошо <span className="text-dark">стирается!</span>
+							</span>
 						</div>
 					</Col>
 				</Row>
@@ -54,7 +57,7 @@ const PigmentsFavourites = () => {
 					</Col>
 					<Col xs={10} className="d-flex justify-content-center align-items-center">
 						<div className="text-uppercase text-center">
-							При нетравматичной работе <span className="text-dark">остаток пигмента</span> в коже при заживлении -
+							При нетравматичной работе <span className="text-dark white-space">остаток пигмента</span> в коже при заживлении -{" "}
 							<span className="text-dark">90-100%</span>
 						</div>
 					</Col>

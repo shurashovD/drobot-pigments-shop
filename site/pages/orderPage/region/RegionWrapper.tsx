@@ -1,5 +1,5 @@
-import { FC, useEffect } from "react"
-import { Button, Collapse, Fade } from "react-bootstrap"
+import { useEffect } from "react"
+import { Button, Collapse } from "react-bootstrap"
 import { useAppDispatch, useAppSelector } from "../../../application/hooks"
 import { useGetDeliveryCityQuery } from "../../../application/order.service"
 import { setActive, setCity } from "../../../application/orderSlice"

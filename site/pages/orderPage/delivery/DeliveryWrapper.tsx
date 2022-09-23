@@ -1,5 +1,5 @@
 import classNames from "classnames"
-import { Button, Collapse, Fade, Stack } from "react-bootstrap"
+import { Button, Collapse, Stack } from "react-bootstrap"
 import { useAppDispatch, useAppSelector } from "../../../application/hooks"
 import { useGetDeliveryDetailQuery } from "../../../application/order.service"
 import { setActive } from "../../../application/orderSlice"
@@ -38,12 +38,12 @@ const DeliveryWrapper = () => {
 				<Stack className="mt-5" dir="verical" gap={3}>
 					<div>
 						<span>Выбрано: </span>
-						<b>
-							{deliveryDetail?.sdek && "СДЭК"}, {deliveryDetail?.tariff_code === 139 ? "Курьером" : "Самовывоз"}
-						</b>
+						{deliveryDetail?.sdek && <b>СДЭК, {deliveryDetail?.tariff_code === 139 ? "Курьером" : "Самовывоз"}</b>}
+						{deliveryDetail?.pickup && <b>Самовывоз из магазина</b>}
 					</div>
 					<div>
-						<span>{deliveryDetail?.tariff_code === 139 ? "Адрес" : "Пункт выдачи"}: </span>
+						{deliveryDetail?.sdek && <span>{deliveryDetail?.tariff_code === 139 ? "Адрес" : "Пункт выдачи"}: </span>}
+						{deliveryDetail?.pickup && <span>Адрес: </span>}
 						<b>{deliveryDetail?.address}</b>
 					</div>
 					<div>
@@ -53,6 +53,7 @@ const DeliveryWrapper = () => {
 								{deliveryDetail?.total_sum} руб., {deliveryDetail.period_min}-{formatter.format(deliveryDetail.period_max)}
 							</b>
 						)}
+						{deliveryDetail?.pickup && <b>бесплатно</b>}
 					</div>
 				</Stack>
 			</Collapse>

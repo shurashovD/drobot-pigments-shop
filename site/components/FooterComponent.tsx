@@ -80,17 +80,7 @@ const FooterComponent = () => {
 							</div>
 							<div className="text-center text-md-start">
 								<NavLink to="/partner-program" className="footer__link">
-									Стать представителем?
-								</NavLink>
-							</div>
-							<div className="text-center text-md-start">
-								<NavLink to="/partner-program" className="footer__link">
-									Стать агентом?
-								</NavLink>
-							</div>
-							<div className="text-center text-md-start d-none">
-								<NavLink to="/" className="footer__link">
-									Как стать амбассадором?
+									Партнерская программа
 								</NavLink>
 							</div>
 						</Stack>

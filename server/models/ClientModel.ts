@@ -122,19 +122,23 @@ ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ dis
 	}
 }
 
-ClientSchema.methods.createTempOrder = async function (this: IClient, sdek: IOrder["delivery"]["sdek"], recipientMail?: string, recipientName?: string): Promise<string> {
+ClientSchema.methods.createTempOrder = async function (
+	this: IClient,
+	args: { sdek?: IOrder["delivery"]["sdek"]; pickup?: IOrder["delivery"]["pickup"]; recipientMail?: string; recipientName?: string }
+): Promise<string> {
 	try {
-		if ( !this.cartId ) {
+		if (!this.cartId) {
 			throw new Error(`Корзина не найдена у клиента ${this._id.toString()}`)
 		}
 
 		const cart = await CartModel.findById(this.cartId)
-		if ( !cart ) {
+		if (!cart) {
 			throw new Error(`Корзина не найдена у клиента ${this._id.toString()}`)
 		}
 
-		const productsForOrder = cart.products.filter(({ checked }) => checked)
-			.map(item => ({ ...item, product: item.productId }))
+		const { sdek, recipientMail, recipientName, pickup } = args
+
+		const productsForOrder = cart.products.filter(({ checked }) => checked).map((item) => ({ ...item, product: item.productId }))
 		const variantsForOrder = cart.variants
 			.filter(({ checked }) => checked)
 			.map((item) => ({ ...item, product: item.productId, variant: item.variantId }))
@@ -142,22 +146,22 @@ ClientSchema.methods.createTempOrder = async function (this: IClient, sdek: IOrd
 		const order = await new OrderModel({
 			client: this._id,
 			date: new Date(),
-			delivery: { sdek, recipientMail, recipientName },
+			delivery: { sdek, recipientMail, recipientName, pickup },
 			products: productsForOrder,
 			variants: variantsForOrder,
 			total: cart.total,
 		}).save()
 
-		if ( cart.useCashBack && cart.availableCashBack ) {
-			if (!this.cashBack || (this.cashBack < cart.availableCashBack)) {
-				throw new Error('У клиента не достаточно кэшбэка для оплаты')
+		if (cart.useCashBack && cart.availableCashBack) {
+			if (!this.cashBack || this.cashBack < cart.availableCashBack) {
+				throw new Error("У клиента не достаточно кэшбэка для оплаты")
 			}
 			this.cashBack -= cart.availableCashBack
 			cart.useCashBack = false
 			await cart.save()
 		}
 
-		if ( cart.promocode?.promocodeId ) {
+		if (cart.promocode?.promocodeId) {
 			order.promocode = new Types.ObjectId(cart.promocode.promocodeId)
 			await order.save()
 		}

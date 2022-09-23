@@ -67,14 +67,16 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 			await acceptPayment(order.msOrderId, sum)
 
 			// создание заказа в СДЭК;
-			const uuid = await createSdekOrderHandler(order._id.toString())
+			if ( !!order.delivery.sdek ) {
+				const uuid = await createSdekOrderHandler(order._id.toString())
+				// привязка заявки СДЭК к заказу в "Мой склад";
+				const msOrder = await getMsOrder(order.msOrderId)
+				await updateMsOrder(order.msOrderId, { shipmentAddress: `${msOrder.shipmentAddress || ""}; СДЭК ${uuid}` })
 
-			// привязка заявки СДЭК к заказу в "Мой склад";
-			const msOrder = await getMsOrder(order.msOrderId)
-			await updateMsOrder(order.msOrderId, { shipmentAddress: `${msOrder.shipmentAddress || ""}; СДЭК ${uuid}` })
+				// сохранение uuid заказа СДЭК в заказе БД;
+				order.delivery.sdek = { ...order.toObject().delivery.sdek, uuid }
+			}
 
-			// сохранение uuid заказа СДЭК в заказе БД;
-			order.delivery.sdek = { ...order.toObject().delivery.sdek, uuid }
 			order.status = "compiling"
 			await order.save()
 
@@ -130,7 +132,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 				await client.save()
 			}
 
-            // отправление заказа м Амо;
+            // отправление заказа в Амо;
             if ( client.status && client.amoContactId ) {
                 try {
                     let products = orderObj.products.map(({ product, quantity }) => ({ name: product.name, quantity }))
@@ -158,7 +160,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
             } else {
                 await OrderModel.setPaymentStatus(order._id.toString(), { status })
             }
-            await updateMsOrder(order.msOrderId, { description: "Произошла ошибка при оплате, ожидаем оплаты" })
+            await updateMsOrder(order.msOrderId, { description: "Произошла ошибка при оплате, заказ аннулирован" })
             
             // создание задачи в Амо;
             if ( client && client.amoContactId ) {

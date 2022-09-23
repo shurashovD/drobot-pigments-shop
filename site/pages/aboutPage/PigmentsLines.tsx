@@ -10,7 +10,7 @@ const lines6 = require("../../img/lines_6.png")
 const PigmentsLines = () => {
     return (
 		<>
-			<Row className="d-none d-md-flex g-4 h-100" md={2} lg={3}>
+			<Row className="d-none d-md-flex g-4 h-100 g-xl-5" md={2} lg={3}>
 				<Col>
 					<LineCard title="для век" src={lines1} />
 				</Col>
@@ -30,6 +30,19 @@ const PigmentsLines = () => {
 					<LineCard title="пигментов-корректоров" label="органика, минералы, гибриды" src={lines6} />
 				</Col>
 			</Row>
+			<div className="d-none align-items-stretch" id="about-line-carousel">
+				<div className='w-100'>
+					<LineCard title="для век" src={lines1} />
+				</div>
+				<div>
+					<LineCard title="для трихопигментации" src={lines2} />
+				</div>
+
+				<LineCard title="для губ" src={lines3} />
+				<LineCard title="для бровей" label="органика, минералы, гибриды" src={lines4} />
+				<LineCard title="для камуфляжа рубцов и ареол груди" src={lines5} />
+				<LineCard title="пигментов-корректоров" label="органика, минералы, гибриды" src={lines6} />
+			</div>
 		</>
 	)
 }

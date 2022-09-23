@@ -11,7 +11,7 @@ const MobileFooter = () => {
 	const { data } = useAccountAuthQuery(undefined)
 
     return (
-		<div className="d-flex d-lg-none justify-content-around bg-primary p-3 position-fixed bottom-0 start-0 end-0">
+		<div className="d-flex d-lg-none justify-content-around bg-primary p-3 position-fixed bottom-0 start-0 end-0" style={{ zIndex: 10 }}>
 			<NavLink to="/">
 				<IconHome stroke="#ffffff" />
 			</NavLink>

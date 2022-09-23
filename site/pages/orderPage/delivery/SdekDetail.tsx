@@ -15,7 +15,7 @@ const SdekDetail: FC = () => {
 	const dispatch = useAppDispatch()
 
     const addressHandler = () => {
-		setDetail({ sdek: true, tariff_code: 139, address: value })
+		setDetail({ pickup: false, sdek: true, tariff_code: 139, address: value })
 	}
 
     useEffect(() => {

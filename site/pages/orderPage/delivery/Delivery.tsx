@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react"
-import { Button, Col, Collapse, Fade, Row } from "react-bootstrap"
+import { Button, Col, Collapse, Row } from "react-bootstrap"
 import { useAppDispatch } from "../../../application/hooks"
-import { useGetDeliveryDetailQuery } from "../../../application/order.service"
-import { setActive, setSdek, setSdekTariff } from "../../../application/orderSlice"
+import { useGetDeliveryDetailQuery, useGetDeliveryWaysQuery } from "../../../application/order.service"
+import { setActive, setPickup, setSdek, setSdekTariff } from "../../../application/orderSlice"
+import Pickup from "./Pickup"
 import SdekDetail from "./SdekDetail"
 import SdekTariff from "./SdekTariff"
 
 const Delivery = () => {
     const { data, isLoading } = useGetDeliveryDetailQuery(undefined)
+	const { data: ways } = useGetDeliveryWaysQuery()
 	const [show, setShow] = useState(false)
 	const dispatch = useAppDispatch()
 
@@ -22,20 +24,33 @@ const Delivery = () => {
 					setShow(false)
 				}
 			}
+		} else {
+			if ( data?.pickup ) {
+				setShow(true)
+			} else {
+				setShow(false)
+			}
 		}
 	}, [data])
 
 	useEffect(() => {
 		dispatch(setSdek(!!data?.sdek))
 		dispatch(setSdekTariff({ address: data?.address, pvz: data?.code, tariff: data?.tariff_code }))
+		dispatch(setPickup(!!data?.pickup))
 	}, [data, dispatch, setSdek, setSdekTariff])
 
     return (
 		<Row>
-			<Col lg={6}>
-				<SdekTariff />
-			</Col>
-			<Col lg={6} />
+			{ways?.sdek && (
+				<Col lg={6}>
+					<SdekTariff />
+				</Col>
+			)}
+			{ways?.pickup && (
+				<Col lg={6}>
+					<Pickup />
+				</Col>
+			)}
 			<Col lg={12} className="mt-5 mb-4">
 				{!isLoading && !!data?.sdek && <SdekDetail />}
 			</Col>
@@ -47,6 +62,7 @@ const Delivery = () => {
 							{data?.tariff_code === 138 && <>самовывоз, </>}
 							{data?.tariff_code === 139 && <>курьер, </>}
 							{data?.tariff_code === 366 && <>постамат, </>}
+							{data?.pickup && <div>Самовывоз из магазина</div>}
 							{data?.address}
 						</div>
 						<Button onClick={() => dispatch(setActive("3"))}>Далее</Button>

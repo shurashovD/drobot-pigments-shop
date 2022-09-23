@@ -73,58 +73,41 @@ const HeaderAccountComponent = () => {
 					</Popover.Header>
 					<Popover.Body>
 						<Stack direction="vertical" gap={3}>
-							<Row>
-								<Col xs={2} className="d-flex justify-content-center align-items-center">
-									<div>
-										<IconAccount stroke={pathname + hash === "/profile#main" ? "#B88E5B" : "#141515"} width="16" height="16" />
-									</div>
-								</Col>
-								<Col xs={10} className="d-flex align-items-center">
-									<NavLink
-										to="/profile#main"
-										className={`text-uppercase text-${pathname + hash === "/profile#main" ? "dark" : "primary"} w-100`}
-										onClick={() => setShow((state) => !state)}
-									>
-										Личный кабинет
-									</NavLink>
-								</Col>
-							</Row>
-							<Row>
-								<Col xs={2} className="d-flex justify-content-center align-items-center">
-									<div>
-										<IconOrders stroke={pathname + hash === "/profile#orders" ? "#B88E5B" : "#141515"} width="18" height="18" />
-									</div>
-								</Col>
-								<Col xs={9}>
-									<NavLink
-										to="/profile#orders"
-										className={`text-uppercase text-${pathname + hash === "/profile#orders" ? "dark" : "primary"} w-100`}
-										onClick={() => setShow((state) => !state)}
-									>
-										Заказы
-									</NavLink>
-								</Col>
-							</Row>
-							<Row>
-								<Col xs={2} className="d-flex justify-content-center align-items-center">
-									<div>
-										<IconPromocode
-											stroke={pathname + hash === "/profile#promocodes" ? "#B88E5B" : "#141515"}
-											width="20"
-											height="20"
-										/>
-									</div>
-								</Col>
-								<Col xs={9}>
-									<NavLink
-										to="/profile#promocodes"
-										className={`text-uppercase text-${pathname + hash === "/profile#promocodes" ? "dark" : "primary"} w-100`}
-										onClick={() => setShow((state) => !state)}
-									>
-										Промокоды
-									</NavLink>
-								</Col>
-							</Row>
+							<div className="d-flex align-items-center">
+								<NavLink
+									to="/profile#main"
+									className={`text-uppercase text-${pathname + hash === "/profile#main" ? "dark" : "primary"} w-100`}
+									onClick={() => setShow((state) => !state)}
+								>
+									<IconAccount stroke={pathname + hash === "/profile#main" ? "#B88E5B" : "#141515"} width="24" height="24" />
+									<span className="ms-2">Личный кабинет</span>
+								</NavLink>
+							</div>
+							<div className="d-flex align-items-center">
+								
+								<NavLink
+									to="/profile#orders"
+									className={`text-uppercase text-${pathname + hash === "/profile#orders" ? "dark" : "primary"} w-100`}
+									onClick={() => setShow((state) => !state)}
+								>
+									<IconOrders stroke={pathname + hash === "/profile#orders" ? "#B88E5B" : "#141515"} width="24" height="24" />
+									<span className="ms-2">Заказы</span>
+								</NavLink>
+							</div>
+							<div className="d-flex align-items-center">
+								<NavLink
+									to="/profile#promocodes"
+									className={`text-uppercase text-${pathname + hash === "/profile#promocodes" ? "dark" : "primary"} w-100`}
+									onClick={() => setShow((state) => !state)}
+								>
+									<IconPromocode
+										stroke={pathname + hash === "/profile#promocodes" ? "#B88E5B" : "#141515"}
+										width="24"
+										height="24"
+									/>
+									<span className="ms-2">Промокоды</span>
+								</NavLink>
+							</div>
 						</Stack>
 						<hr className="mt-5 opacity-25 mb-4" />
 						<ButtonComponent variant="link" className="text-muted" isLoading={isLoading} onClick={() => logout()}>

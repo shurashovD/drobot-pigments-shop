@@ -227,7 +227,10 @@ export interface IOrder extends Document {
 			uuid?: string
 			cost?: number
 			tariff_code: number
-		},
+		}
+		pickup?: {
+			checked: boolean
+		}
 		recipientName?: string
 		recipientMail?: string
 	}
@@ -286,6 +289,9 @@ export interface IOrderPop {
 			uuid?: string
 			cost?: number
 			tariff_code: number
+		}
+		pickup?: {
+			checked: boolean
 		}
 		recipientName?: string
 		recipientMail?: string
@@ -389,7 +395,12 @@ export interface IClient extends Document {
 	sid?: string
 	totalCashBack?: number
 	total?: number
-	createTempOrder(sdek: IOrder["delivery"]["sdek"], recipientName?: string, recipientMail?: string): Promise<string>
+	createTempOrder(args: {
+		sdek?: IOrder["delivery"]["sdek"]
+		pickup?: IOrder["delivery"]["pickup"]
+		recipientName?: string
+		recipientMail?: string
+	}): Promise<string>
 	deleteOrder(orderId: string): Promise<void>
 	getDiscount(): Promise<{ discountPercentValue?: number; nextLevelRequires: string[] }>
 	getOrder(id: string): Promise<IOrderPop>
@@ -405,7 +416,12 @@ export interface IClient extends Document {
 }
 
 export interface IClientMethods {
-	createTempOrder(sdek: IOrder["delivery"]["sdek"], recipientName?: string, recipientMail?: string): Promise<string>
+	createTempOrder(args: {
+		sdek?: IOrder["delivery"]["sdek"]
+		pickup?: IOrder["delivery"]["pickup"]
+		recipientName?: string
+		recipientMail?: string
+	}): Promise<string>
 	deleteOrder(orderId: string): Promise<void>
 	getOrder(id: string): Promise<IOrderPop>
 	getDiscount(): Promise<{ discountPercentValue?: number; nextLevelRequires: string[] }>
@@ -887,6 +903,9 @@ declare module 'express-session' {
 				address?: string
 				code?: string
 				cost?: number
+			}
+			pickup?: {
+				checked: boolean
 			}
 			recipientName?: string
 			recipientMail?: string

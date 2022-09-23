@@ -1,3 +1,4 @@
+import classNames from "classnames"
 import { Button, Col, Fade, Form, Row } from "react-bootstrap"
 import { useGetDeliveryDetailQuery, useSetDeliveryDetailMutation } from "../../../application/order.service"
 import RadioComponent from "../../../components/RadioComponent"
@@ -12,11 +13,11 @@ const SdekTariff = () => {
 	})
 
     const handler = (tariff_code: number) => {
-		setDetail({ sdek: true, tariff_code })
+		setDetail({ pickup: false, sdek: true, tariff_code })
 	}
 
     return (
-		<div className="border border-secondary px-4 py-3">
+		<div className={classNames("border px-4 py-3 h-100", { "border-secondary": data?.sdek })}>
 			<Button variant="link" className="m-0 p-0 mb-3">
 				СДЭК
 			</Button>

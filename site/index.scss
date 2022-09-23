@@ -216,10 +216,10 @@ input:focus,
 }
 
 .footer__link {
-    color: white
+    color: $gray2;
 }
 .footer__link:hover {
-    color: $secondary;
+    color: $dark;
     transition: .2s;
 }
 
@@ -536,6 +536,10 @@ hr {
     z-index: -1;
 }
 
+.special-header {
+    font-size: 32px;
+}
+
 .product-page-variant__btn {
     border: 1px solid $gray2;
     color: $gray2;
@@ -640,6 +644,10 @@ hr {
     background-repeat: no-repeat;
 }
 
+#about-line-carousel {
+    overflow-x: scroll;
+}
+
 @media (max-width: 1024px) {
     .line-card {
         background-image: linear-gradient(transparent 0%, transparent 30%, $dark 30%, $dark 70%, transparent 70%, transparent 100%);
@@ -667,5 +675,9 @@ hr {
 
     .alert-container {
         left: 0%;
+    }
+
+    .special-header {
+        font-size: 20px;
     }
 }
