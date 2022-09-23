@@ -645,6 +645,7 @@ hr {
 }
 
 #about-line-carousel {
+    width: 100%;
     overflow-x: scroll;
 }
 
@@ -679,5 +680,11 @@ hr {
 
     .special-header {
         font-size: 20px;
+    }
+
+    .btn-outline-dark:hover {
+        color: $dark !important;
+        background-color: transparent;
+        border-color: $dark;
     }
 }

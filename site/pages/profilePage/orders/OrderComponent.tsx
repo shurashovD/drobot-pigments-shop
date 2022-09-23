@@ -88,6 +88,12 @@ const OrderComponent: FC<IProps> = ({ id }) => {
 									<OrderSdekComponent id={id} cost={data.delivery.sdek.cost} />
 								</div>
 							)}
+							{!!data.delivery.pickup?.checked && (
+								<div className="mb-5">
+									<div className="text-uppercase mb-2">Способ получения:</div>
+									<div>Самовывоз из магазина</div>
+								</div>
+							)}
 						</Col>
 						<Container className="d-md-none px-2">
 							<hr className="d-md-none opacity-25" />

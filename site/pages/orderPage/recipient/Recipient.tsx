@@ -2,6 +2,7 @@ import classNames from 'classnames'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { Col, Form, Row, Spinner } from 'react-bootstrap'
 import { NavLink } from 'react-router-dom'
+import { useAccountAuthQuery } from '../../../application/account.service'
 import { useAppDispatch } from '../../../application/hooks'
 import { useCheckNumberInitMutation, useGetRecipientQuery, useSetRecipientMutation } from '../../../application/order.service'
 import { setActive, setNameMail, setPhone } from '../../../application/orderSlice'
@@ -31,6 +32,7 @@ const parsePhoneValue = (value: string) => {
 }
 
 const Recipient = () => {
+	const { data: auth } = useAccountAuthQuery(undefined)
 	const { data, isFetching } = useGetRecipientQuery(undefined)
     const [state, setState] = useState('')
 	const [nameVal, setName] = useState('')
@@ -108,7 +110,7 @@ const Recipient = () => {
 				</Row>
 				<Row className="gy-3">
 					<Col xs={12} md={6}>
-						<Form.Control value={parsePhoneValue(state)} onChange={telHandler} className="h-100 p-3" />
+						<Form.Control value={parsePhoneValue(state)} onChange={telHandler} className="h-100 p-3" disabled={!!auth?.counterpartyId} />
 					</Col>
 					<Col xs={12} md={6} className="text-center text-md-start d-flex align-items-center">
 						{isLoading && <Spinner animation="border" size="sm" variant="secondary" />}
@@ -142,6 +144,7 @@ const Recipient = () => {
 									className="py-3"
 									value={nameVal}
 									onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+									disabled={!!auth?.counterpartyId}
 								/>
 							</Form.Label>
 						</Col>
@@ -152,6 +155,7 @@ const Recipient = () => {
 									className={classNames("py-3", { "border-danger": mailInvalid })}
 									value={mailVal}
 									onChange={mailHandler}
+									disabled={!!auth?.counterpartyId}
 								/>
 							</Form.Label>
 						</Col>

@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react"
 import { Col, Row } from "react-bootstrap"
-import { successAlert } from "../../application/alertSlice"
+import { useNavigate } from "react-router-dom"
+import { setOrderAlert, successAlert } from "../../application/alertSlice"
 import { useAppDispatch, useAppSelector } from "../../application/hooks"
-import { useCreateOrderMutation, useGetCartQuery, useGetDeliveryCityQuery, useGetDeliveryDetailQuery, useGetRecipientQuery } from "../../application/order.service"
+import { useCheckPaymentProbablyQuery, useCreateOrderMutation, useGetCartQuery, useGetDeliveryCityQuery, useGetDeliveryDetailQuery, useGetRecipientQuery } from "../../application/order.service"
 import { setActive } from "../../application/orderSlice"
 import ButtonComponent from "../../components/ButtonComponent"
 
 const CreateOrderBtn = () => {
+	const [number, setNumber] = useState<string | undefined>()
+	const [isPaying, setIsPaying] = useState(false)
     const { data: city } = useGetDeliveryCityQuery(undefined)
     const { data: detail } = useGetDeliveryDetailQuery(undefined)
     const { data: recipient } = useGetRecipientQuery(undefined)
-	const { data: cart } = useGetCartQuery(undefined)
+	const { data: cart, refetch } = useGetCartQuery(undefined)
+	const { data: payment } = useCheckPaymentProbablyQuery({ orderNumber: number || "" }, { pollingInterval: 3000, skip: !number || isPaying })
     const [createOrder, { isLoading, data }] = useCreateOrderMutation()
 	const { active } = useAppSelector(state => state.orderSlice)
 	const formatter = new Intl.NumberFormat('ru', { style: 'decimal' })
+	const navigate = useNavigate()
 	const dispatch = useAppDispatch()
 
 	const validate = () => {
@@ -75,7 +80,25 @@ const CreateOrderBtn = () => {
 		if (data?.url) {
 			window.open(data.url, "_blank")
 		}
+		if ( data?.orderNumber ) {
+			setNumber(data.orderNumber)
+		}
 	}, [data])
+
+	useEffect(() => {
+		if (payment && payment.status === "succeeded") {
+			setIsPaying(true)
+			navigate("/")
+			dispatch(setOrderAlert({ orderNumber: number || "", failedOrder: false }))
+			refetch()
+		}
+		if (payment && payment.status === "canceled") {
+			dispatch(setOrderAlert({ orderNumber: number || "", failedOrder: true }))
+			navigate("/")
+			refetch()
+			setIsPaying(true)
+		}
+	}, [payment, refetch, dispatch, navigate, setOrderAlert, number])
 
     return (
 		<Row className="mt-5 justify-content-center">
