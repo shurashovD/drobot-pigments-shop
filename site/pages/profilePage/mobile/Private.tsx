@@ -17,7 +17,7 @@ const Private = () => {
     return (
 		<Accordion.Item eventKey={eventKey} className="border-secondary mb-4">
 			<Accordion.Header className="text-uppercase" onClick={() => navigate({ hash: hash === `#${eventKey}` ? "" : eventKey })}>
-				<IconAccount stroke={stroke} />
+				<IconAccount stroke={stroke} height="32" width="35" />
 				<span className={`ms-2 text-uppercase ${hash !== `#${eventKey}` && "text-white"}`}>Личные данные</span>
 			</Accordion.Header>
 			<Accordion.Body className="px-0">{hash === `#${eventKey}` && <PrivateDataComponent />}</Accordion.Body>

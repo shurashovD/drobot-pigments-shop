@@ -26,6 +26,15 @@ const Mobile = () => {
 		}
 	}, [isSuccess, navigate])
 
+	useEffect(() => {
+		if (hash === "#promocodes" || hash === "#cashback" || hash === "#orders")
+			window.scrollTo({
+				behavior: "smooth",
+				left: 0,
+				top: 20,
+			})
+	}, [hash])
+
     return (
 		<Container fluid className="px-0 m-0">
 			{hash === "#profile" && <ProfileEditComponent />}

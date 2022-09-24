@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { Accordion } from "react-bootstrap"
 import { useLocation, useNavigate } from "react-router-dom"
 import IconDiscount from "../../../components/icons/IconDiscount"
@@ -17,7 +17,7 @@ const Promo= () => {
 	return (
 		<Accordion.Item eventKey={eventKey} className="border-secondary mb-4">
 			<Accordion.Header className="text-uppercase" onClick={() => navigate({ hash: hash === `#${eventKey}` ? "" : eventKey })}>
-				<IconDiscount stroke={stroke} />
+				<IconDiscount stroke={stroke} width="35" height="32" />
 				<span className={`ms-2 text-uppercase ${hash !== `#${eventKey}` && "text-white"}`}>Персональная скидка</span>
 			</Accordion.Header>
 			<Accordion.Body>
