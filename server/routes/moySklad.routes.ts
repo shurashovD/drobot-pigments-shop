@@ -490,7 +490,7 @@ router.post("/handle/customerorder/update", bodyParser.json(), async (req: Reque
 				if (statusId === "a3ab58e1-f494-11e8-9ff4-34e80005d6b5" || statusId === "70dc899b-ee2a-11ec-0a80-07c8000b5983") {
 					status = "canceled"
 				}
-				if (statusId === "a3ab577e-f494-11e8-9ff4-34e80005d6b3") {
+				if (statusId === "a3ab577e-f494-11e8-9ff4-34e80005d6b3" || statusId === "e17a3e83-3b2e-11ed-0a80-0e67000c4a44") {
 					status = "ready"
 				}
 				if ( typeof status !== 'undefined' ) {

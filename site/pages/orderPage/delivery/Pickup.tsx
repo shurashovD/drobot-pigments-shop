@@ -14,7 +14,7 @@ const Pickup = () => {
 			disabled={isLoading}
 		>
 			<div>Самовывоз из магазина</div>
-			<div className="text-muted">ул. Дзержинского 87/1</div>
+			<div className="text-muted my-3">ул. Дзержинского 87/1</div>
             <div>Бесплатно</div>
 		</Button>
 	)

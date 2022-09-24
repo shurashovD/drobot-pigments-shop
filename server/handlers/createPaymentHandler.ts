@@ -11,9 +11,9 @@ const createPaymentHandler = async (orderId: string) => {
 			throw err
 		}
 
-		const { sdek, recipientMail } = order.delivery
-		if (!sdek) {
-			const err = new Error(`Отсутвуют параметры СДЭК в заказе ${orderId}`)
+		const { sdek, recipientMail, pickup } = order.delivery
+		if (!sdek && pickup && !pickup?.checked) {
+			const err = new Error(`Отсутвуют параметры доставки в заказе ${orderId}`)
 			err.userError = true
 			err.sersviceInfo = "Создание платежа Ю-Касса"
 			throw err
@@ -39,19 +39,19 @@ const createPaymentHandler = async (orderId: string) => {
 			)
 
         const { id, url } = await createUKPayment({
-			amount: { currency: "RUB", value: (+(order.msOrderSumRub || 0) + +(sdek.cost || 0)).toFixed(2) },
+			amount: { currency: "RUB", value: (+(order.msOrderSumRub || 0) + +(sdek?.cost || 0)).toFixed(2) },
 			capture: "true",
 			confirmation: {
 				type: "redirect",
 				return_url: `https://drobot-pigments-shop.ru/payment/${order.id}`,
 			},
 			description: `Оплата заказа ${order.number} из drobot-pigments-shop`,
-			metadata: { orderSum: order.msOrderSumRub || 0, deliverySum: sdek.cost || 0, msOrderId: order.msOrderId },
+			metadata: { orderSum: order.msOrderSumRub || 0, deliverySum: sdek?.cost || 0, msOrderId: order.msOrderId },
 			receipt: {
 				email: recipientMail || "shurashovd@yandex.ru",
 				phone: order.client.tel,
 				items: items.concat({
-					amount: { value: (sdek.cost || 0).toFixed(2), currency: "RUB" },
+					amount: { value: (sdek?.cost || 0).toFixed(2), currency: "RUB" },
 					description: "Доставка",
 					quantity: "1",
 					vat_code: 1,

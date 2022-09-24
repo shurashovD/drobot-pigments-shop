@@ -31,14 +31,16 @@ const OrderComponent: FC<IProps> = ({ id }) => {
 			{data && !isLoading && (
 				<div className="d-flex flex-wrap mb-4 px-2 px-lg-5">
 					<div className="text-uppercase mb-2 w-100">Заказ № {data?.number}</div>
-					<OrderStatusComponent status={data.status} />
-				</div>
-			)}
-			{data?.payment && data?.payment?.status === "canceled" && data.payment.paymentUrl && (
-				<div className="mb-3">
-					<a href={data.payment.paymentUrl} className="border border-dark p-2 px-4 text-uppercase">
-						Оплатить
-					</a>
+					<div className="d-flex align-items-center">
+						<OrderStatusComponent status={data.status} />
+						{data?.payment && data?.payment?.status !== "canceled" && data.payment.paymentUrl && (
+							<div className="ms-3 my-2">
+								<a href={data.payment.paymentUrl} className="border border-dark p-2 px-4 text-uppercase" target="_blank">
+									Оплатить
+								</a>
+							</div>
+						)}
+					</div>
 				</div>
 			)}
 			{data && !isLoading && <hr className="bg-dark mb-6" style={{ height: "4px" }} />}

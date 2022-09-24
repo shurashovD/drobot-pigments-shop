@@ -62,7 +62,7 @@ const CartItem: FC<IProps> = ({ productId }) => {
 			)}
 			{!productLoading && data && productInCart && (
 				<Row className="g-2">
-					<Col xs={0} md={1} className="d-flex align-items-center">
+					<Col xs={0} md={0} className="d-none align-items-center">
 						<div className="d-none d-md-block">
 							<CheckboxComponent
 								isLoading={toggleLoading}
@@ -73,10 +73,10 @@ const CartItem: FC<IProps> = ({ productId }) => {
 							/>
 						</div>
 					</Col>
-					<Col xs={5} md={2}>
+					<Col xs={5} md={3}>
 						<div className="position-relative">
 							<ImageComponent src={data.photo?.[0] || "/static"} />
-							<div className="position-absolute top-0 start-0 bg-white d-md-none p-0 m-2">
+							<div className="position-absolute top-0 start-0 bg-white d-none p-0 m-2">
 								<CheckboxComponent
 									isLoading={toggleLoading}
 									disabled={isFetching || isLoading || cartFetching || toggleLoading}

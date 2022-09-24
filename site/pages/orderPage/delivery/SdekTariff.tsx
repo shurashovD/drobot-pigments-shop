@@ -47,7 +47,7 @@ const SdekTariff = () => {
 			</Row>
 			<Row>
 				<Col xs={12}>
-					<Fade in={!!data?.total_sum && !isFetching && !isLoading}>
+					<Fade in={(!!data?.total_sum || data?.total_sum === 0) && !isFetching && !isLoading}>
 						<div>
 							{data?.total_sum} руб.,{" "}
 							{data?.period_max && (

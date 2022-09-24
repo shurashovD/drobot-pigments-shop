@@ -28,7 +28,7 @@ interface IProps {
 	}[]
 }
 
-const createMsOrder = async (props: IProps) => {
+const createMsOrder = async (props: IProps, pickup?: boolean) => {
 	try {
 		const shipmentAddress = `${props.city} ${props.address && `до двери ${props.address}`} ${props.point && `до ПВЗ ${props.point}`}`
 		const positions = props.positions.map(
@@ -46,7 +46,7 @@ const createMsOrder = async (props: IProps) => {
 				}
 			})
 		)
-		const body = {
+		const body: any = {
 			organization: {
 				meta: {
 					href: `https://online.moysklad.ru/api/remap/1.2/entity/organization/${organizationId}`,
@@ -62,6 +62,15 @@ const createMsOrder = async (props: IProps) => {
 				},
 			},
 			shipmentAddress, positions
+		}
+		if ( pickup ) {
+			body.state = {
+				meta: {
+					href: "https://online.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/states/e17a3e83-3b2e-11ed-0a80-0e67000c4a44",
+					type: "state",
+					mediaType: "application/json",
+				},
+			}
 		}
 		const order = await ms.POST(paths.order, body)
 		return order

@@ -172,16 +172,16 @@ router.get("/delivery/detail", async (req, res) => {
 			
 			if ( tariff_code === 139 ) {
 				if ( req.session.delivery.sdek.address ) {
-					return res.json({ sdek: checked, tariff_code, address, ...sdekInfo.data })
+					return res.json({ sdek: checked, tariff_code, address, ...sdekInfo.data, total_sum: req.session.delivery.sdek.cost })
 				} else {
-					return res.json({ sdek: checked, tariff_code, ...sdekInfo.data })
+					return res.json({ sdek: checked, tariff_code, ...sdekInfo.data, total_sum: req.session.delivery.sdek.cost })
 				}
 			} else {
 				if (req.session.delivery.sdek.code) {
 					const point = await PointsModel.findOne({ code })
-					return res.json({ sdek: checked, tariff_code, code, address: point?.location.address, ...sdekInfo.data })
+					return res.json({ sdek: checked, tariff_code, code, address: point?.location.address, ...sdekInfo.data, total_sum: req.session.delivery.sdek.cost })
 				} else {
-					return res.json({ sdek: checked, tariff_code, ...sdekInfo.data })
+					return res.json({ sdek: checked, tariff_code, ...sdekInfo.data, total_sum: req.session.delivery.sdek.cost })
 				}
 			}
 		}

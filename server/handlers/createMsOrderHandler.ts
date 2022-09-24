@@ -49,7 +49,9 @@ const createMsOrderHandler = async (orderId: string) => {
 		}
 		
 		try {
-			const msOrder = await createMsOrder({ city, address: addressString, point, positions, counterpartyId: order.client.counterpartyId })
+			const msOrder = await createMsOrder(
+				{ city, address: addressString, point, positions, counterpartyId: order.client.counterpartyId }, order.delivery.pickup?.checked
+			)
 			return msOrder
 		} catch (e: any) {
 			const client = await ClientModel.findById(order.client._id)

@@ -63,7 +63,7 @@ const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
 			)}
 			{!variantLoading && data && variantInCart && (
 				<Row className="g-2">
-					<Col xs={0} md="auto" className="d-flex align-items-center">
+					<Col xs={0} md={0} className="d-none align-items-center">
 						<div className="d-none d-md-block">
 							<CheckboxComponent
 								isLoading={toggleLoading}
@@ -74,10 +74,10 @@ const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
 							/>
 						</div>
 					</Col>
-					<Col xs={5} md={2}>
+					<Col xs={5} md={3}>
 						<div className="position-relative">
 							<ImageComponent src={data.photo || "/static"} />
-							<div className="position-absolute top-0 start-0 bg-white d-md-none p-0 m-2">
+							<div className="position-absolute top-0 start-0 bg-white d-none p-0 m-2">
 								<CheckboxComponent
 									isLoading={toggleLoading}
 									checked={variantInCart.checked || false}

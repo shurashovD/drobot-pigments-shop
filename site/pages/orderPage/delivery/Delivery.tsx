@@ -40,7 +40,7 @@ const Delivery = () => {
 	}, [data, dispatch, setSdek, setSdekTariff])
 
     return (
-		<Row>
+		<Row className="g-3">
 			{ways?.sdek && (
 				<Col lg={6}>
 					<SdekTariff />

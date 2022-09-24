@@ -28,7 +28,7 @@ const CreateOrderBtn = () => {
 			})
 			return "1"
 		}
-		if (!detail?.tariff_code) {
+		if (!detail?.tariff_code && !detail?.pickup) {
 			setTimeout(() => {
 				dispatch(successAlert("Выберите способ доставки"))
 			})

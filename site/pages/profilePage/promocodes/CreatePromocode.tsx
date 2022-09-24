@@ -65,9 +65,11 @@ const CreatePromocode = () => {
 					</Col>
 					<div className="position-absolute top-100 w-100 d-flex justify-content-center">
 						<Fade in={showCalendar}>
-							<div className="bg-secondary" style={{ width: 'min-content' }}>
+							<div className="bg-secondary" style={{ width: "min-content" }}>
 								<div className="text-end">
-									<Button className="text-muted m-0 pb-0" variant="link" onClick={() => dispatch(setShowCalendar(false))}>Закрыть</Button>
+									<Button className="text-muted m-0 pb-0" variant="link" onClick={() => dispatch(setShowCalendar(false))}>
+										Закрыть
+									</Button>
 								</div>
 								<CalendarComponent />
 							</div>
@@ -75,7 +77,7 @@ const CreatePromocode = () => {
 					</div>
 				</Row>
 			</Col>
-			<Col xs={12} lg={2} className="d-flex align-items-center justify-content-center" style={{ zIndex: -1 }}>
+			<Col xs={12} lg={2} className="d-flex align-items-center justify-content-center" style={{ zIndex: `${showCalendar ? "-1" : "1"}` }}>
 				<ButtonComponent
 					disabled={
 						form.code === "" ||

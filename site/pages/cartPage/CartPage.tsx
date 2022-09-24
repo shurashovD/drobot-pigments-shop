@@ -71,7 +71,7 @@ const CartPage = () => {
 				<Row>
 					<Col xs={12} lg={8}>
 						<Row className="m-0 g-0">
-							<Col xs="auto" className="pe-3">
+							<Col xs="auto" className="pe-3 d-none">
 								<CheckboxComponent
 									isLoading={checkAllLoading}
 									label="Выбрать все"
@@ -88,7 +88,7 @@ const CartPage = () => {
 										disabled={rmLoading}
 										onClick={rmHandler}
 									>
-										Удалить выбранные
+										Удалить все
 									</Button>
 								</Fade>
 							</Col>

@@ -29,7 +29,6 @@ const CalendarComponent = () => {
     }
 
     useEffect(() => {
-		console.log(dateStart, dateFinish);
 		if (dateFinish === "") {
 			if (dateStart === "") {
 				setMinDate(undefined)
@@ -42,7 +41,7 @@ const CalendarComponent = () => {
 	}, [dateFinish, dateStart])
 
     return (
-		<div>
+		<div style={{ zIndex: 3 }}>
 			<Calendar
 				defaultValue={dateStart !== "" ? new Date(dateStart) : undefined}
 				value={[dateStart !== "" ? new Date(dateStart) : null, dateFinish !== "" ? new Date(dateFinish) : null]}
