@@ -33,7 +33,7 @@ const OrderComponent: FC<IProps> = ({ id }) => {
 					<div className="text-uppercase mb-2 w-100">Заказ № {data?.number}</div>
 					<div className="d-flex align-items-center">
 						<OrderStatusComponent status={data.status} />
-						{data?.payment && data?.payment?.status !== "canceled" && data.payment.paymentUrl && (
+						{data?.payment && data?.payment?.status !== "canceled" && data?.status !== "new" && data.payment.paymentUrl && (
 							<div className="ms-3 my-2">
 								<a href={data.payment.paymentUrl} className="border border-dark p-2 px-4 text-uppercase" target="_blank">
 									Оплатить
