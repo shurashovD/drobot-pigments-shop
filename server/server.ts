@@ -21,6 +21,7 @@ import profileRoutes from "./routes/profile.routes"
 import authMiddleware from './middleware/auth.middleware'
 import frontLogger from './routes/frontLogger.routes'
 import loyaltyRoutes from './routes/loyalty.routes'
+import cookiesRoutes from "./routes/cookies.routes"
 
 const PORT = 3000
 
@@ -86,6 +87,8 @@ app.use("/api/profile", authMiddleware, profileRoutes)
 app.use("/api/users", usersRoutes)
 
 app.use("/api/loyalty", loyaltyRoutes)
+
+app.use("/api/cookies", cookiesRoutes)
 
 app.use("/api/front-handler", frontLogger)
 

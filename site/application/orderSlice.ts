@@ -13,6 +13,7 @@ interface IState {
     name?: string
     mail?: string
     phone?: string
+	collapsedPvz?: string
 }
 
 const getAvailable = (state: IState) => {
@@ -139,12 +140,15 @@ const orderSlice = createSlice({
 			state.available = getAvailable(state)
 			state.empty = getEmpty(state)
 		},
+		setCollapsedPvz: (state, {payload}: PayloadAction<string | undefined>) => {
+			state.collapsedPvz = payload
+		},
 		resetOrderPage: (state) => {
 			state = initialState
 		},
 	},
 })
 
-export const { setActive, setCity, setNameMail, setPickup, setPhone, setSdek, setSdekTariff, resetOrderPage } = orderSlice.actions
+export const { setActive, setCity, setCollapsedPvz, setNameMail, setPickup, setPhone, setSdek, setSdekTariff, resetOrderPage } = orderSlice.actions
 
 export default orderSlice

@@ -19,14 +19,14 @@ const Categories = () => {
     return (
 		<div>
 			<div className="text-center fs-3 text-uppercase my-6">Выбери свою категорию</div>
-			<Row id="partner-programm-category-container" className="justify-content-center flex-nowrap mb-6 mb-md-0" ref={container}>
-				<Col xs={12} md="auto">
+			<Row id="partner-programm-category-container" className="justify-content-md-center flex-nowrap mb-6 mb-md-0" ref={container}>
+				<Col xs={12} md="auto" style={{ maxWidth: '362px' }}>
 					<Agent />
 				</Col>
-				<Col xs={12} md="auto">
+				<Col xs={12} md="auto" style={{ maxWidth: '362px' }}>
 					<Delegate />
 				</Col>
-				<Col xs={12} md="auto">
+				<Col xs={12} md="auto" style={{ maxWidth: '362px' }}>
 					<Coach />
 				</Col>
 			</Row>

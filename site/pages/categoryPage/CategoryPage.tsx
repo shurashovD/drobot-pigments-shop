@@ -59,7 +59,7 @@ const CategoryPage = () => {
 							<Col xs={6}>
 								<div className="d-flex align-items-center">
 									<IconFilter stroke="#141515" />
-									<Button variant="link" onClick={() => setShow(true)} style={{ zIndex: 2 }} className="text-primary">
+									<Button variant="link" onClick={() => setShow(true)} style={{ zIndex: 2 }} className="text-primary p-0">
 										Фильтры ({filterObject.reduce((sum, { values }) => sum + values.length, 0) + variantsFilter.length})
 									</Button>
 								</div>

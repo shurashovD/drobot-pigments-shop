@@ -649,6 +649,10 @@ hr {
     overflow-x: scroll;
 }
 
+.modal-content {
+    border: 0;
+}
+
 @media (max-width: 1024px) {
     .line-card {
         background-image: linear-gradient(transparent 0%, transparent 30%, $dark 30%, $dark 70%, transparent 70%, transparent 100%);

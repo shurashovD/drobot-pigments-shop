@@ -22,6 +22,7 @@ import UserAgreementPage from './pages/userAgreementPage/UserAgreementPage'
 import PrivacyPolicyPage from './pages/privacyPolicyPage/PrivacyPolicyPage'
 import CookiesPage from './pages/cookiesPage/CookiesPage'
 import GaranteesAndRefund from './pages/garanteesAndRefund/GaranteesAndRefund'
+import CookiesComponent from './components/CookiesComponent'
 
 const App = () => {
 	const [sendError] = useSendErrorMutation()
@@ -36,6 +37,7 @@ const App = () => {
 				<AlertComponent />
 				<HeaderComponent />
 				<AuthComponent />
+				<CookiesComponent />
 				<Container fluid className="pt-4">
 					<Routes>
 						<Route path="/" element={<MainPage />} />

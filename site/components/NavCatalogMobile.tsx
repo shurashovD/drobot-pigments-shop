@@ -19,9 +19,7 @@ const NavCatalogMobile: FC<OffcanvasProps> = ({ onHide, show }) => {
 		<Offcanvas show={show} onExit={() => setOpenedCategory(undefined)}>
 			<Offcanvas.Header closeButton onHide={onHide}>
 				<Offcanvas.Title className="text-uppercase">
-					{categories.find(
-						({ _id }) => _id?.toString() === openedCategory
-					)?.title || "Каталог"}
+					{categories.find(({ _id }) => _id?.toString() === openedCategory)?.title || "Каталог"}
 				</Offcanvas.Title>
 			</Offcanvas.Header>
 			<Offcanvas.Body>
@@ -31,51 +29,31 @@ const NavCatalogMobile: FC<OffcanvasProps> = ({ onHide, show }) => {
 							&larr; назад
 						</Button>
 						{categories
-							.find(
-								({ _id }) => _id?.toString() === openedCategory
-							)
+							.find(({ _id }) => _id?.toString() === openedCategory)
 							?.filters.map((item) => (
-								<Accordion.Item
-									eventKey={item._id?.toString()}
-									key={item._id?.toString()}
-								>
-									<Accordion.Header className="text-start text-uppercase">
-										{item.title}
-									</Accordion.Header>
+								<Accordion.Item eventKey={item._id?.toString()} key={item._id?.toString()}>
+									<Accordion.Header className="text-start text-uppercase">{item.title}</Accordion.Header>
 									<Accordion.Body>
 										<Stack gap={3}>
-											{item.fields.map(
-												({ _id, value }) => {
-													const filters: any[] = [
-														{
-															filterId:
-																item._id?.toString(),
-															valueIds: [
-																_id?.toString(),
-															],
-														},
-													]
-													return (
-														<div
-															key={_id?.toString()}
+											{item.fields.map(({ _id, value }) => {
+												const filters: any[] = [
+													{
+														filterId: item._id?.toString(),
+														valueIds: [_id?.toString()],
+													},
+												]
+												return (
+													<div key={_id?.toString()}>
+														<Button
+															variant="link"
+															onClick={() => clickHandler(`/category/${openedCategory}/${JSON.stringify(filters)}`)}
+															className="p-0"
 														>
-															<Button
-																variant="link"
-																onClick={() =>
-																	clickHandler(
-																		`/category/${openedCategory}/${JSON.stringify(
-																			filters
-																		)}`
-																	)
-																}
-																className="p-0"
-															>
-																{value}
-															</Button>
-														</div>
-													)
-												}
-											)}
+															{value}
+														</Button>
+													</div>
+												)
+											})}
 										</Stack>
 									</Accordion.Body>
 								</Accordion.Item>
@@ -89,9 +67,8 @@ const NavCatalogMobile: FC<OffcanvasProps> = ({ onHide, show }) => {
 								as="button"
 								variant="link"
 								className="text-start text-uppercase p-4 catalog-mobile-list-item"
-								onClick={() =>
-									setOpenedCategory(_id?.toString())
-								}
+								//onClick={() => setOpenedCategory(_id?.toString())}
+								onClick={() => clickHandler(`/category/${_id.toString()}/[]`)}
 							>
 								{title}
 							</ListGroup.Item>

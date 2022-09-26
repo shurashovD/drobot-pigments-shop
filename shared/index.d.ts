@@ -888,6 +888,7 @@ declare global {
 
 declare module 'express-session' {
 	interface SessionData {
+		acceptCookies?: boolean
 		isAdmin?: boolean
 		cartId: string
 		claimedStatus?: string

@@ -30,7 +30,7 @@ const SdekTariff = () => {
 							onChange={() => handler(138)}
 							disabled={isLoading || isFetching}
 						/>
-						<span className="text-muted ms-1">Самовывоз</span>
+						<span className="text-muted ms-1">Доставка до ПВЗ СДЭК</span>
 					</Form.Label>
 				</Col>
 				<Col xs="auto">
@@ -41,7 +41,7 @@ const SdekTariff = () => {
 							onChange={() => handler(139)}
 							disabled={isLoading}
 						/>
-						<span className="text-muted ms-1">Доставка курьером</span>
+						<span className="text-muted ms-1">Доставка курьером до адреса</span>
 					</Form.Label>
 				</Col>
 			</Row>

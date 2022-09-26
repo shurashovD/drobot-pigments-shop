@@ -3,6 +3,7 @@ import accountApi from "./account.service";
 import alertSlice from "./alertSlice";
 import categoriesSlice from "./categoriesSlice";
 import categoryApi from "./category.service";
+import cookiesApi from "./cookies.service";
 import { rtkQueryLogger } from "./error.middleware";
 import errorApi from "./error.service";
 import fileApi from "./file.service";
@@ -20,6 +21,7 @@ const store = configureStore({
 		...getDefaultMiddleware(),
 		accountApi.middleware,
         categoryApi.middleware,
+		cookiesApi.middleware,
 		errorApi.middleware,
 		fileApi.middleware,
         orderApi.middleware,
@@ -32,6 +34,7 @@ const store = configureStore({
 		[alertSlice.name]: alertSlice.reducer,
 		[categoryApi.reducerPath]: categoryApi.reducer,
 		[categoriesSlice.name]: categoriesSlice.reducer,
+		[cookiesApi.reducerPath]: cookiesApi.reducer,
 		[errorApi.reducerPath]: errorApi.reducer,
 		[fileApi.reducerPath]: fileApi.reducer,
 		[filtersSlice.name]: filtersSlice.reducer,

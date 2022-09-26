@@ -138,7 +138,7 @@ router.get("/delivery/detail", async (req, res) => {
 
 		// если самовывоз из магазина;
 		if ( req.session.delivery?.pickup?.checked ) {
-			return res.json({ pickup: true, address: "ул. Дзержинского 87/1" })
+			return res.json({ pickup: true, address: "Российская Федерация, г. Краснодар, ул. Дзержинского 87/1" })
 		}
 
 		// если доставка СДЭК;

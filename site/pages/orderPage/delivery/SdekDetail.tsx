@@ -1,3 +1,4 @@
+import classNames from "classnames"
 import { ChangeEvent, FC, useEffect, useState } from "react"
 import { Button, Col, Form, Row, Tab } from "react-bootstrap"
 import { useAppDispatch } from "../../../application/hooks"
@@ -65,13 +66,17 @@ const SdekDetail: FC = () => {
 					<div className="d-lg-none">
 						<Tab.Container activeKey={activeKey}>
 							<Row className="mb-3">
-								<Col xs={6} className="text-center">
-									<Button variant="link" size="sm" onClick={() => setActivekey("1")}>
+								<Col xs={6} className="text-center p-0 ps-2 d-flex align-items-stretch">
+									<Button variant="link" size="sm" onClick={() => setActivekey("1")}
+										className={classNames("w-100", { "bg-secondary text-dark": activeKey === "1" })}
+									>
 										Список
 									</Button>
 								</Col>
-								<Col xs={6} className="text-center">
-									<Button variant="link" size="sm" onClick={() => setActivekey("2")}>
+								<Col xs={6} className="text-center p-0 ps-2 d-flex align-items-stretch">
+									<Button variant="link" size="sm" onClick={() => setActivekey("2")}
+										className={classNames("w-100", { "bg-secondary text-dark": activeKey === "2" })}
+									>
 										Карта
 									</Button>
 								</Col>

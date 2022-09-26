@@ -101,6 +101,16 @@ const HeaderComponent = () => {
 							</Button>
 						</div>
 						<div>
+							<NavLink to="/partner-program" className="text-uppercase text-white" onClick={() => setMobileMenuShow(false)}>
+								Сотрудничество
+							</NavLink>
+						</div>
+						<div>
+							<NavLink to="/about" className="text-uppercase text-white" onClick={() => setMobileMenuShow(false)}>
+								О бренде
+							</NavLink>
+						</div>
+						<div>
 							<NavLink to="/" className="text-uppercase text-white d-none" onClick={() => setMobileMenuShow(false)}>
 								Обучение
 							</NavLink>
@@ -110,19 +120,9 @@ const HeaderComponent = () => {
 								Спец.предложение %
 							</NavLink>
 						</div>
-						<div>
-							<NavLink to="/partner-program" className="text-uppercase text-white" onClick={() => setMobileMenuShow(false)}>
-								Сотрудничество
-							</NavLink>
-						</div>
 						<div className="mt-auto">
 							<NavLink to="/delivery" className="text-uppercase text-white" onClick={() => setMobileMenuShow(false)}>
 								Доставка
-							</NavLink>
-						</div>
-						<div>
-							<NavLink to="/" className="text-uppercase text-white d-none" onClick={() => setMobileMenuShow(false)}>
-								Статус заказа
 							</NavLink>
 						</div>
 						<div>

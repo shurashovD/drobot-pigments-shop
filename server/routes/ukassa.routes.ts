@@ -67,7 +67,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 			await acceptPayment(order.msOrderId, sum)
 
 			// создание заказа в СДЭК;
-			if ( !!order.delivery.sdek ) {
+			if ( !!order.delivery.sdek?.tariff_code ) {
 				const uuid = await createSdekOrderHandler(order._id.toString())
 				// привязка заявки СДЭК к заказу в "Мой склад";
 				const msOrder = await getMsOrder(order.msOrderId)
@@ -144,10 +144,10 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
                     products = products.concat(variants)
 
                     const price = orderObj.total
-                    const trade = await createTrade(client.amoContactId, products, price)
-					console.log(trade._embedded)
+                    await createTrade(client.amoContactId, products, price)
                 } catch (e) {
                     console.log(e)
+					logger.error(e)
                 }
             }
 		}

@@ -14,8 +14,8 @@ const Pickup = () => {
 			disabled={isLoading}
 		>
 			<div>Самовывоз из магазина</div>
-			<div className="text-muted my-3">ул. Дзержинского 87/1</div>
-            <div>Бесплатно</div>
+			<div className="text-muted my-3 text-start">Российская Федерация, г. Краснодар, ул. Дзержинского 87/1</div>
+			<div>Бесплатно</div>
 		</Button>
 	)
 }

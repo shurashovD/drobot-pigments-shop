@@ -8,7 +8,7 @@ const Delegate = () => {
 
 	return (
 		<div
-			style={{ backgroundColor: "#FDF9EF", maxWidth: "362px" }}
+			style={{ backgroundColor: "#FDF9EF" }}
 			className="d-flex flex-column justify-content-between align-items-center pb-6 h-100"
 		>
 			<div className="text-center text-uppercase text-white bg-dark p-4 w-100 mb-2">Представитель</div>
