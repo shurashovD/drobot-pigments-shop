@@ -1,8 +1,7 @@
-import OrderModel from '../models/OrderModel'
 import { sdekGetOrderInfo } from './../sdekAPI/orders';
 import { json } from "body-parser"
 import { Request, Router } from "express"
-import { INearestOrder, IPromocode, IPromocodeDoc } from "../../shared"
+import { INearestOrder } from "../../shared"
 import { createContact, updateContact } from "../amoAPI/amoApi"
 import ClientModel from '../models/ClientModel'
 import PromocodeModel from '../models/PromocodeModel'
@@ -185,18 +184,39 @@ router.get('/discount', async (req, res) => {
 	}
 })
 
-router.get("/promocode", async (req: Request<{}, {}, {}, { limit: number; page: number }>, res) => {
+router.get("/promocode", async (req, res) => {
 	try {
 		const client = await ClientModel.findById(req.session.userId)
 		if (!client) {
-			return res.json({ length: 0, promocodes: [] })
+			return res.json([])
 		}
 
-        const { limit = 12, page = 1 } = req.query
-        const skip = (page - 1) * limit
-		const promocodes = await client.getPromocodes(limit, skip)
-        const length = await PromocodeModel.find({ _id: { $in: client.promocodes } }).then(doc => doc.length)
-        return res.json({ length, promocodes })
+        const promocodes = await PromocodeModel.find({ _id: { $in: client.promocodes } })
+        return res.json(promocodes)
+	} catch (e) {
+		logger.error(e)
+		return res.status(500).json({ message: "Ошибка получения промокода" })
+	}
+})
+
+router.get("/promocode/orders/:id", async (req: Request<{id: string}>, res) => {
+	try {
+		const client = await ClientModel.findById(req.session.userId)
+		if (!client) {
+			return res.json([])
+		}
+
+        const { id } = req.params
+        const promocode = await PromocodeModel.findById(id)
+        if ( !promocode ) {
+            return res.json({ message: "Промокод не найден" })
+        }
+        if ( promocode.holderClient.toString() !== client._id.toString() ) {
+            return res.json({ message: "Промокод не принадлежит пользователю" })
+        }
+
+        const details = await promocode.getDetails()
+        return res.json(details)
 	} catch (e) {
 		logger.error(e)
 		return res.status(500).json({ message: "Ошибка получения промокода" })

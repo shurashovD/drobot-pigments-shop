@@ -344,7 +344,11 @@ export interface IPromocode {
 	promocodeTotalCashBack: number
 }
 
-export interface IPromocodeDoc extends Document {
+interface IPromocodeMethods {
+	getDetails: (this: IPromocodeDoc) => Promise<IPromocodeDetails>
+}
+
+export interface IPromocodeDoc extends Document, IPromocodeMethods {
 	code: string
 	dateStart: Date
 	dateFinish: Date
@@ -385,6 +389,7 @@ export interface IClient extends Document {
 	name?: string
 	orders: Types.ObjectId[]
 	tel: string
+	commonPoints?: number
 	commonOrders: Types.ObjectId[]
 	agentOrders: Types.ObjectId[]
 	delegateOrders: Types.ObjectId[]
@@ -408,7 +413,7 @@ export interface IClient extends Document {
 	addCashBack(cashbackRub: number): Promise<void>
 	mergeCart(mergedCartId: string): Promise<void>
 	refreshPromocodes(): Promise<void>
-	getPromocodes(limit: number, skip: number): Promise<IPromocodeDetails[]>
+	getPromocodes(): Promise<IPromocodeDetails[]>
 	createPromocode(code: string, dateFinish: string, dateStart: string): Promise<void>
 	setPromocodeInCart(code: string): Promise<void>
 	resetPromocodeInCart(): Promise<void>
@@ -429,7 +434,7 @@ export interface IClientMethods {
 	addCashback(cashbackRub: number): Promise<void>
 	mergeCart(mergedCartId: string): Promise<void>
 	refreshPromocodes(): Promise<void>
-	getPromocodes(limit: number, skip: number): Promise<IPromocodeDetails[]>
+	getPromocodes(): Promise<IPromocodeDetails[]>
 	createPromocode(code: string, dateFinish: string, dateStart: string): Promise<void>
 	setPromocodeInCart(code: string): Promise<void>
 	resetPromocodeInCart(): Promise<void>

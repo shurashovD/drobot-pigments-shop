@@ -12,6 +12,7 @@ import { getUKPayment } from '../ukassaAPI/payments';
 import ClientModel from '../models/ClientModel';
 import PromocodeModel from '../models/PromocodeModel';
 import { logger } from '../handlers/errorLogger';
+import ProductModel from '../models/ProductModel';
 
 const router = Router()
 
@@ -96,25 +97,32 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 					if (promocode) {
 						const promocodeHolder = await ClientModel.findById(promocode.holderClient)
 						if (promocodeHolder) {
-							const cashBack = Math.round(order.total * 0.1)
-							if (promocodeHolder.status === "agent") {
-								await promocodeHolder.addCashBack(cashBack)
-								await promocodeHolder.save()
-								promocode.promocodeTotalCashBack += cashBack
-								promocode.orders.unshift({ orderId: order._id, cashBack })
-								await promocode.save()
-							}
-							if (promocodeHolder.status === "delegate") {
-								await promocodeHolder.addCashBack(cashBack)
-								await promocodeHolder.save()
-								promocode.promocodeTotalCashBack += cashBack
-								promocode.orders.unshift({ orderId: order._id, cashBack })
-								await promocode.save()
-							}
+							// вычисляем сумму товаров, купленных по промокоду;
+							const discountedProductsSum = order.products
+								.filter(async ({ product }) => await ProductModel.isDiscounted(product.toString()))
+								.reduce((sum, { price }) => sum + price, 0)
+							// прибавляем к ней сумму модификаций, купленных по промокоду;
+							const discountedSum = order.variants
+								.filter(async ({ product }) => await ProductModel.isDiscounted(product.toString()))
+								.reduce((sum, { price }) => sum + price, discountedProductsSum)
+							
+							// начисляем кэшбэк;
+							const cashBack = Math.round(discountedSum * 0.1)
+							await promocodeHolder.addCashBack(cashBack)
+							promocode.promocodeTotalCashBack += cashBack
+							promocode.orders.unshift({ orderId: order._id, cashBack })
+							await promocodeHolder.save()
+							await promocode.save()
+
+							// остальные товары начисляются баллами покупателю;
+							client.commonPoints = (client.commonPoints || 0) + order.total - discountedSum
+							client.commonOrders.unshift(order._id)
+							await client.save()
 						}
 					}
 				} else {
 					// начислить накопительную скидку покупателю;
+					client.commonPoints = (client.commonPoints || 0) + order.total
 					client.commonOrders.unshift(order._id)
 					await client.save()
 				}
@@ -126,7 +134,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 				await client.save()
 			}
 
-			// если покупатель - пердставитель;
+			// если покупатель - представитель;
 			if (client.status === "delegate") {
 				client.delegateOrders.push(order._id)
 				await client.save()

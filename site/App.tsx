@@ -23,8 +23,11 @@ import PrivacyPolicyPage from './pages/privacyPolicyPage/PrivacyPolicyPage'
 import CookiesPage from './pages/cookiesPage/CookiesPage'
 import GaranteesAndRefund from './pages/garanteesAndRefund/GaranteesAndRefund'
 import CookiesComponent from './components/CookiesComponent'
+import { useAccountAuthQuery } from './application/account.service'
+import PromocodePage from './pages/promocodePage/PromocodePage'
 
 const App = () => {
+	const { data: auth } = useAccountAuthQuery(undefined)
 	const [sendError] = useSendErrorMutation()
 	
 	const handler = (error: Error, info: { componentStack: string }) => {
@@ -54,6 +57,8 @@ const App = () => {
 						<Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
 						<Route path="/cookies" element={<CookiesPage />} />
 						<Route path="/garantees" element={<GaranteesAndRefund />} />
+						<Route path="/promocode/:id" element={<PromocodePage />} />
+						{auth?.status === "agent" || (auth?.status === "delegate" && <Route path="/promocode/:id" element={<PromocodePage />} />)}
 						<Route path="*" element={<Navigate to="/" />} />
 					</Routes>
 				</Container>

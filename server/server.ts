@@ -14,11 +14,12 @@ import sdekRoutes from './routes/sdek.routes'
 import authRoutes from './routes/auth.routes'
 import ukassaRoutes from './routes/ukassa.routes'
 import paymentRoutes from './routes/payment.routes'
+import promocodeRoutes from "./routes/promocode.routes"
 import amoRoutes from "./routes/amo.routes"
 import accountRoutes from './routes/account.routes'
 import usersRoutes from "./routes/users.routes"
 import profileRoutes from "./routes/profile.routes"
-import authMiddleware from './middleware/auth.middleware'
+import authMiddleware, { adminAuthMiddleware } from './middleware/auth.middleware'
 import frontLogger from './routes/frontLogger.routes'
 import loyaltyRoutes from './routes/loyalty.routes'
 import cookiesRoutes from "./routes/cookies.routes"
@@ -83,6 +84,8 @@ app.use("/api/ukassa", ukassaRoutes)
 app.use("/api/account", accountRoutes)
 
 app.use("/api/profile", authMiddleware, profileRoutes)
+
+app.use("/api/promocodes", adminAuthMiddleware, promocodeRoutes)
 
 app.use("/api/users", usersRoutes)
 

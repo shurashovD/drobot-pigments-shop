@@ -16,6 +16,7 @@ const ClientSchema = new Schema<IClient, ClientModel>({
 	name: String,
 	orders: [{ type: Types.ObjectId, ref: "Order" }],
 	agentOrders: [{ type: Types.ObjectId, ref: "Order" }],
+	commonPoints: Number,
 	commonOrders: [{ type: Types.ObjectId, ref: "Order" }],
 	delegateOrders: [{ type: Types.ObjectId, ref: "Order" }],
 	cashBack: Number,
@@ -72,8 +73,7 @@ ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ dis
 	try {
 		const formatter = new Intl.NumberFormat('ru', { currency: 'RUB', maximumFractionDigits: 0 })
 		if (this.status === 'common') {
-			const commonOrdersTotal = await OrderModel.find({ _id: { $in: this.commonOrders } })
-				.then(doc => doc.reduce((sum, { total }) => sum + (total || 0), 0))
+			const commonOrdersTotal = this.commonPoints || 0
 			const commonDiscounts = await CommonDiscountModel.find().sort({ lowerTreshold: -1 })
 			if (commonDiscounts.length === 0) {
 				return { nextLevelRequires: ["Бонусная программа не активна"] }
@@ -263,7 +263,7 @@ ClientSchema.methods.refreshPromocodes = async function (this: IClient): Promise
 	}
 }
 
-ClientSchema.methods.getPromocodes = async function (this: IClient, limit: number, skip: number): Promise<IPromocodeDetails[]> {
+ClientSchema.methods.getPromocodes = async function (this: IClient): Promise<IPromocodeDetails[]> {
 	try {
 		if (this.status !== "agent" && this.status !== "delegate") {
 			return []
@@ -272,8 +272,6 @@ ClientSchema.methods.getPromocodes = async function (this: IClient, limit: numbe
 		await this.refreshPromocodes()
 
 		const promocodes = await PromocodeModel.find({ _id: { $in: this.promocodes } })
-			.skip(skip)
-			.limit(limit)
 			.sort({ dateStart: -1 })
 			.populate<{ orders: { cashBack: number; orderId: Omit<IOrder, 'client'> & { client: IClient } }[] }>({
 				path: "orders",
@@ -284,8 +282,18 @@ ClientSchema.methods.getPromocodes = async function (this: IClient, limit: numbe
 			})
 			.then((doc) =>
 				doc.map<IPromocodeDetails>((item) => {
-					const { code, dateFinish, dateStart, _id, status, promocodeTotalCashBack, orders } = item
-					const ordersRes = orders.map<IPromocodeDetails["orders"][0]>(({ cashBack, orderId }) => {
+					const { code, dateFinish, dateStart, _id, promocodeTotalCashBack, orders } = item
+					let status: IPromocodeDetails['status'] = 'created'
+					if ( item.status === 'stopped' || 'finished' ) {
+						status = item.status
+					}
+					if ( dateStart >= new Date() ) {
+						status = 'running'
+					}
+					if (dateFinish >= new Date()) {
+						status = "finished"
+					}
+ 					const ordersRes = orders.map<IPromocodeDetails["orders"][0]>(({ cashBack, orderId }) => {
 						const { client, total } = orderId
 						return { buyer: client.name || 'Неизвестный покупатель', orderCashBack: cashBack, orderTotal: total }
 					})
@@ -307,7 +315,9 @@ ClientSchema.methods.getPromocodes = async function (this: IClient, limit: numbe
 ClientSchema.methods.createPromocode = async function (this: IClient, code: string, dateFinish: string, dateStart: string): Promise<void> {
 	try {
 		if (this.status !== "agent" && this.status !== "delegate") {
-			return
+			const error = new Error("Промокоды не доступны для этого клиента")
+			error.userError = true
+			throw error
 		}
 
 		if ( new Date(Date.parse(dateFinish)) < new Date(Date.now()) ) {

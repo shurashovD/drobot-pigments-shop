@@ -19,11 +19,7 @@ const TableHaed: FC<IProps> = ({ disabled, handler, value }) => {
 				<th className="text-center">Телефон</th>
 				<th className="text-center">Почта</th>
 				<th className="text-center">
-					<Form.Select
-						disabled={disabled}
-						onChange={selectHandler}
-						value={value}
-					>
+					<Form.Select disabled={disabled} onChange={selectHandler} value={value}>
 						<option value="all">Все попользователи</option>
 						<option value="common">Розничный покупатель</option>
 						<option value="agent">Агент</option>

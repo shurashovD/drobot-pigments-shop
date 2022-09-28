@@ -1,4 +1,4 @@
-import { IPromocodeDetails } from './../../shared/index.d';
+import { IPromocodeDetails, IPromocodeDoc } from './../../shared/index.d';
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import { INearestOrder, IOrderPop, ISdekOrderInfo } from "../../shared";
 
@@ -24,9 +24,12 @@ const profileApi = createApi({
 		getDiscount: build.query<{ discountPercentValue?: string; nextLevelRequires: string[] }, undefined>({
 			query: () => "/discount",
 		}),
-		getPromocodes: build.query<{ length: number; promocodes: IPromocodeDetails[] }, { page: number; limit: number }>({
-			query: ({ page, limit }) => `/promocode?page=${page}&limit=${limit}`,
+		getPromocodes: build.query<IPromocodeDoc[], void>({
+			query: () => "/promocode",
 			providesTags: () => ["promocodes"],
+		}),
+		getPromocodeDetails: build.query<IPromocodeDetails, { id: string }>({
+			query: ({ id }) => `/promocode/orders/${id}`
 		}),
 		createPromocode: build.mutation<undefined, { body: { dateStart: string; dateFinish: string; code: string } }>({
 			query: ({ body }) => ({
@@ -64,6 +67,7 @@ export const {
 	useGetSdekInfoQuery,
 	useGetDiscountQuery,
 	useGetPromocodesQuery,
+	useGetPromocodeDetailsQuery,
 	useCreatePromocodeMutation,
 	useUpdatePromocodeMutation,
 	useDeletePromocodeMutation,

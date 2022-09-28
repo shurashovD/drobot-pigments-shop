@@ -28,6 +28,21 @@ router.get('/', async (req: Request<{}, {}, {}, {page?: number, limit?: number, 
     }
 })
 
+router.get("/:id", async (req: Request<{id: string}>, res) => {
+	try {
+		const { id } = req.params
+		const client = await ClientModel.findById(id)
+        if ( !client ) {
+            return res.status(500).json({ message: 'Клиент не найден' })
+        }
+
+        return res.json(client)
+	} catch (e) {
+		logger.error(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
+	}
+})
+
 router.put("/:id", json(), async (req: Request<{id: string}, {}, {status: string}>, res) => {
 	try {
         const { id } = req.params

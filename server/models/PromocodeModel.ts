@@ -1,10 +1,10 @@
-import { IPromocode, IPromocodeDoc } from '../../shared';
+import { IClient, IOrder, IPromocode, IPromocodeDetails, IPromocodeDoc, IPromocodeMethods } from '../../shared';
 import { Model, model, Schema } from "mongoose";
 
-interface IPromocodeModel extends Model<IPromocodeDoc> {
+interface IPromocodeModel extends Model<IPromocodeDoc, {}, IPromocodeMethods> {
 	getPromocode: (id: string) => Promise<IPromocode>
 	getDiscountPercentValue: (id: string) => Promise<number | undefined>
-	check: (args: {id?: string, code?: string}) => Promise<"valid" | "invalid" | "expired">
+	check: (args: { id?: string; code?: string }) => Promise<"valid" | "invalid" | "expired">
 }
 
 const PromocodeSchema = new Schema<IPromocodeDoc, IPromocodeModel>({
@@ -86,6 +86,38 @@ PromocodeSchema.statics.getDiscountPercentValue = async (id: string) => {
 		return promocode.discountPercent
 
 	} catch (e) {
+		throw e
+	}
+}
+
+PromocodeSchema.methods.getDetails = async function(this: IPromocodeDoc): Promise<IPromocodeDetails> {
+	try {
+		return await this.populate<{ orders: { cashBack: number; orderId: Omit<IOrder, "client"> & { client: IClient } }[] }>({
+			path: "orders",
+			populate: {
+				path: "orderId",
+				populate: { path: "client" },
+			},
+		}).then((doc) => {
+			const { code, dateFinish, dateStart, _id, status, promocodeTotalCashBack, orders } = doc
+			const ordersRes = orders.map<IPromocodeDetails["orders"][0]>(
+				({ cashBack, orderId }: { cashBack: number; orderId: Omit<IOrder, "client"> & { client: IClient } }) => {
+					const { client, total } = orderId
+					return { buyer: client.name || "Неизвестный покупатель", orderCashBack: cashBack, orderTotal: total }
+				}
+			)
+			const ordersTotal = orders.reduce(
+				(sum, { orderId }: { cashBack: number; orderId: Omit<IOrder, "client"> & { client: IClient } }) => orderId.total + sum, 0
+			)
+			const total: IPromocodeDetails["total"] = {
+				ordersLength: orders.length,
+				ordersTotal,
+				totalCashBack: promocodeTotalCashBack,
+			}
+			return { code, dateFinish, dateStart, id: _id.toString(), status, total, orders: ordersRes }
+		})
+	} catch(e) {
+		console.log(e)
 		throw e
 	}
 }

@@ -1,5 +1,6 @@
 import { ChangeEvent, FC } from "react"
 import { Button, Form } from "react-bootstrap"
+import { NavLink } from "react-router-dom"
 import { useChangeUserStatusMutation } from "../../application/users.service"
 
 interface IProps {
@@ -37,24 +38,19 @@ const Item: FC<IProps> = (props) => {
     const [action, { isLoading }] = useChangeUserStatusMutation()
 
     return (
-		<tr
-			className={`align-middle ${props.isClaimed && "fw-bold"} ${
-				isLoading && "text-muted"
-			}`}
-		>
-			<td>{props.name}</td>
-			<td className="text-center">
-				{props.phone && parsePhoneValue(props.phone)}
+		<tr className={`align-middle ${props.isClaimed && "fw-bold"} ${isLoading && "text-muted"}`}>
+			<td>
+				<NavLink to={`/admin/client/${props.id}`}>{props.name}</NavLink>
 			</td>
+			<td className="text-center">{props.phone && parsePhoneValue(props.phone)}</td>
+			<td className="text-center">{props.mail}</td>
 			<td className="text-center">{props.mail}</td>
 			<td className="text-center">
 				{props.status ? (
 					<Form.Select
 						disabled={props.status === "none" || isLoading}
 						value={props.status}
-						onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-							action({ id: props.id, status: e.target.value })
-						}
+						onChange={(e: ChangeEvent<HTMLSelectElement>) => action({ id: props.id, status: e.target.value })}
 					>
 						<option value="common">Розничный покупатель</option>
 						<option value="agent">Агент</option>

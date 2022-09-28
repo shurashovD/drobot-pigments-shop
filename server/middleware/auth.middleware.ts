@@ -14,4 +14,16 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
+export const adminAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
+	try {
+		if (req.session.isAdmin) {
+			return next()
+		}
+		return res.status(403).json({ message: "Доступ запрещен" })
+	} catch (e) {
+		logger.error(e)
+		return res.status(500).json({ message: "Ошибка авторизации" })
+	}
+}
+
 export default authMiddleware

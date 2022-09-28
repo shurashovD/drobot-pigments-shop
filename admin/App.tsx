@@ -9,6 +9,7 @@ import HeaderComponent from "./components/HeaderComponent"
 import AmoPage from "./pages/amoPage/AmoPage"
 import CategoryPage from "./pages/categoryPage/CategoryPage"
 import CategoryProductPage from "./pages/categoryPage/CategoryProductPage/CategoryProductPage"
+import ClientPage from "./pages/clientPage/ClientPage"
 import HooksPage from "./pages/hooksPage/HooksPage"
 import LoyaltyPage from "./pages/loyaltyPage/LoyaltyPage"
 import MoySkladPage from "./pages/moySkladPage/MoySkladPage"
@@ -44,6 +45,7 @@ const App = () => {
 					<Route path="/admin/amo" element={<AmoPage />} />
 					<Route path="/admin/users" element={<UsersPage />} />
 					<Route path="/admin/loyalty" element={<LoyaltyPage />} />
+					<Route path="/admin/client/:id" element={<ClientPage />} />
 					<Route path="*" element={<Navigate to="/admin/moy-sklad" />} />
 				</Routes>
 			</Container>
