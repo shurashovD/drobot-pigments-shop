@@ -144,7 +144,6 @@ const Recipient = () => {
 									className="py-3"
 									value={nameVal}
 									onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-									disabled={!!auth?.counterpartyId}
 								/>
 							</Form.Label>
 						</Col>
@@ -155,7 +154,6 @@ const Recipient = () => {
 									className={classNames("py-3", { "border-danger": mailInvalid })}
 									value={mailVal}
 									onChange={mailHandler}
-									disabled={!!auth?.counterpartyId}
 								/>
 							</Form.Label>
 						</Col>
