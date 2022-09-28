@@ -500,10 +500,10 @@ router.post("/handle/customerorder/update", bodyParser.json(), async (req: Reque
 				if (statusId === "a3ab5836-f494-11e8-9ff4-34e80005d6b4") {
 					status = "return"
 				}
-				if (statusId === "a3ab58e1-f494-11e8-9ff4-34e80005d6b5" || statusId === "70dc899b-ee2a-11ec-0a80-07c8000b5983") {
+				if ((statusId === "a3ab58e1-f494-11e8-9ff4-34e80005d6b5") || (statusId === "70dc899b-ee2a-11ec-0a80-07c8000b5983")) {
 					status = "canceled"
 				}
-				if (statusId === "a3ab577e-f494-11e8-9ff4-34e80005d6b3" || statusId === "a2e59618-3b41-11ed-0a80-02a70010365e") {
+				if ((statusId === "a3ab577e-f494-11e8-9ff4-34e80005d6b3") || (statusId === "a2e59618-3b41-11ed-0a80-02a70010365e")) {
 					status = "ready"
 					// обновить статус в Амо;
 					if (order.tradeId) {
