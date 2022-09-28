@@ -259,6 +259,7 @@ export interface IOrder extends Document {
 	promocode?: Types.ObjectId
 	msOrderId?: string
 	msOrderSumRub?: number
+	tradeId: string
 	number: number
 	status: "new" | "payCanceled" | "compiling" | "builded" | "dispatch" | "delivering" | "ready" | "complete" | "canceled" | "return"
 	total: number
@@ -324,6 +325,7 @@ export interface IOrderPop {
 	}>
 	msOrderId?: string
 	msOrderSumRub?: number
+	tradeId: string
 	number: number
 	status: "new" | "payCanceled" | "compiling" | "builded" | "dispatch" | "delivering" | "ready" | "complete" | "canceled" | "return"
 	total: number

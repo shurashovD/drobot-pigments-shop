@@ -15,6 +15,7 @@ import errorHandler, { logger } from '../handlers/errorLogger';
 import createMsOrderHandler from '../handlers/createMsOrderHandler';
 import createPaymentHandler from '../handlers/createPaymentHandler';
 import CartModel from '../models/CartModel';
+import createAmoTrade from '../handlers/createAmoTrade';
 
 const formatter = Intl.DateTimeFormat('ru', {
 	day: 'numeric',
@@ -709,6 +710,11 @@ router.post("/", bodyParser.json(), async (req, res) => {
 
 			// запись информации о заказе "Мой склад" в заказ из БД;
 			await OrderModel.setMsInfo(orderId, { number, msOrderId, msOrderSumRub: sum / 100 })
+
+			// создание заказа в Амо; 
+			if (client.status && client.amoContactId) {
+				await createAmoTrade(orderId, client._id.toString())
+			}
 
 			// создание платежа в Ю-Касса;
 			const { url, id } = await createPaymentHandler(orderId)

@@ -12,6 +12,7 @@ import { getMsOrder } from '../moyskladAPI/orders';
 import OrderModel from '../models/OrderModel';
 import SyncModel from '../models/SyncModel';
 import { logger } from '../handlers/errorLogger';
+import { updTradeStatus } from '../handlers/amoTradeStatus';
 
 const router = Router()
 
@@ -475,14 +476,26 @@ router.post("/handle/customerorder/update", bodyParser.json(), async (req: Reque
 				const msOrder = await getMsOrder(msOrderId)
 				const statusId = msOrder.state.meta.href.split('/').pop()
 				let status: IOrder['status'] | undefined
+				const order = await OrderModel.findOne({ msOrderId })
+				if ( !order ) {
+					return
+				}
 				if ( statusId === 'a3ab517a-f494-11e8-9ff4-34e80005d6af' ) {
 					status = "compiling"
 				}
 				if (statusId === "a3ab53d5-f494-11e8-9ff4-34e80005d6b0") {
 					status = "builded"
+					// обновить статус в Амо;
+					if (order.tradeId) {
+						await updTradeStatus(order.tradeId, "orderBuilded")
+					}
 				}
 				if (statusId === "a3ab5662-f494-11e8-9ff4-34e80005d6b2") {
 					status = "dispatch"
+					// обновить статус в Амо;
+					if (order.tradeId) {
+						await updTradeStatus(order.tradeId, "orderShipped")
+					}
 				}
 				if (statusId === "a3ab5836-f494-11e8-9ff4-34e80005d6b4") {
 					status = "return"
@@ -492,9 +505,12 @@ router.post("/handle/customerorder/update", bodyParser.json(), async (req: Reque
 				}
 				if (statusId === "a3ab577e-f494-11e8-9ff4-34e80005d6b3" || statusId === "e17a3e83-3b2e-11ed-0a80-0e67000c4a44") {
 					status = "ready"
+					// обновить статус в Амо;
+					if (order.tradeId) {
+						await updTradeStatus(order.tradeId, "successComplete")
+					}
 				}
 				if ( typeof status !== 'undefined' ) {
-					const order = await OrderModel.findOne({ msOrderId })
 					if ( order ) {
 						order.status = status
 						await order.save()

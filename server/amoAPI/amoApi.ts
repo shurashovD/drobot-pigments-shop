@@ -328,6 +328,24 @@ export const getPipelines = async (id?: string) => {
     }
 }
 
+const getPipelineStatuses = async (id: string) => {
+	try {
+		const authorization = await amoAuth()
+		if (!authorization) {
+			return
+		}
+
+		const url = `${domain}${paths.pipelines}/${id}/statuses`
+		return await axios
+			.get<IAmoTag, AxiosResponse<{ _embedded: any }>>(url, {
+				headers: { "Content-Type": "application/json", authorization },
+			})
+			.then(({ data }) => data._embedded)
+	} catch (e) {
+		throw e
+	}
+}
+
 const getLeadsTags = async () => {
     try {
         const authorization = await amoAuth()
@@ -395,6 +413,25 @@ export const createTrade = async (contactId: number, products: {name: string, qu
 		throw e
 	}
     
+}
+
+export const setTradeStatus = async (tradeId: string, statusId: number) => {
+	try {
+		const authorization = await amoAuth()
+		if (!authorization) {
+			return
+		}
+
+		const payload = { status_id: statusId }
+
+		return await axios
+			.patch(`${domain}${paths.trade}/${tradeId}`, payload, {
+				headers: { "Content-Type": "application/json", authorization },
+			})
+			.then(({ data }) => data)
+	} catch (e: any) {
+		throw e
+	}
 }
 
 export const createTask = async (text: string, contactId?: number) => {

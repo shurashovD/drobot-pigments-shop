@@ -434,7 +434,7 @@ CartSchema.methods.addProduct = async function ( this: ICartDoc, productId: stri
 		}
 
 		const { name, price = 0 } = product
-		const item: ICartDoc["products"][0] = { price, productId, productName: name, quantity }
+		const item: ICartDoc["products"][0] = { price, productId, productName: name, quantity, checked: true }
 
 		// добавляем товар в корзину, или увеличиваем количество;
 		const index = this.products.findIndex((item) => item.productId === productId)
@@ -489,6 +489,7 @@ CartSchema.methods.addVariant = async function (
 			quantity,
 			variantId,
 			variantName,
+			checked: true
 		}
 
 		// добавляем товар в корзину, или увеличиваем количество;

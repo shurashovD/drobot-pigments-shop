@@ -1,3 +1,4 @@
+import { updTradeStatus } from './../handlers/amoTradeStatus';
 import { createTrade, createTask } from './../amoAPI/amoApi';
 import { getMsOrder, updateMsOrder } from './../moyskladAPI/orders';
 import { ICreateWebHook } from "@a2seven/yoo-checkout";
@@ -53,7 +54,6 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 		const { object } = req.body
         const { id, status, amount } = object
         const order = await OrderModel.findOne({ 'payment.paymentId': id })
-        const orderObj = await OrderModel.getOrder(order?._id.toString())
         const client = await ClientModel.findById(order?.client)
         if ( !order ) {
              return res.end()
@@ -140,42 +140,32 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 				await client.save()
 			}
 
-            // отправление заказа в Амо;
-            if ( client.status && client.amoContactId ) {
-                try {
-                    let products = orderObj.products.map(({ product, quantity }) => ({ name: product.name, quantity }))
-					
-                    const variants = orderObj.variants.map(({ product, variant, quantity }) => {
-                        const name = product.variants.find(({ _id }) => (_id?.toString() === variant.toString()))?.name || 'Неизвестный товар'
-                        return { name, quantity }
-                    })
-                    products = products.concat(variants)
-
-                    const price = orderObj.total
-                    await createTrade(client.amoContactId, products, price)
-                } catch (e) {
-                    console.log(e)
-					logger.error(e)
-                }
-            }
+			// обновить статус в Амо;
+			if ( order.tradeId ) {
+				await updTradeStatus(order.tradeId, "invoicePaid")
+			}
 		}
         if (status === "canceled") {
-            // получение причины отмены платежа;
-            const { cancellation_details } = await getUKPayment(id)
-            if ( cancellation_details ) {
-                const { reason: cancelationReason } = cancellation_details
-                await OrderModel.setPaymentStatus(order._id.toString(), { status, cancelationReason })
-            } else {
-                await OrderModel.setPaymentStatus(order._id.toString(), { status })
-            }
-            await updateMsOrder(order.msOrderId, { description: "Произошла ошибка при оплате, заказ аннулирован" })
-            
-            // создание задачи в Амо;
-            if ( client && client.amoContactId ) {
-                const text = `Заказ ${order.number} не оплачен. Произошла ошибка оплаты.`
-                await createTask(text, client.amoContactId)
-            }
-        }
+			// получение причины отмены платежа;
+			const { cancellation_details } = await getUKPayment(id)
+			if (cancellation_details) {
+				const { reason: cancelationReason } = cancellation_details
+				await OrderModel.setPaymentStatus(order._id.toString(), { status, cancelationReason })
+			} else {
+				await OrderModel.setPaymentStatus(order._id.toString(), { status })
+			}
+			await updateMsOrder(order.msOrderId, { description: "Произошла ошибка при оплате, заказ аннулирован" })
+
+			// создание задачи в Амо;
+			if (client && client.amoContactId) {
+				const text = `Заказ ${order.number} не оплачен. Произошла ошибка оплаты.`
+				await createTask(text, client.amoContactId)
+			}
+			// обновить статус в Амо;
+			if (order.tradeId) {
+				await updTradeStatus(order.tradeId, "notCompleteClosed")
+			}
+		}
         if (status === "waiting_for_capture") {
 			await updateMsOrder(order.msOrderId, {
 				description: "Ожидает подтверждения оплаты в ЛК Ю-Касса",

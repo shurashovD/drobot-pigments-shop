@@ -54,6 +54,7 @@ const OrderSchema = new Schema<IOrder, OrderModel>({
 	msOrderSumRub: Number,
 	number: { type: Number, default: 1 },
 	status: { type: String, default: "new" },
+	tradeId: String,
 	total: Number,
 })
 
