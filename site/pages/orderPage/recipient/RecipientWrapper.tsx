@@ -50,19 +50,19 @@ const RecipientWrapper = () => {
 					<Recipient />
 				</div>
 			</Collapse>
-			<Collapse in={!!recipient?.phone && !!recipient?.name && !!recipient?.mail && activeKey !== "3"}>
+			<Collapse in={(!!recipient?.phone || !!recipient?.name || !!recipient?.mail) && activeKey !== "3"}>
 				<Stack className="mt-5" dir="verical" gap={3}>
 					<div>
 						<span>Получатель: </span>
-						<b>{recipient?.name}</b>
+						<b>{recipient?.name || "не указан"}</b>
 					</div>
 					<div>
 						<span>Телефон: </span>
-						<b>{parsePhoneValue(recipient?.phone || "")}</b>
+						<b>{parsePhoneValue(recipient?.phone || "не указан")}</b>
 					</div>
 					<div>
 						<span>E-mail: </span>
-						<b>{recipient?.mail}</b>
+						<b>{recipient?.mail || "не указана"}</b>
 					</div>
 				</Stack>
 			</Collapse>

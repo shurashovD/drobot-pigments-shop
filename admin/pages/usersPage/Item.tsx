@@ -57,7 +57,7 @@ const Item: FC<IProps> = (props) => {
 						<option value="delegate">Представитель</option>
 					</Form.Select>
 				) : (
-					<>Не зарегисрирован</>
+					<>Не зарегистрирован</>
 				)}
 			</td>
 			<td className="text-center">
