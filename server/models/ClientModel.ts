@@ -184,7 +184,7 @@ ClientSchema.methods.deleteOrder = async function (this: IClient, orderId: strin
 	} catch (e) { throw e }
 }
 
-ClientSchema.methods.addCashBack = async function (this: IClient, cashbackRub: number): Promise<void> {
+ClientSchema.methods.addCashback = async function (this: IClient, cashbackRub: number): Promise<void> {
 	try {
 		this.cashBack = (this.cashBack || 0) + cashbackRub
 		this.totalCashBack = (this.totalCashBack || 0) + cashbackRub
