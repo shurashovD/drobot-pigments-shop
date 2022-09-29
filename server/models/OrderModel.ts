@@ -193,7 +193,7 @@ OrderSchema.methods.bonusHandle = async function(this: IOrder): Promise<void> {
 			// начисление кэшбэка хранителю промокода;
 			const promocodeHolderClient = await ClientModel.findById(promocode.holderClient)
 			if ( promocodeHolderClient ) {
-				await promocodeHolderClient.addCashBack(cashBack)
+				await promocodeHolderClient.addCashback(cashBack)
 			}
 			
 			// сохранение информации о заказе в объект промокода;

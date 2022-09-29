@@ -15,8 +15,7 @@ export const updTradeStatus = async (tradeId: string, status: 'invoiceIssued'|'i
 		if (!statusId) {
 			throw new Error(`Статус ${status} не найден. Установка статуса сделки`)
 		}
-        const res = await setTradeStatus(tradeId, statusId)
-		console.log(res)
+        await setTradeStatus(tradeId, statusId)
 	} catch (e) {
 		throw e
 	}

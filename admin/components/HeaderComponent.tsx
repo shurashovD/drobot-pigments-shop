@@ -62,6 +62,11 @@ const HeaderComponent = () => {
 					</Nav.Link>
 				</Nav.Item>
 				<Nav.Item className="mx-3">
+					<Nav.Link active={/\/cashback/.test(pathname)} as="button" className="btn" onClick={handler} data-to="/admin/cashback">
+						Кэшбэк
+					</Nav.Link>
+				</Nav.Item>
+				<Nav.Item className="mx-3">
 					<Nav.Link active={/\/loyalty/.test(pathname)} as="button" className="btn" onClick={handler} data-to="/admin/loyalty">
 						Лояльность
 					</Nav.Link>

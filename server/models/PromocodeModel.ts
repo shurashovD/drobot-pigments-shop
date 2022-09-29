@@ -101,9 +101,14 @@ PromocodeSchema.methods.getDetails = async function(this: IPromocodeDoc): Promis
 		}).then((doc) => {
 			const { code, dateFinish, dateStart, _id, status, promocodeTotalCashBack, orders } = doc
 			const ordersRes = orders.map<IPromocodeDetails["orders"][0]>(
-				({ cashBack, orderId }: { cashBack: number; orderId: Omit<IOrder, "client"> & { client: IClient } }) => {
-					const { client, total } = orderId
-					return { buyer: client.name || "Неизвестный покупатель", orderCashBack: cashBack, orderTotal: total }
+				({ cashBack: orderCashBack, orderId }: { cashBack: number; orderId: Omit<IOrder, "client"> & { client: IClient } }) => {
+					const { client, total: orderTotal, _id, number } = orderId
+					return {
+						buyer: client.name || "Неизвестный покупатель",
+						orderCashBack, orderTotal,
+						orderId: _id?.toString() || "",
+						orderNumber: number?.toString(),
+					}
 				}
 			)
 			const ordersTotal = orders.reduce(

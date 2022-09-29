@@ -35,6 +35,22 @@ router.get("/by-user/:id", async (req: Request<{ id: string }>, res) => {
 	}
 })
 
+router.get('/details/:id', async (req: Request<{ id: string }>, res) => {
+	try {
+		const { id } = req.params
+		const promocode = await PromocodeModel.findById(id)
+		if ( !promocode ) {
+			return res.status(500).json({ message: 'Промокод не найден' })
+		}
+
+		const details = await promocode.getDetails()
+		return res.json(details)
+	} catch (e) {
+		logger.error(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
+	}
+})
+
 router.post("/", json(), async (req: Request<{}, {}, { code: string, dateStart: string, dateFinish: string, holderId: string }>, res) => {
 	try {
 		const { code, dateFinish, dateStart, holderId } = req.body

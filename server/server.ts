@@ -23,6 +23,7 @@ import authMiddleware, { adminAuthMiddleware } from './middleware/auth.middlewar
 import frontLogger from './routes/frontLogger.routes'
 import loyaltyRoutes from './routes/loyalty.routes'
 import cookiesRoutes from "./routes/cookies.routes"
+import { getTradeFields } from './amoAPI/amoApi'
 
 const PORT = 3000
 

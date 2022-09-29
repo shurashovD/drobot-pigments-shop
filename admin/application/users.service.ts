@@ -1,6 +1,6 @@
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { IClient, IPromocodeDoc } from '../../shared';
+import { ICashbackReport, IClient, IDebiteReport } from '../../shared';
 
 const usersApi = createApi({
 	baseQuery: fetchBaseQuery({ baseUrl: "/api/users" }),
@@ -20,6 +20,7 @@ const usersApi = createApi({
 		}),
 		getClient: build.query<IClient, { id: string }>({
 			query: ({ id }) => `/${id}`,
+			providesTags: () => ["client"],
 		}),
 		changeUserStatus: build.mutation<undefined, { id: string; status: string }>({
 			query: ({ id, status }) => ({
@@ -29,10 +30,31 @@ const usersApi = createApi({
 			}),
 			invalidatesTags: ["users"],
 		}),
+		debiteCashback: build.mutation<undefined, { clientId: string; body: { total: number } }>({
+			query: ({ body, clientId }) => ({
+				body,
+				method: "PUT",
+				url: `/debiting-cashback/${clientId}`,
+			}),
+			invalidatesTags: ["client"],
+		}),
+		getCashbackReport: build.query<ICashbackReport[], { id?: string }>({
+			query: ({ id }) => `/cashback-report/${id}`,
+		}),
+		getDebitesReport: build.query<IDebiteReport, { id: string }>({
+			query: ({ id }) => `/debites-report/${id}`,
+		}),
 	}),
 	reducerPath: "userApi",
-	tagTypes: ["users"],
+	tagTypes: ["users", "client"],
 })
 
-export const { useGetUsersQuery, useGetClientQuery, useChangeUserStatusMutation } = usersApi
+export const {
+	useGetUsersQuery,
+	useGetClientQuery,
+	useChangeUserStatusMutation,
+	useDebiteCashbackMutation,
+	useGetCashbackReportQuery,
+	useGetDebitesReportQuery,
+} = usersApi
 export default usersApi

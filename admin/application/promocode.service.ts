@@ -12,6 +12,9 @@ const promocodeApi = createApi({
 			query: ({ clientId }) => `/by-user/${clientId}`,
 			providesTags: () => ["clientPromocodes"],
 		}),
+		getPromocodeDetails: build.query<IPromocodeDetails, { id: string }>({
+			query: ({ id }) => `/details/${id}`,
+		}),
 		createPromocode: build.mutation<undefined, { code: string; dateStart: string; dateFinish: string; holderId: string }>({
 			query: (body) => ({
 				body,
@@ -43,6 +46,7 @@ const promocodeApi = createApi({
 export const {
     useGetPromocodeQuery,
 	useGetPromocodesByUserQuery,
+	useGetPromocodeDetailsQuery,
     useCreatePromocodeMutation,
     useUpdatePromocodeMutation,
     useDeletePromocodeMutation,

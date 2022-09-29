@@ -383,22 +383,55 @@ const getContactById = async (id: number) => {
 	}
 }
 
-export const createTrade = async (contactId: number, products: {name: string, quantity: number}[], price: number) => {
+export const getTradeFields = async (page = 1) => {
 	try {
 		const authorization = await amoAuth()
 		if (!authorization) {
 			return
 		}
 
+		return await axios
+			.get(`${domain}${paths.trade}/custom_fields?page=${page}`, {
+				headers: { "Content-Type": "application/json", authorization },
+			})
+			.then(({ data }) => data)
+	} catch (e) {
+		throw e
+	}
+}
+
+export const createTrade = async (contactId: number, products: {name: string, quantity: number}[], price: number, number?: string, paymentUrl?: string) => {
+	try {
+		const authorization = await amoAuth()
+		if (!authorization) {
+			return
+		}
+
+		const custom_fields_values = [
+			{
+				field_id: 986327,
+				values: products.map(
+					({ name, quantity }) => ({ value: `${name} ${quantity}шт.` })
+				),
+			}
+		]
+
+		if ( number ) {
+			custom_fields_values.push({
+				field_id: 996789,
+				values: [{ value: number.toString() }]
+			})
+		}
+
+		if ( paymentUrl ) {
+			custom_fields_values.push({
+				field_id: 996787,
+				values: [{ value: paymentUrl }],
+			})
+		}
+
 		const payload = [{
-			custom_fields_values: [
-				{
-					field_id: 986327,
-					values: products.map(
-						({ name, quantity }) => ({ value: `${name} ${quantity}шт.` })
-					),
-				},
-			],
+			custom_fields_values,
 			price: price,
 			pipeline_id: pipelineId,
 			_embedded: {

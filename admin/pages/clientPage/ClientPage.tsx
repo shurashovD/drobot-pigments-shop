@@ -15,7 +15,7 @@ const ClientPage = () => {
             {isLoading && <div className="text-center p-3">
                 <Spinner animation="border" />
             </div>}
-            { data && <ClientInfo availableCashBack={data.cashBack || 0} name={data.name || ''} totalCashBack={data.totalCashBack || 0} /> }
+            { data && <ClientInfo availableCashBack={data.cashBack || 0} name={data.name || ''} totalCashBack={data.totalCashBack || 0} clientId={id} /> }
             { data && <Promocodes clientId={id} /> }
         </Container>
     )

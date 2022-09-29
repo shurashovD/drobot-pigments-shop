@@ -3,7 +3,7 @@ import ClientModel from '../models/ClientModel'
 import OrderModel from '../models/OrderModel'
 import { updTradeStatus } from './amoTradeStatus'
 
-const createAmoTrade = async (orderId: string, clientId: string) => {
+const createAmoTrade = async (orderId: string, clientId: string, number: string, paymentUrl?: string) => {
     try {
         const order = await OrderModel.getOrder(orderId)
         const client = await ClientModel.findById(clientId)
@@ -26,7 +26,7 @@ const createAmoTrade = async (orderId: string, clientId: string) => {
 		products = products.concat(variants)
 
 		const price = order.total
-		const { _embedded } = await createTrade(client.amoContactId, products, price)
+		const { _embedded } = await createTrade(client.amoContactId, products, price, number, paymentUrl)
         const tradeId = _embedded.leads[0].id
         await OrderModel.findByIdAndUpdate(orderId, { tradeId })
         await updTradeStatus(tradeId, "invoiceIssued")

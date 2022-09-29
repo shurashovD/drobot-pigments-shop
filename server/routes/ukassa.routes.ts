@@ -108,7 +108,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 							
 							// начисляем кэшбэк;
 							const cashBack = Math.round(discountedSum * 0.1)
-							await promocodeHolder.addCashBack(cashBack)
+							await promocodeHolder.addCashback(cashBack)
 							promocode.promocodeTotalCashBack += cashBack
 							promocode.orders.unshift({ orderId: order._id, cashBack })
 							await promocodeHolder.save()

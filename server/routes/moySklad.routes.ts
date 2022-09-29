@@ -510,7 +510,6 @@ router.post("/handle/customerorder/update", bodyParser.json(), async (req: Reque
 						await updTradeStatus(order.tradeId, "successComplete")
 					}
 				}
-				console.log(statusId)
 				if ( typeof status !== 'undefined' ) {
 					if ( order ) {
 						order.status = status

@@ -43,6 +43,47 @@ router.get("/:id", async (req: Request<{id: string}>, res) => {
 	}
 })
 
+router.get('/cashback-report/:id', async (req: Request<{ id?: string }>, res) => {
+    try {
+        const { id } = req.params
+        let clients = []
+        if ( id !== "undefined" ) {
+            const client = await ClientModel.findById(id)
+            if ( client ) {
+                clients.push(client)
+            }
+        } else {
+            clients = await ClientModel.find({ status: { $in: ["agent", "delegate"] } })
+        }
+        let result = []
+        for ( const i in clients ) {
+            const item = clients[i]
+            const report = await item.getCashbackReport()
+            result.push(report)
+        }
+        return res.json(result)
+    } catch (e) {
+        logger.error(e)
+        return res.status(500).json({ message: 'Что-то пошло не так...' })
+    }
+})
+
+router.get("/debites-report/:id", async (req: Request<{ id: string }>, res) => {
+	try {
+		const { id } = req.params
+        const client = await ClientModel.findById(id)
+        if (!client) {
+			return res.status(500).json({ message: "Клиент не найден" })
+		}
+
+        const report = await client.getDebitesReport()
+        return res.json(report)
+ 	} catch (e) {
+		logger.error(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
+	}
+})
+
 router.put("/:id", json(), async (req: Request<{id: string}, {}, {status: string}>, res) => {
 	try {
         const { id } = req.params
@@ -67,6 +108,24 @@ router.put("/:id", json(), async (req: Request<{id: string}, {}, {status: string
 		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
+})
+
+router.put('/debiting-cashback/:id', json(), async (req: Request<{id: string}, {}, {total: number}>, res) => {
+    try {
+        const { id } = req.params
+        const client = await ClientModel.findById(id)
+        if (!client ) {
+            return res.status(500).json({ message: 'Клиент не найден' })
+        }
+
+        const { total } = req.body
+        await client.debiteCashback(total)
+        return res.end()
+    } catch (e: any) {
+        logger.error(e)
+        const message = e.userError ? e.message : "Что-то пошло не так..."
+        return res.status(500).json({ message })
+    }
 })
 
 export default router

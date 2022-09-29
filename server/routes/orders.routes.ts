@@ -682,7 +682,7 @@ router.post("/", bodyParser.json(), async (req, res) => {
 			// создание шаблона заказа в БД;
 			const { recipientMail, recipientName } = req.session.delivery
 			let orderId
-			if ( sdek && sdek.checked ) {
+			if (sdek && sdek.checked) {
 				const { tariff_code, address, code } = sdek
 				const sdekForOrder: IOrder["delivery"]["sdek"] = {
 					city_code,
@@ -696,13 +696,13 @@ router.post("/", bodyParser.json(), async (req, res) => {
 				orderId = await client.createTempOrder({ recipientMail, recipientName, sdek: sdekForOrder })
 			}
 
-			if ( pickup && pickup.checked ) {
+			if (pickup && pickup.checked) {
 				orderId = await client.createTempOrder({ recipientMail, recipientName, pickup })
 			}
 
-			if ( !orderId ) {
+			if (!orderId) {
 				logger.error(`Не удалось создать заказ. Пользователь ${client._id.toString()}`)
-				return res.status(500).json({ message: 'Не удалось создать заказ' })
+				return res.status(500).json({ message: "Не удалось создать заказ" })
 			}
 
 			// создание заказа в "Мой склад";
@@ -711,18 +711,18 @@ router.post("/", bodyParser.json(), async (req, res) => {
 			// запись информации о заказе "Мой склад" в заказ из БД;
 			await OrderModel.setMsInfo(orderId, { number, msOrderId, msOrderSumRub: sum / 100 })
 
-			// создание заказа в Амо; 
-			if (client.status && client.amoContactId) {
-				await createAmoTrade(orderId, client._id.toString())
-			}
-
 			// создание платежа в Ю-Касса;
 			const { url, id } = await createPaymentHandler(orderId)
 			await OrderModel.setPaymentInfo(orderId, { paymentId: id, paymentUrl: url })
 
+			// создание заказа в Амо;
+			if (client.status && client.amoContactId) {
+				await createAmoTrade(orderId, client._id.toString(), number, url)
+			}
+
 			// запись информации о платеже в заказ из БД;
 			try {
-				await OrderModel.findByIdAndUpdate(orderId, { 'payment.paymentId': id })
+				await OrderModel.findByIdAndUpdate(orderId, { "payment.paymentId": id })
 			} catch (e: any) {
 				const err = new Error()
 				err.userError = true
@@ -730,7 +730,7 @@ router.post("/", bodyParser.json(), async (req, res) => {
 				throw err
 			}
 
-			cart.products = cart.products.filter(({ checked }) => (!checked))
+			cart.products = cart.products.filter(({ checked }) => !checked)
 			cart.variants = cart.variants.filter(({ checked }) => !checked)
 			await cart.save()
 

@@ -1,5 +1,5 @@
 import OrderModel from './OrderModel'
-import { ClientModel, IClient, IOrder, IOrderPop, IPromocode, IPromocodeDetails } from '../../shared';
+import { ClientModel, ICashbackReport, IClient, IDebiteReport, IOrder, IOrderPop, IPromocode, IPromocodeDetails, IPromocodeDoc } from '../../shared';
 import { model, Schema, Types } from 'mongoose'
 import CommonDiscountModel from './CommonDiscountModel';
 import AgentDiscountModel from './AgentDiscountModel';
@@ -21,12 +21,13 @@ const ClientSchema = new Schema<IClient, ClientModel>({
 	delegateOrders: [{ type: Types.ObjectId, ref: "Order" }],
 	cashBack: Number,
 	totalCashBack: Number,
+	cashbackDebites: [{ date: Date, total: Number, orderId: { type: Types.ObjectId, ref: "Order" } }],
 	claimedStatus: String,
 	promocodes: [{ type: Schema.Types.ObjectId, ref: "Promocode" }],
 	status: String,
 	sid: String,
 	tel: { type: String, required: true },
-	total: { type: Number, default: 0 }
+	total: { type: Number, default: 0 },
 })
 
 ClientSchema.methods.getOrder = async function(this: IClient, id: string): Promise<IOrderPop> {
@@ -153,10 +154,7 @@ ClientSchema.methods.createTempOrder = async function (
 		}).save()
 
 		if (cart.useCashBack && cart.availableCashBack) {
-			if (!this.cashBack || this.cashBack < cart.availableCashBack) {
-				throw new Error("У клиента не достаточно кэшбэка для оплаты")
-			}
-			this.cashBack -= cart.availableCashBack
+			this.debiteCashback(cart.availableCashBack, order._id)
 			cart.useCashBack = false
 			await cart.save()
 		}
@@ -290,12 +288,14 @@ ClientSchema.methods.getPromocodes = async function (this: IClient): Promise<IPr
 					if ( dateStart >= new Date() ) {
 						status = 'running'
 					}
-					if (dateFinish >= new Date()) {
+					if (dateFinish <= new Date()) {
 						status = "finished"
 					}
  					const ordersRes = orders.map<IPromocodeDetails["orders"][0]>(({ cashBack, orderId }) => {
-						const { client, total } = orderId
-						return { buyer: client.name || 'Неизвестный покупатель', orderCashBack: cashBack, orderTotal: total }
+						const { client, total, _id, number } = orderId
+						return {
+							buyer: client.name || 'Неизвестный покупатель', orderCashBack: cashBack, orderTotal: total, orderId: _id.toString(), orderNumber: number.toString()
+						}
 					})
 					const ordersTotal = orders.reduce((sum, { orderId }) => orderId.total + sum, 0)
 					const total: IPromocodeDetails["total"] = {
@@ -411,6 +411,67 @@ ClientSchema.methods.useCashbackToggle = async function (this: IClient): Promise
 
 		cart.useCashBack = !cart.useCashBack
 		await cart.save()
+	} catch (e) {
+		throw e
+	}
+}
+
+ClientSchema.methods.debiteCashback = async function (this: IClient, total: number, orderId?: Types.ObjectId): Promise<void> {
+	try {
+		if (!this.cashBack || this.cashBack < total) {
+			const err = new Error("У клиента не достаточно кэшбэка")
+			err.userError = true
+			throw err
+		}
+
+		this.cashBack -= total
+		if ( orderId ) {
+			this.cashbackDebites.push({ date: new Date(), total, orderId })
+		} else {
+			this.cashbackDebites.push({ date: new Date(), total })
+		}
+		await this.save()
+	} catch (e) {
+		throw e
+	}
+}
+
+ClientSchema.methods.getCashbackReport = async function (this: IClient): Promise<ICashbackReport> {
+	try {
+		return await this.populate<{ promocodes: IPromocodeDoc[] }>('promocodes')
+			.then(doc => {
+				const promocodes = doc.promocodes.map(({ _id, code, promocodeTotalCashBack }: IPromocodeDoc) => (
+					{ id: _id.toString(), code, cashbackTotal: promocodeTotalCashBack }
+				))
+				const totalCashback = this.totalCashBack || 0
+				const availableCashBack = this.cashBack || 0
+				const totalDebites = this.cashbackDebites.reduce((sum, { total }) => (sum + total), 0)
+				const name = this.name || 'Неизвестный покупатель'
+				const clientId = this._id.toString()
+				return { availableCashBack, promocodes, totalCashback, totalDebites, name, clientId }
+			})
+	} catch (e) {
+		throw e
+	}
+}
+
+ClientSchema.methods.getDebitesReport = async function (this: IClient): Promise<IDebiteReport> {
+	try {
+		return await this.populate<{ cashbackDebites: Omit<IDebiteReport['debites'][0], 'orderId'> & {orderId: IOrder}[] }>({
+			path: 'promocodes', populate: { path: 'orderId' }
+		})
+		.then((doc) => {
+			const debites = doc.cashbackDebites.map<IDebiteReport["debites"][0]>(
+				({ date, total, orderId }: any) => ({
+					date, debite: total,
+					orderId: orderId?._id.toString(),
+					order: orderId?.number,
+					orderTotal: orderId?.total
+				})
+			)
+			const name = this.name || 'Неизвестный пользователь'
+			return { debites, name }
+		})
 	} catch (e) {
 		throw e
 	}

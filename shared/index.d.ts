@@ -1,4 +1,4 @@
-import { Document, Model, Types } from "mongoose"
+import { Document, Model, Schema, Types } from "mongoose"
 import { FC, SVGProps } from "react"
 
 interface IAmoStatuses {
@@ -379,47 +379,33 @@ export interface IPromocodeDetails {
 		buyer: string
 		orderTotal: number
 		orderCashBack: number
+		orderId: string
+		orderNumber?: string
 	}[]
 }
 
-export interface IClient extends Document {
-	addresses: string[]
-	amoContactId?: number
-	cartId?: Types.ObjectId
-	counterpartyId?: string
-	mail?: string
-	name?: string
-	orders: Types.ObjectId[]
-	tel: string
-	commonPoints?: number
-	commonOrders: Types.ObjectId[]
-	agentOrders: Types.ObjectId[]
-	delegateOrders: Types.ObjectId[]
-	status?: string
-	claimedStatus?: string
-	promocodes?: Types.ObjectId[]
-	cashBack?: number
-	sid?: string
-	totalCashBack?: number
-	total?: number
-	createTempOrder(args: {
-		sdek?: IOrder["delivery"]["sdek"]
-		pickup?: IOrder["delivery"]["pickup"]
-		recipientName?: string
-		recipientMail?: string
-	}): Promise<string>
-	deleteOrder(orderId: string): Promise<void>
-	getDiscount(): Promise<{ discountPercentValue?: number; nextLevelRequires: string[] }>
-	getOrder(id: string): Promise<IOrderPop>
-	getNearestOrder(): Promise<IOrderPop | undefined>
-	addCashBack(cashbackRub: number): Promise<void>
-	mergeCart(mergedCartId: string): Promise<void>
-	refreshPromocodes(): Promise<void>
-	getPromocodes(): Promise<IPromocodeDetails[]>
-	createPromocode(code: string, dateFinish: string, dateStart: string): Promise<void>
-	setPromocodeInCart(code: string): Promise<void>
-	resetPromocodeInCart(): Promise<void>
-	useCashbackToggle(): Promise<void>
+export interface ICashbackReport {
+	clientId: string
+	name: string
+	promocodes: {
+		id: string
+		code: string
+		cashbackTotal: number
+	}[]
+	totalCashback: number
+	totalDebites: number
+	availableCashBack: number
+}
+
+export interface IDebiteReport {
+	name: string
+	debites: {
+		date: Date
+		order?: string
+		orderId?: string
+		orderTotal?: number
+		debite: number
+	}[]
 }
 
 export interface IClientMethods {
@@ -429,7 +415,10 @@ export interface IClientMethods {
 		recipientName?: string
 		recipientMail?: string
 	}): Promise<string>
+	debiteCashback(total: number, orderId?: Types.ObjectId): Promise<void>
 	deleteOrder(orderId: string): Promise<void>
+	getCashbackReport(): Promise<ICashbackReport>
+	getDebitesReport(): Promise<IDebiteReport>
 	getOrder(id: string): Promise<IOrderPop>
 	getDiscount(): Promise<{ discountPercentValue?: number; nextLevelRequires: string[] }>
 	getNearestOrder(): Promise<IOrderPop | undefined>
@@ -441,6 +430,33 @@ export interface IClientMethods {
 	setPromocodeInCart(code: string): Promise<void>
 	resetPromocodeInCart(): Promise<void>
 	useCashbackToggle(): Promise<void>
+}
+
+export interface IClient extends Document, IClientMethods {
+	addresses: string[]
+	amoContactId?: number
+	cartId?: Types.ObjectId
+	counterpartyId?: string
+	mail?: string
+	name?: string
+	orders: Types.ObjectId[]
+	tel: string
+	commonPoints?: number
+	cashbackDebites: {
+		date: Date
+		total: number
+		orderId?: Types.ObjectId
+	}[]
+	commonOrders: Types.ObjectId[]
+	agentOrders: Types.ObjectId[]
+	delegateOrders: Types.ObjectId[]
+	status?: string
+	claimedStatus?: string
+	promocodes?: Types.ObjectId[]
+	cashBack?: number
+	sid?: string
+	totalCashBack?: number
+	total?: number
 }
 
 export interface ClientModel extends Model<IClient, {}, IClientMethods> {}

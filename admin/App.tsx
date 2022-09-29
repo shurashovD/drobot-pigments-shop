@@ -7,6 +7,7 @@ import { setOrders } from "./application/ordersSlice"
 import AlertComponent from "./components/AlertComponent"
 import HeaderComponent from "./components/HeaderComponent"
 import AmoPage from "./pages/amoPage/AmoPage"
+import CashbackPage from "./pages/cashbackPage/CashbackPage"
 import CategoryPage from "./pages/categoryPage/CategoryPage"
 import CategoryProductPage from "./pages/categoryPage/CategoryProductPage/CategoryProductPage"
 import ClientPage from "./pages/clientPage/ClientPage"
@@ -16,6 +17,7 @@ import MoySkladPage from "./pages/moySkladPage/MoySkladPage"
 import OrderPage from "./pages/ordersPage/OrderPage"
 import OrdersPage from "./pages/ordersPage/OrdersPage"
 import ProductsPage from "./pages/productsPage/ProductsPage"
+import PromocodePage from "./pages/promocodePage/PromocodePage"
 import UsersPage from "./pages/usersPage/UsersPage"
 
 const App = () => {
@@ -46,6 +48,8 @@ const App = () => {
 					<Route path="/admin/users" element={<UsersPage />} />
 					<Route path="/admin/loyalty" element={<LoyaltyPage />} />
 					<Route path="/admin/client/:id" element={<ClientPage />} />
+					<Route path="/admin/cashback" element={<CashbackPage />} />
+					<Route path="/admin/promocode/:id" element={<PromocodePage />} />
 					<Route path="*" element={<Navigate to="/admin/moy-sklad" />} />
 				</Routes>
 			</Container>
