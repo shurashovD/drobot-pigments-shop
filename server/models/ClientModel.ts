@@ -457,19 +457,18 @@ ClientSchema.methods.getCashbackReport = async function (this: IClient): Promise
 
 ClientSchema.methods.getDebitesReport = async function (this: IClient): Promise<IDebiteReport> {
 	try {
-		return await this.populate<{ cashbackDebites: Omit<IDebiteReport['debites'][0], 'orderId'> & {orderId: IOrder}[] }>({
-			path: 'promocodes', populate: { path: 'orderId' }
-		})
-		.then((doc) => {
-			const debites = doc.cashbackDebites.map<IDebiteReport["debites"][0]>(
-				({ date, total, orderId }: any) => ({
-					date, debite: total,
-					orderId: orderId?._id.toString(),
-					order: orderId?.number,
-					orderTotal: orderId?.total
-				})
-			)
-			const name = this.name || 'Неизвестный пользователь'
+		return await this.populate<{ cashbackDebites: Omit<IDebiteReport["debites"][0], "orderId"> & { orderId: IOrder }[] }>({
+			path: "cashbackDebites",
+			populate: { path: "orderId" },
+		}).then((doc) => {
+			const debites = doc.cashbackDebites.map<IDebiteReport["debites"][0]>(({ date, total, orderId }: any) => ({
+				date,
+				debite: total,
+				orderId: orderId?._id.toString(),
+				order: orderId?.number,
+				orderTotal: orderId?.total,
+			}))
+			const name = this.name || "Неизвестный пользователь"
 			return { debites, name }
 		})
 	} catch (e) {

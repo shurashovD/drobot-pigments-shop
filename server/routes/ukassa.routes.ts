@@ -100,11 +100,11 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 							// вычисляем сумму товаров, купленных по промокоду;
 							const discountedProductsSum = order.products
 								.filter(async ({ product }) => await ProductModel.isDiscounted(product.toString()))
-								.reduce((sum, { price }) => sum + price, 0)
+								.reduce((sum, { price, quantity }) => sum + price * quantity, 0)
 							// прибавляем к ней сумму модификаций, купленных по промокоду;
 							const discountedSum = order.variants
 								.filter(async ({ product }) => await ProductModel.isDiscounted(product.toString()))
-								.reduce((sum, { price }) => sum + price, discountedProductsSum)
+								.reduce((sum, { price, quantity }) => sum + price * quantity, discountedProductsSum)
 							
 							// начисляем кэшбэк;
 							const cashBack = Math.round(discountedSum * 0.1)

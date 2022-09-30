@@ -105,14 +105,16 @@ PromocodeSchema.methods.getDetails = async function(this: IPromocodeDoc): Promis
 					const { client, total: orderTotal, _id, number } = orderId
 					return {
 						buyer: client.name || "Неизвестный покупатель",
-						orderCashBack, orderTotal,
+						orderCashBack,
+						orderTotal,
 						orderId: _id?.toString() || "",
 						orderNumber: number?.toString(),
 					}
 				}
 			)
 			const ordersTotal = orders.reduce(
-				(sum, { orderId }: { cashBack: number; orderId: Omit<IOrder, "client"> & { client: IClient } }) => orderId.total + sum, 0
+				(sum, { orderId }: { cashBack: number; orderId: Omit<IOrder, "client"> & { client: IClient } }) => orderId.total + sum,
+				0
 			)
 			const total: IPromocodeDetails["total"] = {
 				ordersLength: orders.length,

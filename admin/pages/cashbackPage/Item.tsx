@@ -23,7 +23,7 @@ const Item: FC<ICashbackReport> = (props) => {
 					)}
 					{index === 0 && (
 						<td rowSpan={props.promocodes.length} className="text-center">
-							{props.totalDebites}
+							<NavLink to={`/admin/client/debites/${props.clientId}`}>{props.totalDebites}</NavLink>
 						</td>
 					)}
 					{index === 0 && (
