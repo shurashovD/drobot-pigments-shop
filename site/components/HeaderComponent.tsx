@@ -162,9 +162,14 @@ const HeaderComponent = () => {
 					</div>
 				</div>
 			</Collapse>
-			<Container fluid
-				className={classNames("py-2 bg-primary position-absolute", {"bg-transparent": scrollingTop}, {"pt-0": scrollingTop})}
-				id="header-menu">
+			<Container
+				fluid
+				className={classNames(
+					"py-2 bg-primary",
+					{ "bg-transparent pt-0 position-absolute": scrollingTop && pathname === "/" }
+				)}
+				id="header-menu"
+			>
 				<Container className="p-0 my-0">
 					<Row className="p-0 my-0 justify-content-start">
 						<Col xs={3} lg={5} className="d-flex justify-content-between align-items-center">
