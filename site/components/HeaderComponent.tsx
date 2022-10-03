@@ -15,6 +15,7 @@ import { setCategories } from "../application/categoriesSlice"
 import NavCatalogMobile from "./NavCatalogMobile"
 import CartIconComponent from "./CartIconComponent"
 import HeaderAccountComponent from "./HeaderAccountComponent"
+import classNames from "classnames"
 const waLogo = require('../img/whatsup.svg')
 const logo = require('../img/logo.svg')
 
@@ -135,7 +136,6 @@ const HeaderComponent = () => {
 			</Offcanvas>
 			<Collapse in={scrollingTop}>
 				<div>
-					<p className="bg-primary text-center text-white m-0 p-1"></p>
 					<div className="d-none d-lg-block bg-light p-2">
 						<Container>
 							<Row>
@@ -151,7 +151,7 @@ const HeaderComponent = () => {
 										<span>Напиcать в WhatsApp</span>
 									</a>
 								</Col>
-								<Col xs={6} lg={5} className="ms-auto d-flex align-items-center justify-content-between">
+								<Col xs={6} className="ms-auto d-flex align-items-center justify-content-between">
 									<NavLink to="/about">О бренде</NavLink>
 									<NavLink to="/partner-program">Cотрудничество</NavLink>
 									<NavLink to="/delivery">Доставка и оплата</NavLink>
@@ -162,9 +162,11 @@ const HeaderComponent = () => {
 					</div>
 				</div>
 			</Collapse>
-			<Container fluid className="py-2 bg-primary position-relative" id="header-menu">
+			<Container fluid
+				className={classNames("py-2 bg-primary position-absolute", {"bg-transparent": scrollingTop}, {"pt-0": scrollingTop})}
+				id="header-menu">
 				<Container className="p-0 my-0">
-					<Row className="p-0 my-0">
+					<Row className="p-0 my-0 justify-content-start">
 						<Col xs={3} lg={5} className="d-flex justify-content-between align-items-center">
 							<Button variant="link" className="d-lg-none m-0 p-0 m-auto" onClick={() => setMobileMenuShow(true)}>
 								<IconMenu stroke="#ffffff" />
@@ -181,9 +183,9 @@ const HeaderComponent = () => {
 								</a>
 							</div>
 						</Col>
-						<Col xs={6} lg={2} className="text-center">
+						<Col xs={6} lg={2} className="text-center pt-1">
 							<NavLink to="/">
-								<img src={logo} ref={logoRef} className="header-logo-increase" />
+								<Image src={logo} ref={logoRef} className="header-logo-increase" fluid />
 							</NavLink>
 						</Col>
 						<Col xs={3} lg={5} className="d-flex align-items-center justify-content-between">

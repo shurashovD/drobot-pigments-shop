@@ -41,7 +41,7 @@ const App = () => {
 				<HeaderComponent />
 				<AuthComponent />
 				<CookiesComponent />
-				<Container fluid className="pt-4">
+				<Container fluid className="m-0 p-0">
 					<Routes>
 						<Route path="/" element={<MainPage />} />
 						<Route path="/category/:id/:filters" element={<CategoryPage />} />

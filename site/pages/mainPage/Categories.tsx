@@ -83,7 +83,6 @@ const Categories = () => {
 							category={categories.find(({ frontEndKey }) => frontEndKey === "brows")}
 							widthToHeight={185 / 118}
 							title="Brows Care"
-							description="коррекция и  окрашивание бровей"
 						/>
 					</Col>
 				</Row>

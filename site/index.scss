@@ -5,20 +5,20 @@
 
 @keyframes headerLogoAnimate {
     0% {
-        height: 40px;
+        height: 36px;
     }
     100% {
-        height: 114px;
+        height: 70px;
     }
 }
 
 @keyframes headerLogoAnimateReverse {
     0% {
-        height: 114px;
+        height: 70px;
     }
 
     100% {
-        height: 40px;
+        height: 36px;
     }
 }
 
@@ -216,6 +216,16 @@ input:focus,
     background-color: transparent !important;
 }
 
+#intro-container {
+    position: relative;
+    padding-top: 42%;
+}
+#intro-container > div {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 .footer__link {
     color: $gray2;
 }
@@ -282,7 +292,7 @@ input:focus,
     animation-iteration-count: 1;
     animation-direction: normal;
     animation-fill-mode: forwards;
-    height: 114px;
+    height: 70px;
 }
 
 .header-logo-decrease {
@@ -293,7 +303,7 @@ input:focus,
     animation-iteration-count: 1;
     animation-direction: normal;
     animation-fill-mode: forwards;
-    height: 40px;
+    height: 36px;
 }
 
 .catalog-mobile-list-item {
@@ -673,10 +683,16 @@ hr {
 }
 
 @media (max-width: 576px) {
+    #intro-container {
+        position: relative;
+        padding-top: 121.5%;
+    }
+
     .category-card__label {
         font-size: 11px;
         min-height: 45px;
         position: relative;
+        bottom: 8px !important;
         background-color: rgba($primary, 1) !important;
     }
 
