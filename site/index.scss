@@ -301,12 +301,24 @@ input:focus,
     background-position: 0 0;
 }
 
+.category-card {
+    cursor: pointer;
+}
+.category-card:hover > .category-card__label {
+    color: $primary !important;
+    background-color: rgba($secondary, 0.84) !important;
+    transition: .2s;
+}
+
 .category-card__label {
-    min-height: 60px;
+    min-height: 58px;
+    background-color: rgba($primary, 0.84) !important;
+    position: absolute;
+    color: $secondary;
 }
 .category-card__label:hover {
-    color: $secondary !important;
-    background-color: $primary !important;
+    color: $primary !important;
+    background-color: rgba($secondary, 0.84) !important;
     transition: .2s;
 }
 
@@ -661,6 +673,13 @@ hr {
 }
 
 @media (max-width: 576px) {
+    .category-card__label {
+        font-size: 11px;
+        min-height: 45px;
+        position: relative;
+        background-color: rgba($primary, 1) !important;
+    }
+
     .cart-item-name {
         font-size: 80%;
     }

@@ -1,107 +1,89 @@
-import { useCallback, useEffect, useRef, useState } from "react"
 import { Col, Container, Row } from "react-bootstrap"
 import { useAppSelector } from "../../application/hooks"
 import CategoryItem from "./CategoryItem"
 
 const Categories = () => {
     const { categories } = useAppSelector(state => state.categoriesSlice)
-    const [width, setWidth] = useState('auto')
-	const container = useRef<HTMLDivElement | null>(null)
-
-	useEffect(() => {
-		/*if ( container.current ) {
-			const width = 1.65 * document.documentElement.clientHeight
-			if ( width < container.current.offsetWidth ) {
-				setWidth(`${width}px`)
-			}
-		}*/
-	}, [container])
 
     return (
-		<Container className="pb-6" ref={container}>
+		<Container className="pb-6">
 			<h3>Популярные категории</h3>
 			{categories.length > 0 && (
-				<Row className="d-none d-xl-flex g-5" style={{ width }}>
-					<Col xl={6}>
+				<Row className="g-4 g-xl-5 d-none d-md-flex justify-content-center">
+					<Col xs={12} xl={6}>
 						<CategoryItem
-							category={categories.find(
-								({ frontEndKey }) => frontEndKey === "pigments"
-							)}
+							category={categories.find(({ frontEndKey }) => frontEndKey === "pigments")}
+							widthToHeight={558 / 167}
+							title="Пигменты  Drobot Pigments"
 						/>
 					</Col>
-					<Col xl={6}>
-						<Row className="g-5" xl={2}>
-							<Col>
-								<CategoryItem
-									category={categories.find(
-										({ frontEndKey }) =>
-											frontEndKey === "eqipment"
-									)}
-								/>
-							</Col>
-							<Col>
-								<CategoryItem
-									category={categories.find(
-										({ frontEndKey }) =>
-											frontEndKey === "remove"
-									)}
-								/>
-							</Col>
-							<Col>
-								<CategoryItem
-									category={categories.find(
-										({ frontEndKey }) =>
-											frontEndKey === "clothes"
-									)}
-								/>
-							</Col>
-							<Col>
-								<CategoryItem
-									category={categories.find(
-										({ frontEndKey }) =>
-											frontEndKey === "brows"
-									)}
-								/>
-							</Col>
-						</Row>
+					<Col xs={6} xl={3}>
+						<CategoryItem
+							category={categories.find(({ frontEndKey }) => frontEndKey === "eqipment")}
+							widthToHeight={264 / 167}
+							title="Оборудование и расходники"
+						/>
+					</Col>
+					<Col xs={6} xl={3}>
+						<CategoryItem
+							category={categories.find(({ frontEndKey }) => frontEndKey === "remove")}
+							widthToHeight={264 / 167}
+							title="Удаление  ПМ"
+						/>
+					</Col>
+					<Col xs={6} xl={3}>
+						<CategoryItem
+							category={categories.find(({ frontEndKey }) => frontEndKey === "clothes")}
+							widthToHeight={264 / 167}
+							title="Форма  Drobot Fashion"
+						/>
+					</Col>
+					<Col xs={6} xl={3}>
+						<CategoryItem
+							category={categories.find(({ frontEndKey }) => frontEndKey === "brows")}
+							widthToHeight={264 / 167}
+							title="Brows Care"
+							description="коррекция и  окрашивание бровей"
+						/>
 					</Col>
 				</Row>
 			)}
 			{categories.length > 0 && (
-				<Row className="d-xl-none g-5" xs={1} md={2}>
-					<Col>
+				<Row className="g-2 d-md-none">
+					<Col xs={12}>
 						<CategoryItem
-							category={categories.find(
-								({ frontEndKey }) => frontEndKey === "pigments"
-							)}
+							category={categories.find(({ frontEndKey }) => frontEndKey === "pigments")}
+							widthToHeight={558 / 167}
+							title="Пигменты  Drobot Pigments"
 						/>
 					</Col>
-					<Col>
+					<Col xs={6}>
 						<CategoryItem
-							category={categories.find(
-								({ frontEndKey }) => frontEndKey === "eqipment"
-							)}
+							category={categories.find(({ frontEndKey }) => frontEndKey === "eqipment")}
+							widthToHeight={185 / 118}
+							title="Оборудование и расходники"
 						/>
 					</Col>
-					<Col>
+					<Col xs={6}>
 						<CategoryItem
-							category={categories.find(
-								({ frontEndKey }) => frontEndKey === "remove"
-							)}
+							category={categories.find(({ frontEndKey }) => frontEndKey === "remove")}
+							widthToHeight={185 / 118}
+							title="Удаление  ПМ"
 						/>
 					</Col>
-					<Col>
+					<Col xs={6}>
 						<CategoryItem
-							category={categories.find(
-								({ frontEndKey }) => frontEndKey === "clothes"
-							)}
+							category={categories.find(({ frontEndKey }) => frontEndKey === "clothes")}
+							widthToHeight={185 / 118}
+							title="Форма  Drobot Fashion"
 						/>
 					</Col>
-					<Col>
+					<Col xs={6}>
 						<CategoryItem
-							category={categories.find(
-								({ frontEndKey }) => frontEndKey === "brows"
-							)}
+							category={categories.find(({ frontEndKey }) => frontEndKey === "brows")}
+							widthToHeight={185 / 118}
+							title="Brows Care"
+							description="коррекция и  окрашивание бровей"
 						/>
 					</Col>
 				</Row>

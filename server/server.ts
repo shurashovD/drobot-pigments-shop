@@ -45,6 +45,8 @@ app.engine('hbs', engine({ defaultLayout: 'main', extname: '.hbs' }))
 app.set('view engine', 'hbs')
 app.set('views', path.join(__dirname, 'views'))
 
+app.use("/static", express.static(path.join(__dirname, 'static')))
+
 app.use(
 	session({
 		secret: config.get("sessionSecret"),
@@ -59,8 +61,6 @@ app.use(
 		}),
 	})
 )
-
-app.use('/static', express.static(path.join(__dirname, 'static')))
 
 app.use("/api/amo", amoRoutes)
 
