@@ -140,7 +140,7 @@ const HeaderComponent = () => {
 						<Container>
 							<Row>
 								<Col xs={3} lg="auto" className="d-flex flex-column justify-content-center">
-									<a href="tel:+79189787010">+7(918)97-87-010</a>
+									<a href="tel:+79189787010">+7(918)978-70-10</a>
 								</Col>
 								<Col xs={3} lg={3} className="d-flex flex-column">
 									<a

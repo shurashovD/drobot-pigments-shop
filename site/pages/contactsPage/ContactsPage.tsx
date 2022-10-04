@@ -11,7 +11,7 @@ const ContactsPage = () => {
 						<div className="mb-4 mb-lg-5 text-muted">
 							Служба поддержки клиентов: <br className="d-lg-none" />
 							<a href="tel:+79189787010" className="text-primary">
-								+7(918)97-87-010
+								+7(918)978-70-10
 							</a>
 						</div>
 						<div className="mb-4 mb-lg-5 text-muted">
