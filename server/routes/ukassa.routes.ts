@@ -71,18 +71,14 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 			// создание заказа в СДЭК;
 			if ( !!order.delivery.sdek?.tariff_code ) {
 				const uuid = await createSdekOrderHandler(order._id.toString())
-				console.log(uuid)
 				if ( uuid ) {
 					try {
 						const sdekOrderInfo = await sdekGetOrderInfo(uuid)
-						console.log(sdekOrderInfo);
 						const sdekNumber = sdekOrderInfo?.number
-						console.log(sdekNumber)
 						if ( sdekNumber ) {
 							// добавление трэк-номера в сделку Амо;
 							const trackUrl = `https://www.cdek.ru/ru/tracking?order_id=${sdekNumber}`
 							try {
-								console.log(order.tradeId)
 								if (order.tradeId && sdekNumber) {
 									await setTradeSdekTrackId(order.tradeId, sdekNumber)
 								}

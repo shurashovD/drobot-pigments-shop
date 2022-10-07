@@ -487,8 +487,7 @@ export const setTradeSdekTrackId = async (tradeId: string, track: string) => {
 			.patch(`${domain}${paths.trade}/${tradeId}`, payload, {
 				headers: { "Content-Type": "application/json", authorization },
 			}).then(({ data }) => data)
-
-		console.log(result)
+		return result
 	} catch (e: any) {
 		console.log(e.response.data["validation-errors"][0].errors)
 		throw e
