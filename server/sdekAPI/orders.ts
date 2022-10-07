@@ -29,9 +29,10 @@ export const sdekGetOrderInfo = async (uuid: string) => {
     try {
         const url = `${sdek.url}/orders/${uuid}`
 		const Authorization = await sdekAuth()
-		return await axios.get<ISdekOrderInfo['entity'], AxiosResponse<ISdekOrderInfo>>(url, {
+		const result = await axios.get<ISdekOrderInfo['entity'], AxiosResponse<ISdekOrderInfo>>(url, {
 			headers: { Authorization },
 		}).then(({ data }) => data.entity)
+        return result
     }
     catch (e: any) {
         const err = new Error('Информация из ТК не получена...')

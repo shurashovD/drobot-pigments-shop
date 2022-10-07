@@ -14,6 +14,7 @@ import ClientModel from '../models/ClientModel';
 import PromocodeModel from '../models/PromocodeModel';
 import { logger } from '../handlers/errorLogger';
 import ProductModel from '../models/ProductModel';
+import { sdekGetOrderInfo } from '../sdekAPI/orders';
 
 const router = Router()
 
@@ -70,22 +71,31 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 			// создание заказа в СДЭК;
 			if ( !!order.delivery.sdek?.tariff_code ) {
 				const uuid = await createSdekOrderHandler(order._id.toString())
-				const trackUrl = `https://www.cdek.ru/ru/tracking?order_id=${uuid}`
-				// привязка заявки СДЭК к заказу в "Мой склад";
-				const msOrder = await getMsOrder(order.msOrderId)
-				await updateMsOrder(order.msOrderId, { shipmentAddress: `${msOrder.shipmentAddress || ""}; СДЭК ${uuid}` })
+				if ( uuid ) {
+					try {
+						const sdekOrderInfo = await sdekGetOrderInfo(uuid)
+						const sdekNumber = sdekOrderInfo?.cdek_number
+						if ( sdekNumber ) {
+							// добавление трэк-номера в сделку Амо;
+							const trackUrl = `https://www.cdek.ru/ru/tracking?order_id=${sdekNumber}`
+							try {
+								if (order.tradeId && uuid) {
+									await setTradeSdekTrackId(order.tradeId, uuid)
+								}
+							} catch (e) {
+								console.log(e)
+							}
+							// привязка заявки СДЭК к заказу в "Мой склад";
+							const msOrder = await getMsOrder(order.msOrderId)
+							await updateMsOrder(order.msOrderId, { shipmentAddress: `${msOrder.shipmentAddress || ""}; СДЭК ${sdekNumber}` })
+						}
+					} catch (e) {
+						logger.error(`Не удалось получить заказ СДЭК ${uuid}. Подтверждение оплаты заказа`)
+					}
+				}
 
 				// сохранение uuid заказа СДЭК в заказе БД;
 				order.delivery.sdek = { ...order.toObject().delivery.sdek, uuid }
-
-				// добавление трэк-номера в сделку Амо;
-				try {
-					if ( order.tradeId && uuid ) {
-						await setTradeSdekTrackId(order.tradeId, uuid)
-					}
-				} catch (e) {
-					console.log(e)
-				}
 			}
 
 			order.status = "compiling"
