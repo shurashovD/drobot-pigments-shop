@@ -346,19 +346,19 @@ const getPipelineStatuses = async (id: string) => {
 	}
 }
 
-const getLeadsTags = async () => {
+export const getLeadsTags = async (page = 1) => {
     try {
         const authorization = await amoAuth()
 		if (!authorization) {
 			return
 		}
 
-        const url = `${domain}${paths.trade}/tags`
+        const url = `${domain}${paths.trade}/tags?page=${page}`
 		return await axios
-			.get<IAmoTag, AxiosResponse<{ _embedded: IAmoTag[]}>>(url, {
+			.get<IAmoTag, AxiosResponse<{ _embedded: { tags: IAmoTag[] }}>>(url, {
 				headers: { "Content-Type": "application/json", authorization },
 			})
-			.then(({ data }) => data._embedded)
+			.then(({ data }) => data._embedded.tags)
     }
     catch (e) {
         throw e
@@ -394,13 +394,20 @@ export const getTradeFields = async (page = 1) => {
 			.get(`${domain}${paths.trade}/custom_fields?page=${page}`, {
 				headers: { "Content-Type": "application/json", authorization },
 			})
-			.then(({ data }) => data)
+			.then(({ data }) => data._embedded.custom_fields)
 	} catch (e) {
 		throw e
 	}
 }
 
-export const createTrade = async (contactId: number, products: {name: string, quantity: number}[], price: number, number?: string, paymentUrl?: string) => {
+export const createTrade = async (
+	contactId: number,
+	products: { name: string; quantity: number }[],
+	price: number,
+	number?: string,
+	paymentUrl?: string,
+	deliveryType?: "sdek" | "pickup"
+) => {
 	try {
 		const authorization = await amoAuth()
 		if (!authorization) {
@@ -410,42 +417,80 @@ export const createTrade = async (contactId: number, products: {name: string, qu
 		const custom_fields_values = [
 			{
 				field_id: 986327,
-				values: products.map(
-					({ name, quantity }) => ({ value: `${name} ${quantity}шт.` })
-				),
-			}
+				values: products.map(({ name, quantity }) => ({ value: `${name} ${quantity}шт.` })),
+			},
 		]
 
-		if ( number ) {
+		if (number) {
 			custom_fields_values.push({
 				field_id: 996789,
-				values: [{ value: number.toString() }]
+				values: [{ value: number.toString() }],
 			})
 		}
 
-		if ( paymentUrl ) {
+		if (paymentUrl) {
 			custom_fields_values.push({
 				field_id: 996787,
 				values: [{ value: paymentUrl }],
 			})
 		}
 
-		const payload = [{
-			custom_fields_values,
-			price: price,
-			pipeline_id: pipelineId,
-			_embedded: {
-				contacts: [{ id: contactId }]
-			}
-		}]
+		const _embedded: any = {
+			contacts: [{ id: contactId }],
+		}
 
-		return await axios.post(`${domain}${paths.trade}`, payload, {
-			headers: { "Content-Type": "application/json", authorization },
-		}).then(({ data }) => data)
+		if ( deliveryType ) {
+			let id = 266367
+			if ( deliveryType === 'sdek' ) {
+				id = 266369
+			}
+			_embedded.tags = [{ id }]
+		}
+
+		const payload = [
+			{
+				custom_fields_values,
+				price,
+				pipeline_id: pipelineId,
+				_embedded
+			},
+		]
+
+		return await axios
+			.post(`${domain}${paths.trade}`, payload, {
+				headers: { "Content-Type": "application/json", authorization },
+			})
+			.then(({ data }) => data)
 	} catch (e: any) {
+		console.log(e.response.data["validation-errors"][0].errors)
 		throw e
 	}
-    
+}
+
+export const setTradeSdekTrackId = async (tradeId: string, track: string) => {
+	try {
+		const authorization = await amoAuth()
+		if (!authorization) {
+			return
+		}
+		
+		const custom_fields_values = [
+			{
+				field_id: 986327,
+				values: [{ value: track }],
+			},
+		]
+
+		const payload = { custom_fields_values }
+
+		return await axios
+			.patch(`${domain}${paths.trade}/${tradeId}`, payload, {
+				headers: { "Content-Type": "application/json", authorization },
+			}).then(({ data }) => data)
+	} catch (e: any) {
+		console.log(e.response.data["validation-errors"][0].errors)
+		throw e
+	}
 }
 
 export const setTradeStatus = async (tradeId: string, statusId: number) => {

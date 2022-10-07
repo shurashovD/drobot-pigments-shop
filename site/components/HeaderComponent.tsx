@@ -112,9 +112,14 @@ const HeaderComponent = () => {
 							</NavLink>
 						</div>
 						<div>
-							<NavLink to="/" className="text-uppercase text-white d-none" onClick={() => setMobileMenuShow(false)}>
+							<a
+								href="https://olga-drobot.ru/p/4d7956/"
+								className="text-uppercase text-white"
+								onClick={() => setMobileMenuShow(false)}
+								target="_blank"
+							>
 								Обучение
-							</NavLink>
+							</a>
 						</div>
 						<div>
 							<NavLink to="/" className="text-uppercase text-white d-none" onClick={() => setMobileMenuShow(false)}>
@@ -164,10 +169,7 @@ const HeaderComponent = () => {
 			</Collapse>
 			<Container
 				fluid
-				className={classNames(
-					"py-2 bg-primary",
-					{ "bg-transparent pt-0 position-absolute": scrollingTop && pathname === "/" }
-				)}
+				className={classNames("py-2 bg-primary", { "bg-transparent pt-0 position-absolute": scrollingTop && pathname === "/" })}
 				id="header-menu"
 			>
 				<Container className="p-0 my-0">
@@ -178,7 +180,7 @@ const HeaderComponent = () => {
 							</Button>
 							{categories && <NavCatalogBtn show={show} onClick={toggleCatalogHandler} />}
 							<div className="p-0 m-0">
-								<a href="#" className="d-none d-lg-block text-white text-uppercase invisible">
+								<a href="https://olga-drobot.ru/p/4d7956/" className="d-none d-lg-block text-white text-uppercase">
 									<span>Обучение</span>
 								</a>
 							</div>

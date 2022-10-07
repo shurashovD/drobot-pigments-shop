@@ -25,8 +25,13 @@ const createAmoTrade = async (orderId: string, clientId: string, number: string,
 		})
 		products = products.concat(variants)
 
+		let deliveryType: 'sdek'|'pickup' = 'pickup'
+		if ( order.delivery.sdek && !!order.delivery.sdek?.tariff_code ) {
+			deliveryType = 'sdek'
+		}
+
 		const price = order.total
-		const { _embedded } = await createTrade(client.amoContactId, products, price, number, paymentUrl)
+		const { _embedded } = await createTrade(client.amoContactId, products, price, number, paymentUrl, deliveryType)
         const tradeId = _embedded.leads[0].id
         await OrderModel.findByIdAndUpdate(orderId, { tradeId })
         await updTradeStatus(tradeId, "invoiceIssued")

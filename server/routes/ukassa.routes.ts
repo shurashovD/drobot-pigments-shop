@@ -1,5 +1,5 @@
 import { updTradeStatus } from './../handlers/amoTradeStatus';
-import { createTrade, createTask } from './../amoAPI/amoApi';
+import { createTrade, createTask, setTradeSdekTrackId } from './../amoAPI/amoApi';
 import { getMsOrder, updateMsOrder } from './../moyskladAPI/orders';
 import { ICreateWebHook } from "@a2seven/yoo-checkout";
 import bodyParser from "body-parser";
@@ -70,12 +70,22 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 			// создание заказа в СДЭК;
 			if ( !!order.delivery.sdek?.tariff_code ) {
 				const uuid = await createSdekOrderHandler(order._id.toString())
+				const trackUrl = `https://www.cdek.ru/ru/tracking?order_id=${uuid}`
 				// привязка заявки СДЭК к заказу в "Мой склад";
 				const msOrder = await getMsOrder(order.msOrderId)
 				await updateMsOrder(order.msOrderId, { shipmentAddress: `${msOrder.shipmentAddress || ""}; СДЭК ${uuid}` })
 
 				// сохранение uuid заказа СДЭК в заказе БД;
 				order.delivery.sdek = { ...order.toObject().delivery.sdek, uuid }
+
+				// добавление трэк-номера в сделку Амо;
+				try {
+					if ( order.tradeId && uuid ) {
+						await setTradeSdekTrackId(order.tradeId, uuid)
+					}
+				} catch (e) {
+					console.log(e)
+				}
 			}
 
 			order.status = "compiling"
