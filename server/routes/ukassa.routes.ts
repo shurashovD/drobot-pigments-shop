@@ -71,6 +71,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 			// создание заказа в СДЭК;
 			if ( !!order.delivery.sdek?.tariff_code ) {
 				const uuid = await createSdekOrderHandler(order._id.toString())
+				console.log(uuid)
 				if ( uuid ) {
 					try {
 						const sdekOrderInfo = await sdekGetOrderInfo(uuid)

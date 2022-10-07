@@ -23,6 +23,7 @@ import authMiddleware, { adminAuthMiddleware } from './middleware/auth.middlewar
 import frontLogger from './routes/frontLogger.routes'
 import loyaltyRoutes from './routes/loyalty.routes'
 import cookiesRoutes from "./routes/cookies.routes"
+import { sdekGetOrderInfo } from './sdekAPI/orders'
 
 const PORT = 3000
 
@@ -34,6 +35,8 @@ const start = async () => {
         app.listen(PORT, () => {
             console.log(`Server is running on PORT ${PORT}...`)
         })
+        const info = await sdekGetOrderInfo("72753034-8b9b-4292-b912-1b78419c7fbc")
+        console.log(info?.cdek_number)
     }
     catch (e) {
         console.log(e)
