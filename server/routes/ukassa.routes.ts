@@ -74,6 +74,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 				if ( uuid ) {
 					try {
 						const sdekOrderInfo = await sdekGetOrderInfo(uuid)
+						console.log(sdekOrderInfo);
 						const sdekNumber = sdekOrderInfo?.cdek_number
 						console.log(sdekNumber)
 						if ( sdekNumber ) {
