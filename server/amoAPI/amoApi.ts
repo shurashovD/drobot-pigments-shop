@@ -483,10 +483,12 @@ export const setTradeSdekTrackId = async (tradeId: string, track: string) => {
 
 		const payload = { custom_fields_values }
 
-		return await axios
+		const result = await axios
 			.patch(`${domain}${paths.trade}/${tradeId}`, payload, {
 				headers: { "Content-Type": "application/json", authorization },
 			}).then(({ data }) => data)
+
+		console.log(result)
 	} catch (e: any) {
 		console.log(e.response.data["validation-errors"][0].errors)
 		throw e

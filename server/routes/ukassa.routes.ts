@@ -75,12 +75,14 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 					try {
 						const sdekOrderInfo = await sdekGetOrderInfo(uuid)
 						const sdekNumber = sdekOrderInfo?.cdek_number
+						console.log(sdekNumber)
 						if ( sdekNumber ) {
 							// добавление трэк-номера в сделку Амо;
 							const trackUrl = `https://www.cdek.ru/ru/tracking?order_id=${sdekNumber}`
 							try {
-								if (order.tradeId && uuid) {
-									await setTradeSdekTrackId(order.tradeId, uuid)
+								console.log(order.tradeId)
+								if (order.tradeId && sdekNumber) {
+									await setTradeSdekTrackId(order.tradeId, sdekNumber)
 								}
 							} catch (e) {
 								console.log(e)
