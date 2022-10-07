@@ -76,7 +76,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 					try {
 						const sdekOrderInfo = await sdekGetOrderInfo(uuid)
 						console.log(sdekOrderInfo);
-						const sdekNumber = sdekOrderInfo?.cdek_number
+						const sdekNumber = sdekOrderInfo?.number
 						console.log(sdekNumber)
 						if ( sdekNumber ) {
 							// добавление трэк-номера в сделку Амо;
