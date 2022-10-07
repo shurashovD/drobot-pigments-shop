@@ -476,7 +476,7 @@ export const setTradeSdekTrackId = async (tradeId: string, track: string) => {
 		
 		const custom_fields_values = [
 			{
-				field_id: 986327,
+				field_id: 996945,
 				values: [{ value: track }],
 			},
 		]
