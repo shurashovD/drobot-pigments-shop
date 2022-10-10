@@ -44,6 +44,12 @@ const CategoryPage = () => {
 		}
 	}, [filters, dispatch, initFilterObject])
 
+	useEffect(() => {
+		return () => {
+			dispatch(resetFilters())
+		}
+	}, [dispatch, resetFilters])
+
     return (
 		<Container className="pb-6">
 			{isLoading && (

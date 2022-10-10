@@ -2,6 +2,8 @@ config
 
 dist
 
+gitignore
+
 node_modules
 
 cred.txt

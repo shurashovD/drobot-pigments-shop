@@ -58,7 +58,7 @@ const ProductPage = () => {
 						{data.variants.length > 0 && data.variantsLabel && (
 							<div className="w-100 order-2">
 								<div className="text-muted mb-2 mt-3">{data.variantsLabel}:</div>
-								<Stack direction="horizontal" gap={2}>
+								<Stack direction="horizontal" gap={2} className="flex-wrap">
 									{data.variants.map(({ id, value }) => (
 										<div key={id}>
 											<Button

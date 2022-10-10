@@ -5,7 +5,7 @@ export const rtkQueryLogger: Middleware = (api: MiddlewareAPI) => (next) => (act
     const { dispatch } = api
     if (action.meta?.baseQueryMeta?.response.redirected) {
         const url = new URL(action.meta?.baseQueryMeta?.response.url)
-        dispatch(setRedirectUrl(url.pathname))
+        //dispatch(setRedirectUrl(url.pathname))
     }
     if (isRejectedWithValue(action)) {
         if (action.payload.data?.message) {
@@ -13,4 +13,4 @@ export const rtkQueryLogger: Middleware = (api: MiddlewareAPI) => (next) => (act
         }
     }
     return next(action)
-} 
+}
