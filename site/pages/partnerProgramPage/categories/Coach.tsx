@@ -12,7 +12,7 @@ const Coach = () => {
 			<div className="text-center my-6 px-4">
 				<b className="text-dark">Становись тренером</b> Drobot Pigments и обучай работе на пигментах в соответствии с фирменной колористикой.
 			</div>
-			{auth?.status === "agent" && (
+			{auth?.status === "coach" && (
 				<Button variant="link text-primary" disabled={true}>
 					Ваш статус - тренер
 				</Button>
@@ -24,7 +24,7 @@ const Coach = () => {
 					variant="outline-secondary text-primary"
 					onClick={() => setStatus({ claimedStatus: "coach" })}
 				>
-					{auth?.claimedStatus === "agent" ? <>Заявка на рассмотрении</> : <>Стать тренером</>}
+					{auth?.claimedStatus === "coach" ? <>Заявка на рассмотрении</> : <>Стать тренером</>}
 				</ButtonComponent>
 			)}
 		</div>
