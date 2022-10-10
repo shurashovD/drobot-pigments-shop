@@ -53,7 +53,7 @@ router.get('/cashback-report/:id', async (req: Request<{ id?: string }>, res) =>
                 clients.push(client)
             }
         } else {
-            clients = await ClientModel.find({ status: { $in: ["agent", "delegate"] } })
+            clients = await ClientModel.find({ status: { $in: ["agent", "delegate", "coach"] } })
         }
         let result = []
         for ( const i in clients ) {
