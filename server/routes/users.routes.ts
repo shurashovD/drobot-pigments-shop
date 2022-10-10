@@ -88,7 +88,7 @@ router.put("/:id", json(), async (req: Request<{id: string}, {}, {status: string
 	try {
         const { id } = req.params
         const { status } = req.body
-        const statuses = ['common', 'agent', 'delegate']
+        const statuses = ['common', 'agent', 'delegate', "coach"]
         if ( !statuses.includes(status) ) {
             return res.status(500).json({ message: 'Неверное значение статуса пользователя' })
         }
