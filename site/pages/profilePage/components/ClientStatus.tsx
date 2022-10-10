@@ -6,17 +6,16 @@ const popover = (
 	<Popover className="bg-primary text-white">
 		<Popover.Body className="text-white">
 			<div className="mb-3">
-				У нас есть <span className="text-dark">3 уровня</span>{" "}
-				пользователя.
+				У нас есть <span className="text-dark">4 уровня</span> пользователя.
 			</div>
 			<ul className="mb-3">
 				<li className="text-uppercase">Розничный покупатель</li>
 				<li className="text-uppercase">Агент</li>
 				<li className="text-uppercase">Представитель</li>
+				<li className="text-uppercase">Тренер</li>
 			</ul>
 			<div>
-				Для того чтобы узнать подробности нажми на кнопку{" "}
-				<span className="text-dark">“Повысить статус”</span>
+				Для того чтобы узнать подробности нажми на кнопку <span className="text-dark">“Повысить статус”</span>
 			</div>
 		</Popover.Body>
 	</Popover>
@@ -38,6 +37,7 @@ const ClientStatus = () => {
 						{auth?.status === "common" && <>Розничный покупатель</>}
 						{auth?.status === "agent" && <>Агент</>}
 						{auth?.status === "delegate" && <>Представитель</>}
+						{auth?.status === "coach" && <>Тренер</>}
 					</span>
 					<OverlayTrigger placement="top" overlay={popover}>
 						<Button variant="link" className="info-icon-bg" />

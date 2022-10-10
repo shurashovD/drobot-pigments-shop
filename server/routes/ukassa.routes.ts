@@ -69,13 +69,13 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 			await acceptPayment(order.msOrderId, sum)
 
 			// создание заказа в СДЭК;
-			if ( !!order.delivery.sdek?.tariff_code ) {
+			if (!!order.delivery.sdek?.tariff_code) {
 				const uuid = await createSdekOrderHandler(order._id.toString())
-				if ( uuid ) {
+				if (uuid) {
 					try {
 						const sdekOrderInfo = await sdekGetOrderInfo(uuid)
 						const sdekNumber = sdekOrderInfo?.number
-						if ( sdekNumber ) {
+						if (sdekNumber) {
 							// добавление трэк-номера в сделку Амо;
 							const trackUrl = `https://www.cdek.ru/ru/tracking?order_id=${sdekNumber}`
 							try {
@@ -125,7 +125,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 							const discountedSum = order.variants
 								.filter(async ({ product }) => await ProductModel.isDiscounted(product.toString()))
 								.reduce((sum, { price, quantity }) => sum + price * quantity, discountedProductsSum)
-							
+
 							// начисляем кэшбэк;
 							const cashBack = Math.round(discountedSum * 0.1)
 							await promocodeHolder.addCashback(cashBack)
@@ -160,8 +160,14 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 				await client.save()
 			}
 
+			// если покупатель - тренер;
+			if (client.status === "delegate") {
+				client.coachOrders.push(order._id)
+				await client.save()
+			}
+
 			// обновить статус в Амо;
-			if ( order.tradeId ) {
+			if (order.tradeId) {
 				await updTradeStatus(order.tradeId, "invoicePaid")
 			}
 		}

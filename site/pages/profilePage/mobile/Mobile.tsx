@@ -47,10 +47,10 @@ const Mobile = () => {
 						<Delivery />
 						<OrdersAccordionComponent />
 						<Promo />
-						{data && (data?.status === "agent" || data?.status === "delegate") && (
+						{data && (data?.status === "agent" || data?.status === "delegate" || data?.status === "coach") && (
 							<PromoOrders onClick={(key?: string) => setActiveKey(key)} activeKey={activeKey} />
 						)}
-						{data && (data?.status === "agent" || data?.status === "delegate") && (
+						{data && (data?.status === "agent" || data?.status === "delegate" || data?.status === "coach") && (
 							<CashBack onClick={(key?: string) => setActiveKey(key)} activeKey={activeKey} />
 						)}
 					</Accordion>

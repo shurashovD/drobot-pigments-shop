@@ -10,11 +10,11 @@ const limit = 24
 const UsersPage = () => {
     const [state, setState] = useState<IClient[]>([])
     const [page, setPage] = useState(0)
-    const [status, setStatus] = useState<"common" | "agent" | "delegate" | undefined>()
+    const [status, setStatus] = useState<"common" | "agent" | "delegate" | "coach" | undefined>()
     const { data, isFetching, isSuccess } = useGetUsersQuery({ page, limit, status }, { refetchOnMountOrArgChange: true })
 
     const headHadnler = (key: string) => {
-        if (key === "common" || key === "agent" || key === "delegate") {
+        if (key === "common" || key === "agent" || key === "delegate" || key === "coach") {
 			setStatus(key)
 		} else {
 			setStatus(undefined)

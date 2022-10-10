@@ -66,7 +66,7 @@ const Main = () => {
 								</div>
 							</div>
 						</Col>
-						{false && auth && (auth?.status === "agent" || auth?.status === "delegate") && (
+						{false && auth && (auth?.status === "agent" || auth?.status === "delegate" || auth?.status === "coach") && (
 							<Col>
 								<div className="border border-dark h-100">
 									<div className="bg-dark p-3 px-4 border border-dark border-2">
@@ -81,7 +81,7 @@ const Main = () => {
 								</div>
 							</Col>
 						)}
-						{auth && (auth.status === "agent" || auth.status === "delegate") && (
+						{auth && (auth.status === "agent" || auth.status === "delegate" || auth?.status === "coach") && (
 							<Col>
 								<div className="border border-dark h-100">
 									<div className="bg-dark p-3 px-4 border border-dark border-2">

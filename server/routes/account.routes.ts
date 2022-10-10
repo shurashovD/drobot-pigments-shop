@@ -155,7 +155,7 @@ router.post('/register/check-pin', json(), async (req: Request<{}, {}, { pin: st
 router.post("/change-status-request", json(), async (req: Request<{}, {}, { claimedStatus: string }>, res) => {
 	try {
 		const { claimedStatus } = req.body
-		const statuses = ["common", "agent", "delegate"]
+		const statuses = ["common", "agent", "delegate", "coach"]
 		if (!statuses.includes(claimedStatus)) {
 			return res.status(500).json({ message: "Неверное значение статуса пользователя" })
 		}
@@ -169,12 +169,12 @@ router.post("/change-status-request", json(), async (req: Request<{}, {}, { clai
 
 		if (typeof client === "undefined") {
             req.session.claimedStatus = claimedStatus
-			return res.redirect("/profile")
+			return res.status(500).json({ message: "Сначала зарегистрируйтесь или авторизуйтесь" })
 		}
 
         if (!client.status) {
             req.session.claimedStatus = claimedStatus
-			return res.redirect("/profile")
+			return res.status(500).json({ message: "Введите недостающие данные в личном кабинете" })
 		}
 
         if (client.status === claimedStatus) {

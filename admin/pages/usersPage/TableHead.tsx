@@ -24,6 +24,7 @@ const TableHaed: FC<IProps> = ({ disabled, handler, value }) => {
 						<option value="common">Розничный покупатель</option>
 						<option value="agent">Агент</option>
 						<option value="delegate">Представитель</option>
+						<option value="coach">Тренер</option>
 					</Form.Select>
 				</th>
 				<th className="text-center">Запрос статуса</th>

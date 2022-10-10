@@ -16,6 +16,7 @@ const ClientSchema = new Schema<IClient, ClientModel>({
 	name: String,
 	orders: [{ type: Types.ObjectId, ref: "Order" }],
 	agentOrders: [{ type: Types.ObjectId, ref: "Order" }],
+	coachOrders: [{ type: Types.ObjectId, ref: "Order" }],
 	commonPoints: Number,
 	commonOrders: [{ type: Types.ObjectId, ref: "Order" }],
 	delegateOrders: [{ type: Types.ObjectId, ref: "Order" }],
@@ -106,7 +107,7 @@ ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ dis
 			return { discountPercentValue: agentDiscount?.percentValue || 0, nextLevelRequires: ["У вас максимальный уровень скидки"] }
 		}
 
-		if (this.status === 'delegate') {
+		if (this.status === 'delegate' || 'coach') {
 			const delegateDiscounts = await DelegateDiscountModel.find().sort({ lowerTreshold: 1 })
 			if ( delegateDiscounts.length === 0 ) {
 				return { nextLevelRequires: ["Бонусная программа не активна"] }
@@ -235,7 +236,7 @@ ClientSchema.methods.mergeCart = async function (this: IClient, mergedCartId: st
 
 ClientSchema.methods.refreshPromocodes = async function (this: IClient): Promise<void> {
 	try {
-		if (this.status !== "agent" && this.status !== "delegate") {
+		if (this.status !== "agent" && this.status !== "delegate" && this.status !== "coach") {
 			return
 		}
 
@@ -263,7 +264,7 @@ ClientSchema.methods.refreshPromocodes = async function (this: IClient): Promise
 
 ClientSchema.methods.getPromocodes = async function (this: IClient): Promise<IPromocodeDetails[]> {
 	try {
-		if (this.status !== "agent" && this.status !== "delegate") {
+		if (this.status !== "agent" && this.status !== "delegate" && this.status !== 'coach') {
 			return []
 		}
 
@@ -314,7 +315,7 @@ ClientSchema.methods.getPromocodes = async function (this: IClient): Promise<IPr
 
 ClientSchema.methods.createPromocode = async function (this: IClient, code: string, dateFinish: string, dateStart: string): Promise<void> {
 	try {
-		if (this.status !== "agent" && this.status !== "delegate") {
+		if (this.status !== "agent" && this.status !== "delegate" && this.status !== "coach") {
 			const error = new Error("Промокоды не доступны для этого клиента")
 			error.userError = true
 			throw error
@@ -400,7 +401,7 @@ ClientSchema.methods.resetPromocodeInCart = async function (this: IClient): Prom
 
 ClientSchema.methods.useCashbackToggle = async function (this: IClient): Promise<void> {
 	try {
-		if ( !(this.status === 'agent' || this.status === 'delegate') ) {
+		if ( !(this.status === 'agent' || this.status === 'delegate' || this.status === 'coach') ) {
 			return
 		}
 

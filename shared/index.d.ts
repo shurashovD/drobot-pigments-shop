@@ -450,6 +450,7 @@ export interface IClient extends Document, IClientMethods {
 	commonOrders: Types.ObjectId[]
 	agentOrders: Types.ObjectId[]
 	delegateOrders: Types.ObjectId[]
+	coachOrders: Types.ObjectId[]
 	status?: string
 	claimedStatus?: string
 	promocodes?: Types.ObjectId[]

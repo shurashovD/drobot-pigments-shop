@@ -55,6 +55,7 @@ const Item: FC<IProps> = (props) => {
 						<option value="common">Розничный покупатель</option>
 						<option value="agent">Агент</option>
 						<option value="delegate">Представитель</option>
+						<option value="coach">Тренер</option>
 					</Form.Select>
 				) : (
 					<>Не зарегистрирован</>
@@ -63,6 +64,7 @@ const Item: FC<IProps> = (props) => {
 			<td className="text-center">
 				{props.claimedStatus === "agent" && <>Агент</>}
 				{props.claimedStatus === "delegate" && <>Представитель</>}
+				{props.claimedStatus === "coach" && <>Тренер</>}
 			</td>
 		</tr>
 	)

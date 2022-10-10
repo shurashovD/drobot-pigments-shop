@@ -66,6 +66,7 @@ const HeaderAccountComponent = () => {
 									{auth?.status === "common" && <>Розничный покупатель</>}
 									{auth?.status === "agent" && <>Агент</>}
 									{auth?.status === "delegate" && <>Представитель</>}
+									{auth?.status === "coach" && <>Тренер</>}
 								</div>
 								<div className="text-muted mb-auto">{parsePhoneValue(auth?.tel)}</div>
 							</Col>
@@ -84,7 +85,6 @@ const HeaderAccountComponent = () => {
 								</NavLink>
 							</div>
 							<div className="d-flex align-items-center">
-								
 								<NavLink
 									to="/profile#orders"
 									className={`text-uppercase text-${pathname + hash === "/profile#orders" ? "dark" : "primary"} w-100`}
