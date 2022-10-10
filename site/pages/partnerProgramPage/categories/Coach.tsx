@@ -17,7 +17,7 @@ const Coach = () => {
 					Ваш статус - тренер
 				</Button>
 			)}
-			{auth?.status !== "agent" && (
+			{auth?.status !== "coach" && (
 				<ButtonComponent
 					isLoading={isLoading}
 					disabled={isFetching || !!auth?.claimedStatus}
