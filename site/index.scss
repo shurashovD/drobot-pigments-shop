@@ -676,6 +676,19 @@ hr {
     border: 0;
 }
 
+.pigments-page__link {
+    width: 100%;
+    text-align: center;
+    text-transform: uppercase;
+    background-color: $secondary;
+    color: $primary;
+}
+.pigments-page__link:hover {
+    background-color: $primary;
+    color: $secondary;
+    transition: .2s;
+}
+
 @media (max-width: 1024px) {
     .line-card {
         background-image: linear-gradient(transparent 0%, transparent 30%, $dark 30%, $dark 70%, transparent 70%, transparent 100%);

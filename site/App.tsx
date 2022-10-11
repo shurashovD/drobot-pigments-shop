@@ -25,6 +25,7 @@ import GaranteesAndRefund from './pages/garanteesAndRefund/GaranteesAndRefund'
 import CookiesComponent from './components/CookiesComponent'
 import { useAccountAuthQuery } from './application/account.service'
 import PromocodePage from './pages/promocodePage/PromocodePage'
+import PigmentsPage from './pages/pigmentsPage/PigmentsPage'
 
 const App = () => {
 	const { data: auth } = useAccountAuthQuery(undefined)
@@ -44,6 +45,7 @@ const App = () => {
 				<Container fluid className="m-0 p-0">
 					<Routes>
 						<Route path="/" element={<MainPage />} />
+						<Route path="/pigments/:id" element={<PigmentsPage />} />
 						<Route path="/category/:id/:filters" element={<CategoryPage />} />
 						<Route path="/product/:id" element={<ProductPage />} />
 						<Route path="/cart" element={<CartPage />} />
