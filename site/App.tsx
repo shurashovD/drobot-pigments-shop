@@ -26,6 +26,7 @@ import CookiesComponent from './components/CookiesComponent'
 import { useAccountAuthQuery } from './application/account.service'
 import PromocodePage from './pages/promocodePage/PromocodePage'
 import PigmentsPage from './pages/pigmentsPage/PigmentsPage'
+import ColoristicPage from './pages/coloristicPage/ColoristicPage'
 
 const App = () => {
 	const { data: auth } = useAccountAuthQuery(undefined)
@@ -59,6 +60,7 @@ const App = () => {
 						<Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
 						<Route path="/cookies" element={<CookiesPage />} />
 						<Route path="/garantees" element={<GaranteesAndRefund />} />
+						<Route path="/coloristic" element={<ColoristicPage />} />
 						<Route path="/promocode/:id" element={<PromocodePage />} />
 						{auth?.status === "agent" || (auth?.status === "delegate" && <Route path="/promocode/:id" element={<PromocodePage />} />)}
 						<Route path="*" element={<Navigate to="/" />} />

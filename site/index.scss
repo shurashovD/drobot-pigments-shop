@@ -681,12 +681,45 @@ hr {
     text-align: center;
     text-transform: uppercase;
     background-color: $secondary;
-    color: $primary;
+    color: $dark;
 }
 .pigments-page__link:hover {
     background-color: $primary;
     color: $secondary;
     transition: .2s;
+}
+
+#pigments-banner-carousel {
+    .carousel-indicators [data-bs-target] {
+        width: 10px;
+        height: 10px;
+        background-color: $dark;
+        margin-left: 12px;
+        margin-right: 12px;
+        opacity: 1;
+    }
+    .carousel-indicators .active {
+        transform: scale(167%);
+        transition: .2s;
+    }
+
+    .carousel-control-next-icon {
+        background-color: $secondary;
+        width: 43px;
+        height: 43px;
+        border-radius: 50%;
+        background-image: url("data:image/svg+xml,%3Csvg width='11' height='19' viewBox='0 0 11 19' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.576169 17.8271L9.61732 8.72301L0.576172 0.440308' stroke='%2339261F' stroke-width='0.6'/%3E%3C/svg%3E%0A");
+        background-size: 20px 20px;
+    }
+
+    .carousel-control-prev-icon {
+        background-color: $secondary;
+        width: 43px;
+        height: 43px;
+        border-radius: 50%;
+        background-image: url("data:image/svg+xml,%3Csvg width='11' height='19' viewBox='0 0 11 19' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10.4238 1.17286L1.38268 10.277L10.4238 18.5597' stroke='%2339261F' stroke-width='0.6'/%3E%3C/svg%3E ");
+        background-size: 20px 20px;
+    }
 }
 
 @media (max-width: 1024px) {
@@ -739,5 +772,11 @@ hr {
         color: $dark !important;
         background-color: transparent;
         border-color: $dark;
+    }
+
+    #coloristic-container {
+        a {
+            font-size: 11px;
+        }
     }
 }
