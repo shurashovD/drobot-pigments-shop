@@ -47,6 +47,7 @@ const CartPage = () => {
 	}, [data])
 
 	useEffect(() => {
+		document.title = 'Корзина'
 		resetCheck()
 	}, [resetCheck])
 

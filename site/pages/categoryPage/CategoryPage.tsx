@@ -50,6 +50,12 @@ const CategoryPage = () => {
 		}
 	}, [dispatch, resetFilters])
 
+	useEffect(() => {
+		if ( data ) {
+			document.title = data.title
+		}
+	}, [data])
+
     return (
 		<Container className="pb-6">
 			{isLoading && (

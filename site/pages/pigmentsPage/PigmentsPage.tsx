@@ -1,10 +1,15 @@
-import { Col, Container, Row, Stack } from "react-bootstrap"
+import { useEffect } from "react"
+import { Col, Container, Row } from "react-bootstrap"
 import { NavLink, useParams } from "react-router-dom"
 import Banners from "./Banners"
 import Item from "./Item"
 
 const PigmentsPage = () => {
     const { id } = useParams()
+
+	useEffect(() => {
+		document.title = 'Drobot pigments'
+	}, [])
 
     return (
 		<Container fluid className="p-0">

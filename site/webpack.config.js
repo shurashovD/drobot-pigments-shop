@@ -2,7 +2,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 const mode = process.env.NODE_ENV || 'development'
 const output = process.env.NODE_ENV === 'production' ? {
-    assetModuleFilename: 'assets/[name][ext][query]',
+    assetModuleFilename: 'assets/[name][contenthash][ext][query]',
     path: path.resolve(__dirname, '..', 'dist', 'static', 'site'),
     filename: '[name].[contenthash].js',
     publicPath: '/static/site/',

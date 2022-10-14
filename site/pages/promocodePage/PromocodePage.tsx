@@ -20,6 +20,10 @@ const PromocodePage = () => {
         }
     }, [data])
 
+	useEffect(() => {
+		document.title = 'Промокод'
+	}, [])
+
     return (
 		<Container className="mb-6">
 			<Button variant="link" className="text-muted mb-4" onClick={() => navigate(-1)}>

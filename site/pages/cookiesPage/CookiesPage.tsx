@@ -1,6 +1,11 @@
+import { useEffect } from "react"
 import { Container } from "react-bootstrap"
 
 const CookiesPage = () => {
+	useEffect(() => {
+		document.title = "Политика использования Cookie"
+	}, [])
+
     return (
 		<Container className="mb-6">
 			<h3>Политика использования Cookie</h3>

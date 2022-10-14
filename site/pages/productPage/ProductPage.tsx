@@ -29,6 +29,12 @@ const ProductPage = () => {
 		}
 	}, [search])
 
+	useEffect(() => {
+		if ( data ) {
+			document.title = data.name
+		}
+	}, [data])
+
     return (
 		<Container className="py-6">
 			{isLoading && (

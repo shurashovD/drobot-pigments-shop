@@ -55,6 +55,10 @@ const ProfilePage = () => {
 		}
 	}, [hash])
 
+	useEffect(() => {
+		document.title = 'Личный кабинет'
+	}, [])
+
     return (
 		<Container fluid className="p-0 pb-6">
 			{isFetching && <LoaderComponent />}

@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { Col, Container, Image, Row } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
 import Banner from "./Banner"
@@ -7,6 +8,10 @@ const OD = require("../../img/Olga_Drobot.jpg")
 const IMG = require('../../img/about_2.jpeg')
 
 const AboutPage = () => {
+	useEffect(() => {
+		document.title = 'О бренде'
+	}, [])
+
     return (
 		<Container className="mb-6">
 			<Row className="g-3 mb-6">

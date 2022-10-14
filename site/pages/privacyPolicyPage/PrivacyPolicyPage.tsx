@@ -1,9 +1,14 @@
+import { useEffect } from "react"
 import { Container } from "react-bootstrap"
 
 const PrivacyPolicyPage = () => {
+	useEffect(() => {
+		document.title = "Политика конфиденциальности"
+	}, [])
+
     return (
 		<Container className="mb-6">
-			<h3>Политика конфиденциальности </h3>
+			<h3>Политика конфиденциальности</h3>
 			<p className="text-uppercase">Политика конфиденциальности сайта drobot-pigments-shop.ru</p>
 			<p>
 				Администрация сайта drobot-pigments-shop.ru (далее Сайт) с уважением относится к правам посетителей Сайта. Мы безоговорочно признаем

@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { Accordion, Container } from "react-bootstrap"
 import Eighth from "./Eighth"
 import Fird from "./Fird"
@@ -8,6 +9,10 @@ import Ninth from "./Ninth"
 import Seventh from "./Seventh"
 
 const UserAgreementPage = () => {
+	useEffect(() => {
+		document.title = "Пользовательское соглашение"
+	}, [])
+
     return (
 		<Container>
 			<h3>Пользовательское соглашение</h3>

@@ -37,6 +37,10 @@ const OrderPage = () => {
 		dispatch(setActive("1"))
 	}, [dispatch, setActive])
 
+	useEffect(() => {
+		document.title = 'Оформление заказа'
+	}, [])
+
 	return (
 		<Container className="pb-6">
 			<Button variant="link" className="text-muted pb-4 pb-lg-6" onClick={() => navigate(-1)}>

@@ -722,6 +722,57 @@ hr {
     }
 }
 
+.education-cart {
+    cursor: pointer;
+    position: relative;
+
+    .education-cart__label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        text-transform: uppercase;
+        background-color: $primary;
+        color: $secondary;
+        padding: 13px 17px;
+        
+        div {
+            width: 80%;
+            max-width: 80%;
+            margin-right: auto;
+        }
+    }
+    .education-cart__label::after {
+        content: "";
+        background-image: url("data:image/svg+xml,%3Csvg width='33' height='4' viewBox='0 0 33 4' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0 2L33 2T30 0M30 4L33 2' stroke='%23F7DFB1'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center;
+        width: 33px;
+        height: 15px;
+    }
+    
+}
+.education-cart:hover {
+    .education-cart__label {
+        background-color: $secondary;
+        color: $primary;
+        transition: .2s;
+    }
+    .education-cart__label::after {
+        background-image: url("data:image/svg+xml,%3Csvg width='33' height='4' viewBox='0 0 33 4' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0 2L33 2T30 0M30 4L33 2' stroke='%2339261F'/%3E%3C/svg%3E");
+    }
+}
+
+.coloristic-dark-link:hover {
+    .hover-primary {
+        color: $primary;
+        transition: .2s;
+    }
+}
+
 @media (max-width: 1024px) {
     .line-card {
         background-image: linear-gradient(transparent 0%, transparent 30%, $dark 30%, $dark 70%, transparent 70%, transparent 100%);
@@ -777,6 +828,17 @@ hr {
     #coloristic-container {
         a {
             font-size: 11px;
+        }
+    }
+
+    .education-cart {    
+        .education-cart__label {
+            font-size: 11px;
+            width: 100%;
+        }
+        .education-cart__label::after {
+            width: 10px;
+            background-position: right center;
         }
     }
 }

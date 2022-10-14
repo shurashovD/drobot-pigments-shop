@@ -1,42 +1,45 @@
-import { ErrorBoundary } from 'react-error-boundary'
+import { lazy, Suspense } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 import { Container } from "react-bootstrap"
 import { Navigate, Route, Routes } from "react-router-dom"
-import AlertComponent from "./components/AlertComponent"
-import AuthComponent from "./components/AuthComponent"
 import ErrorFallback from "./components/ErrorFallback"
 import FooterComponent from "./components/FooterComponent"
 import HeaderComponent from "./components/HeaderComponent"
 import MobileFooter from "./components/MobileFooter"
-import CartPage from "./pages/cartPage/CartPage"
-import CategoryPage from "./pages/categoryPage/CategoryPage"
-import DeliveryPage from "./pages/deliveryPage/DeliveryPage"
 import MainPage from "./pages/mainPage/MainPage"
-import OrderPage from "./pages/orderPage/OrderPage"
-import ProductPage from "./pages/productPage/ProductPage"
-import ProfilePage from "./pages/profilePage/ProfilePage"
-import { useSendErrorMutation } from './application/error.service'
-import ParetnerProgramPage from './pages/partnerProgramPage/ParetnerProgramPage'
-import ContactsPage from './pages/contactsPage/ContactsPage'
-import AboutPage from './pages/aboutPage/AboutPage'
-import UserAgreementPage from './pages/userAgreementPage/UserAgreementPage'
-import PrivacyPolicyPage from './pages/privacyPolicyPage/PrivacyPolicyPage'
-import CookiesPage from './pages/cookiesPage/CookiesPage'
-import GaranteesAndRefund from './pages/garanteesAndRefund/GaranteesAndRefund'
-import CookiesComponent from './components/CookiesComponent'
-import { useAccountAuthQuery } from './application/account.service'
-import PromocodePage from './pages/promocodePage/PromocodePage'
-import PigmentsPage from './pages/pigmentsPage/PigmentsPage'
-import ColoristicPage from './pages/coloristicPage/ColoristicPage'
+import { useSendErrorMutation } from "./application/error.service"
+import { useAccountAuthQuery } from "./application/account.service"
+import FallbackComponent from "./FallbackComponent"
+const PromocodePage = lazy(() => import("./pages/promocodePage/PromocodePage"))
+const PigmentsPage = lazy(() => import("./pages/pigmentsPage/PigmentsPage"))
+const AlertComponent = lazy(() => import("./components/AlertComponent"))
+const AuthComponent = lazy(() => import("./components/AuthComponent"))
+const ColoristicPage = lazy(() => import("./pages/coloristicPage/ColoristicPage"))
+const ParetnerProgramPage = lazy(() => import("./pages/partnerProgramPage/ParetnerProgramPage"))
+const ContactsPage = lazy(() => import("./pages/contactsPage/ContactsPage"))
+const AboutPage = lazy(() => import("./pages/aboutPage/AboutPage"))
+const UserAgreementPage = lazy(() => import("./pages/userAgreementPage/UserAgreementPage"))
+const PrivacyPolicyPage = lazy(() => import("./pages/privacyPolicyPage/PrivacyPolicyPage"))
+const CookiesPage = lazy(() => import("./pages/cookiesPage/CookiesPage"))
+const GaranteesAndRefund = lazy(() => import("./pages/garanteesAndRefund/GaranteesAndRefund"))
+const CookiesComponent = lazy(() => import("./components/CookiesComponent"))
+const CartPage = lazy(() => import("./pages/cartPage/CartPage"))
+const CategoryPage = lazy(() => import("./pages/categoryPage/CategoryPage"))
+const DeliveryPage = lazy(() => import("./pages/deliveryPage/DeliveryPage"))
+const OrderPage = lazy(() => import("./pages/orderPage/OrderPage"))
+const ProductPage = lazy(() => import("./pages/productPage/ProductPage"))
+const ProfilePage = lazy(() => import("./pages/profilePage/ProfilePage"))
+const EducationPage = lazy(() => import("./pages/educationPage/EducationPage"))
 
 const App = () => {
 	const { data: auth } = useAccountAuthQuery(undefined)
 	const [sendError] = useSendErrorMutation()
-	
+
 	const handler = (error: Error, info: { componentStack: string }) => {
 		sendError({ error: error.message, stack: info.componentStack })
 	}
 
-    return (
+	return (
 		<ErrorBoundary FallbackComponent={ErrorFallback} onError={handler}>
 			<Container fluid className="p-0 min-vh-100 d-flex flex-column justify-content-start align-items-stretch">
 				<AlertComponent />
@@ -46,23 +49,137 @@ const App = () => {
 				<Container fluid className="m-0 p-0">
 					<Routes>
 						<Route path="/" element={<MainPage />} />
-						<Route path="/pigments/:id" element={<PigmentsPage />} />
-						<Route path="/category/:id/:filters" element={<CategoryPage />} />
-						<Route path="/product/:id" element={<ProductPage />} />
-						<Route path="/cart" element={<CartPage />} />
-						<Route path="/order" element={<OrderPage />} />
-						<Route path="/profile" element={<ProfilePage />} />
-						<Route path="/delivery" element={<DeliveryPage />} />
-						<Route path="/partner-program" element={<ParetnerProgramPage />} />
-						<Route path="/contacts" element={<ContactsPage />} />
-						<Route path="/about" element={<AboutPage />} />
-						<Route path="/user-agreement" element={<UserAgreementPage />} />
-						<Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-						<Route path="/cookies" element={<CookiesPage />} />
-						<Route path="/garantees" element={<GaranteesAndRefund />} />
-						<Route path="/coloristic" element={<ColoristicPage />} />
-						<Route path="/promocode/:id" element={<PromocodePage />} />
-						{auth?.status === "agent" || (auth?.status === "delegate" && <Route path="/promocode/:id" element={<PromocodePage />} />)}
+						<Route
+							path="/pigments/:id"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<PigmentsPage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/category/:id/:filters"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<CategoryPage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/product/:id"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<ProductPage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/cart"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<CartPage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/order"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<OrderPage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/profile"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<ProfilePage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/delivery"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<DeliveryPage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/partner-program"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<ParetnerProgramPage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/contacts"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<ContactsPage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/about"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<AboutPage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/user-agreement"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<UserAgreementPage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/privacy-policy"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<PrivacyPolicyPage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/cookies"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<CookiesPage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/garantees"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<GaranteesAndRefund />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/coloristic"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<ColoristicPage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/education"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<EducationPage />
+								</Suspense>
+							}
+						/>
+						{(auth?.status === "agent" || auth?.status === "delegate" || auth?.status === "coach") && (
+							<Route path="/promocode/:id" element={<PromocodePage />} />
+						)}
 						<Route path="*" element={<Navigate to="/" />} />
 					</Routes>
 				</Container>

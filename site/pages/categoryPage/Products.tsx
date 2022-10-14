@@ -5,6 +5,7 @@ import { useGetProductsQuery } from "../../application/category.service"
 import { nextPage } from "../../application/filtersSlice"
 import { useAppDispatch, useAppSelector } from "../../application/hooks"
 import ProductCard from "../../components/card/ProductCard"
+import Intro from "./Intro"
 
 interface IProps {
     categoryId: string
@@ -83,6 +84,7 @@ const Products: FC<IProps> = ({ categoryId }) => {
 
     return (
 		<Row className="g-4 gy-6">
+			<Intro />
 			{!isLoading && !isFetching && state.length === 0 && (
 				<Col xs={12} className="text-center p-4">
 					<span>Товары отсутсвуют</span>
