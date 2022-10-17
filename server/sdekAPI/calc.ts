@@ -11,7 +11,6 @@ const sdek = config.get<{
 
 export const sdekCalcDelivery = async (payload: ISdekCalcPayload) => {
     try {
-        console.log('Запрос');
         const url = `${sdek.url}/calculator/tariff`
 	    const Authorization = await sdekAuth()
         return await axios.post<ISdekCalcResponse>(url, payload, {

@@ -16,10 +16,10 @@ const DeliveryPage = () => {
 			<BannerComponent folder="deliveryPage" mobileWidthToHeight={414 / 550} widthToHeight={1440 / 450} />
 			<Container className="mt-5 pb-6">
 				<Row className="g-5">
-					<Col xs={12} lg={6} className="mb-6 mb-lg-0">
+					<Col xs={12} lg={12} className="mb-6 mb-lg-0">
 						<Sdek />
 					</Col>
-					<Col xs={12} lg={6}>
+					<Col xs={0} lg={0} className="d-none">
 						<PostRF />
 					</Col>
 					<Col xs={12}>
