@@ -92,7 +92,7 @@ const EducationPage = () => {
 					<Col>
 						<Item
 							folder="freeEdu"
-							title="Бесплатное обучение"
+							title="Дробот про пигмент"
 							url="https://drobot-online-academy.ru/drobot_pigments_koloristika"
 							widthToHeight={263 / 168}
 						/>
