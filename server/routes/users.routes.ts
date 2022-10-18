@@ -8,7 +8,14 @@ const router = Router()
 router.get('/', async (req: Request<{}, {}, {}, {page?: number, limit?: number, status?: string}>, res) => {
     try {
         const { limit, page, status } = req.query
-        let clients = await ClientModel.find()
+        let clients = await ClientModel.find().populate("promocodes")
+            .then(doc => doc.map((item: any) => {
+                if ( item.promocodes.length > 0 ) {
+                    const promocode = item.promocodes[item.promocodes.length - 1].code
+                    return { ...item.toObject(), promocode }
+                }
+                return { ...item.toObject() }
+            }))
         clients = clients
 			.filter(({ claimedStatus }) => !!claimedStatus)
 			.concat(clients.filter(({ claimedStatus }) => !claimedStatus))
@@ -100,9 +107,7 @@ router.put("/:id", json(), async (req: Request<{id: string}, {}, {status: string
         }
         client.status = status
         await client.save()
-        if (status === client.claimedStatus) {
-            await ClientModel.findByIdAndUpdate(id, { $unset: { claimedStatus: true } })
-		}
+        await ClientModel.findByIdAndUpdate(id, { $unset: { claimedStatus: true } })
         return res.end()
 	} catch (e) {
 		logger.error(e)

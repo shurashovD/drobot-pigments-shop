@@ -8,7 +8,7 @@ import TableHaed from "./TableHead"
 
 const limit = 24
 const UsersPage = () => {
-    const [state, setState] = useState<IClient[]>([])
+    const [state, setState] = useState<(IClient & { promocode?: string })[]>([])
     const [page, setPage] = useState(0)
     const [status, setStatus] = useState<"common" | "agent" | "delegate" | "coach" | undefined>()
     const { data, isFetching, isSuccess } = useGetUsersQuery({ page, limit, status }, { refetchOnMountOrArgChange: true })
@@ -43,7 +43,7 @@ const UsersPage = () => {
 				/>
 				<tbody>
 					{state.map(
-						({ _id, claimedStatus, name, mail, tel, status }) => (
+						({ _id, claimedStatus, name, mail, tel, status, promocode }) => (
 							<Item
 								key={_id.toString()}
 								id={_id.toString()}
@@ -51,6 +51,7 @@ const UsersPage = () => {
 								name={name || "Неизвестный пользователь"}
 								mail={mail}
 								phone={tel}
+								promocode={promocode}
 								status={status}
 								claimedStatus={claimedStatus}
 							/>

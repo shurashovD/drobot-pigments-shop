@@ -7,6 +7,7 @@ interface IProps {
     id: string
     name: string
     phone?: string
+	promocode?: string
     mail?: string
     status?: string
     isClaimed: boolean
@@ -44,7 +45,7 @@ const Item: FC<IProps> = (props) => {
 			</td>
 			<td className="text-center">{props.phone && parsePhoneValue(props.phone)}</td>
 			<td className="text-center">{props.mail}</td>
-			<td className="text-center">{props.mail}</td>
+			<td className="text-center">{props.promocode}</td>
 			<td className="text-center">
 				{props.status ? (
 					<Form.Select

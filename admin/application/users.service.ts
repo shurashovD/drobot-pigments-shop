@@ -5,7 +5,7 @@ import { ICashbackReport, IClient, IDebiteReport } from '../../shared';
 const usersApi = createApi({
 	baseQuery: fetchBaseQuery({ baseUrl: "/api/users" }),
 	endpoints: (build) => ({
-		getUsers: build.query<{ clients: IClient[]; length: number }, { page?: number; limit?: number; status?: string }>({
+		getUsers: build.query<{ clients: (IClient & {promocode?: string})[]; length: number }, { page?: number; limit?: number; status?: string }>({
 			query: ({ page = 0, limit, status }) => {
 				let url = `?page=${page}`
 				if (limit) {
