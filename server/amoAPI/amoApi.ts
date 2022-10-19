@@ -447,11 +447,14 @@ export const createTrade = async (
 			_embedded.tags = [{ id }]
 		}
 
+		const status_id = 41224258 // выставлен счёт;
+
 		const payload = [
 			{
 				custom_fields_values,
 				price,
 				pipeline_id: pipelineId,
+				status_id,
 				_embedded
 			},
 		]

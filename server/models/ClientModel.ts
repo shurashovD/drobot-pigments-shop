@@ -304,7 +304,8 @@ ClientSchema.methods.getPromocodes = async function (this: IClient): Promise<IPr
 						ordersTotal,
 						totalCashBack: promocodeTotalCashBack,
 					}
-					return { code, dateFinish, dateStart, id: _id.toString(), status, total, orders: ordersRes }
+					const discountPercentValue = item.discountPercent
+					return { code, dateFinish, dateStart, discountPercentValue, id: _id.toString(), status, total, orders: ordersRes }
 				})
 			)
 
@@ -313,7 +314,7 @@ ClientSchema.methods.getPromocodes = async function (this: IClient): Promise<IPr
 	} catch (e) { throw e }
 }
 
-ClientSchema.methods.createPromocode = async function (this: IClient, code: string, dateFinish: string, dateStart: string): Promise<void> {
+ClientSchema.methods.createPromocode = async function (this: IClient, code: string, dateFinish: string, dateStart: string, discountPercent = 5): Promise<void> {
 	try {
 		if (this.status !== "agent" && this.status !== "delegate" && this.status !== "coach") {
 			const error = new Error("Промокоды не доступны для этого клиента")
@@ -338,6 +339,7 @@ ClientSchema.methods.createPromocode = async function (this: IClient, code: stri
 			code,
 			dateFinish: new Date(Date.parse(dateFinish)),
 			dateStart: new Date(Date.parse(dateStart)),
+			discountPercent,
 			holderClient: this._id
 		}).save()
 

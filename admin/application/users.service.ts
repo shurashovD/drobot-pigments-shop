@@ -5,7 +5,7 @@ import { ICashbackReport, IClient, IDebiteReport } from '../../shared';
 const usersApi = createApi({
 	baseQuery: fetchBaseQuery({ baseUrl: "/api/users" }),
 	endpoints: (build) => ({
-		getUsers: build.query<{ clients: (IClient & {promocode?: string})[]; length: number }, { page?: number; limit?: number; status?: string }>({
+		getUsers: build.query<{ clients: (IClient & { promocode?: string })[]; length: number }, { page?: number; limit?: number; status?: string }>({
 			query: ({ page = 0, limit, status }) => {
 				let url = `?page=${page}`
 				if (limit) {
@@ -44,6 +44,14 @@ const usersApi = createApi({
 		getDebitesReport: build.query<IDebiteReport, { id: string }>({
 			query: ({ id }) => `/debites-report/${id}`,
 		}),
+		setPromocodeDiscount: build.mutation<undefined, { promocodeId: string; discountPercent: number }>({
+			query: (body) => ({
+				body,
+				method: "PUT",
+				url: "/set-promocode-discount",
+			}),
+			invalidatesTags: ['client']
+		}),
 	}),
 	reducerPath: "userApi",
 	tagTypes: ["users", "client"],
@@ -56,5 +64,6 @@ export const {
 	useDebiteCashbackMutation,
 	useGetCashbackReportQuery,
 	useGetDebitesReportQuery,
+	useSetPromocodeDiscountMutation,
 } = usersApi
 export default usersApi

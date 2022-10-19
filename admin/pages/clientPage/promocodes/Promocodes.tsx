@@ -1,7 +1,6 @@
 import { FC, useEffect, useState } from "react"
 import { Button, Table } from "react-bootstrap"
 import { useGetPromocodesByUserQuery } from "../../../application/promocode.service"
-import { useGetClientQuery } from "../../../application/users.service"
 import Item from "./Item"
 import ModalComponent from "./ModalComponent"
 
@@ -41,6 +40,7 @@ const Promocodes: FC<IProps> = ({ clientId }) => {
 						<tr className="align-middle">
 							<th>Промокод</th>
 							<th className="text-center">Период действия</th>
+							<th className="text-center">Размер скидки</th>
 							<th className="text-center">Статус</th>
 							<th className="text-center">Кэшбэк</th>
 							<th className="text-center">Изменить</th>
@@ -55,6 +55,7 @@ const Promocodes: FC<IProps> = ({ clientId }) => {
 								code={item.code}
 								dateFinish={formatter.format(Date.parse(item.dateFinish.toString()))}
 								dateStart={formatter.format(Date.parse(item.dateStart.toString()))}
+								discountPercentValue={item.discountPercentValue}
 								id={item.id}
 								status={statuses[item.status] || ""}
 								onEdit={(id: string) => setEditedPromocode(id)}

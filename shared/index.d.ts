@@ -369,6 +369,7 @@ export interface IPromocodeDetails {
 	code: string
 	dateStart: Date
 	dateFinish: Date
+	discountPercentValue: number
 	status: "created" | "running" | "finished" | "stopped"
 	total: {
 		ordersLength: number
@@ -426,7 +427,7 @@ export interface IClientMethods {
 	mergeCart(mergedCartId: string): Promise<void>
 	refreshPromocodes(): Promise<void>
 	getPromocodes(): Promise<IPromocodeDetails[]>
-	createPromocode(code: string, dateFinish: string, dateStart: string): Promise<void>
+	createPromocode(code: string, dateFinish: string, dateStart: string, discountPercent?: number): Promise<void>
 	setPromocodeInCart(code: string): Promise<void>
 	resetPromocodeInCart(): Promise<void>
 	useCashbackToggle(): Promise<void>

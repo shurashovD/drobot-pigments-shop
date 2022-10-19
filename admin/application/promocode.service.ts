@@ -15,7 +15,10 @@ const promocodeApi = createApi({
 		getPromocodeDetails: build.query<IPromocodeDetails, { id: string }>({
 			query: ({ id }) => `/details/${id}`,
 		}),
-		createPromocode: build.mutation<undefined, { code: string; dateStart: string; dateFinish: string; holderId: string }>({
+		createPromocode: build.mutation<
+			undefined,
+			{ code: string; dateStart: string; dateFinish: string; holderId: string; discountPercent: number }
+		>({
 			query: (body) => ({
 				body,
 				method: "POST",
@@ -23,7 +26,10 @@ const promocodeApi = createApi({
 			}),
 			invalidatesTags: ["clientPromocodes"],
 		}),
-		updatePromocode: build.mutation<undefined, { id: string; body: { code: string; dateStart: string; dateFinish: string } }>({
+		updatePromocode: build.mutation<
+			undefined,
+			{ id: string; body: { code: string; dateStart: string; dateFinish: string; discountPercent: number } }
+		>({
 			query: ({ body, id }) => ({
 				body,
 				method: "PUT",

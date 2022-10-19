@@ -34,7 +34,6 @@ const createAmoTrade = async (orderId: string, clientId: string, number: string,
 		const { _embedded } = await createTrade(client.amoContactId, products, price, number, paymentUrl, deliveryType)
         const tradeId = _embedded.leads[0].id
         await OrderModel.findByIdAndUpdate(orderId, { tradeId })
-        await updTradeStatus(tradeId, "invoiceIssued")
 	} catch (e) {
 		throw e
 	}

@@ -2,6 +2,7 @@ import { json } from "body-parser";
 import { Request, Router } from "express"
 import { logger } from "../handlers/errorLogger";
 import ClientModel from "../models/ClientModel";
+import PromocodeModel from "../models/PromocodeModel";
 
 const router = Router()
 
@@ -130,6 +131,15 @@ router.put('/debiting-cashback/:id', json(), async (req: Request<{id: string}, {
         logger.error(e)
         const message = e.userError ? e.message : "Что-то пошло не так..."
         return res.status(500).json({ message })
+    }
+})
+
+router.put('/set-promocode-discount', json(), async (req: Request<{}, {}, {promocodeId: string, discountPercent: number}>, res) => {
+    try {
+        const { discountPercent, promocodeId } = req.body
+        await PromocodeModel.findByIdAndUpdate(promocodeId, { discountPercent })
+    } catch (e) {
+        logger.error(e)
     }
 })
 

@@ -58,7 +58,7 @@ router.get('/logout', (req, res) => {
             if ( err ) {
                 throw err
             }
-            return res.redirect("/admin")
+            return res.redirect("/admin/login")
         })
     }
     catch (e) {

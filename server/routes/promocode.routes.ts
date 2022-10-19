@@ -51,14 +51,14 @@ router.get('/details/:id', async (req: Request<{ id: string }>, res) => {
 	}
 })
 
-router.post("/", json(), async (req: Request<{}, {}, { code: string, dateStart: string, dateFinish: string, holderId: string }>, res) => {
+router.post("/", json(), async (req: Request<{}, {}, { code: string, dateStart: string, dateFinish: string, discountPercent: number, holderId: string }>, res) => {
 	try {
-		const { code, dateFinish, dateStart, holderId } = req.body
+		const { code, dateFinish, dateStart, discountPercent, holderId } = req.body
 		const holder = await ClientModel.findById(holderId)
         if ( !holder ) {
             return res.status(404).json({ message: 'Пользователь не найден' })
         }
-        await holder.createPromocode(code, dateFinish, dateStart)
+        await holder.createPromocode(code, dateFinish, dateStart, discountPercent)
         return res.end()
 		
 	} catch (e: any) {
@@ -68,7 +68,7 @@ router.post("/", json(), async (req: Request<{}, {}, { code: string, dateStart: 
 	}
 })
 
-router.put("/:id", json(), async (req: Request<{ id: string }, {}, { code: string; dateStart: string; dateFinish: string }>, res) => {
+router.put("/:id", json(), async (req: Request<{ id: string }, {}, { code: string; dateStart: string; dateFinish: string, discountPercent: number }>, res) => {
 	try {
 		const { id } = req.params
 		const promocode = await PromocodeModel.findById(id)
@@ -76,12 +76,12 @@ router.put("/:id", json(), async (req: Request<{ id: string }, {}, { code: strin
 			return res.status(404).json({ message: "Промокод не найден" })
 		}
 		
-        const { code, dateFinish, dateStart } = req.body
+        const { code, dateFinish, dateStart, discountPercent } = req.body
         const cursor = await PromocodeModel.findOne({ _id: { $ne: promocode._id }, code })
         if ( cursor ) {
             return res.status(404).json({ message: "Такой промокод уже существует" })
         }
-        await PromocodeModel.findByIdAndUpdate(id, { code, dateFinish, dateStart })
+        await PromocodeModel.findByIdAndUpdate(id, { code, dateFinish, dateStart, discountPercent })
         return res.end()
 	} catch (e) {
 		logger.error(e)

@@ -99,7 +99,7 @@ PromocodeSchema.methods.getDetails = async function(this: IPromocodeDoc): Promis
 				populate: { path: "client" },
 			},
 		}).then((doc) => {
-			const { code, dateFinish, dateStart, _id, status, promocodeTotalCashBack, orders } = doc
+			const { code, dateFinish, dateStart, discountPercent, _id, status, promocodeTotalCashBack, orders } = doc
 			const ordersRes = orders.map<IPromocodeDetails["orders"][0]>(
 				({ cashBack: orderCashBack, orderId }: { cashBack: number; orderId: Omit<IOrder, "client"> & { client: IClient } }) => {
 					const { client, total: orderTotal, _id, number } = orderId
@@ -121,7 +121,8 @@ PromocodeSchema.methods.getDetails = async function(this: IPromocodeDoc): Promis
 				ordersTotal,
 				totalCashBack: promocodeTotalCashBack,
 			}
-			return { code, dateFinish, dateStart, id: _id.toString(), status, total, orders: ordersRes }
+			const discountPercentValue = discountPercent
+			return { code, dateFinish, dateStart, discountPercentValue, id: _id.toString(), status, total, orders: ordersRes }
 		})
 	} catch(e) {
 		console.log(e)

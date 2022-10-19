@@ -10,10 +10,11 @@ interface IProps extends ModalProps {
 }
 
 const ModalComponent: FC<IProps> = ({ clientId, id, show, onHide }) => {
-    const { data, isLoading, isSuccess } = useGetPromocodeQuery({ id: id || '' }, { skip: !id })
+    const { data, isLoading, isSuccess } = useGetPromocodeQuery({ id: id || '' }, { skip: !id, refetchOnMountOrArgChange: true })
     const [createPromocode, { isLoading: createLoading, isSuccess: createSuccess, reset: createReset }] = useCreatePromocodeMutation()
     const [updatePromocode, { isLoading: updateLoading, isSuccess: updateSuccess, reset: updateReset }] = useUpdatePromocodeMutation()
     const [code, setCode] = useState('')
+    const [discount, setDiscount] = useState(5)
     const [dateStart, setDateStart] = useState<Date | null>(null)
     const [dateFinish, setDateFinish] = useState<Date | null>(null)
     const [dateState, setDateState] = useState('Выберите дату начала')
@@ -28,10 +29,21 @@ const ModalComponent: FC<IProps> = ({ clientId, id, show, onHide }) => {
         setDateFinish(null)
         setDateStart(null)
         setDateState("Выберите дату начала")
+        setDiscount(5)
     }
 
     const codeHandler = (event: ChangeEvent<HTMLInputElement>) => {
         setCode(event.target.value)
+    }
+
+    const discountHandler = (event: ChangeEvent<HTMLInputElement>) => {
+        const { value } = event.target
+        if ( value === '' ) {
+            setDiscount(0)
+        }
+        if ( !isNaN(+value) ) {
+            setDiscount(+value)
+        }
     }
 
     const calendarHandler = (value: Date) => {
@@ -54,7 +66,7 @@ const ModalComponent: FC<IProps> = ({ clientId, id, show, onHide }) => {
         if ( !dateStart || !dateFinish ) {
             return
         }
-        const body = { code, dateStart: dateStart.toString(), dateFinish: dateFinish.toString() }
+        const body = { code, dateStart: dateStart.toString(), dateFinish: dateFinish.toString(), discountPercent: discount }
         if ( id ) {
             updatePromocode({ id, body })
         } else {
@@ -67,6 +79,7 @@ const ModalComponent: FC<IProps> = ({ clientId, id, show, onHide }) => {
             setCode(data.code)
             setDateFinish(new Date(data.dateFinish))
             setDateStart(new Date(data.dateStart))
+            setDiscount(data.discountPercent || 5)
         }
     }, [data, isSuccess])
 
@@ -99,6 +112,10 @@ const ModalComponent: FC<IProps> = ({ clientId, id, show, onHide }) => {
 					<Form.Control placeholder="Введите промокод" value={code} onChange={codeHandler} disabled={isLoading} />
 				</Form.Group>
 				<Form.Group className="mb-3 text-start">
+					<Form.Label className="text-start">Скидка, %</Form.Label>
+					<Form.Control placeholder="Скидка по промокоду" value={discount} onChange={discountHandler} disabled={isLoading} />
+				</Form.Group>
+				<Form.Group className="mb-3 text-start">
 					<Form.Label className="text-start">Период действия</Form.Label>
 					<Form.Control value={dateState} disabled />
 				</Form.Group>
@@ -108,10 +125,12 @@ const ModalComponent: FC<IProps> = ({ clientId, id, show, onHide }) => {
 			</Modal.Body>
 			<Modal.Footer>
 				<ButtonComponent
-                    disabled={code === "" || !dateFinish || !dateStart || isLoading}
-                    isLoading={createLoading || updateLoading}
-                    onClick={handler}
-                >{id ? <>Изменить</> : <>Создать</>}</ButtonComponent>
+					disabled={code === "" || !dateFinish || !dateStart || isLoading}
+					isLoading={createLoading || updateLoading}
+					onClick={handler}
+				>
+					{id ? <>Изменить</> : <>Создать</>}
+				</ButtonComponent>
 			</Modal.Footer>
 		</Modal>
 	)
