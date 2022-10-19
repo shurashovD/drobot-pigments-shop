@@ -293,12 +293,15 @@ ClientSchema.methods.getPromocodes = async function (this: IClient): Promise<IPr
 						status = "finished"
 					}
  					const ordersRes = orders.map<IPromocodeDetails["orders"][0]>(({ cashBack, orderId }) => {
-						const { client, total, _id, number } = orderId
+						const client = orderId?.client || 'Не доступно'
+						const total = orderId?.total || 0
+						const _id = orderId?._id || (Date.now() + Math.random())
+						const number = orderId?.number || 'Не доступно'
 						return {
 							buyer: client.name || 'Неизвестный покупатель', orderCashBack: cashBack, orderTotal: total, orderId: _id.toString(), orderNumber: number.toString()
 						}
 					})
-					const ordersTotal = orders.reduce((sum, { orderId }) => orderId.total + sum, 0)
+					const ordersTotal = orders.reduce((sum, { orderId }) => orderId?.total || 0 + sum, 0)
 					const total: IPromocodeDetails["total"] = {
 						ordersLength: orders.length,
 						ordersTotal,

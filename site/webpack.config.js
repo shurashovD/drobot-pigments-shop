@@ -12,7 +12,7 @@ const output = process.env.NODE_ENV === 'production' ? {
 module.exports = {
     name: 'site',
     entry: path.join(__dirname, 'index.tsx'),
-    devtool: 'source-map',
+    devtool: 'inline-source-map',
     devServer: {
         headers: {
             "Access-Control-Allow-Origin": "*",
@@ -35,7 +35,7 @@ module.exports = {
         },
         static: true,
     },
-    mode,
+    mode: 'development',
     output,
     resolve: {
         extensions: ['.ts', '.tsx', '.js']

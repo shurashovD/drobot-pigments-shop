@@ -102,9 +102,12 @@ PromocodeSchema.methods.getDetails = async function(this: IPromocodeDoc): Promis
 			const { code, dateFinish, dateStart, discountPercent, _id, status, promocodeTotalCashBack, orders } = doc
 			const ordersRes = orders.map<IPromocodeDetails["orders"][0]>(
 				({ cashBack: orderCashBack, orderId }: { cashBack: number; orderId: Omit<IOrder, "client"> & { client: IClient } }) => {
-					const { client, total: orderTotal, _id, number } = orderId
+					const client = orderId?.client
+					const orderTotal = orderId?.total || 0
+					const number = orderId?.number || 'Не доступно'
+					const _id = orderId?._id || (Date.now() + Math.random())
 					return {
-						buyer: client.name || "Неизвестный покупатель",
+						buyer: client?.name || "Неизвестный покупатель",
 						orderCashBack,
 						orderTotal,
 						orderId: _id?.toString() || "",
@@ -113,7 +116,7 @@ PromocodeSchema.methods.getDetails = async function(this: IPromocodeDoc): Promis
 				}
 			)
 			const ordersTotal = orders.reduce(
-				(sum, { orderId }: { cashBack: number; orderId: Omit<IOrder, "client"> & { client: IClient } }) => orderId.total + sum,
+				(sum, { orderId }: { cashBack: number; orderId: Omit<IOrder, "client"> & { client: IClient } }) => orderId?.total || 0 + sum,
 				0
 			)
 			const total: IPromocodeDetails["total"] = {

@@ -149,7 +149,7 @@ const Recipient = () => {
 						</Col>
 						<Col xs={12} lg={6}>
 							<Form.Label className="w-100">
-								<div className={classNames("mb-2", { "text-danger": mailInvalid })}>E-mail*</div>
+								<div className={classNames("mb-2", { "text-danger": mailInvalid })}>E-mail для чека ОФД*</div>
 								<Form.Control
 									className={classNames("py-3", { "border-danger": mailInvalid })}
 									value={mailVal}
@@ -167,7 +167,7 @@ const Recipient = () => {
 								onClick={setRecipientHandler}
 								isLoading={setRecipientLoading}
 							>
-								Далее
+								Применить
 							</ButtonComponent>
 						</Col>
 					</Row>

@@ -11,7 +11,7 @@ import PointsModel from '../models/PointsModel';
 import ProductModel, { VariantModel } from '../models/ProductModel'
 import { sdekCalcDelivery } from '../sdekAPI/calc';
 import getCounterPartyByNumber from '../moyskladAPI/counterparty';
-import errorHandler, { logger } from '../handlers/errorLogger';
+import { logger } from '../handlers/errorLogger';
 import createMsOrderHandler from '../handlers/createMsOrderHandler';
 import createPaymentHandler from '../handlers/createPaymentHandler';
 import CartModel from '../models/CartModel';
@@ -225,6 +225,18 @@ router.get("/delivery/recipient", async (req, res) => {
 		}
 
 		const result: { phone: string, name?: string, mail?: string } = { phone: client.tel }
+		if ( !req.session.delivery?.recipientName && client.name ) {
+			if ( !req.session.delivery ) {
+				req.session.delivery = {}
+			}
+			req.session.delivery.recipientName = client.name
+		}
+		if ( !req.session.delivery?.recipientMail && client.mail ) {
+			if ( !req.session.delivery ) {
+				req.session.delivery = {}
+			}
+			req.session.delivery.recipientMail = client.mail
+		}
 		if ( req.session.delivery?.recipientName ) {
 			result.name = req.session.delivery.recipientName
 		}
