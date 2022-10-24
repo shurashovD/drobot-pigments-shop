@@ -1,4 +1,4 @@
-import bodyParser from 'body-parser';
+import bodyParser, { json } from 'body-parser';
 import { Request, Router } from "express"
 import { amoGetToken } from '../amoAPI/amoApi';
 import { logger } from '../handlers/errorLogger';
@@ -41,8 +41,9 @@ router.post('/auth', bodyParser.json(), async (req: Request<{}, {}, {code: strin
     }
 })
 
-router.get('/handle', async (req, res) => {
+router.get('/handle', json(), async (req, res) => {
     try {
+        console.log(req.body)
         return res.end()
     }
     catch (e) {

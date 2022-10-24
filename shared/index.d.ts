@@ -25,6 +25,16 @@ export interface IAmoTag {
 	color: string | null
 }
 
+export interface IAmoTrade {
+	id: number
+	name: string
+	price: number
+	status_id: number
+	pipeline_id: number
+	custom_fields_values: any[]
+	_embedded: any[]
+}
+
 export interface ICurrency extends Document {
 	identifier: string
 	name: string
