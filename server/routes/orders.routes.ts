@@ -226,7 +226,6 @@ router.get('/delivery/ways', async (req, res) => {
 // получить информацию о получателе;
 router.get("/delivery/recipient", async (req, res) => {
 	try {
-		console.log(123)
 		const userId = req.session.userId
 		if (!userId) {
 			return res.end()
@@ -236,8 +235,6 @@ router.get("/delivery/recipient", async (req, res) => {
 		if (!client) {
 			return res.end()
 		}
-
-		console.log(client)
 
 		const result: { phone: string, name?: string, mail?: string } = { phone: client.tel }
 		if ( !req.session.delivery?.recipientName && client.name ) {
@@ -695,7 +692,7 @@ router.post("/", bodyParser.json(), async (req, res) => {
 				err.sersviceInfo = `Не найдены параметры доставки. Клиент ${req.session.userId}. Создание заказа`
 				throw err
 			}
-			if (!req.session.delivery.city_code) {
+			if (!req.session.delivery.city_code && req.session.delivery.sdek?.checked) {
 				const err = new Error("Не найден город доставки")
 				err.userError = true
 				err.sersviceInfo = `Не найден город доставки. Клиент ${req.session.userId}. Создание заказа`
@@ -712,7 +709,7 @@ router.post("/", bodyParser.json(), async (req, res) => {
 			// создание шаблона заказа в БД;
 			const { recipientMail, recipientName } = req.session.delivery
 			let orderId
-			if (sdek && sdek.checked) {
+			if (sdek && sdek.checked && city_code) {
 				const { tariff_code, address, code } = sdek
 				const sdekForOrder: IOrder["delivery"]["sdek"] = {
 					city_code,
