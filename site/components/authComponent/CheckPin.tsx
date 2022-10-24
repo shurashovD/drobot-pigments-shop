@@ -12,8 +12,8 @@ interface IProps {
 const CheckPin: FC<IProps> = ({ show }) => {
     const { authorization, country, number, pin } = useAppSelector(state => state.authComponentSlice)
     const { data, isLoading: authLoading, isSuccess: authSuccess, refetch } = useAccountAuthQuery(undefined)
-    const [check, { isLoading, isSuccess }] = useCheckPinMutation()
-	const [registerCheck, { isLoading: registerLoading, isSuccess: registerSuccess }] = useRegisterCheckPinMutation()
+    const [check, { isLoading, isSuccess, reset }] = useCheckPinMutation()
+	const [registerCheck, { isLoading: registerLoading, isSuccess: registerSuccess, reset: registerReset }] = useRegisterCheckPinMutation()
     const dispatch = useAppDispatch()
     const phone = () => {
         const codeEnd = 3
@@ -46,10 +46,12 @@ const CheckPin: FC<IProps> = ({ show }) => {
     }, [isSuccess, refetch, registerSuccess])
 
     useEffect(() => {
-        if ( authSuccess && !!data?.status ) {
-            dispatch(setShow(false))
-        }
-    }, [authSuccess, data, dispatch, setShow])
+        if (authSuccess && !!data && (isSuccess || registerSuccess)) {
+			dispatch(setShow(false))
+			reset()
+			registerReset()
+		}
+    }, [authSuccess, data, dispatch, setShow, isSuccess, registerSuccess, reset, registerReset])
 
     if ( !show ) {
         return null
