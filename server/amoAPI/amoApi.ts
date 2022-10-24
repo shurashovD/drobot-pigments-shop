@@ -265,17 +265,10 @@ export const updateContact = async (id: string, name = 'Покупатель с 
 export const getContactByPhone = async (phone: string) => {
     try {
 		const parsePhone = (number: string) => {
-			if (number.length < 10) return undefined
-
-			let result = ""
-			for (let i = 1; i <= 10; ++i) {
-				const symbol = number[number.length - i]
-				if (isNaN(parseInt(symbol))) {
-					continue
-				}
-				result += symbol
-			}
-			return Array.from(result).reverse().join('')
+			return number
+				.split("")
+				.filter((item) => !isNaN(+item))
+				.join("")
 		}
 
         const authorization = await amoAuth()

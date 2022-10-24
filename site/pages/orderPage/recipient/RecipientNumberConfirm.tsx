@@ -20,7 +20,7 @@ const RecipientNumberConfirm: FC<IProps> = ({ checkNumber, isConfirm, numberIsCh
 	}
 
 	return (
-		<Button variant={isConfirm ? "light" : "outline-danger"} className={classNames({"border border-muted": isConfirm})}
+		<Button variant={isConfirm ? "light" : "outline-danger"} className={classNames("p-3", {"border border-muted": isConfirm})}
 			disabled={shortNumber} onClick={handler}>
 			{isConfirm && numberIsChanged && <>Привязать новый</>}
 			{isConfirm && !numberIsChanged && <>Номер подтверждён</>}

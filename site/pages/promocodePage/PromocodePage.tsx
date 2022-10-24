@@ -21,7 +21,7 @@ const PromocodePage = () => {
     }, [data])
 
 	useEffect(() => {
-		document.title = 'Промокод'
+		document.title = 'Промокод'	
 	}, [])
 
     return (

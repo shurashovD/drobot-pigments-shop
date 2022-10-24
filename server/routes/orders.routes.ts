@@ -118,61 +118,60 @@ router.get("/delivery/detail", async (req, res) => {
 		let cart
 		// смотрим, авторизован ли пользователь и есть ли у него корзина;
 		const client = await ClientModel.findById(req.session.userId)
-		if ( client ) {
-			const clientCart = await CartModel.getCart(client.cartId?.toString() || '')
+		if (client) {
+			const clientCart = await CartModel.getCart(client.cartId?.toString() || "")
 			if (clientCart) {
 				cart = clientCart
 			}
 		}
 		// если пользователь не авторизован, проверим корзину сессии;
 		else {
-			const sessionCart = await CartModel.getCart(req.session.cartId || '')
-			if ( sessionCart ) {
+			const sessionCart = await CartModel.getCart(req.session.cartId || "")
+			if (sessionCart) {
 				cart = sessionCart
 			}
 		}
 
 		// если корзина не найдена, выходим;
-		if ( typeof cart === 'undefined' ) {
+		if (typeof cart === "undefined") {
 			return res.end()
 		}
 
-		// если самовывоз из магазина;
-		if ( req.session.delivery?.pickup?.checked ) {
-			return res.json({ pickup: true, address: "Российская Федерация, г. Краснодар, ул. Дзержинского 87/1" })
-		}
-
 		// если доставка СДЭК;
-		if ( req.session.delivery?.sdek && req.session.delivery?.city_code && cart ) {
+		if (req.session.delivery?.sdek && req.session.delivery?.city_code && cart) {
 			const { checked, tariff_code, address, code } = req.session.delivery.sdek
 			const { city_code } = req.session.delivery
+
 			const ids = cart.products.map(({ productId }) => productId).concat(cart.variants.map(({ productId }) => productId))
 			const products = await ProductModel.find({ _id: { $in: ids } })
-			const packages: ISdekCalcPayload['packages'] = cart.products.map(({ productId, quantity }) => {
-				const product = products.find(({ _id }) => _id?.toString() === productId)
-				return { weight: (product?.weight || 25) * quantity }
-			}).concat(
-				cart.variants.map(({ productId, quantity }) => {
+			const packages: ISdekCalcPayload["packages"] = cart.products
+				.map(({ productId, quantity }) => {
 					const product = products.find(({ _id }) => _id?.toString() === productId)
 					return { weight: (product?.weight || 25) * quantity }
 				})
-			)
+				.concat(
+					cart.variants.map(({ productId, quantity }) => {
+						const product = products.find(({ _id }) => _id?.toString() === productId)
+						return { weight: (product?.weight || 25) * quantity }
+					})
+				)
 			const sdekInfo = await sdekCalcDelivery({
 				from_location: { code: 435 },
 				to_location: { code: +city_code },
-				packages, tariff_code
+				packages,
+				tariff_code,
 			})
 			const { total_sum } = sdekInfo.data
 
 			// доставка на заказ от 20.000 рублей бесплатна;
-			if ( cart.amount && cart?.amount >= 20000 ) {
+			if (cart.amount && cart?.amount >= 20000) {
 				req.session.delivery.sdek.cost = 0
 			} else {
 				req.session.delivery.sdek.cost = total_sum
 			}
-			
-			if ( tariff_code === 139 ) {
-				if ( req.session.delivery.sdek.address ) {
+
+			if (tariff_code === 139) {
+				if (req.session.delivery.sdek.address) {
 					return res.json({ sdek: checked, tariff_code, address, ...sdekInfo.data, total_sum: req.session.delivery.sdek.cost })
 				} else {
 					return res.json({ sdek: checked, tariff_code, ...sdekInfo.data, total_sum: req.session.delivery.sdek.cost })
@@ -180,13 +179,26 @@ router.get("/delivery/detail", async (req, res) => {
 			} else {
 				if (req.session.delivery.sdek.code) {
 					const point = await PointsModel.findOne({ code })
-					return res.json({ sdek: checked, tariff_code, code, address: point?.location.address, ...sdekInfo.data, total_sum: req.session.delivery.sdek.cost })
+					return res.json({
+						sdek: checked,
+						tariff_code,
+						code,
+						address: point?.location.address,
+						...sdekInfo.data,
+						total_sum: req.session.delivery.sdek.cost,
+					})
 				} else {
 					return res.json({ sdek: checked, tariff_code, ...sdekInfo.data, total_sum: req.session.delivery.sdek.cost })
 				}
 			}
 		}
-		return res.end()
+
+		// если самовывоз из магазина;
+		if (req.session.delivery?.pickup?.checked) {
+			return res.json({ pickup: true, sdek: false, address: "Российская Федерация, г. Краснодар, ул. Дзержинского 87/1" })
+		}
+		
+		return res.json({ pickup: false, sdek: false })
 	} catch (e) {
 		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
@@ -617,11 +629,22 @@ router.put(
 	async (req: Request<{}, {}, { pickup: boolean, sdek: boolean, tariff_code?: 138 | 139 | 366, address?: string, code?: string }>,
 res) => {
 	try {
-		if (!req.session.delivery?.city_code) {
-			throw new Error(`Город доставки не определён`)
-		}
 		const { sdek, tariff_code, address, code, pickup } = req.body
+		if ( !req.session.delivery ) {
+			req.session.delivery = {}
+		}
+		if ( pickup ) {
+			req.session.delivery.pickup = { checked: true }
+			req.session.delivery.sdek = undefined
+			return res.end()
+		} else {
+			req.session.delivery.pickup = { checked: false }
+		}
+
 		if ( sdek && tariff_code ) {
+			if (!req.session.delivery?.city_code) {
+				throw new Error(`Город доставки не определён`)
+			}
 			req.session.delivery.pickup = undefined
 			req.session.delivery.sdek = {
 				checked: true, tariff_code
@@ -632,14 +655,6 @@ res) => {
 			if ( tariff_code !== 139 && code ) {
 				req.session.delivery.sdek.code = code
 			}
-		}
-		if ( pickup ) {
-			req.session.delivery.pickup = { checked: true }
-			if ( req.session.delivery.sdek?.checked ) {
-				req.session.delivery.sdek.checked = false
-			}
-		} else {
-			req.session.delivery.pickup = { checked: false }
 		}
 		return res.end()
 	} catch (e) {

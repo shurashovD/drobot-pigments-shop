@@ -86,7 +86,7 @@ router.post('/auth/check-pin', json(), async (req: Request<{}, {}, { pin: string
 router.post('/register', json(), async (req: Request<{}, {}, { phone: string }>, res) => {
     try {
         const { phone } = req.body
-        const client = await ClientModel.findOne({ tel: req.session.candidateNumber })
+        const client = await ClientModel.findOne({ tel: phone })
 		if (client) {
 			return res.status(500).json({ message: "Пользователь с таким номером уже зарегистрирован" })
 		}

@@ -2,8 +2,8 @@ import { useEffect } from "react"
 import { Button, Container } from "react-bootstrap"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useAccountAuthQuery } from "../../application/account.service"
-import { useAppDispatch, useAppSelector } from "../../application/hooks"
-import { setProfileClient, setShowAuthModal } from "../../application/profileSlice"
+import { setShow } from "../../application/authComponentSlice"
+import { useAppDispatch } from "../../application/hooks"
 import LoaderComponent from "../../components/LoaderComponent"
 import MobileAlerts from "./components/MobileAlerts"
 import Favourite from "./Favourite"
@@ -20,34 +20,21 @@ const ProfilePage = () => {
     const { hash } = useLocation()
 	const navigate = useNavigate()
     const {data, isSuccess, isFetching} = useAccountAuthQuery(undefined, { refetchOnMountOrArgChange: true })
-    const { client } = useAppSelector(state => state.profileSlice)
     const dispatch = useAppDispatch()
 
     useEffect(() => {
         if ( isSuccess ) {
 			if (!data) {
-				dispatch(setShowAuthModal(true))
-			} else {
-				if (data.name) {
-					const [name, lastName] = data.name?.split(" ")
-					const initials = `${name[0]}${lastName?.[0] || ""}`.toUpperCase()
-					dispatch(
-						setProfileClient({
-							name: data.name, mail: data.mail, phone: data.tel, initials, isCounterparty: !!data.counterpartyId, status: data.status
-						})
-					)
-				} else {
-					dispatch(setProfileClient({ isCounterparty: !!data.counterpartyId, phone: data.tel }))
-				}
+				dispatch(setShow(true))
 			}
         }
     }, [data, isSuccess])
 
     useEffect(() => {
-        if (client && !client.isCounterparty) {
-			navigate({ hash: "profile" })
+        if (data && !data.counterpartyId) {
+			navigate({ hash: "#profile" })
         }
-    }, [client])
+    }, [data])
 
 	useEffect(() => {
 		if ( !hash || hash === '' ) {
@@ -63,7 +50,7 @@ const ProfilePage = () => {
 		<Container fluid className="p-0 pb-6">
 			{isFetching && <LoaderComponent />}
 			<SuccessModal />
-			{!!client && (
+			{!!data && (
 				<div className="d-md-none">
 					<MobileAlerts />
 					<Mobile />
@@ -72,22 +59,22 @@ const ProfilePage = () => {
 					</div>
 				</div>
 			)}
-			{!!client && (
+			{!!data && (
 				<div className="d-none d-md-block">
 					<ProfilePageNavigate />
 					{hash === "#main" && <Main />}
 					{hash === "#orders" && <Orders />}
-					{hash === "#promocodes" && (client.status === "agent" || client.status === "delegate") && <Promocodes />}
+					{hash === "#promocodes" && (data.status === "agent" || data.status === "delegate") && <Promocodes />}
 					{hash === "#favourite" && <Favourite />}
 					{hash === "#profile" && <Profile />}
 				</div>
 			)}
-			{!client && (
-				<div>
+			{!data && (
+				<Container className="pt-6">
 					<p className="fs-3 mb-4">Вход в профиль не выполнен</p>
 					<p>Войдите в пофиль, чтоб получить доступ к программе лояльности и ранее совершенным заказам</p>
-					<Button onClick={() => dispatch(setShowAuthModal(true))}>Войти в профиль</Button>
-				</div>
+					<Button onClick={() => dispatch(setShow(true))}>Войти в профиль</Button>
+				</Container>
 			)}
 		</Container>
 	)

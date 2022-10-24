@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { Button, Collapse } from "react-bootstrap"
 import { useAppDispatch, useAppSelector } from "../../../application/hooks"
-import { useGetDeliveryCityQuery } from "../../../application/order.service"
+import { useGetDeliveryCityQuery, useGetDeliveryDetailQuery } from "../../../application/order.service"
 import { setActive, setCity } from "../../../application/orderSlice"
 import Region from "./Region"
 import classnames from 'classnames'
@@ -12,6 +12,7 @@ const RegionWrapper = () => {
 	const disabled = useAppSelector(state => !state.orderSlice.available.includes(eventKey))
 	const empty = useAppSelector((state) => state.orderSlice.empty.includes(eventKey))
 	const { data: deliveryCity } = useGetDeliveryCityQuery(undefined)
+	const { data: deliveryDetail } = useGetDeliveryDetailQuery(undefined)
 	const dispatch = useAppDispatch()
 
 	useEffect(() => {
@@ -20,9 +21,12 @@ const RegionWrapper = () => {
 
 	return (
 		<>
-			<Button id="order-region" variant="link" onClick={() => dispatch(setActive(eventKey))}
+			<Button
+				id="order-region"
+				variant="link"
+				onClick={() => dispatch(setActive(eventKey))}
 				disabled={disabled}
-				className={classnames("order-accordion__btn", { "collapsed": activeKey === eventKey, "empty": empty })}
+				className={classnames("order-accordion__btn", { collapsed: activeKey === eventKey, empty: empty })}
 			>
 				<span className="text-uppercse fs-3">1. Регион доставки</span>
 			</Button>
@@ -31,12 +35,16 @@ const RegionWrapper = () => {
 					<Region city={deliveryCity?.city} code={deliveryCity?.city_code} />
 				</div>
 			</Collapse>
-			<Collapse in={!!deliveryCity && activeKey !== eventKey}>
+			<Collapse in={(!!deliveryCity || !!deliveryDetail?.pickup) && activeKey !== eventKey}>
 				<div className="mt-5">
 					<span>Город доставки: </span>
-					<b>
-						{deliveryCity?.region}, {deliveryCity?.city}
-					</b>
+					{!!deliveryDetail?.pickup ? (
+						<b>Краснодар</b>
+					) : (
+						<b>
+							{deliveryCity?.region}, {deliveryCity?.city}
+						</b>
+					)}
 				</div>
 			</Collapse>
 		</>

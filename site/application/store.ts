@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import accountApi from "./account.service";
 import alertSlice from "./alertSlice";
+import authComponentSlice from "./authComponentSlice";
 import categoriesSlice from "./categoriesSlice";
 import categoryApi from "./category.service";
 import cookiesApi from "./cookies.service";
@@ -32,6 +33,7 @@ const store = configureStore({
 	reducer: {
 		[accountApi.reducerPath]: accountApi.reducer,
 		[alertSlice.name]: alertSlice.reducer,
+		[authComponentSlice.name]: authComponentSlice.reducer,
 		[categoryApi.reducerPath]: categoryApi.reducer,
 		[categoriesSlice.name]: categoriesSlice.reducer,
 		[cookiesApi.reducerPath]: cookiesApi.reducer,

@@ -2,9 +2,9 @@ import { useRef } from "react"
 import { Button, Col, Collapse, Fade, Row } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
 import { useAccountAuthQuery } from "../../application/account.service"
+import { setShow } from "../../application/authComponentSlice"
 import { useAppDispatch } from "../../application/hooks"
 import { useGetCartQuery } from "../../application/order.service"
-import { setShowAuthModal } from "../../application/profileSlice"
 import CashBackComponent from "./CashBackComponent"
 import PromocodeComponent from "./PromocodeComponent"
 
@@ -57,7 +57,7 @@ const CartTotal = () => {
 			{!auth && (
 				<div className="mb-5">
 					Для доступа к скидкам{" "}
-					<Button variant="link" onClick={() => dispatch(setShowAuthModal(true))} className="m-0 p-0 text-dark text-decoration-underline">
+					<Button variant="link" onClick={() => dispatch(setShow(true))} className="m-0 p-0 text-dark text-decoration-underline">
 						Авторизуйтесь или Зарестирируйтесь
 					</Button>
 				</div>

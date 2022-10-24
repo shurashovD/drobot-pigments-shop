@@ -37,18 +37,12 @@ export const editMsCounterParty = async (
 
 const getCounterPartyByNumber = async (phone: string) => {
     const parsePhone = (number: string) => {
-		if (number.length < 10) return undefined
-
-		let result = ""
-		for (let i = 1; i <= 10; ++i) {
-			const symbol = number[number.length - i]
-			if (isNaN(parseInt(symbol))) {
-				continue
-			}
-			result += symbol
-		}
-		return Array.from(result).reverse().join('')
+		return number
+			.split("")
+			.filter((item) => !isNaN(+item))
+			.join("")
 	}
+	
     try {
         const { rows } = await ms.GET(paths.counterparty)
         const counterparty:

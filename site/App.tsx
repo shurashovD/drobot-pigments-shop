@@ -10,10 +10,11 @@ import MainPage from "./pages/mainPage/MainPage"
 import { useSendErrorMutation } from "./application/error.service"
 import { useAccountAuthQuery } from "./application/account.service"
 import FallbackComponent from "./FallbackComponent"
+//import PromocodePage from "./pages/promocodePage/PromocodePage"
 const PromocodePage = lazy(() => import("./pages/promocodePage/PromocodePage"))
 const PigmentsPage = lazy(() => import("./pages/pigmentsPage/PigmentsPage"))
 const AlertComponent = lazy(() => import("./components/AlertComponent"))
-const AuthComponent = lazy(() => import("./components/AuthComponent"))
+const AuthComponent = lazy(() => import("./components/authComponent/AuthComponent"))
 const ColoristicPage = lazy(() => import("./pages/coloristicPage/ColoristicPage"))
 const ParetnerProgramPage = lazy(() => import("./pages/partnerProgramPage/ParetnerProgramPage"))
 const ContactsPage = lazy(() => import("./pages/contactsPage/ContactsPage"))
@@ -178,7 +179,14 @@ const App = () => {
 							}
 						/>
 						{(auth?.status === "agent" || auth?.status === "delegate" || auth?.status === "coach") && (
-							<Route path="/promocode/:id" element={<PromocodePage />} />
+							<Route
+								path="/promocode/:id"
+								element={
+									<Suspense fallback={<FallbackComponent />}>
+										<PromocodePage />
+									</Suspense>
+								}
+							/>
 						)}
 						<Route path="*" element={<Navigate to="/" />} />
 					</Routes>

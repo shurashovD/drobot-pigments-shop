@@ -12,10 +12,14 @@ import SuccessAlert from "./SuccessAlert"
 import WarningAlert from "./WarningAlert"
 
 const parsePhoneValue = (value?: string) => {
-	if ( !value ) return ''
-	const code = value.substring(0, 3)
-	const fird = value.substring(8, 10)
-	return `+7 (${code}) ***-**-${fird}`
+	if (!value) return ""
+	const country = value.substring(0, value.length - 10)
+	const number = value.substring(value.length - 10)
+	const code = number.substring(0, 3)
+	const first = number.substring(3, 6)
+	const second = number.substring(6, 8)
+	const fird = number.substring(8, 10)
+	return `+${country} (${code}) ${first}-${second}-${fird}`
 }
 
 const Profile = () => {

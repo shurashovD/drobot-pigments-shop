@@ -1,10 +1,9 @@
 import { ChangeEvent, FC, useEffect, useRef, useState } from "react"
 import { Col, Dropdown, Form, Row, Spinner } from "react-bootstrap"
-import { useAppDispatch } from "../../../application/hooks"
-import { useGetRelevantCitiesQuery, useSetDeliveryCityMutation } from "../../../application/order.service"
-import { setActive } from "../../../application/orderSlice"
-import ButtonComponent from "../../../components/ButtonComponent"
+import { useGetDeliveryDetailQuery, useGetRelevantCitiesQuery } from "../../../application/order.service"
 import DropdownCityItem from "./DropdownCityItem"
+import NextBtn from "./NextBtn"
+import Pickup from "./Pickup"
 
 interface IProps {
 	city?: string
@@ -16,45 +15,14 @@ const Region: FC<IProps> = ({ city, code }) => {
 	const [relevantString, setRelevantString] = useState("")
 	const [dropdownShow, setDropdownShow] = useState(false)
 	const [cityCode, setCityCode] = useState<number | undefined>()
-	const [setDeliveryCity, { isLoading, isSuccess }] = useSetDeliveryCityMutation()
 	const { data: cities, isFetching: citiesLoading } = useGetRelevantCitiesQuery(relevantString, { refetchOnMountOrArgChange: true })
+	const { data: details } = useGetDeliveryDetailQuery(undefined)
 	const timerId = useRef<ReturnType<typeof setTimeout> | undefined>()
-	const dispatch = useAppDispatch()
 
 	const inputHandler = (e: ChangeEvent<HTMLInputElement>) => {
 		setValue(e.target.value)
 		setCityCode(undefined)
-	}
-
-	const dropdownHandler = (cityCode: number) => {
-		if (cities) {
-			const city = cities.find(({ city_code }) => city_code === cityCode)?.city
-			if (city) {
-				setValue(city)
-				setCityCode(cityCode)
-				setDropdownShow(false)
-			}
-		}
-	}
-
-	const toggleHandler = (event: boolean) => {
-		setDropdownShow(event)
-	}
-
-	const nextHandler = () => {
-		if ( cityCode ) {
-			setDropdownShow(false)
-			if ( cityCode !== code ) {
-				setDeliveryCity({ city_code: cityCode })
-			} else {
-
-			}
-			dispatch(setActive("2"))
-		}
-	}
-
-	useEffect(() => {
-		if (!cityCode && value.length > 0) {
+		if (value.length > 0) {
 			if (timerId.current) {
 				clearTimeout(timerId.current)
 			}
@@ -63,7 +31,21 @@ const Region: FC<IProps> = ({ city, code }) => {
 				setDropdownShow(true)
 			}, 400)
 		}
-	}, [value, cityCode])
+	}
+
+	const dropdownHandler = (cityCode: number) => {
+		if (cities) {
+			const city = cities.find(({ city_code }) => city_code === cityCode)?.city
+			if (city) {
+				setValue(city)
+				setCityCode(cityCode)
+			}
+		}
+	}
+
+	const toggleHandler = (event: boolean) => {
+		setDropdownShow(event)
+	}
 
 	useEffect(() => {
 		if (city && code) {
@@ -73,23 +55,40 @@ const Region: FC<IProps> = ({ city, code }) => {
 	}, [city, code])
 
 	useEffect(() => {
-		if ( isSuccess ) {
-			dispatch(setActive("2"))
-		}
-	}, [dispatch, isSuccess, setActive])
-
-	useEffect(() => {
 		if ( code ) {
 			setCityCode(code)
 		}
 	}, [code])
+
+	useEffect(() => {
+		if ( details ) {
+			if ( details.pickup ) {
+				setValue("Краснодар")
+				setCityCode(undefined)
+			} else {
+				setValue("")
+			}
+		}
+	}, [details])
+
+	useEffect(() => {
+		const handler = () => {
+			setDropdownShow(false)
+		}
+
+		document.addEventListener('click', handler)
+
+		return () => {
+			document.removeEventListener('click', handler)
+		}
+	}, [])
 
 	return (
 		<div>
 			<span>Город доставки*</span>
 			<Row>
 				<Col xs={12} md={8} lg={6}>
-					<Form.Control className="h-100 py-md-0" value={value} onChange={inputHandler} disabled={isLoading} />
+					<Form.Control className="h-100 py-md-0" value={value} onChange={inputHandler} disabled={details?.pickup} />
 					<Dropdown show={dropdownShow} autoClose="outside" onToggle={toggleHandler}>
 						<Dropdown.Menu className="border-top-0 w-100 bg-light">
 							{citiesLoading && (
@@ -106,15 +105,16 @@ const Region: FC<IProps> = ({ city, code }) => {
 					</Dropdown>
 				</Col>
 				<Col xs={12} md={4} lg={2}>
-					<div className="d-lg-none text-muted mt-2 mb-3">Выберите свой город в списке.</div>
+					<div className="d-md-none text-muted mt-2 mb-3">Выберите свой город в списке.</div>
 					<div className="d-flex">
-						<ButtonComponent disabled={city === value ? false : !cityCode} onClick={nextHandler} isLoading={isLoading}>
-							{city === value ? <>Далее</> : <>Выбрать</>}
-						</ButtonComponent>
+						<NextBtn city={city} inputValue={value} cityCode={cityCode} cityIsChange={code !== cityCode} />
 					</div>
 				</Col>
 				<Col xs={12} md={8}>
-					<div className="d-none d-lg-block text-muted my-1">Выберите свой город в списке.</div>
+					<div className="d-none d-md-block text-muted my-1">Выберите свой город в списке.</div>
+				</Col>
+				<Col xs={12} className="mt-3">
+					<Pickup />
 				</Col>
 			</Row>
 		</div>

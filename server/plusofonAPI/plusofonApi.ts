@@ -23,7 +23,7 @@ export const checkNumber = async (phone: string) => {
 			jsonrpc: "2.0",
 			method: "TFA/call",
 			id: "1",
-			params: { number: `7${phone}` },
+			params: { number: `${phone}` },
 		}
         const url = 'https://new-api.plusofon.ru'
         const authorization = `Bearer ${global.plusofonToken}`
