@@ -14,25 +14,15 @@ interface IProps {
     claimedStatus?: string
 }
 
-const parsePhoneValue = (value: string) => {
-	const code = value.substring(0, 3)
-	const first = value.substring(3, 6)
-	const second = value.substring(6, 8)
-	const fird = value.substring(8, 10)
-	let result = "+7 ("
-	if (value.length > 0) {
-		result += code
-	}
-	if (value.length >= 3) {
-		result += `) ${first}`
-	}
-	if (value.length >= 6) {
-		result += `-${second}`
-	}
-	if (value.length >= 8) {
-		result += `-${fird}`
-	}
-	return result
+const parsePhoneValue = (value?: string) => {
+	if (!value) return ""
+	const country = value.substring(0, value.length - 10)
+	const number = value.substring(value.length - 10)
+	const code = number.substring(0, 3)
+	const first = number.substring(3, 6)
+	const second = number.substring(6, 8)
+	const fird = number.substring(8, 10)
+	return `+${country} (${code}) ${first}-${second}-${fird}`
 }
 
 const Item: FC<IProps> = (props) => {

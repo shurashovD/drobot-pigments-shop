@@ -1,6 +1,6 @@
 import { ChangeEvent, FC, useEffect } from "react"
 import { Button, Col, Form, Row } from "react-bootstrap"
-import { useAccountAuthQuery, useCheckPinMutation } from "../../application/account.service"
+import { useAccountAuthQuery, useCheckPinMutation, useRegisterCheckPinMutation } from "../../application/account.service"
 import { setCheckPin, setPin, setShow } from "../../application/authComponentSlice"
 import { useAppDispatch, useAppSelector } from "../../application/hooks"
 import ButtonComponent from "../ButtonComponent"
@@ -10,9 +10,10 @@ interface IProps {
 }
 
 const CheckPin: FC<IProps> = ({ show }) => {
-    const { country, number, pin } = useAppSelector(state => state.authComponentSlice)
+    const { authorization, country, number, pin } = useAppSelector(state => state.authComponentSlice)
     const { data, isLoading: authLoading, isSuccess: authSuccess, refetch } = useAccountAuthQuery(undefined)
     const [check, { isLoading, isSuccess }] = useCheckPinMutation()
+	const [registerCheck, { isLoading: registerLoading, isSuccess: registerSuccess }] = useRegisterCheckPinMutation()
     const dispatch = useAppDispatch()
     const phone = () => {
         const codeEnd = 3
@@ -39,10 +40,10 @@ const CheckPin: FC<IProps> = ({ show }) => {
     }, [dispatch, setPin, show])
 
     useEffect(() => {
-        if ( isSuccess ) {
-            refetch()
-        }
-    }, [isSuccess, refetch])
+        if (isSuccess || registerSuccess) {
+			refetch()
+		}
+    }, [isSuccess, refetch, registerSuccess])
 
     useEffect(() => {
         if ( authSuccess && !!data?.status ) {
@@ -74,8 +75,8 @@ const CheckPin: FC<IProps> = ({ show }) => {
 				<ButtonComponent
 					variant="secondary"
 					disabled={pin.length !== 4}
-					isLoading={isLoading || authLoading}
-					onClick={() => check({ pin })}
+					isLoading={isLoading || authLoading || registerLoading}
+					onClick={() => authorization ? registerCheck({ pin }) : check({ pin })}
 				>
 					OK
 				</ButtonComponent>
