@@ -20,14 +20,23 @@ const Filters = () => {
 				</div>
 			)}
 			{!isLoading && category && (
-				<Accordion alwaysOpen={true} flush id="filter-accordion">
+				<Accordion
+					alwaysOpen={true}
+					flush
+					id="filter-accordion"
+					defaultActiveKey={[
+						...category.filters.map(({ _id }) => _id.toString()),
+						...(category.variantsFilter?.map(({ variantsLabel }) => variantsLabel) || []),
+						"price-fliter",
+					]}
+				>
 					{category.filters.map(({ _id, fields, title }) => (
 						<FilterItem key={_id.toString()} id={_id.toString()} fields={fields} title={title} />
 					))}
 					{category.variantsFilter?.map(({ variantsLabel, variantsValues }) => (
 						<VariantsFilter key={variantsLabel} variantsLabel={variantsLabel} variantsValues={variantsValues} />
 					))}
-					{ category.minPrice && category.maxPrice && <PriceFilter min={category.minPrice} max={category.maxPrice} /> }
+					{category.minPrice && category.maxPrice && <PriceFilter min={category.minPrice} max={category.maxPrice} />}
 				</Accordion>
 			)}
 			{!isLoading && category && (
