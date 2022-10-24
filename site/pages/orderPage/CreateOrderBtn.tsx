@@ -22,7 +22,7 @@ const CreateOrderBtn = () => {
 	const dispatch = useAppDispatch()
 
 	const validate = () => {
-		if (!city) {
+		if (!city && !detail?.pickup) {
 			setTimeout(() => {
 				dispatch(successAlert("Выберите город доставки"))
 			})
