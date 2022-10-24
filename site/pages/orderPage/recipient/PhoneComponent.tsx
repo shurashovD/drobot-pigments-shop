@@ -75,6 +75,16 @@ const PhoneComponent = () => {
 		}
 	}, [isSuccess])
 
+	useEffect(() => {
+		console.log(data)
+		if ( data?.phone ) {
+			const code = data.phone.substring(0, data.phone.length - 10)
+			const number = data.phone.substring(data.phone.length - 10)
+			setCountry(code)
+			setNumber(number)
+		}
+	}, [data])
+
     return (
 		<Row className="gy-3 gy-lg-0">
 			<CheckPhoneModal show={showModal} onHide={() => setShowModal(false)} />

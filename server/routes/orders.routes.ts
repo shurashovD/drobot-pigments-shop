@@ -226,6 +226,7 @@ router.get('/delivery/ways', async (req, res) => {
 // получить информацию о получателе;
 router.get("/delivery/recipient", async (req, res) => {
 	try {
+		console.log(123)
 		const userId = req.session.userId
 		if (!userId) {
 			return res.end()
@@ -235,6 +236,8 @@ router.get("/delivery/recipient", async (req, res) => {
 		if (!client) {
 			return res.end()
 		}
+
+		console.log(client)
 
 		const result: { phone: string, name?: string, mail?: string } = { phone: client.tel }
 		if ( !req.session.delivery?.recipientName && client.name ) {

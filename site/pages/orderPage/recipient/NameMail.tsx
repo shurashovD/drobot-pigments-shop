@@ -11,7 +11,7 @@ interface IProps {
 }
 
 const NameMail: FC<IProps> = ({ show }) => {
-    const { data } = useGetRecipientQuery(undefined)
+    const { data, isFetching } = useGetRecipientQuery(undefined)
     const [setRecipient, { isLoading, isSuccess }] = useSetRecipientMutation()
     const [nameVal, setName] = useState("")
     const [mailVal, setMail] = useState("")
@@ -38,6 +38,15 @@ const NameMail: FC<IProps> = ({ show }) => {
 		}
 	}, [dispatch, setActive, isSuccess])
 
+	useEffect(() => {
+		if ( data?.name ) {
+			setName(data.name)
+		}
+		if ( data?.mail ) {
+			setMail(data.mail)
+		}
+	}, [data])
+
     if ( !show ) {
         return null
     }
@@ -48,20 +57,30 @@ const NameMail: FC<IProps> = ({ show }) => {
 				<Col xs={12} lg={6}>
 					<Form.Label className="w-100">
 						<div className="mb-2">Получатель*</div>
-						<Form.Control className="py-3" value={nameVal} onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)} />
+						<Form.Control
+							disabled={isFetching}
+							className="py-3"
+							value={nameVal}
+							onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+						/>
 					</Form.Label>
 				</Col>
 				<Col xs={12} lg={6}>
 					<Form.Label className="w-100">
 						<div className={classNames("mb-2", { "text-danger": mailInvalid })}>E-mail для чека ОФД*</div>
-						<Form.Control className={classNames("py-3", { "border-danger": mailInvalid })} value={mailVal} onChange={mailHandler} />
+						<Form.Control
+							disabled={isFetching}
+							className={classNames("py-3", { "border-danger": mailInvalid })}
+							value={mailVal}
+							onChange={mailHandler}
+						/>
 					</Form.Label>
 				</Col>
 			</Row>
 			<Row className="mt-5">
 				<Col xs="auto">
 					<ButtonComponent
-						disabled={nameVal === "" || mailVal === "" || !data?.phone}
+						disabled={isFetching || nameVal === "" || mailVal === "" || !data?.phone}
 						onClick={setRecipientHandler}
 						isLoading={isLoading}
 					>
