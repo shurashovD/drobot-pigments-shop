@@ -10,7 +10,7 @@ interface IState {
 }
 
 const initialState: IState = {
-    authorization: true, checkPin: false, country: '', number: '', pin: '', show: false
+    authorization: true, checkPin: false, country: '7', number: '', pin: '', show: false
 }
 
 const authComponentSlice = createSlice({

@@ -76,7 +76,7 @@ const CheckPin: FC<IProps> = ({ show }) => {
 					variant="secondary"
 					disabled={pin.length !== 4}
 					isLoading={isLoading || authLoading || registerLoading}
-					onClick={() => authorization ? registerCheck({ pin }) : check({ pin })}
+					onClick={() => authorization ? check({ pin }) : registerCheck({ pin })}
 				>
 					OK
 				</ButtonComponent>
