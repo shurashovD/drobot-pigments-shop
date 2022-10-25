@@ -6,6 +6,8 @@ import AgentDiscountModel from './AgentDiscountModel';
 import DelegateDiscountModel from './DelegateDiscountModel';
 import CartModel from './CartModel';
 import PromocodeModel from './PromocodeModel';
+import getCounterPartyByNumber from '../moyskladAPI/counterparty'
+import { createContact, getContactByPhone } from '../amoAPI/amoApi';
 
 const ClientSchema = new Schema<IClient, ClientModel>({
 	addresses: [String],
@@ -477,6 +479,34 @@ ClientSchema.methods.getDebitesReport = async function (this: IClient): Promise<
 			const name = this.name || "Неизвестный пользователь"
 			return { debites, name }
 		})
+	} catch (e) {
+		throw e
+	}
+}
+
+ClientSchema.statics.createClient = async function (tel: string, name?: string, mail?: string): Promise<IClient> {
+	try {
+		let client
+		const counterparty = await getCounterPartyByNumber(tel)
+		if (counterparty) {
+			client = await new ClientModel({
+				counterpartyId: counterparty.id,
+				name: counterparty.name,
+				tel,
+			}).save()
+		} else {
+			client = await new ClientModel({ tel }).save()
+		}
+		const amoContact = await getContactByPhone(tel)
+		if (amoContact?.id) {
+			client.amoContactId = amoContact.id
+			await client.save()
+		} else {
+			const amoContact = await createContact(name || 'Покупатель с сайта', tel, mail)
+			client.amoContactId = amoContact.id
+			await client.save()
+		}
+		return client
 	} catch (e) {
 		throw e
 	}

@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 import { json } from 'body-parser';
-import { IOrder, ICartDoc } from './../../shared/index.d';
+import { IOrder, ICartDoc, IClient } from './../../shared/index.d';
 import { checkNumber, checkPin } from './../plusofonAPI/plusofonApi';
 import bodyParser from 'body-parser';
 import { Request, Router } from "express";
@@ -743,7 +743,7 @@ router.post("/", bodyParser.json(), async (req, res) => {
 			await OrderModel.setPaymentInfo(orderId, { paymentId: id, paymentUrl: url })
 
 			// создание заказа в Амо;
-			if (client.status && client.amoContactId) {
+			if (client.amoContactId) {
 				await createAmoTrade(orderId, client._id.toString(), number, url)
 			}
 
@@ -833,21 +833,9 @@ router.post('/check-number/pin', bodyParser.json(), async (req: Request<{}, {}, 
 		}
 		const result = await checkPin(req.session.plusofonKey, pin)
 		if (result === 1) {
-			let client = await ClientModel.findOne({ tel: req.session.candidateNumber })
+			let client: IClient|null = await ClientModel.findOne({ tel: req.session.candidateNumber })
 			if ( !client ) {
-				const counterparty = await getCounterPartyByNumber(req.session.candidateNumber)
-				if (counterparty) {
-					client = await new ClientModel({
-						counterpartyId: counterparty.id,
-						name: counterparty.name,
-						tel: req.session.candidateNumber,
-						cartId: req.session.cartId,
-					}).save()
-				} else {
-					client = await new ClientModel({
-						tel: req.session.candidateNumber
-					}).save()
-				}
+				client = await ClientModel.createClient(req.session.candidateNumber)
 			}
 			client.sid = req.session.id
 			await client.save()

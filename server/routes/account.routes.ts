@@ -1,9 +1,9 @@
+import { IClient } from './../../shared/index.d';
 import { json } from 'body-parser';
 import { Router, Request } from 'express';
-import { createTask, getContactByPhone } from '../amoAPI/amoApi';
+import { createTask } from '../amoAPI/amoApi';
 import { logger } from '../handlers/errorLogger';
 import ClientModel from '../models/ClientModel';
-import getCounterPartyByNumber from '../moyskladAPI/counterparty';
 import { checkNumber, checkPin } from '../plusofonAPI/plusofonApi';
 
 const router = Router()
@@ -112,32 +112,19 @@ router.post('/register/check-pin', json(), async (req: Request<{}, {}, { pin: st
 		}
 		const result = await checkPin(req.session.plusofonKey, pin)
 		if (result === 1 ) {
-            let client = await ClientModel.findOne({ tel: req.session.candidateNumber })
+            let client: IClient|null = await ClientModel.findOne({ tel: req.session.candidateNumber })
             if (client) {
 			    return res.status(500).json({ message: "Пользователь с таким номером уже зарегистрирован" })
 		    }
-            client = await new ClientModel({ tel: req.session.candidateNumber, sid: req.session.id }).save()
-
-            const contact = await getContactByPhone(req.session.candidateNumber)
-			if (contact) {
-				const { id } = contact
-				client.amoContactId = id
-				await client.save()
-			}
-
-            const counterparty = await getCounterPartyByNumber(req.session.candidateNumber)
-            if ( counterparty ) {
-                const { id } = counterparty
-                client.counterpartyId = id
-                await client.save()
-            }
+            client = await ClientModel.createClient(req.session.candidateNumber)
+            client.sid = req.session.id
+            await client.save()
             
             req.session.userId = client._id.toString()
             if (req.session.claimedStatus) {
 				client.claimedStatus = req.session.claimedStatus
 				await client.save()
 				delete req.session.claimedStatus
-				return res.redirect("/partner-program")
 			}
             return res.end()
         }

@@ -23,6 +23,7 @@ import authMiddleware, { adminAuthMiddleware } from './middleware/auth.middlewar
 import frontLogger from './routes/frontLogger.routes'
 import loyaltyRoutes from './routes/loyalty.routes'
 import cookiesRoutes from "./routes/cookies.routes"
+import { getContactByPhone } from './amoAPI/amoApi'
 
 const PORT = 3000
 
@@ -83,13 +84,13 @@ app.use("/api/ukassa", ukassaRoutes)
 
 app.use("/api/account", accountRoutes)
 
-app.use("/api/profile", /*authMiddleware,*/ profileRoutes)
+app.use("/api/profile", authMiddleware, profileRoutes)
 
-app.use("/api/promocodes", /*adminAuthMiddleware,*/ promocodeRoutes)
+app.use("/api/promocodes", adminAuthMiddleware, promocodeRoutes)
 
-app.use("/api/users", /*adminAuthMiddleware,*/ usersRoutes)
+app.use("/api/users", adminAuthMiddleware, usersRoutes)
 
-app.use("/api/loyalty", /*adminAuthMiddleware,*/ loyaltyRoutes)
+app.use("/api/loyalty", adminAuthMiddleware, loyaltyRoutes)
 
 app.use("/api/cookies", cookiesRoutes)
 

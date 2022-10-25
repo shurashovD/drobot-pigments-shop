@@ -71,7 +71,7 @@ const CheckPin: FC<IProps> = ({ show }) => {
 				</div>
 			</Col>
 			<Col xs={12} className="mb-4">
-				<Form.Control value={pin} className="p-2 py-4 text-white text-center" placeholder="4 цифры" onChange={codeHandler} />
+				<Form.Control value={pin} className="p-2 py-4 text-white text-center fs-3" placeholder="4 цифры" onChange={codeHandler} />
 			</Col>
 			<Col xs={12} className="text-center mb-4 fs-3">
 				<ButtonComponent

@@ -264,10 +264,11 @@ export const updateContact = async (id: string, name = 'Покупатель с 
 
 export const getContactByPhone = async (phone: string) => {
     try {
+		const reg = /^\d+$/
 		const parsePhone = (number: string) => {
 			return number
 				.split("")
-				.filter((item) => !isNaN(+item))
+				.filter((item) => reg.test(item))
 				.join("")
 		}
 
@@ -275,21 +276,38 @@ export const getContactByPhone = async (phone: string) => {
 		if (!authorization) {
 			return
 		}
-        const url = `${domain}${paths.contacts}`
-        const contacts = await axios.get(url, {
-			headers: {
-				"Content-Type": "application/json",
-				authorization,
-			},
-		})
-		.then(({ data }) => data?._embedded?.contacts)
+
 		const compPhone = parsePhone(phone)
-		return contacts.find(({ custom_fields_values }: any) => {
-			custom_fields_values?.some(({ field_id, values }: any) => (
-				( field_id === 329649 ) &&
-					values.some(({ value }: any) => parsePhone(value) === compPhone)
-			))
-		})
+		let page = 1
+		while (true) {
+			try {
+				const url = `${domain}${paths.contacts}?page=${page}&limit=250`
+				const data = await axios
+					.get(url, {
+						headers: {
+							"Content-Type": "application/json",
+							authorization,
+						},
+					})
+					.then(({ data }) => data?._embedded?.contacts)
+				if (data.length > 0) {
+					++page
+					const contact = data.find(({ custom_fields_values }: any) => 
+						custom_fields_values?.some(({ field_id, values }: any) => 
+							( field_id === 329649 ) && values.some(({ value }: any) => parsePhone(value) === compPhone)
+						)
+					)
+					if ( !!contact ) {
+						return contact
+					}
+				} else {
+					break
+				}
+			} catch (e) {
+				console.log(e)
+				break
+			}
+		}
     }
     catch (e) {
         throw e

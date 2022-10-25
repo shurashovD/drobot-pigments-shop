@@ -1,4 +1,4 @@
-import { Document, Model, Schema, Types } from "mongoose"
+import { Document, Model, Types } from "mongoose"
 import { FC, SVGProps } from "react"
 
 interface IAmoStatuses {
@@ -471,7 +471,9 @@ export interface IClient extends Document, IClientMethods {
 	total?: number
 }
 
-export interface ClientModel extends Model<IClient, {}, IClientMethods> {}
+export interface ClientModel extends Model<IClient, {}, IClientMethods> {
+	createClient(phone: string, name?: string, mail?: string): Promise<IClient>
+}
 
 export interface IMSHook {
 	url: string
