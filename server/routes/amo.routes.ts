@@ -2,7 +2,9 @@ import bodyParser from 'body-parser';
 import { Request, Router } from "express"
 import { amoGetToken } from '../amoAPI/amoApi';
 import { logger } from '../handlers/errorLogger';
+import setMsOrderStatus from '../handlers/setMsOrderStatus';
 import AmoCredModel from '../models/AmoCredModel';
+import OrderModel from "../models/OrderModel"
 
 const router = Router()
 
@@ -43,12 +45,57 @@ router.post('/auth', bodyParser.json(), async (req: Request<{}, {}, {code: strin
 
 router.post('/handle', bodyParser.urlencoded({ extended: false }), async (req, res) => {
     try {
-        console.log(req.body)
-        return res.end()
+        const tradeId = req.body['leads[status][0][id]']
+        const statusId = req.body["leads[status][0][status_id]"]
+        if ( tradeId && statusId ) {
+            res.end()
+        } else {
+            res.status(400)
+        }
+        const order = await OrderModel.findOne({ tradeId })
+        if ( !order ) {
+            return
+        }
+
+        console.log(tradeId);
+        console.log(statusId);
+
+        if ( statusId === '41224258' ) {
+            order.status = 'new'
+            if ( order.msOrderId ) {
+                await setMsOrderStatus(order.msOrderId, 'new')
+            }
+        }
+        if (statusId === "41224261") {
+            order.status = "compiling"
+            if ( order.msOrderId ) {
+                await setMsOrderStatus(order.msOrderId, "new")
+            }
+		}
+        if (statusId === "41225170") {
+            order.status = "builded"
+            if ( order.msOrderId ) {
+                await setMsOrderStatus(order.msOrderId, "builded")
+            }
+		}
+        if (statusId === "41225173") {
+            order.status = "dispatch"
+            if ( order.msOrderId ) {
+                await setMsOrderStatus(order.msOrderId, "dispatch")
+            }
+		}
+        if (statusId === "142") {
+            order.status = "complete"
+		}
+        if (statusId === "143") {
+            order.status = "canceled"
+            if ( order.msOrderId ) {
+                await setMsOrderStatus(order.msOrderId, "canceled")
+            }
+		}
     }
     catch (e) {
         logger.error(e)
-        return res.end()
     }
 })
 

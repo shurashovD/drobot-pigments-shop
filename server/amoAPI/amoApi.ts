@@ -339,7 +339,7 @@ export const getPipelines = async (id?: string) => {
     }
 }
 
-const getPipelineStatuses = async (id: string) => {
+export const getPipelineStatuses = async (id: string) => {
 	try {
 		const authorization = await amoAuth()
 		if (!authorization) {

@@ -23,7 +23,8 @@ import authMiddleware, { adminAuthMiddleware } from './middleware/auth.middlewar
 import frontLogger from './routes/frontLogger.routes'
 import loyaltyRoutes from './routes/loyalty.routes'
 import cookiesRoutes from "./routes/cookies.routes"
-import { getContactByPhone } from './amoAPI/amoApi'
+import { getContactByPhone, getPipelines, getPipelineStatuses } from './amoAPI/amoApi'
+import setMsOrderStatus from './handlers/setMsOrderStatus'
 
 const PORT = 3000
 
