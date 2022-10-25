@@ -41,7 +41,7 @@ router.post('/auth', bodyParser.json(), async (req: Request<{}, {}, {code: strin
     }
 })
 
-router.get('/handle', json(), async (req, res) => {
+router.post('/handle', json(), async (req, res) => {
     try {
         console.log(req.body)
         return res.end()
