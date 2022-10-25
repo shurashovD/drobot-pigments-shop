@@ -69,7 +69,7 @@ router.post('/handle', bodyParser.urlencoded({ extended: false }), async (req, r
         if (statusId === "41224261") {
             order.status = "compiling"
             if ( order.msOrderId ) {
-                await setMsOrderStatus(order.msOrderId, "new")
+                await setMsOrderStatus(order.msOrderId, "builded")
             }
 		}
         if (statusId === "41225170") {
