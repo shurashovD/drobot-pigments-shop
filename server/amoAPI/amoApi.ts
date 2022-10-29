@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from 'axios'
 import config from 'config'
 import { IAmoAuthCodeExchangePayload, IAmoAuthCodeExchangeResponse, IAmoCreateTaskPayload, IAmoPipeline, IAmoRefreshTokenPayload, IAmoRefreshTokenResponse, IAmoTag } from '../../shared'
+import AmoContactModel from '../models/AmoContactModel'
 import AmoCredModel from '../models/AmoCredModel'
 
 const { auth, contact, domain, pipelineId } = config.get("amo")
@@ -277,29 +278,58 @@ export const getContactByPhone = async (phone: string) => {
 			return
 		}
 
-		const compPhone = parsePhone(phone)
+		const number = parsePhone(phone)
+		const contact = await AmoContactModel.findOne({ number })
+		if ( contact ) {
+			const url = `${domain}${paths.contacts}/${contact.amoContactId}`
+			const data = await axios
+				.get(url, {
+					headers: {
+						"Content-Type": "application/json",
+						authorization,
+					},
+				})
+				.then(({ data }) => data)
+			return data
+		}
+		parseContacts()
+    }
+    catch (e) {
+        throw e
+    }
+}
+
+export const parseContacts = async () => {
+	try {
+		const reg = /^\d+$/
+		const parsePhone = (number: string) => {
+			return number
+				.split("")
+				.filter((item) => reg.test(item))
+				.join("")
+		}
+
+        const authorization = await amoAuth()
+		if (!authorization) {
+			return
+		}
+
 		let page = 1
+		const contacts = []
 		while (true) {
 			try {
 				const url = `${domain}${paths.contacts}?page=${page}&limit=250`
-				const data = await axios
-					.get(url, {
-						headers: {
-							"Content-Type": "application/json",
-							authorization,
-						},
-					})
+				const data = await axios.get(url, { headers: { "Content-Type": "application/json", authorization } })
 					.then(({ data }) => data?._embedded?.contacts)
 				if (data.length > 0) {
 					++page
-					const contact = data.find(({ custom_fields_values }: any) => 
-						custom_fields_values?.some(({ field_id, values }: any) => 
-							( field_id === 329649 ) && values.some(({ value }: any) => parsePhone(value) === compPhone)
-						)
-					)
-					if ( !!contact ) {
-						return contact
-					}
+					const phones = data.map(({ id, custom_fields_values }: any) => {
+						const phone = custom_fields_values?.find(({ field_id, values }: any) => ( field_id === 329649 ) && values?.length > 0)
+						if ( phone ) {
+							return { amoContactId: id, number: parsePhone(phone.values[0].value) }
+						}
+					}).filter((item: any) => !!item)
+					contacts.push(...phones)
 				} else {
 					break
 				}
@@ -308,10 +338,12 @@ export const getContactByPhone = async (phone: string) => {
 				break
 			}
 		}
-    }
-    catch (e) {
-        throw e
-    }
+		try {
+			await AmoContactModel.insertMany(contacts)
+		} catch (e) {}
+	} catch (e) {
+		console.log(e)
+	}
 }
 
 export const getPipelines = async (id?: string) => {

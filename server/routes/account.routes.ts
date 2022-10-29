@@ -61,6 +61,14 @@ router.post('/auth/check-pin', json(), async (req: Request<{}, {}, { pin: string
                 await client.mergeCart(req.session.cartId)
                 delete req.session.cartId
             }
+            if (req.session.favouriteId) {
+				await client.unionFavourite(req.session.favouriteId)
+				delete req.session.favouriteId
+			}
+            if (req.session.compareId) {
+				await client.unionFavourite(req.session.compareId)
+				delete req.session.compareId
+			}
             if (req.session.claimedStatus) {
 				client.claimedStatus = req.session.claimedStatus
 				await client.save()
@@ -125,6 +133,14 @@ router.post('/register/check-pin', json(), async (req: Request<{}, {}, { pin: st
 				client.claimedStatus = req.session.claimedStatus
 				await client.save()
 				delete req.session.claimedStatus
+			}
+            if (req.session.favouriteId) {
+				await client.unionFavourite(req.session.favouriteId)
+				delete req.session.favouriteId
+			}
+            if (req.session.compareId) {
+				await client.unionFavourite(req.session.compareId)
+				delete req.session.compareId
 			}
             return res.end()
         }

@@ -16,6 +16,7 @@ module.exports = {
         compress: true,
         port: 9000
     },
+    devtool: 'inline-source-map',
     mode,
     output: {
         path: path.resolve(__dirname, 'dist'),

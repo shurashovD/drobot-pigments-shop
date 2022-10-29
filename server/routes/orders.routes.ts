@@ -856,6 +856,14 @@ router.post('/check-number/pin', bodyParser.json(), async (req: Request<{}, {}, 
 				}
 				req.session.delivery.recipientMail = client.mail
 			}
+			if ( req.session.favouriteId ) {
+				await client.unionFavourite(req.session.favouriteId)
+				delete req.session.favouriteId
+			}
+			if (req.session.compareId) {
+				await client.unionFavourite(req.session.compareId)
+				delete req.session.compareId
+			}
 			return res.end()
 		}
 		if ( result === -3 ) {

@@ -8,12 +8,16 @@ import CartModel from './CartModel';
 import PromocodeModel from './PromocodeModel';
 import getCounterPartyByNumber from '../moyskladAPI/counterparty'
 import { createContact, getContactByPhone } from '../amoAPI/amoApi';
+import FavouriteModel from './FavouriteModel';
+import CompareModel from './CompareModel';
 
 const ClientSchema = new Schema<IClient, ClientModel>({
 	addresses: [String],
 	amoContactId: Number,
 	cartId: { type: Schema.Types.ObjectId, ref: "Cart" },
+	compare: { type: Types.ObjectId, ref: "Compare" },
 	counterpartyId: String,
+	favourite: { type: Schema.Types.ObjectId, ref: "Favourite" },
 	mail: String,
 	name: String,
 	orders: [{ type: Types.ObjectId, ref: "Order" }],
@@ -484,18 +488,72 @@ ClientSchema.methods.getDebitesReport = async function (this: IClient): Promise<
 	}
 }
 
+ClientSchema.methods.unionCompare = async function (this: IClient, compareId: Types.ObjectId | string) {
+	try {
+		if (!compareId) {
+			return
+		}
+		if (this.compare?.toString() === compareId.toString()) {
+			return
+		}
+		if (!this.compare) {
+			this.compare = new Types.ObjectId(compareId)
+			await this.save()
+			return
+		}
+
+		const compare = await CompareModel.findById(compareId)
+		const userCompare = await CompareModel.findById(this.favourite)
+		if (compare && userCompare) {
+			for (const i in compare.goods) {
+				const { product, variantId } = compare.goods[i]
+				await userCompare.addGood(product, variantId)
+			}
+		}
+	} catch (e) {
+		throw e
+	}
+}
+
+ClientSchema.methods.unionFavourite = async function (this: IClient, favouriteId: Types.ObjectId|string) {
+	try {
+		if ( !favouriteId ) {
+			return
+		}
+		if ( this.favourite?.toString() === favouriteId.toString() ) {
+			return
+		}
+		if ( !this.favourite ) {
+			this.favourite = new Types.ObjectId(favouriteId)
+			await this.save()
+			return
+		}
+
+		const favourite = await FavouriteModel.findById(favouriteId)
+		const userFavourite = await FavouriteModel.findById(this.favourite)
+		if ( favourite && userFavourite ) {
+			for ( const i in favourite.goods ) {
+				const { product, variantId } = favourite.goods[i]
+				await userFavourite.addGood(product, variantId)
+			}
+		}
+	} catch (e) {
+		throw e
+	}
+}
+
 ClientSchema.statics.createClient = async function (tel: string, name?: string, mail?: string): Promise<IClient> {
 	try {
 		let client
 		const counterparty = await getCounterPartyByNumber(tel)
 		if (counterparty) {
-			client = await new ClientModel({
+			client = await new this({
 				counterpartyId: counterparty.id,
 				name: counterparty.name,
 				tel,
 			}).save()
 		} else {
-			client = await new ClientModel({ tel }).save()
+			client = await new this({ tel }).save()
 		}
 		const amoContact = await getContactByPhone(tel)
 		if (amoContact?.id) {

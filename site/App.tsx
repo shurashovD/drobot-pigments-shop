@@ -10,7 +10,6 @@ import MainPage from "./pages/mainPage/MainPage"
 import { useSendErrorMutation } from "./application/error.service"
 import { useAccountAuthQuery } from "./application/account.service"
 import FallbackComponent from "./FallbackComponent"
-//import PromocodePage from "./pages/promocodePage/PromocodePage"
 const PromocodePage = lazy(() => import("./pages/promocodePage/PromocodePage"))
 const PigmentsPage = lazy(() => import("./pages/pigmentsPage/PigmentsPage"))
 const AlertComponent = lazy(() => import("./components/AlertComponent"))
@@ -31,6 +30,8 @@ const OrderPage = lazy(() => import("./pages/orderPage/OrderPage"))
 const ProductPage = lazy(() => import("./pages/productPage/ProductPage"))
 const ProfilePage = lazy(() => import("./pages/profilePage/ProfilePage"))
 const EducationPage = lazy(() => import("./pages/educationPage/EducationPage"))
+const FavouritePage = lazy(() => import("./pages/favouritePage/FavouritePage"))
+const ComparePage = lazy(() => import("./pages/comparePage/ComparePage"))
 
 const App = () => {
 	const { data: auth } = useAccountAuthQuery(undefined)
@@ -175,6 +176,22 @@ const App = () => {
 							element={
 								<Suspense fallback={<FallbackComponent />}>
 									<EducationPage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/favourite"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<FavouritePage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/compare"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<ComparePage />
 								</Suspense>
 							}
 						/>

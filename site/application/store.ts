@@ -5,8 +5,10 @@ import authComponentSlice from "./authComponentSlice";
 import categoriesSlice from "./categoriesSlice";
 import categoryApi from "./category.service";
 import cookiesApi from "./cookies.service";
+import compareApi from "./compare.service";
 import { rtkQueryLogger } from "./error.middleware";
 import errorApi from "./error.service";
+import favouriteApi from "./favourite.service";
 import fileApi from "./file.service";
 import filtersSlice from "./filtersSlice";
 import navCatalogSlice from "./navCatalogSlice";
@@ -16,14 +18,17 @@ import productApi from "./product.service";
 import profileApi from "./profile.service";
 import profilePromocodesSlice from "./profilePromocodesSlice";
 import profileSlice from "./profileSlice";
+import compareSlice from "./compareSlice";
 
 const store = configureStore({
 	middleware: (getDefaultMiddleware) => [
 		...getDefaultMiddleware(),
 		accountApi.middleware,
         categoryApi.middleware,
+		compareApi.middleware,
 		cookiesApi.middleware,
 		errorApi.middleware,
+		favouriteApi.middleware,
 		fileApi.middleware,
         orderApi.middleware,
         productApi.middleware,
@@ -37,7 +42,10 @@ const store = configureStore({
 		[categoryApi.reducerPath]: categoryApi.reducer,
 		[categoriesSlice.name]: categoriesSlice.reducer,
 		[cookiesApi.reducerPath]: cookiesApi.reducer,
+		[compareApi.reducerPath]: compareApi.reducer,
+		[compareSlice.name]: compareSlice.reducer,
 		[errorApi.reducerPath]: errorApi.reducer,
+		[favouriteApi.reducerPath]: favouriteApi.reducer,
 		[fileApi.reducerPath]: fileApi.reducer,
 		[filtersSlice.name]: filtersSlice.reducer,
 		[navCatalogSlice.name]: navCatalogSlice.reducer,

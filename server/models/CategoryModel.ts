@@ -77,7 +77,7 @@ CategorySchema.methods.getProductsAndVariants = function (args: {
 		})
 	}
 	let result = products.reduce<ICategorySiteProduct[]>((res, item) => {
-		if (item.variants) {
+		if (item.variants.length) {
 			const arr = item.variants.map((el: any) => {
 				const res: ICategorySiteProduct = {
 					price: (el.price || 0) / 100,

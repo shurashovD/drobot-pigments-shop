@@ -773,6 +773,16 @@ hr {
     }
 }
 
+.hover-primary:hover {
+    color: $primary !important;
+    transition: .2s;
+}
+
+.hover-dark:hover {
+    color: $dark;
+    transition: .2s;
+}
+
 @media (max-width: 1024px) {
     .line-card {
         background-image: linear-gradient(transparent 0%, transparent 30%, $dark 30%, $dark 70%, transparent 70%, transparent 100%);

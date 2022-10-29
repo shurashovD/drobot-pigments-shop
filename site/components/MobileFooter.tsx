@@ -3,8 +3,8 @@ import { useAccountAuthQuery } from "../application/account.service"
 import CartIconComponent from "./CartIconComponent"
 import IconAccount from "./icons/IconAccount"
 import IconAccountSign from "./icons/IconAccountSign"
+import IconCompare from "./icons/IconCompare"
 import IconFavourite from "./icons/IconFavourite"
-import IconFind from "./icons/IconFind"
 import IconHome from "./icons/IconHome"
 
 const MobileFooter = () => {
@@ -15,11 +15,11 @@ const MobileFooter = () => {
 			<NavLink to="/">
 				<IconHome stroke="#ffffff" />
 			</NavLink>
-			<NavLink to="/" className="invisible">
-				<IconFind stroke="#ffffff" />
+			<NavLink to="/compare">
+				<IconCompare stroke="#ffffff" />
 			</NavLink>
 			<CartIconComponent />
-			<NavLink to="/" className="invisible">
+			<NavLink to="/favourite">
 				<IconFavourite stroke="#ffffff" />
 			</NavLink>
 			<NavLink to="/profile">{!!data ? <IconAccountSign stroke={"#ffffff"} /> : <IconAccount stroke={"#ffffff"} />}</NavLink>

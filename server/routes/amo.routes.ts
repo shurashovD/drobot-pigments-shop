@@ -57,9 +57,6 @@ router.post('/handle', bodyParser.urlencoded({ extended: false }), async (req, r
             return
         }
 
-        console.log(tradeId);
-        console.log(statusId);
-
         if ( statusId === '41224258' ) {
             order.status = 'new'
             if ( order.msOrderId ) {

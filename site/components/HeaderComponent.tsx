@@ -198,10 +198,10 @@ const HeaderComponent = () => {
 							<div className="d-none d-lg-block text-white ms-4 position-realative">
 								<HeaderAccountComponent />
 							</div>
-							<NavLink to="/" className="d-none d-lg-block text-white ms-4 invisible">
+							<NavLink to="/compare" className="d-none d-lg-block text-white ms-4">
 								<IconCompare stroke={"#ffffff"} />
 							</NavLink>
-							<NavLink to="/" className="d-none d-lg-block text-white ms-4 invisible">
+							<NavLink to="/favourite" className="d-none d-lg-block text-white ms-4">
 								<IconFavourite stroke={"#ffffff"} />
 							</NavLink>
 							<div className="d-none d-lg-block">

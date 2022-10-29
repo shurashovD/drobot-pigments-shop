@@ -23,8 +23,8 @@ import authMiddleware, { adminAuthMiddleware } from './middleware/auth.middlewar
 import frontLogger from './routes/frontLogger.routes'
 import loyaltyRoutes from './routes/loyalty.routes'
 import cookiesRoutes from "./routes/cookies.routes"
-import { getContactByPhone, getPipelines, getPipelineStatuses } from './amoAPI/amoApi'
-import setMsOrderStatus from './handlers/setMsOrderStatus'
+import favouriteRoutes from './routes/favourite.routes'
+import compareRoutes from "./routes/compare.routes"
 
 const PORT = 3000
 
@@ -92,6 +92,10 @@ app.use("/api/promocodes", adminAuthMiddleware, promocodeRoutes)
 app.use("/api/users", adminAuthMiddleware, usersRoutes)
 
 app.use("/api/loyalty", adminAuthMiddleware, loyaltyRoutes)
+
+app.use("/api/favourite", favouriteRoutes)
+
+app.use("/api/compare", compareRoutes)
 
 app.use("/api/cookies", cookiesRoutes)
 

@@ -135,6 +135,7 @@ export interface Product {
 		price: number
 		value: string
 	}[]
+	variantId?: string
 	weight?: number
 }
 
@@ -440,6 +441,8 @@ export interface IClientMethods {
 	createPromocode(code: string, dateFinish: string, dateStart: string, discountPercent?: number): Promise<void>
 	setPromocodeInCart(code: string): Promise<void>
 	resetPromocodeInCart(): Promise<void>
+	unionCompare(compareId: Types.ObjectId | string): Promise<void>
+	unionFavourite(favouriteId: Types.ObjectId | string): Promise<void>
 	useCashbackToggle(): Promise<void>
 }
 
@@ -447,7 +450,9 @@ export interface IClient extends Document, IClientMethods {
 	addresses: string[]
 	amoContactId?: number
 	cartId?: Types.ObjectId
+	compare?: Types.ObjectId
 	counterpartyId?: string
+	favourite?: Types.ObjectId
 	mail?: string
 	name?: string
 	orders: Types.ObjectId[]
@@ -797,6 +802,11 @@ export interface IAmoCreateTaskPayload {
 	text: string
 }
 
+export interface IAmoContact {
+	amoContactId: string
+	number: string
+}
+
 export interface ICart {
 	products: {
 		productId: string
@@ -900,6 +910,65 @@ export interface ISyncState extends Document {
 	running: boolean
 }
 
+export interface IFavourite {
+	goods: {
+		id: string
+		product: IProduct
+		variantId?: string
+	}[] 
+}
+
+export interface IFavouriteMethods {
+	addGood(productId: Types.ObjectId | string, variantId?: Types.ObjectId | string): Promise<void>
+	rmGood(productId: Types.ObjectId | string, variantId?: Types.ObjectId | string): Promise<void>
+}
+
+export interface IFavouriteDoc extends Document, IFavouriteMethods {
+	goods: {
+		product: Types.ObjectId
+		variantId?: string
+	}[]
+}
+
+export interface ICompare {
+	id?: any
+	goods: {
+		id: string
+		product: IProduct
+		variantId?: string
+	}[]
+}
+
+export interface ICompareMethods {
+	addGood(productId: Types.ObjectId | string, variantId?: Types.ObjectId | string): Promise<void>
+	compare(firstGoodId: Types.ObjectId | string, secondGoodId: Types.ObjectId | string): Promise<ICompareReport>
+	getCategories(): Promise<{ id: string; title: string; length: number }[]>
+	getProductsByCategory(categoryId: Types.ObjectId | string): Promise<Product[]>
+	rmGood(goodId: Types.ObjectId | string): Promise<void>
+}
+
+export interface ICompareDoc extends Document, ICompareMethods {
+	goods: Types.DocumentArray<{
+		product: Types.ObjectId
+		variantId?: Types.ObjectId
+	}>
+}
+
+export interface ICompareReport {
+	goods: {
+		productId: string
+		variantId?: string
+		name: string
+		photo: string
+		price: number
+	}[]
+	fields: {
+		id: string
+		title: string
+		values: (string|undefined)[]
+	}[]
+}
+
 declare global {
 	interface Error {
 		userError?: boolean
@@ -929,6 +998,8 @@ declare module 'express-session' {
 		isAdmin?: boolean
 		cartId: string
 		claimedStatus?: string
+		compareId?: string
+		favouriteId?: string
 		orderId?: string
 		userId?: string
 		plusofonKey?: string
