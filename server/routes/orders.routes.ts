@@ -337,9 +337,10 @@ router.put("/cart/product", bodyParser.json(), async (req: Request<{}, {}, { pro
 		} 
 		
 		return res.end()
-	} catch (e) {
+	} catch (e: any) {
 		logger.error(e)
-		return res.status(500).json({ message: "Что-то пошло не так..." })
+		const message = e.userError ? e.message : "Что-то пошло не так..."
+		return res.status(500).json({ message })
 	}
 })
 

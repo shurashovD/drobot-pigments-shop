@@ -85,7 +85,7 @@ const ProductPage = () => {
 							</div>
 						)}
 						<div className="my-md-4 d-flex align-items-center order-1">
-							<Fade in={!!toCart} className="w-100">
+							<Fade in={!!toCart || data.variants.length === 0} className="w-100">
 								<div className="w-100 w-md-75">
 									<ToCartBtn productId={id || ""} variantId={toCart} disabled={isLoading} />
 								</div>

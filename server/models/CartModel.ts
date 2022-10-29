@@ -430,7 +430,9 @@ CartSchema.methods.addProduct = async function ( this: ICartDoc, productId: stri
 
 		const stock = await rests({ assortmentId: [product.identifier] })
 		if (!stock) {
-			throw new Error("Остаток не получен")
+			const err = new Error("Товар отсутсвует в продаже")
+			err.userError = true
+			throw err
 		}
 
 		const { name, price = 0 } = product
