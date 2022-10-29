@@ -39,10 +39,11 @@ const CategoryPage = () => {
 			let arr
 			try {
 				arr = JSON.parse(filters)
+				dispatch(resetFilters())
 				dispatch(initFilterObject(arr))
 			} catch {}
 		}
-	}, [filters, dispatch, initFilterObject])
+	}, [filters, dispatch, initFilterObject, resetFilters])
 
 	useEffect(() => {
 		return () => {

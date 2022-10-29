@@ -1,4 +1,4 @@
-import { FC, UIEvent, useCallback, useEffect, useRef, useState } from "react"
+import { FC, useCallback, useEffect, useRef, useState } from "react"
 import { Button, Col, Row, Spinner } from "react-bootstrap"
 import { ICategorySiteProduct } from "../../../shared"
 import { useGetProductsQuery } from "../../application/category.service"
