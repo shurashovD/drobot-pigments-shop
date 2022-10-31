@@ -3,14 +3,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface IState {
     authorization: boolean
     checkPin: boolean
-    country: string
     number: string
     pin: string
     show: boolean
 }
 
 const initialState: IState = {
-    authorization: true, checkPin: false, country: '7', number: '', pin: '', show: false
+    authorization: true, checkPin: false, number: '', pin: '', show: false
 }
 
 const authComponentSlice = createSlice({
@@ -22,9 +21,6 @@ const authComponentSlice = createSlice({
         },
         setAuthorization(state, { payload }: PayloadAction<boolean>) {
             state.authorization = payload
-        },
-        setCountry(state, { payload }: PayloadAction<string>) {
-            state.country = payload
         },
         setNumber(state, { payload }: PayloadAction<string>) {
             state.number = payload
@@ -41,6 +37,6 @@ const authComponentSlice = createSlice({
     }
 })
 
-export const { resetAuthComponent, setAuthorization, setCheckPin, setCountry, setNumber, setPin, setShow } = authComponentSlice.actions
+export const { resetAuthComponent, setAuthorization, setCheckPin, setNumber, setPin, setShow } = authComponentSlice.actions
 
 export default authComponentSlice

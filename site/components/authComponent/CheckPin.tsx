@@ -10,22 +10,11 @@ interface IProps {
 }
 
 const CheckPin: FC<IProps> = ({ show }) => {
-    const { authorization, country, number, pin } = useAppSelector(state => state.authComponentSlice)
+    const { authorization, number, pin } = useAppSelector(state => state.authComponentSlice)
     const { data, isLoading: authLoading, isSuccess: authSuccess, refetch } = useAccountAuthQuery(undefined)
     const [check, { isLoading, isSuccess, reset }] = useCheckPinMutation()
 	const [registerCheck, { isLoading: registerLoading, isSuccess: registerSuccess, reset: registerReset }] = useRegisterCheckPinMutation()
     const dispatch = useAppDispatch()
-    const phone = () => {
-        const codeEnd = 3
-		const firstEnd = 6
-		const secondEnd = 8
-		const code = number.substring(0, codeEnd)
-		const first = number.substring(codeEnd, firstEnd)
-		const second = number.substring(firstEnd, secondEnd)
-		const fird = number.substring(secondEnd)
-		const value = `${code} ${first} ${second} ${fird}`
-        return `+${country} ${value}`
-    }
 
     const codeHandler = (event: ChangeEvent<HTMLInputElement>) => {
         const { value } = event.target
@@ -64,7 +53,7 @@ const CheckPin: FC<IProps> = ({ show }) => {
 			</Col>
 			<Col xs={12} className="mb-4">
 				<div className="text-white text-center">
-					Сейчас поступит входящий звонок на номер <span className="white-space">{phone()}</span>{" "}
+					Сейчас поступит входящий звонок на номер <span className="white-space">{`+${number}`}</span>{" "}
 					<Button variant="link" className="m-0 p-0 text-secondary" onClick={() => dispatch(setCheckPin(false))}>
 						Изменить
 					</Button>
@@ -78,7 +67,7 @@ const CheckPin: FC<IProps> = ({ show }) => {
 					variant="secondary"
 					disabled={pin.length !== 4}
 					isLoading={isLoading || authLoading || registerLoading}
-					onClick={() => authorization ? check({ pin }) : registerCheck({ pin })}
+					onClick={() => (authorization ? check({ pin }) : registerCheck({ pin }))}
 				>
 					OK
 				</ButtonComponent>
