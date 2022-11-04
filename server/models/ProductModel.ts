@@ -4,6 +4,7 @@ import CurrencyModel from './CurrencyModel';
 import UomModel from './UomModel';
 import CategoryModel from './CategoryModel';
 import config from 'config'
+import RaitingModel from './RatingModel';
 
 const discountRootCategory = config.get("discountRootCategory")
 
@@ -13,7 +14,9 @@ const VariantSchema = new Schema<IProduct["variants"][0]>({
 	photo: String,
 	photoUpdate: String,
 	price: Number,
-	value: String
+	reviewsCount: Number,
+	value: String,
+	rating: Number
 })
 
 export const VariantModel = model("Variant", VariantSchema)
@@ -32,6 +35,8 @@ const ProductSchema = new Schema<IProduct, IProductModel, IProductMethods>({
 	properties: [Schema.Types.ObjectId],
 	price: { type: Number },
 	uom: { type: Schema.Types.ObjectId, ref: "Uom" },
+	rating: Number,
+	reviewsCount: Number,
 	variantsLabel: String,
 	variants: [VariantSchema],
 	weight: { type: Number },
@@ -150,136 +155,42 @@ ProductSchema.methods.resetFilter = async function(fieldId: Types.ObjectId): Pro
 	}
 	catch (e) { throw e }
 }
-/*
-ProductSchema.methods.createBind = async function(this: IProduct, bindTitle: string, productLabel: string): Promise<IProduct> {
+
+ProductSchema.methods.refreshRating = async function (this: IProduct, variantId?: Types.ObjectId | string): Promise<void> {
 	try {
-		if ( this.parentBind.length > 0 ) {
-			const error = new Error("Связанный товар не может содержать связь")
-			error.userError = true
-			throw error
-		}
+		const ratings = await RaitingModel.find({ productId: this._id, variantId })
 
-		const productHasBind = this.binds.some(({ title }) => title === bindTitle)
-		if ( productHasBind ) {
-			const error = new Error('Товар уже содержит связь с таким названием')
-			error.userError = true
-			throw error
-		}
+		const reviewsCount = ratings.reduce((sum, { text }) => sum + +(!!text), 0)
+		let rating = ratings.reduce((sum, { rating }) => sum + rating, 0) / Math.max(ratings.length, 1)
+		rating = +(Math.round(10 * rating) / 10).toFixed(1)
 
-		this.binds.push(new bindModel({ products: [], productLabel, title: bindTitle }))
-		return await this.save()
+		if ( rating ) {
+			if ( variantId ) {
+				const variant = this.variants.find(({ _id }) => _id?.toString() === variantId)
+				if ( !variant ) {
+					const err = new Error('Модификация не найдена')
+					err.userError = true
+					err.sersviceInfo = "Обновление оценки модификации"
+					throw err
+				}
+				variant.rating = rating
+				variant.reviewsCount = reviewsCount
+			} else {
+				this.rating = rating
+				this.reviewsCount = reviewsCount
+			}
+			await this.save()
+		}
+	} catch (e) {
+		throw e
 	}
-	catch (e) { throw e }
 }
 
-ProductSchema.methods.updateBind = async function(this: IProduct, bindId: string, bindTitle: string, productLabel: string): Promise<IProduct> {
+ProductSchema.methods.isRatedByClient = async function (this: IProduct, clientId: Types.ObjectId | string, variantId?: Types.ObjectId | string): Promise<boolean> {
 	try {
-		const bindIndex = this.binds.findIndex(({ _id }) => _id?.toString() === bindId)
-		if ( bindIndex === -1 ) {
-			const error = new Error("Связь не найдена")
-			error.userError = true
-			throw error
-		}
-
-		this.binds[bindIndex].title = bindTitle
-		this.binds[bindIndex].productLabel = productLabel
-		return await this.save()
+		return await RaitingModel.find({ productId: this._id, variantId, clientId }).then(doc => !!doc)
+	} catch (e) {
+		throw e
 	}
-	catch (e) { throw e }
 }
-
-ProductSchema.methods.deleteBind = async function(this: IProduct, bindId: string): Promise<IProduct> {
-	try {
-		const bindIndex = this.binds.findIndex(({ _id }) => _id?.toString() === bindId)
-		if ( bindIndex === -1 ) {
-			const error = new Error("Связь не найдена")
-			error.userError = true
-			throw error
-		}
-
-		if (this.binds[bindIndex].products.length > 0) {
-			const error = new Error("Сначала отвяжите все товары")
-			error.userError = true
-			throw error
-		}
-
-		this.binds.splice(bindIndex, 1)
-		return await this.save()
-	}
-	catch (e) { throw e }
-}
-
-ProductSchema.methods.bindProduct = async function(this: IProduct, bindId: string, bindLabel: string, productId: string): Promise<IProduct> {
-	try {
-		if ( this.parentBind.length > 0 ) {
-			const error = new Error("Связанный товар не может содержать связь")
-			error.userError = true
-			throw error
-		}
-		const product: IProduct | null = await model('Product').findById(productId)
-		if ( !product ) {
-			const error = new Error("Товар для связи не найден")
-			error.userError = true
-			throw error
-		}
-		const bindIndex = this.binds.findIndex(({ _id }) => _id?.toString() === bindId)
-		if ( bindIndex === -1 ) {
-			const error = new Error("Связь не найдена")
-			error.userError = true
-			throw error
-		}
-
-		const productExistsParentBind = product.parentBind.some(item => item.toString() === this._id?.toString())
-		if ( !productExistsParentBind ) {
-			product.parentBind.push(this._id)
-			await product.save()
-		}
-
-		const productIsBinded = this.binds.some(({ products }) =>
-			products.some(({ product }) => product.toString() === productId)
-		)
-		if ( !productIsBinded ) {
-			this.binds[bindIndex].products.push({
-				label: bindLabel,
-				product: product._id,
-			})
-		}
-
-		return await this.save()
-	}
-	catch (e) { throw e }
-}
-
-ProductSchema.methods.reBindProduct = async function(this: IProduct, bindId: string, productId: string): Promise<IProduct> {
-	try {
-		const product: IProduct | null = await model('Product').findById(productId)
-		if ( !product ) {
-			const error = new Error("Связанный товар не найден")
-			error.userError = true
-			throw error
-		}
-
-		const parentBindIndex = product.parentBind.findIndex(item => item.toString() === this._id.toString())
-		if ( parentBindIndex !== -1 ) {
-			product.parentBind.splice(parentBindIndex, 1)
-			await product.save()
-		}
-
-		const bindIndex = this.binds.findIndex(({ _id }) => _id?.toString() === bindId)
-		if ( bindIndex === -1 ) {
-			const error = new Error("Связь не найдена")
-			error.userError = true
-			throw error
-		}
-
-		const bindProductIndex = this.binds[bindIndex].products.findIndex(({ product }) => product.toString() === productId)
-		if ( bindProductIndex !== -1 ) {
-			this.binds[bindIndex].products.splice(bindProductIndex, 1)
-		}
-
-		return await this.save()
-	}
-	catch (e) { throw e }
-}
-*/
 export default model<IProduct, IProductModel>("Product", ProductSchema)

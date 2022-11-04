@@ -19,6 +19,7 @@ import profileApi from "./profile.service";
 import profilePromocodesSlice from "./profilePromocodesSlice";
 import profileSlice from "./profileSlice";
 import compareSlice from "./compareSlice";
+import ratingApi from "./rating.service";
 
 const store = configureStore({
 	middleware: (getDefaultMiddleware) => [
@@ -33,6 +34,7 @@ const store = configureStore({
         orderApi.middleware,
         productApi.middleware,
 		profileApi.middleware,
+		ratingApi.middleware,
 		rtkQueryLogger
 	],
 	reducer: {
@@ -55,6 +57,7 @@ const store = configureStore({
 		[profileApi.reducerPath]: profileApi.reducer,
 		[profilePromocodesSlice.name]: profilePromocodesSlice.reducer,
 		[profileSlice.name]: profileSlice.reducer,
+		[ratingApi.reducerPath]: ratingApi.reducer,
 	},
 })
 

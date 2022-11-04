@@ -11,6 +11,8 @@ interface IProps {
 	id: string
 	img?: string
 	price?: string
+	raiting?: number
+	reviewsCount?: number
 	title?: string
 	variantId?: string
 	variantTitle?: string
@@ -28,7 +30,7 @@ const ProductCard: FC<IProps> = (props) => {
 				<div className="mt-1">{props.variantTitle || props.title}</div>
 			</NavLink>
 			<div className="mt-auto">
-				<Raiting />
+				<Raiting raiting={props.raiting} reviewsCount={props.reviewsCount} />
 			</div>
 			<span className="fs-3 my-4">{props.price}</span>
 			<Row className="d-flex justify-content-between g-0">

@@ -56,6 +56,8 @@ $custom-colors: (
     "gold": #ff00ff
 );
 
+$list-group-bg: transparent;
+
 $font-family-base: "gothic";
 $font-size-base:  .9375rem;
 $line-height-base: 1.2;
@@ -87,6 +89,8 @@ $theme-colors: (
     "gray": $gray,
     "gray2": $gray2
 );
+
+$enable-shadows: false;
 
 $body-bg: #F7F0F0;
 
@@ -270,6 +274,14 @@ input:focus,
     background-image: url('./img/white-close-cross.svg');
     background-repeat: no-repeat;
     background-position: 0 center;
+}
+
+.right-arrow-bgi {
+    width: 20px;
+    height: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg width='11' height='19' viewBox='0 0 11 19' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.999997 18L10 9.09842L1 1' stroke='%23B88E5B'/%3E%3C/svg%3E%0A");
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 #navCatalogTab {
@@ -477,6 +489,12 @@ input:focus,
     overflow-x: scroll;
 }
 #partner-programm-category-container::-webkit-scrollbar {
+    width: 0px;
+    /* ширина scrollbar */
+    height: 0px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
     width: 0px;
     /* ширина scrollbar */
     height: 0px;
@@ -781,6 +799,40 @@ hr {
 .hover-dark:hover {
     color: $dark;
     transition: .2s;
+}
+
+.carousel-btn {
+    border-radius: 50%;
+    width: 43px;
+    height: 43px;
+    opacity: 0.6;
+    background-color: $primary;
+    background-image: url("data:image/svg+xml,%3Csvg width='11' height='20' viewBox='0 0 11 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.576169 18.8273L9.61732 9.72313L0.576172 1.44043' stroke='%23F7DFB1' stroke-width='1.5'/%3E%3C/svg%3E%0A");
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: .2s;
+    z-index: 1;
+    &.carousel-prev-btn {
+        transform: rotate(180deg);
+    }
+}
+.carousel-btn:hover {
+    opacity: 1;
+}
+
+.compare-carousel {
+    display: flex;
+    min-height: 100%;
+    padding-bottom: 40px;
+    .carousel-indicators {
+        margin-bottom: 0;
+        button {
+            background-color: $gray2;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+        }
+    }
 }
 
 @media (max-width: 1024px) {

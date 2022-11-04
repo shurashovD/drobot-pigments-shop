@@ -48,19 +48,6 @@ router.get("/products-by-category/:id", async (req: Request<{id: string}>, res) 
 	}
 })
 
-router.get("/compare/:firstGoodId/:secondGoodId", async (req: Request<{ firstGoodId: string, secondGoodId: string }>, res) => {
-    try {
-        const { firstGoodId, secondGoodId } = req.params
-        const client = await ClientModel.findById(req.session.userId)
-		const compare = await CompareModel.findById(client?.compare || req.session.compareId)
-		const report = (await compare?.compare(firstGoodId, secondGoodId)) || { fields: [], goods: [] }
-		return res.json(report)
-    } catch (e) {
-        logger.error(e)
-        return res.status(500).json({ message: 'Что-то пошло не так...' })
-    }
-})
-
 router.post('/good', json(), async (req: Request<{}, {}, { productId: string, variantId?: string }>, res) => {
     try {
         const { productId, variantId } = req.body
@@ -81,6 +68,21 @@ router.post('/good', json(), async (req: Request<{}, {}, { productId: string, va
         logger.error(e)
         return res.status(500).json({ message: "Что-то пошло не так..." })
     }
+})
+
+router.delete("/category/:categoryId", async (req: Request<{ categoryId: string }>, res) => {
+	try {
+		const client = await ClientModel.findById(req.session.userId)
+		const compare = await CompareModel.findById(client?.compare || req.session.compareId)
+		if (compare) {
+            const { categoryId } = req.params
+			await compare.clearGoods(categoryId)
+		}
+		return res.end()
+	} catch (e) {
+		logger.error(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
+	}
 })
 
 router.delete("/good/:id", async (req: Request<{id: string}>, res) => {

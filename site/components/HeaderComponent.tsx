@@ -6,7 +6,6 @@ import { useAppDispatch, useAppSelector } from "../application/hooks"
 import { hideNavCatalog, showNavCatalog } from "../application/navCatalogSlice"
 import IconBox from "./icons/IconBox"
 import IconCompare from "./icons/IconCompare"
-import IconFavourite from "./icons/IconFavourite"
 import NavCatalog from "./NavCatalog"
 import NavCatalogBtn from "./NavCatalogBtn"
 import IconMenu from './icons/IconMenu'
@@ -16,6 +15,8 @@ import NavCatalogMobile from "./NavCatalogMobile"
 import CartIconComponent from "./CartIconComponent"
 import HeaderAccountComponent from "./HeaderAccountComponent"
 import classNames from "classnames"
+import FavIconComponent from "./FavIconComponent"
+import CompIconComponent from "./CompIconComponent"
 const waLogo = require('../img/whatsup.svg')
 const logo = require('../img/logo.svg')
 
@@ -198,12 +199,12 @@ const HeaderComponent = () => {
 							<div className="d-none d-lg-block text-white ms-4 position-realative">
 								<HeaderAccountComponent />
 							</div>
-							<NavLink to="/compare" className="d-none d-lg-block text-white ms-4">
-								<IconCompare stroke={"#ffffff"} />
-							</NavLink>
-							<NavLink to="/favourite" className="d-none d-lg-block text-white ms-4">
-								<IconFavourite stroke={"#ffffff"} />
-							</NavLink>
+							<div className="d-none d-lg-block">
+								<CompIconComponent />
+							</div>
+							<div className="d-none d-lg-block">
+								<FavIconComponent />
+							</div>
 							<div className="d-none d-lg-block">
 								<CartIconComponent />
 							</div>

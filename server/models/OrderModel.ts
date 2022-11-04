@@ -1,10 +1,10 @@
-import { IOrder, IOrderPop, IPromocodeDoc, OrderModel } from './../../shared/index.d';
-import { model, Schema } from "mongoose";
+import { IOrder, IOrderMethods, IOrderPop, IPromocodeDoc, OrderModel } from './../../shared/index.d';
+import { model, Schema, Types } from "mongoose";
 import ClientModel from './ClientModel';
 import PromocodeModel from './PromocodeModel';
 import ProductModel from './ProductModel';
 
-const OrderSchema = new Schema<IOrder, OrderModel>({
+const OrderSchema = new Schema<IOrder, OrderModel, IOrderMethods>({
 	client: { type: Schema.Types.ObjectId, ref: "Client" },
 	date: { type: Date, default: Date.now },
 	delivery: {
@@ -211,6 +211,28 @@ OrderSchema.methods.bonusHandle = async function(this: IOrder): Promise<void> {
 		}
 	}
 	catch (e) { throw e }
+}
+
+OrderSchema.methods.getNotRatedGoods = async function (this: IOrder): Promise<{ productId?: Types.ObjectId; variantId?: Types.ObjectId }[]> {
+	try {
+		const client = this.client
+		const products = this.products.filter(async (item) => {
+			const product = await ProductModel.findById(item.product)
+			if (product) {
+				return await product.isRatedByClient(client)
+			}
+		}).map(({ product }) => ({ productId: product }))
+		const variants = this.variants.filter(async (item) => {
+			const product = await ProductModel.findById(item.product)
+			if (product) {
+				return await product.isRatedByClient(client, item.variant)
+			}
+		}).map(({ product, variant }) => ({ productId: product, variantId: variant }))
+
+		return [...products, ...variants]
+	} catch (e) {
+		throw e
+	}
 }
 
 const Order = model<IOrder, OrderModel>('Order', OrderSchema)

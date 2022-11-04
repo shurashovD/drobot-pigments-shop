@@ -25,6 +25,7 @@ import loyaltyRoutes from './routes/loyalty.routes'
 import cookiesRoutes from "./routes/cookies.routes"
 import favouriteRoutes from './routes/favourite.routes'
 import compareRoutes from "./routes/compare.routes"
+import ratingRoutes from "./routes/rating.routes"
 
 const PORT = 3000
 
@@ -96,6 +97,8 @@ app.use("/api/loyalty", adminAuthMiddleware, loyaltyRoutes)
 app.use("/api/favourite", favouriteRoutes)
 
 app.use("/api/compare", compareRoutes)
+
+app.use("/api/rating", ratingRoutes)
 
 app.use("/api/cookies", cookiesRoutes)
 

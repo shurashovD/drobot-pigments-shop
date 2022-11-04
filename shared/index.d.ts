@@ -1,4 +1,4 @@
-import { Document, Model, Types } from "mongoose"
+import { Document, Model, Schema, Types } from "mongoose"
 import { FC, SVGProps } from "react"
 
 interface IAmoStatuses {
@@ -55,7 +55,7 @@ export interface ICatalog extends Document {
     parent: Types.ObjectId
 }
 
-export interface IProduct extends Document {
+export interface IProduct extends Document, IProductMethods {
 	archived: boolean
 	available: number
 	currency: Types.ObjectId
@@ -68,6 +68,8 @@ export interface IProduct extends Document {
 	photoUpdated?: string
 	properties: Types.ObjectId[]
 	price?: number
+	rating?: number
+	reviewsCount?: number
 	uom: Types.ObjectId
 	variantsLabel?: string
 	variants: Types.DocumentArray<{
@@ -76,41 +78,22 @@ export interface IProduct extends Document {
 		photo?: string
 		photoUpdate?: string
 		price: number
+		rating?: number
+		reviewsCount?: number
 		value: string
 	}>
 	weight?: number
-	createBind(bindTitle: string, productLabel: string): Promise<IProduct>
-	updateBind(
-		bindId: string,
-		bindTitle: string,
-		productLabel: string
-	): Promise<IProduct>
-	deleteBind(bindId: string): Promise<IProduct>
-	bindProduct(
-		bindId: string,
-		bindLabel: string,
-		productId: string
-	): Promise<IProduct>
-	reBindProduct(bindId: string, productId: string): Promise<IProduct>
-	setFilter(fieldId: Types.ObjectId): Promise<IProduct>
-	resetFilter(fieldId: Types.ObjectId): Promise<IProduct>
 }
 
 interface IProductMethods {
 	createBind(bindTitle: string, productLabel: string): Promise<IProduct>
-	updateBind(
-		bindId: string,
-		bindTitle: string,
-		productLabel: string
-	): Promise<IProduct>
+	updateBind(bindId: string, bindTitle: string, productLabel: string): Promise<IProduct>
 	deleteBind(bindId: string): Promise<IProduct>
-	bindProduct(
-		bindId: string,
-		bindLabel: string,
-		productId: string
-	): Promise<IProduct>
+	bindProduct(bindId: string, bindLabel: string, productId: string): Promise<IProduct>
+	isRatedByClient(clientId: Types.ObjectId | string, variantId?: Types.ObjectId | string): Promise<boolean>
 	reBindProduct(bindId: string, productId: string): Promise<IProduct>
 	setFilter(valueId: Types.ObjectId): Promise<IProduct>
+	refreshRating(variantId?: Types.ObjectId | string): Promise<void>
 	resetFilter(fieldId: Types.ObjectId): Promise<IProduct>
 }
 
@@ -125,6 +108,8 @@ export interface Product {
 	photo: string[]
 	properties: string[]
 	price?: number
+	rating?: number
+	reviewsCount?: number
 	uom: string
 	variantsLabel?: string
 	variants: {
@@ -133,6 +118,8 @@ export interface Product {
 		name: string
 		photo?: string
 		price: number
+		rating?: number
+		reviewsCount?: number
 		value: string
 	}[]
 	variantId?: string
@@ -225,7 +212,7 @@ export interface ICategoryMethods {
 
 export type CategoryModel = Model<ICategory, {}, ICategoryMethods>
 
-export interface IOrder extends Document {
+export interface IOrder extends Document, IOrderMethods {
 	client: Types.ObjectId
 	date: Date
 	delivery: {
@@ -274,11 +261,11 @@ export interface IOrder extends Document {
 	number: number
 	status: "new" | "payCanceled" | "compiling" | "builded" | "dispatch" | "delivering" | "ready" | "complete" | "canceled" | "return"
 	total: number
-	bonusHandle: () => Promise<void>
 }
 
 interface IOrderMethods {
 	bonusHandle: () => Promise<void>
+	getNotRatedGoods: () => Promise<{productId?: Types.ObjectId, variantId?: Types.ObjectId}[]>
 }
 
 export interface OrderModel extends Model<IOrder, {}, IOrderMethods> {
@@ -941,9 +928,9 @@ export interface ICompare {
 
 export interface ICompareMethods {
 	addGood(productId: Types.ObjectId | string, variantId?: Types.ObjectId | string): Promise<void>
-	compare(firstGoodId: Types.ObjectId | string, secondGoodId: Types.ObjectId | string): Promise<ICompareReport>
+	clearGoods(categoryId: Types.ObjectId | string): Promise<void>
 	getCategories(): Promise<{ id: string; title: string; length: number }[]>
-	getProductsByCategory(categoryId: Types.ObjectId | string): Promise<Product[]>
+	getProductsByCategory(categoryId: Types.ObjectId | string): Promise<ICompareReport>
 	rmGood(goodId: Types.ObjectId | string): Promise<void>
 }
 
@@ -955,18 +942,35 @@ export interface ICompareDoc extends Document, ICompareMethods {
 }
 
 export interface ICompareReport {
-	goods: {
-		productId: string
-		variantId?: string
-		name: string
-		photo: string
-		price: number
-	}[]
+	goods: Product[]
 	fields: {
 		id: string
 		title: string
 		values: (string|undefined)[]
 	}[]
+}
+
+interface IRatingStatics {
+	createRating(
+		productId: Types.ObjectId | string,
+		rating: number,
+		variantId?: Types.ObjectId | string,
+		deliveryRating?: number,
+		text?: string,
+		clientId?: Types.ObjectId | string
+	): Promise<void>
+}
+
+export interface IRating extends IRatingStatics {
+	clientId?: Schema.Types.ObjectId
+	date: Date
+	id: string
+	moderated: boolean
+	productId: Schema.Types.ObjectId
+	rating: number
+	deliveryRating?: number
+	text?: string
+	variantId?: Schema.Types.ObjectId
 }
 
 declare global {

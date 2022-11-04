@@ -4,21 +4,24 @@ import { ICompareReport, Product } from '../../shared';
 const compareApi = createApi({
 	baseQuery: fetchBaseQuery({ baseUrl: "/api/compare" }),
 	endpoints: (build) => ({
-        getCompare: build.query<{ id: string, productId: string, variantId?: string }[], void>({
-            query: () => '/',
-            providesTags: () => ['compare']
-        }),
+		clearProducts: build.mutation<undefined, { categoryId: string }>({
+			query: ({ categoryId }) => ({
+				method: "DELETE",
+				url: `/category/${categoryId}`,
+			}),
+			invalidatesTags: ["categories", "compare", "goods"],
+		}),
+		getCompare: build.query<{ id: string; productId: string; variantId?: string }[], void>({
+			query: () => "/",
+			providesTags: () => ["compare"],
+		}),
 		getCategories: build.query<{ id: string; title: string; length: number }[], void>({
 			query: () => "/categories",
 			providesTags: () => ["categories"],
 		}),
-		getProducts: build.query<Product[], { categoryId: string }>({
+		getProducts: build.query<ICompareReport, { categoryId: string }>({
 			query: ({ categoryId }) => `/products-by-category/${categoryId}`,
 			providesTags: () => ["goods"],
-		}),
-		getReport: build.query<ICompareReport, { firstGoodId: string; secondGoodId: string }>({
-			query: ({ firstGoodId, secondGoodId }) => `/compare/${firstGoodId}/${secondGoodId}`,
-            providesTags: () => ['report']
 		}),
 		addToCompareList: build.mutation<undefined, { productId: string; variantId?: string }>({
 			query: (body) => ({
@@ -26,26 +29,26 @@ const compareApi = createApi({
 				method: "POST",
 				url: "/good",
 			}),
-			invalidatesTags: ["compare"],
+			invalidatesTags: ["categories", "compare", "goods"],
 		}),
 		rmFromCompareList: build.mutation<undefined, { goodId: string }>({
 			query: ({ goodId }) => ({
 				method: "DELETE",
 				url: `/good/${goodId}`,
 			}),
-			invalidatesTags: ["compare", "report"],
+			invalidatesTags: ["categories", "compare", "goods"],
 		}),
 	}),
-    reducerPath: 'compareApi',
-	tagTypes: ["categories", "goods", "report", "compare"],
+	reducerPath: "compareApi",
+	tagTypes: ["categories", "goods", "compare"],
 })
 
 export const {
     useAddToCompareListMutation,
+	useClearProductsMutation,
     useGetCategoriesQuery,
     useGetCompareQuery,
     useGetProductsQuery,
-    useGetReportQuery,
     useRmFromCompareListMutation
 } = compareApi
 export default compareApi

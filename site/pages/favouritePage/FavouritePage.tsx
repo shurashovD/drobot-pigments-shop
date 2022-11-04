@@ -10,6 +10,8 @@ const FavouritePage = () => {
         document.title = 'Избранное'
     }, [])
 
+	console.log(data)
+
     return (
 		<Container className="pb-6">
 			<h3>Избранное</h3>
@@ -21,7 +23,7 @@ const FavouritePage = () => {
 			{!isFetching && data && data.goods.length === 0 && <div className="text-muted">Здесь пока ничего нет</div>}
 			{!isFetching && data && data.goods.length > 0 && (
 				<Row xs={1} md={3} lg={4}>
-					{data.goods.map(({ id, product, variantId }) => (
+					{data.goods.filter(({ product }) => !!product).map(({ id, product, variantId }) => (
 						<Col key={id}>
                             <Item
                                 product={product}

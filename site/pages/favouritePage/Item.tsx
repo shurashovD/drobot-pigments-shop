@@ -19,19 +19,21 @@ const Item: FC<IProps> = ({ product, variantId }) => {
     const formatter = new Intl.NumberFormat('ru', { currency: 'RUB', style: 'currency', maximumFractionDigits: 0 })
 
     useEffect(() => {
-        if ( variantId ) {
-            const variant = product.variants.find(({ _id }) => (_id?.toString() === variantId))
-            if ( variant ) {
-                setTitle(variant.name)
-                setPrice(formatter.format(variant.price / 100))
-                setImg(variant.photo || "/static")
-                setTo(`/product/${product._id.toString()}?variantId=${variantId}`)
-            }
-        } else {
-            setTitle(product.name)
-            setPrice(formatter.format((product.price || 0) / 100))
-			setImg(product.photo[0] || "/static")
-            setTo(`/product/${product._id.toString()}`)
+        if ( product ) {
+            if (variantId) {
+				const variant = product.variants.find(({ _id }) => _id?.toString() === variantId)
+				if (variant) {
+					setTitle(variant.name)
+					setPrice(formatter.format(variant.price / 100))
+					setImg(variant.photo || "/static")
+					setTo(`/product/${product._id.toString()}?variantId=${variantId}`)
+				}
+			} else {
+				setTitle(product.name)
+				setPrice(formatter.format((product.price || 0) / 100))
+				setImg(product.photo[0] || "/static")
+				setTo(`/product/${product._id.toString()}`)
+			}
         }
     }, [product, variantId])
     

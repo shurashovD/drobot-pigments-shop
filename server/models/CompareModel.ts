@@ -36,44 +36,21 @@ CompareSchema.methods.addGood = async function (this: ICompareDoc, productId: Ty
     }
 }
 
-CompareSchema.methods.compare = async function (this: ICompareDoc, firstGoodId: Types.ObjectId | string, secondGoodId: Types.ObjectId | string): Promise<ICompareReport> {
+CompareSchema.methods.clearGoods = async function (this: ICompareDoc, categoryId: Types.ObjectId | string): Promise<void> {
 	try {
-        const firstGood = this.goods.find(({ _id }) => (_id?.toString() === firstGoodId.toString()))
-        const secondGood = this.goods.find(({ _id }) => _id?.toString() === secondGoodId.toString())
-        const firstProduct = await ProductModel.findById(firstGood?.product)
-		const secondProduct = await ProductModel.findById(secondGood?.product)
+        interface IGood { product: IProduct, variantId: Types.ObjectId }
 
-        if ( !firstProduct || !secondProduct ) {
-            return { fields: [], goods: [] }
-        }
+        function fromCategory(value: IGood): value is IGood {
+			return value.product.parentCategory?.toString() === categoryId.toString()
+		}
 
-        const category = await CategoryModel.findById(firstProduct.parentCategory)
-        if ( !category ) {
-            return { fields: [], goods: [] }
-        }
-
-        const fields: ICompareReport['fields'] = category.filters.map(({ fields, title, _id }) => {
-            const id = _id?.toString()
-            const first = fields.find(({ products }) => (products.some(item => item.toString() === firstGoodId.toString())))?.value
-            const second = fields.find(({ products }) => products.some((item) => item.toString() === secondGoodId.toString()))?.value
-            const values = [first, second]
-            return { id, title, values }
-        })
-
-        const goods: ICompareReport["goods"] = [firstProduct, secondProduct].map<ICompareReport["goods"][0]>((item) => {
-            const productId = item._id.toString()
-			const variantId = this.goods.find(({ product }) => product.toString() === item._id.toString())?.variantId?.toString()
-			if (variantId) {
-				const variant = item.variants.find(({ _id }) => _id?.toString() === variantId)
-				if (variant) {
-					const { name, price, photo = '/static' } = variant
-                    return { name, productId, price, photo, variantId }
-				}
-			}
-			return { photo: item.photo[0], price: item.price || 0, productId, name: item.name }
-		})
-
-        return { fields, goods }
+		await this.populate<{ goods: IGood[] }>({
+            path: 'goods', populate: 'product'
+        }).then(doc => {
+            const ids = doc.goods.filter(fromCategory).map(({ product }) => (product._id.toString()))
+            const filterGoods = this.goods.filter(({ product }) => !ids.includes(product._id.toString()))
+            this.goods = filterGoods as ICompareDoc['goods']
+        }).then(() => this.save())
 	} catch (e) {
 		throw e
 	}
@@ -103,32 +80,43 @@ CompareSchema.methods.getCategories = async function (this: ICompareDoc): Promis
 	}
 }
 
-CompareSchema.methods.getProductsByCategory = async function (this: ICompareDoc, categoryId: Types.ObjectId | string): Promise<Product[]> {
+CompareSchema.methods.getProductsByCategory = async function (this: ICompareDoc, categoryId: Types.ObjectId | string): Promise<ICompareReport> {
 	try {
-        const goods = await ProductModel.find({ _id: { $in: this.goods.map(({ product }) => (product)) }, parentCategory: categoryId })
-        const products = this.goods.map<Product|undefined>((item) => {
-            const product = goods.find(({ _id }) => (_id.toString() === item.product.toString()))
-            if ( item.variantId && product ) {
-                const variant = product.variants.find(({ _id }: any) => _id?.toString() === item.variantId)
+		const category = await CategoryModel.findById(categoryId)
+		const products = await ProductModel.find({ _id: { $in: this.goods.map(({ product }) => product) }, parentCategory: categoryId })
+		const nonFiltereGoods = this.goods.map<Product | undefined>((item) => {
+			const product = products.find(({ _id }) => _id.toString() === item.product.toString())
+			const id = product?._id?.toString()
+			if (item.variantId && product) {
+				const variant = product.variants.find(({ _id }: any) => _id?.toString() === item.variantId?.toString())
 				if (variant) {
-					const { name, price, photo } = variant
+					const { name, price, photo, _id } = variant
 					if (photo) {
-						return { ...product.toObject(), name, price, photo: [photo] }
+						return { ...variant.toObject(), name, price, photo: [photo], id, variantId: _id?.toString() }
 					} else {
-						return { ...product.toObject(), name, price }
+						return { ...variant.toObject(), name, price, id, variantId: _id?.toString() }
 					}
 				}
-            }
-            if ( product ) {
-                return { ...product.toObject() }
-            }
-        })
+			}
+			if (product) {
+				return { ...product.toObject(), id }
+			}
+		})
 
-        function notEmpty<Product>(value: Product | null | undefined): value is Product {
+		function notEmpty<Product>(value: Product | null | undefined): value is Product {
 			return value !== null && value !== undefined
 		}
 
-        return products.filter(notEmpty)
+        const goods = nonFiltereGoods.filter(notEmpty)
+
+        const fields: ICompareReport["fields"] = category?.filters.map(({ _id, fields, title }) => {
+			const id = _id.toString()
+			const values: ICompareReport["fields"][0]["values"] = goods
+                .map(({ id }) => fields.find(({ products }) => products.some((item) => item.toString() === id))?.value)
+			return { id, title, values }
+		}) || []
+
+		return { fields, goods }
 	} catch (e) {
 		throw e
 	}
