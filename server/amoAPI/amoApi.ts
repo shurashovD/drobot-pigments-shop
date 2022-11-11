@@ -460,7 +460,7 @@ export const createTrade = async (
 		const custom_fields_values = [
 			{
 				field_id: 986327,
-				values: products.map(({ name, quantity }) => ({ value: `${name} ${quantity}шт.` })),
+				values: [{ value: products.reduce((str, { name, quantity }) => `${str}; ${name} ${quantity}шт.`, "") }],
 			},
 		]
 
