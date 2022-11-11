@@ -8,7 +8,7 @@ import ProductModel from "../models/ProductModel";
 import CatalogModel from "../models/CatalogModel";
 import { currencySync, oneProductCreate, oneProductDelete, oneProductFolderDelete, oneVariantDelete, oneProductFolderSync, oneProductFolderUpdate, oneProductUpdate, productFolderSync, productSync, uomSync, variantSync } from "../moyskladAPI/synchronization"
 import { IMSHook, IOrder } from "../../shared";
-import { getMsOrder } from '../moyskladAPI/orders';
+import { createDemand, getMsOrder } from '../moyskladAPI/orders';
 import OrderModel from '../models/OrderModel';
 import SyncModel from '../models/SyncModel';
 import { logger } from '../handlers/errorLogger';
@@ -492,6 +492,7 @@ router.post("/handle/customerorder/update", bodyParser.json(), async (req: Reque
 				}
 				if (statusId === "a3ab5662-f494-11e8-9ff4-34e80005d6b2") {
 					status = "dispatch"
+					await createDemand(msOrderId)
 					// обновить статус в Амо;
 					if (order.tradeId) {
 						await updTradeStatus(order.tradeId, "orderShipped")
@@ -507,7 +508,7 @@ router.post("/handle/customerorder/update", bodyParser.json(), async (req: Reque
 					status = "ready"
 					// обновить статус в Амо;
 					if (order.tradeId) {
-						await updTradeStatus(order.tradeId, "successComplete")
+						await updTradeStatus(order.tradeId, "readyToReceive")
 					}
 				}
 				if ( typeof status !== 'undefined' ) {

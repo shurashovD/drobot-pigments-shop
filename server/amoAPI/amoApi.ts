@@ -509,7 +509,7 @@ export const createTrade = async (
 			.then(({ data }) => data)
 	} catch (e: any) {
 		console.log(e.response.data["validation-errors"][0].errors)
-		throw e
+		throw e.response.data["validation-errors"][0].errors
 	}
 }
 

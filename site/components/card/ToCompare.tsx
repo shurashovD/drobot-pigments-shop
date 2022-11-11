@@ -1,6 +1,8 @@
 import { FC, useEffect, useRef, useState } from "react"
 import { Button } from "react-bootstrap"
 import { useAddToCompareListMutation, useGetCompareQuery, useRmFromCompareListMutation } from "../../application/compare.service"
+import { useAppDispatch } from "../../application/hooks"
+import { addCompareToast } from "../../application/toastSlice"
 import IconCompare from "../icons/IconCompare"
 
 interface IProps {
@@ -10,10 +12,11 @@ interface IProps {
 
 const ToCompare: FC<IProps> = ({ productId, variantId }) => {
     const { data, isFetching } = useGetCompareQuery()
-    const [add, { isLoading }] = useAddToCompareListMutation()
+    const [add, { isLoading, isSuccess, reset }] = useAddToCompareListMutation()
     const [rm, { isLoading: rmLoading }] = useRmFromCompareListMutation()
-    const [stroke, setStroke] = useState<"#ab9a9a" | "#F7DFB1">("#ab9a9a")
+    const [stroke, setStroke] = useState<"#ab9a9a" | "#52372D">("#ab9a9a")
     const compareId = useRef<string|undefined>(undefined)
+	const dispatch = useAppDispatch()
 
     useEffect(() => {
 		if (data) {
@@ -27,9 +30,16 @@ const ToCompare: FC<IProps> = ({ productId, variantId }) => {
 				}
 			})
 			compareId.current = good?.id
-			setStroke(!!compareId.current ? "#F7DFB1" : "#ab9a9a")
+			setStroke(!!compareId.current ? "#52372D" : "#ab9a9a")
 		}
 	}, [data, compareId])
+
+	useEffect(() => {
+		if ( isSuccess ) {
+			dispatch(addCompareToast())
+			reset()
+		}
+	}, [addCompareToast, dispatch, isSuccess, reset])
 
     return (
 		<Button

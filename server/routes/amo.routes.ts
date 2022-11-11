@@ -96,4 +96,13 @@ router.post('/handle', bodyParser.urlencoded({ extended: false }), async (req, r
     }
 })
 
+router.post('/chat/handle/:scope_id', bodyParser.urlencoded({ extended: false }), async(req: Request<{scope_id: string}>, res) => {
+    try {
+        res.end()
+    } catch (e) {
+        res.end()
+        logger.error(e)
+    }
+})
+
 export default router

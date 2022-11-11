@@ -87,6 +87,22 @@ export const getMsOrder = async (orderId: string) => {
 	}
 }
 
+const getMsOrderPositions = async (orderId: string) => {
+	try {
+		return await ms.GET(`${paths.order}/${orderId}/positions`)
+	} catch (e) {
+		throw e
+	}
+}
+
+const updateMsOrderPosition = async (orderId: string, positionId: string, payload: {}) => {
+	try {
+		return await ms.PUT(`${paths.order}/${orderId}/positions/${positionId}`, payload)
+	} catch (e) {
+		throw e
+	}
+}
+
 export const getMsOrderStatuses = async () => {
 	try {
 		return await ms.GET(`${paths.order}/metadata`)
@@ -112,7 +128,19 @@ export const deleteMsOrder = async (orderId: string) => {
 	}
 }
 
-const createDemand = async (orderId: string) => {
+const reserveMsOrderPositions = async (orderId: string) => {
+	try {
+		const { rows } = await getMsOrderPositions(orderId)
+		for (const i in rows) {
+			const { id, quantity } = rows[i]
+			await updateMsOrderPosition(orderId, id, { reserve: quantity })
+		}
+ 	} catch (e) {
+		throw e
+	}
+}
+
+export const createDemand = async (orderId: string) => {
 	try {
 		const template = await ms.PUT(`${paths.demand}/new`, {
 			customerOrder: {
@@ -142,20 +170,22 @@ const createDemand = async (orderId: string) => {
 export const acceptPayment = async (orderId: string, sum: number) => {
 	try {
 		const order = await ms.GET(`${paths.order}/${orderId}`)
-		if ( !order ) {
+		if (!order) {
 			throw new Error(`Заказ ${orderId} не найден в Мой склад`)
 		}
 		const { agent, organization } = order
-		const operations = [{
-            meta: {
-            	href: `https://online.moysklad.ru/api/remap/1.2/entity/customerorder/${orderId}`,
-            	metadataHref: "https://online.moysklad.ru/api/remap/1.2/entity/customerorder/metadata",
-            	type: "customerorder",
-				mediaType: "application/json"
-            }
-        }]
+		const operations = [
+			{
+				meta: {
+					href: `https://online.moysklad.ru/api/remap/1.2/entity/customerorder/${orderId}`,
+					metadataHref: "https://online.moysklad.ru/api/remap/1.2/entity/customerorder/metadata",
+					type: "customerorder",
+					mediaType: "application/json",
+				},
+			},
+		]
 		await ms.POST(paths.payment, { agent, operations, organization, sum: sum * 100 })
-		await createDemand(orderId)
+		await reserveMsOrderPositions(orderId)
 	}
 	catch (e) {
 		throw (e)

@@ -10,7 +10,7 @@ const FooterComponent = () => {
 		<Container fluid className="bg-primary pt-5 pb-6 pb-md-4" id="footer-component">
 			<Container className="pb-1">
 				<Row xs={1} md={3} className="mb-6">
-					<Col className="mb-6 mb-md-0">
+					<Col className="mb-6 mb-md-0 w-max-content mx-auto">
 						<Row>
 							<Col xs={"auto"} className="mb-3">
 								<span className="text-white">Присоединяйся:</span>
@@ -42,7 +42,7 @@ const FooterComponent = () => {
 						</Row>
 					</Col>
 					<Col className="mb-5 mb-md-0">
-						<Stack gap={2}>
+						<Stack gap={2} className="mx-auto w-max-content">
 							<div className="mb-3 text-center text-md-start">
 								<span className="text-uppercase text-secondary">Покупателю</span>
 							</div>
@@ -74,7 +74,7 @@ const FooterComponent = () => {
 						</Stack>
 					</Col>
 					<Col>
-						<Stack gap={2}>
+						<Stack gap={2} className="w-max-content mx-auto">
 							<div className="mb-3 text-center text-md-start">
 								<span className="text-uppercase text-secondary">Сотрудничество</span>
 							</div>

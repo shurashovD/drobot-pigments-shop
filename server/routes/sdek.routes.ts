@@ -7,6 +7,8 @@ import { ISdekCreateWebhookPayload, ISdekWebhookPayload } from '../../shared';
 import OrderModel from '../models/OrderModel';
 import { updateMsOrder } from '../moyskladAPI/orders';
 import { logger } from '../handlers/errorLogger';
+import setMsOrderStatus from '../handlers/setMsOrderStatus';
+import { updTradeStatus } from '../handlers/amoTradeStatus';
 
 const router = Router()
 
@@ -79,12 +81,24 @@ router.post('/handle/order', async (req: Request<{}, {}, ISdekWebhookPayload>, r
         const { code } = attributes
         if ( code === 'СREATED' || code === 'RECEIVED_AT_SENDER_WAREHOUSE' || 'READY_TO_SHIP_AT_SENDING_OFFICE' ) {
             order.status = "delivering"
+            if ( order.msOrderId ) {
+                await setMsOrderStatus(order.msOrderId, 'delivering')
+            }
+            if (order.tradeId) {
+				await updTradeStatus(order.tradeId, "orderShipped")
+			}
         }
         if ( code === 'ISSUED_FOR_DELIVERY' || code === 'ACCEPTED_AT_WAREHOUSE_ON_DEMAND' ) {
             order.status = 'ready'
+            if (order.tradeId) {
+				await updTradeStatus(order.tradeId, "readyToReceive")
+			}
         }
-        if (code === "DELIVERED_PARTIALLY" || code === "POSTOMAT_RECEIVED") {
-            order.status = "complete"
+        if (code === "DELIVERED" || code === "POSTOMAT_RECEIVED") {
+			order.status = "complete"
+			if (order.tradeId) {
+				await updTradeStatus(order.tradeId, 'successComplete')
+			}
 		}
 
         await order.save()

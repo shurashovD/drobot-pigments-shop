@@ -13,8 +13,6 @@ router.get("/", async (req, res) => {
         const favourite = await FavouriteModel.findById(client?.favourite || req.session.favouriteId)
 			.populate<{ goods: IFavourite['goods'] }>({ path: 'goods', populate: 'product' })
 
-		console.log(await FavouriteModel.findById(client?.favourite || req.session.favouriteId))
-
 		return res.json(favourite || { goods: [] })
     } catch (e) {
         logger.error(e)

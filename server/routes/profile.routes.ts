@@ -1,8 +1,8 @@
 import { sdekGetOrderInfo } from './../sdekAPI/orders';
 import { json } from "body-parser"
 import { Request, Router } from "express"
-import { INearestOrder } from "../../shared"
-import { createContact, updateContact } from "../amoAPI/amoApi"
+import { IClient, INearestOrder } from "../../shared"
+import { createContact, createTask, updateContact } from "../amoAPI/amoApi"
 import ClientModel from '../models/ClientModel'
 import PromocodeModel from '../models/PromocodeModel'
 import { createMsCounterParty, editMsCounterParty } from "../moyskladAPI/counterparty"
@@ -241,6 +241,34 @@ router.post("/promocode", json(), async (req: Request<{}, {}, { dateStart: strin
         }
 		return res.status(500).json({ message: "Ошибка. Промокод не создан..." })
 	}
+})
+
+router.post("/cashe-output", json(), async (req: Request<{}, {}, { casheSize: number }>, res) => {
+    try {
+        function cashbackNotAvailable (client: IClient): boolean {
+            const statuses = ['agent', 'delegate', 'coach']
+            return statuses.includes(client?.status || '')
+        }
+        
+        const { casheSize } = req.body
+        const client = await ClientModel.findById(req.session.userId)
+        if ( !client ) {
+            return res.end()
+        }
+        if ( !cashbackNotAvailable(client) ) {
+            return res.status(500).json({ message: "Кэшбэк не доступен" })
+        }
+
+        if (!client.cashBack || (client.cashBack < casheSize)) {
+			return res.status(500).json({ message: `Доступно к списанию ${client.cashBack || 0} руб.` })
+		}
+
+        const text = `Покупатель ${client.name} хочет вывести кэшбэк в размере ${casheSize}`
+        await createTask(text, client.amoContactId)
+        return res.end()
+    } catch (e) {
+        return res.status(500).json({ message: 'Что-то пошло не так...' })
+    }
 })
 
 router.put("/promocode/:id", json(), async (req: Request<{id: string}, {}, { dateStart: string; dateFinish: string; code: string }>, res) => {

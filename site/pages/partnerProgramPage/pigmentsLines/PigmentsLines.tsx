@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Button, Col, Row, Stack } from 'react-bootstrap'
 import LineCard from './LineCard'
-const lines1 = require("../../img/lines_1.png")
-const lines2 = require("../../img/lines_2.png")
-const lines3 = require("../../img/lines_3.png")
-const lines4 = require("../../img/lines_4.png")
-const lines5 = require("../../img/lines_5.png")
-const lines6 = require("../../img/lines_6.png")
+const lines1 = require("../../../img/lines_1.png")
+const lines2 = require("../../../img/lines_2.png")
+const lines3 = require("../../../img/lines_3.png")
+const lines4 = require("../../../img/lines_4.png")
+const lines5 = require("../../../img/lines_5.png")
+const lines6 = require("../../../img/lines_6.png")
 
 const PigmentsLines = () => {
 	const [state, setState] = useState(0)
@@ -23,7 +23,8 @@ const PigmentsLines = () => {
 	}, [carousel, state])
 
     return (
-		<>
+		<div>
+			<div className="fs-3 text-center text-uppercase mb-5">линейки пигментов DROBOT pigments:</div>
 			<Row className="d-none d-md-flex g-4 h-100 g-xl-5" md={2} lg={3}>
 				<Col>
 					<LineCard title="для век" src={lines1} />
@@ -65,23 +66,21 @@ const PigmentsLines = () => {
 				</Col>
 				<Col xs={1}></Col>
 			</Row>
-			<Stack className="text-center d-flex justify-content-center d-md-none" direction='horizontal' gap={3}>
-				{
-					[0, 1, 2, 3, 4, 5].map(item => (
-						<div key={`carousel-about_${item}`}>
-							<Button
-								variant={`outline-${state === item ? "dark" : "gray2"}`}
-								style={{ width: `${state === item ? "30" : "25"}px`, height: `${state === item ? "30" : "25"}px` }}
-								className="p-0 d-flex justify-content-center align-items-center"
-								onClick={() => setState(item)}
-							>
-								{item + 1}
-							</Button>
-						</div>
-					))
-				}
+			<Stack className="text-center d-flex justify-content-center d-md-none" direction="horizontal" gap={3}>
+				{[0, 1, 2, 3, 4, 5].map((item) => (
+					<div key={`carousel-about_${item}`}>
+						<Button
+							variant={`outline-${state === item ? "dark" : "gray2"}`}
+							style={{ width: `${state === item ? "30" : "25"}px`, height: `${state === item ? "30" : "25"}px` }}
+							className="p-0 d-flex justify-content-center align-items-center"
+							onClick={() => setState(item)}
+						>
+							{item + 1}
+						</Button>
+					</div>
+				))}
 			</Stack>
-		</>
+		</div>
 	)
 }
 

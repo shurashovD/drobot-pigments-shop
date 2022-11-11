@@ -5,6 +5,8 @@ import IconCart from "../icons/IconCart"
 import classnames from 'classnames'
 import { useChangeProductInCartMutation, useChangeVariantInCartMutation, useGetCartQuery } from "../../application/order.service"
 import { useNavigate } from "react-router-dom"
+import { useAppDispatch } from "../../application/hooks"
+import { addCartToast } from "../../application/toastSlice"
 
 interface IProps extends ButtonProps {
     productId: string
@@ -14,9 +16,14 @@ interface IProps extends ButtonProps {
 const ButtonCart: FC<IProps> = ({ productId, variantId }) => {
 	const { data: cart, isFetching } = useGetCartQuery(undefined)
 	const [inCart, setInCart] = useState(false)
-	const [addProductToCart, { isLoading: addProductLoading }] = useChangeProductInCartMutation()
-	const [addVariantToCart, { isLoading: addVariantLoading }] = useChangeVariantInCartMutation()
+	const [
+		addProductToCart, { isLoading: addProductLoading, isSuccess: addProductSuccess, reset: addProductReset }
+	] = useChangeProductInCartMutation()
+	const [
+		addVariantToCart, { isLoading: addVariantLoading, isSuccess: addVariantSuccess, reset: addVariantReset }
+	] = useChangeVariantInCartMutation()
 	const navigate = useNavigate()
+	const dispatch = useAppDispatch()
 
 	const addProductHandler = () => {
 		if ( inCart ) {
@@ -40,18 +47,28 @@ const ButtonCart: FC<IProps> = ({ productId, variantId }) => {
 		}
 	}, [cart, productId, variantId])
 
+	useEffect(() => {
+		if ( addProductSuccess || addVariantSuccess ) {
+			dispatch(addCartToast())
+			addProductReset()
+			addVariantReset()
+		}
+	}, [addProductSuccess, addProductReset, addVariantSuccess, addVariantReset, dispatch, addCartToast])
+
     return (
 		<Button
 			disabled={isFetching || addProductLoading || addVariantLoading}
 			variant="link"
-			className={classnames("p-0 px-2 d-flex justify-content-center align-items-center to-cart__btn", {'in-cart': inCart})}
-			style={{ maxWidth: "264px", minHeight: '45px' }}
+			className={classnames("p-0 px-2 d-flex justify-content-center align-items-center to-cart__btn", { "in-cart": inCart })}
+			style={{ maxWidth: "264px", minHeight: "45px" }}
 			onClick={addProductHandler}
 		>
-			<span className={classnames({"invisible": inCart}, "me-1 me-md-2")}>
-				<IconCart stroke="#F7DFB1" width={22} height={27} strokeWidth={0.7} />
+			<span className={classnames({ "invisible-lg": inCart }, "me-lg-2")}>
+				<IconCart stroke={inCart ? "#52372D" : "#F7DFB1"} width={22} height={27} strokeWidth={0.7} />
 			</span>
-			<span className="text-uppercase" style={{ transform: `translateX(${inCart ? "-16px" : "0"})` }}>В корзин{inCart ? <>е</> : <>у</>}</span>
+			<span className="text-uppercase d-none d-lg-block" style={{ transform: `translateX(${inCart ? "-16px" : "0"})` }}>
+				В корзин{inCart ? <>е</> : <>у</>}
+			</span>
 		</Button>
 	)
 }

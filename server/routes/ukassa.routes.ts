@@ -1,6 +1,6 @@
 import { updTradeStatus } from './../handlers/amoTradeStatus';
 import { createTrade, createTask, setTradeSdekTrackId } from './../amoAPI/amoApi';
-import { getMsOrder, updateMsOrder } from './../moyskladAPI/orders';
+import { deleteMsOrder, getMsOrder, updateMsOrder } from './../moyskladAPI/orders';
 import { ICreateWebHook } from "@a2seven/yoo-checkout";
 import bodyParser from "body-parser";
 import { Request, Router } from "express";
@@ -161,7 +161,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 			}
 
 			// если покупатель - тренер;
-			if (client.status === "delegate") {
+			if (client.status === "coach") {
 				client.coachOrders.push(order._id)
 				await client.save()
 			}
@@ -180,7 +180,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 			} else {
 				await OrderModel.setPaymentStatus(order._id.toString(), { status })
 			}
-			await updateMsOrder(order.msOrderId, { description: "Произошла ошибка при оплате, заказ аннулирован" })
+			await deleteMsOrder(order.msOrderId)
 
 			// создание задачи в Амо;
 			if (client && client.amoContactId) {

@@ -29,7 +29,7 @@ const profileApi = createApi({
 			providesTags: () => ["promocodes"],
 		}),
 		getPromocodeDetails: build.query<IPromocodeDetails, { id: string }>({
-			query: ({ id }) => `/promocode/orders/${id}`
+			query: ({ id }) => `/promocode/orders/${id}`,
 		}),
 		createPromocode: build.mutation<undefined, { body: { dateStart: string; dateFinish: string; code: string } }>({
 			query: ({ body }) => ({
@@ -54,6 +54,13 @@ const profileApi = createApi({
 			}),
 			invalidatesTags: ["promocodes"],
 		}),
+		casheOutput: build.mutation<undefined, { casheSize: number }>({
+			query: (body) => ({
+				body,
+				method: "POST",
+				url: "/cashe-output",
+			}),
+		}),
 	}),
 	keepUnusedDataFor: 30,
 	reducerPath: "profileApi",
@@ -71,5 +78,6 @@ export const {
 	useCreatePromocodeMutation,
 	useUpdatePromocodeMutation,
 	useDeletePromocodeMutation,
+	useCasheOutputMutation,
 } = profileApi
 export default profileApi

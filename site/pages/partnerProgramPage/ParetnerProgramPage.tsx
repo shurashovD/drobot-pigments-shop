@@ -1,11 +1,9 @@
 import { useEffect } from "react"
 import { Container, Stack } from "react-bootstrap"
 import BannerComponent from "../../components/BannerComponent"
-import CashBack from "./cashBack/CashBack"
-import Categories from "./categories/Categories"
-import Coach from "./coach/Coach"
-import Delegates from "./delegates/Delegates"
-import HowUse from "./howUse/HowUse"
+import Header from "./header/Header"
+import PigmentsLines from "./pigmentsLines/PigmentsLines"
+import Variants from "./variants/Variants"
 
 const ParetnerProgramPage = () => {
 	useEffect(() => {
@@ -17,11 +15,9 @@ const ParetnerProgramPage = () => {
 			<BannerComponent folder="partnerProgram" widthToHeight={1440 / 450} mobileWidthToHeight={414 / 550} />
 			<Container className="pb-6">
 				<Stack gap={5}>
-					<Categories />
-					<CashBack />
-					<Delegates />
-					<Coach />
-					<HowUse />
+					<Header />
+					<PigmentsLines />
+					<Variants />
 				</Stack>
 			</Container>
 		</Container>

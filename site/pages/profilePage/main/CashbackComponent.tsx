@@ -1,15 +1,18 @@
-import { Col, Row, Spinner } from "react-bootstrap"
+import { useState } from 'react'
+import { Button, Col, Row, Spinner } from "react-bootstrap"
 import { useAccountAuthQuery } from "../../../application/account.service"
-import { NavLink } from 'react-router-dom'
+import CashOutModal from './CashOutModal'
 
 const CashbackComponent = () => {
 	const { data, isFetching } = useAccountAuthQuery(undefined)
+	const [showModal, setShowModal] = useState(false)
 	const formatter = new Intl.NumberFormat('ru', {
 		style: 'decimal'
 	})
 
 	return (
 		<div>
+			<CashOutModal onHide={() => setShowModal(false)} show={showModal} />
 			{isFetching && (
 				<div className="text-center p-3">
 					<Spinner variant="secondary" animation="border" />
@@ -28,9 +31,9 @@ const CashbackComponent = () => {
 				</Row>
 			)}
 			{!isFetching && data && (
-				<NavLink to={"/profile#main"} className="btn btn-link border border-dark text-primary d-none">
+				<Button variant="link" className="border border-dark text-primary" onClick={() => setShowModal(true)}>
 					Вывести кэш
-				</NavLink>
+				</Button>
 			)}
 		</div>
 	)

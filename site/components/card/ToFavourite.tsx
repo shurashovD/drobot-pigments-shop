@@ -1,6 +1,8 @@
 import { FC, useEffect, useRef, useState } from "react"
 import { Button } from "react-bootstrap"
 import { useAddFavouritesMutation, useGetFavouritesQuery, useRmFavouritesMutation } from "../../application/favourite.service"
+import { useAppDispatch } from "../../application/hooks"
+import { addFavouritesToast } from "../../application/toastSlice"
 import IconFavourite from "../icons/IconFavourite"
 
 interface IProps {
@@ -10,11 +12,12 @@ interface IProps {
 
 const ToFavourite: FC<IProps> = ({ productId, variantId }) => {
     const { data, isFetching } = useGetFavouritesQuery()
-    const [addFavourite, { isLoading }] = useAddFavouritesMutation()
+    const [addFavourite, { isLoading, isSuccess, reset }] = useAddFavouritesMutation()
     const [rmFavourite, { isLoading: rmLoading }] = useRmFavouritesMutation()
-    const [stroke, setStroke] = useState<"#000000" | "#F7DFB1">("#000000")
-    const [variant, setVariant] = useState<"light"|"primary">("light")
+    const [stroke, setStroke] = useState<"#52372D" | "#F7DFB1">("#52372D")
+    const [backStroke, setBackStroke] = useState<"#52372D" | "#F7DFB1">("#F7DFB1")
     const inFavourite = useRef(false)
+    const dispatch = useAppDispatch()
 
     useEffect(() => {
         if ( data ) {
@@ -27,17 +30,24 @@ const ToFavourite: FC<IProps> = ({ productId, variantId }) => {
                     return true
                 }
             })
-            setStroke(inFavourite.current ? "#F7DFB1": "#000000")
-            setVariant(inFavourite.current ? "light" : "light")
+            setStroke(inFavourite.current ? "#F7DFB1" : "#52372D")
+            setBackStroke(inFavourite.current ? "#52372D" : "#F7DFB1")
         }
     }, [data, inFavourite])
 
+    useEffect(() => {
+		if (isSuccess) {
+			dispatch(addFavouritesToast())
+			reset()
+		}
+	}, [addFavouritesToast, dispatch, isSuccess, reset])
+
     return (
         <Button
-            variant={variant} disabled={isFetching || isLoading || rmLoading} size="sm"
+            variant="link" disabled={isFetching || isLoading || rmLoading} size="sm"
             onClick={() => inFavourite.current ? rmFavourite({ productId, variantId }) : addFavourite({ productId, variantId })}
         >
-            <IconFavourite stroke={stroke} />
+            <IconFavourite stroke={stroke} backStroke={backStroke} />
         </Button>
     )
 }

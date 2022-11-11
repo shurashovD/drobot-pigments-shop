@@ -20,6 +20,8 @@ import profilePromocodesSlice from "./profilePromocodesSlice";
 import profileSlice from "./profileSlice";
 import compareSlice from "./compareSlice";
 import ratingApi from "./rating.service";
+import toastSlice from "./toastSlice";
+import thunkMiddleware from 'redux-thunk'
 
 const store = configureStore({
 	middleware: (getDefaultMiddleware) => [
@@ -35,7 +37,8 @@ const store = configureStore({
         productApi.middleware,
 		profileApi.middleware,
 		ratingApi.middleware,
-		rtkQueryLogger
+		rtkQueryLogger,
+		thunkMiddleware,
 	],
 	reducer: {
 		[accountApi.reducerPath]: accountApi.reducer,
@@ -58,6 +61,7 @@ const store = configureStore({
 		[profilePromocodesSlice.name]: profilePromocodesSlice.reducer,
 		[profileSlice.name]: profileSlice.reducer,
 		[ratingApi.reducerPath]: ratingApi.reducer,
+		[toastSlice.name]: toastSlice.reducer,
 	},
 })
 

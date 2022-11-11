@@ -8,22 +8,14 @@ const Goods = () => {
 	const dispatch = useAppDispatch()
 
     return (
-		<div className="border-bottom border-top border-muted">
+		<div className="border-bottom border-top border-muted sticky-top bg-light" style={{ zIndex: "1", top: "60px" }}>
 			<Container>
 				<Row xs={2}>
 					<Col className="border-end border-muted py-5">
-						<Feed
-							prefix="left"
-							activeIndex={leftFeedIndex}
-							onSelect={(eventKey) => dispatch(setLeftIndex(eventKey))}
-						/>
+						<Feed prefix="left" activeIndex={leftFeedIndex} onSelect={(eventKey) => dispatch(setLeftIndex(eventKey))} />
 					</Col>
 					<Col className="py-5">
-						<Feed
-							prefix="right"
-							activeIndex={rightFeedIndex}
-							onSelect={(eventKey) => dispatch(setRightIndex(eventKey))}
-						/>
+						<Feed prefix="right" activeIndex={rightFeedIndex} onSelect={(eventKey) => dispatch(setRightIndex(eventKey))} />
 					</Col>
 				</Row>
 			</Container>

@@ -24,7 +24,7 @@ const BannerComponent: FC<IProps> = ({ folder, mobileWidthToHeight, widthToHeigh
         }
     }, [path])
 
-    return <div ref={container}>{src && <ImageComponent src={src} widthToHeight={size} />}</div>
+    return <div ref={container} className="m-0 p-0">{src && <ImageComponent src={src} widthToHeight={size} />}</div>
 }
 
 export default BannerComponent
