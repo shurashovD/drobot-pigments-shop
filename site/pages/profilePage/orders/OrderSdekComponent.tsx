@@ -20,7 +20,7 @@ const OrderSdekComponent: FC<{ id: string, cost?: number }> = ({ id, cost }) => 
 						{(data.delivery_mode === "6" || data.delivery_mode === "7") && <span>Постамат</span>}
 					</div>
 					<div className="mb-3">
-						<span className="text-muted">Адрес:</span> <span>{data.to_location.address}</span>
+						<span className="text-muted">Адрес:</span> <span>{data?.to_location?.address}</span>
 					</div>
 					<Row className="mb-3">
 						<Col xs="auto">

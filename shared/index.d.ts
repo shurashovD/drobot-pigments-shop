@@ -1,3 +1,8 @@
+import * as core from "express-serve-static-core"
+import * as express from "express"
+import * as http from "http"
+import * as https from "https"
+import * as ws from "ws"
 import { Document, Model, Schema, Types } from "mongoose"
 import { FC, SVGProps } from "react"
 
@@ -49,10 +54,10 @@ export interface IUom extends Document {
 }
 
 export interface ICatalog extends Document {
-    archived?: boolean
-    identifier: string
-    name: string
-    parent: Types.ObjectId
+	archived?: boolean
+	identifier: string
+	name: string
+	parent: Types.ObjectId
 }
 
 export interface IProduct extends Document, IProductMethods {
@@ -265,14 +270,14 @@ export interface IOrder extends Document, IOrderMethods {
 
 interface IOrderMethods {
 	bonusHandle: () => Promise<void>
-	getNotRatedGoods: () => Promise<{productId?: Types.ObjectId, variantId?: Types.ObjectId}[]>
+	getNotRatedGoods: () => Promise<{ productId?: Types.ObjectId; variantId?: Types.ObjectId }[]>
 }
 
 export interface OrderModel extends Model<IOrder, {}, IOrderMethods> {
 	getOrder(id: string): Promise<IOrderPop>
 	setMsInfo(id: string, args: { msOrderId: string; msOrderSumRub: number; number: number }): Promise<IOrderPop>
 	setPaymentInfo(id: string, args: { paymentId: string; paymentUrl: string }): Promise<IOrderPop>
-	setPaymentStatus(id: string, args: { status: string, cancelationReason?: string }): Promise<IOrderPop>
+	setPaymentStatus(id: string, args: { status: string; cancelationReason?: string }): Promise<IOrderPop>
 }
 
 export interface IOrderPop {
@@ -580,7 +585,7 @@ export interface ISdekOrderPayload {
 	delivery_point?: string
 	recipient: {
 		name: string
-		phones: {number: string}[]
+		phones: { number: string }[]
 		number: string
 	}
 	from_location: {
@@ -802,7 +807,7 @@ export interface ICart {
 		quantity: number
 		discountOn?: number
 		paidByCashBack?: number
-		checked?: boolean 
+		checked?: boolean
 	}[]
 	variants: {
 		productId: string
@@ -813,12 +818,12 @@ export interface ICart {
 		quantity: number
 		discountOn?: number
 		paidByCashBack?: number
-		checked?: boolean 
+		checked?: boolean
 	}[]
 	amount?: number
 	availableCashBack?: number
 	discount?: number
-	promocode?: { promocodeId: string, code: string }
+	promocode?: { promocodeId: string; code: string }
 	total?: number
 	useCashBack?: boolean
 }
@@ -829,11 +834,7 @@ export interface ICartDoc extends ICart, Document {
 	refreshCashBack: () => Promise<ICartDoc | null>
 	refreshTotal: () => Promise<ICartDoc | null>
 	addProduct: (productId: string, quantity: number) => Promise<ICartDoc | null>
-	addVariant: (
-		productId: string,
-		variantId: string,
-		quantity: number
-	) => Promise<ICartDoc | null>
+	addVariant: (productId: string, variantId: string, quantity: number) => Promise<ICartDoc | null>
 	resetCheckAll: () => Promise<ICartDoc | null>
 	toggleCheckAll: () => Promise<ICartDoc | null>
 	toggleCheck: (productId: string, variantId?: string) => Promise<ICartDoc | null>
@@ -883,7 +884,8 @@ export interface IDelegateDiscountDoc extends Document {
 }
 
 export interface IProductFromClient {
-	productId: string, quantity: number
+	productId: string
+	quantity: number
 }
 
 export interface IVariantFromClient {
@@ -902,7 +904,7 @@ export interface IFavourite {
 		id: string
 		product: IProduct
 		variantId?: string
-	}[] 
+	}[]
 }
 
 export interface IFavouriteMethods {
@@ -946,7 +948,7 @@ export interface ICompareReport {
 	fields: {
 		id: string
 		title: string
-		values: (string|undefined)[]
+		values: (string | undefined)[]
 	}[]
 }
 
@@ -973,6 +975,108 @@ export interface IRating extends IRatingStatics {
 	variantId?: Schema.Types.ObjectId
 }
 
+export interface IWzChannel {
+	readonly channelId: string
+	readonly transport: "whatsapp" | "instagram" | "tgapi"
+	readonly plainId: "79865784457"
+	readonly state:
+		| "active"
+		| "init"
+		| "disabled"
+		| "phoneUnavailable"
+		| "qridle"
+		| "openelsewhere"
+		| "notEnoughMoney"
+		| "foreignphone"
+		| "unauthorized"
+		| "waitForPassword"
+}
+
+export interface IWzUser {
+	readonly id: string
+	readonly ame: string
+	readonly phone?: string
+}
+
+export interface IWzContact {
+	readonly id: string
+	readonly responsibleUserId: string
+	readonly name: string
+	readonly contactData: {
+		readonly chatType: "whatsapp" | "instagram" | "tgapi"
+		readonly chatId: string
+	}[]
+	readonly uri?: string
+}
+
+export interface IWzDeal {
+	readonly id: string
+	readonly responsibleUserId: string
+	readonly name: string
+	readonly closed: boolean
+	readonly contacts: string[]
+	readonly uri?: string
+}
+
+export interface IWzMessage {
+	readonly channelId: string
+	readonly chatType: "instagram" | "telegram" | "telegroup" | "whatsapp" | "whatsgroup"
+	readonly chatId: string
+	readonly text?: string
+	readonly contentUri?: string
+	readonly crmMessageId?: string
+}
+
+export interface IWazzup {
+	getChannels(): Promise<IWzChannel[] | undefined>
+	getUsers(): Promise<IWzUser[] | undefined>
+	getContacts(): Promise<IWzContact[] | undefined>
+	getDeals?(): Promise<IWzDeal[] | undefined>
+	getDealInfo?(dealId: string): Promise<IWzDeal | undefined>
+	addContacts?(payload: IWzContact[]): Promise<void>
+	updContacts?(payload: IWzContact[]): Promise<void>
+	addDeals?(payload: IWzContact[]): Promise<void>
+	hookSubscribe?(webhooksUri: string): Promise<void>
+	checkHook?(): Promise<any>
+}
+
+export interface IAmoChatMessageHookPayload {
+	account_id: string
+	time: number
+	message: {
+		conversation: {
+			id: string
+			client_id: string
+		}
+		source: { external_id: string }
+		sender: { id: string }
+		receiver: { id: string }
+		timestamp: number
+		msec_timestamp: number
+		message: {
+			id: string
+			type: "text" | "file" | "video" | "picture" | "voice" | "audio" | "sticker"
+			text: string
+			media?: string
+			media_group_id: string
+			thumbnail?: string
+			file_name?: string
+		}
+	}
+}
+
+export interface IAmoChat {
+	channelConnect(): Promise<{ scope_id: string } | undefined>
+	sendMessage(sid: string, text: string, name?: string): Promise<void>
+	getHistory(): Promise<void>
+	handleHook(payload: IAmoChatMessageHookPayload): Promise<void>
+}
+
+export interface IChatMessage {
+	amoContactId?: string
+	text: string
+}
+
 declare global {
 	interface Error {
 		userError?: boolean
@@ -996,7 +1100,41 @@ declare global {
 	}
 }
 
-declare module 'express-session' {
+declare module "express" {
+	function Router(options?: RouterOptions): expressWs.Router
+}
+
+declare function expressWs(app: express.Application, server?: http.Server | https.Server, options?: expressWs.Options): expressWs.Instance
+declare namespace expressWs {
+	type Application = express.Application & WithWebsocketMethod
+	type Router = express.Router & WithWebsocketMethod
+
+	interface Options {
+		leaveRouterUntouched?: boolean | undefined
+		wsOptions?: ws.ServerOptions | undefined
+	}
+
+	interface RouterLike {
+		get: express.IRouterMatcher<this>
+		[key: string]: any
+		[key: number]: any
+	}
+
+	interface Instance {
+		app: Application
+		applyTo(target: RouterLike): void
+		getWss(): ws.Server
+	}
+
+	type WebsocketRequestHandler = (ws: ws, req: express.Request, next: express.NextFunction) => void
+	type WebsocketMethod<T> = (route: core.PathParams, ...middlewares: WebsocketRequestHandler[]) => T
+
+	interface WithWebsocketMethod {
+		ws: WebsocketMethod<this>
+	}
+}
+
+declare module "express-session" {
 	interface SessionData {
 		acceptCookies?: boolean
 		isAdmin?: boolean
@@ -1027,7 +1165,6 @@ declare module 'express-session' {
 }
 
 declare module "*.svg" {
-
 	export const ReactComponent: FC<SVGProps<SVGSVGElement> & { title?: string }>
 
 	const src: string

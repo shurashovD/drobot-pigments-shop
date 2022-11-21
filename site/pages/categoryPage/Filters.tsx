@@ -1,7 +1,8 @@
+import { useEffect } from "react"
 import { Accordion, Button, Spinner } from "react-bootstrap"
 import { useParams } from "react-router-dom"
 import { useGetCategoryByIdQuery } from "../../application/category.service"
-import { resetFilters } from "../../application/filtersSlice"
+import { resetFilters, setMaxPrice, setMinPrice } from "../../application/filtersSlice"
 import { useAppDispatch } from "../../application/hooks"
 import FilterItem from "./FilterItem"
 import PriceFilter from "./PriceFilter"
@@ -11,6 +12,13 @@ const Filters = () => {
     const { id } = useParams()
     const { data: category, isLoading } = useGetCategoryByIdQuery(id || "")
     const dispatch = useAppDispatch()
+
+	useEffect(() => {
+		if ( category && category.maxPrice && category.minPrice ) {
+			dispatch(setMaxPrice(category.maxPrice))
+			dispatch(setMinPrice(category.minPrice))
+		}
+	}, [category, dispatch, setMaxPrice, setMinPrice])
 
     return (
 		<div>

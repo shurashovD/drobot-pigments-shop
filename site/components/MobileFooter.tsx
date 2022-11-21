@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom"
 import { useAccountAuthQuery } from "../application/account.service"
 import CartIconComponent from "./CartIconComponent"
+import ChatIconComponent from "./ChatIconComponent"
 import CompIconComponent from "./CompIconComponent"
 import FavIconComponent from "./FavIconComponent"
 import IconAccount from "./icons/IconAccount"
@@ -18,6 +19,7 @@ const MobileFooter = () => {
 			<CompIconComponent />
 			<CartIconComponent />
 			<FavIconComponent />
+			<ChatIconComponent />
 			<NavLink to="/profile">{!!data ? <IconAccountSign stroke={"#ffffff"} /> : <IconAccount stroke={"#ffffff"} />}</NavLink>
 		</div>
 	)

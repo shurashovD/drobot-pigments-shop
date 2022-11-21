@@ -8,6 +8,7 @@ const { auth, contact, domain, pipelineId } = config.get("amo")
 
 const paths = {
 	oauth: "/oauth2/access_token",
+	amojoId: '/api/v4/account?with=amojo_id',
 	catalogs: "/api/v4/catalogs",
 	contacts: "/api/v4/contacts",
 	contactsCustomFields: "/api/v4/contacts/custom_fields",
@@ -123,6 +124,26 @@ const amoAuth = async () => {
         console.log(e.response?.data)
         throw e
     }
+}
+
+export const getAmojoId = async () => {
+	try {
+		const authorization = await amoAuth()
+		if (!authorization) {
+			return
+		}
+
+		const url = `${domain}${paths.amojoId}`
+		return await axios
+			.get(url, {
+				headers: { "Content-Type": "application/json", authorization },
+			})
+			.then(({ data }) =>
+				data
+			)
+	} catch (e) {
+		throw e
+	}
 }
 
 export const createContact = async (name = 'Покупатель с сайта', phone?: string, mail?: string, city?: string) => {
@@ -460,7 +481,7 @@ export const createTrade = async (
 		const custom_fields_values = [
 			{
 				field_id: 986327,
-				values: [{ value: products.reduce((str, { name, quantity }) => `${str}; ${name} ${quantity}шт.`, "") }],
+				values: [{ value: products.reduce((str, { name, quantity }) => `${str} ${name} ${quantity}шт.;`, "") }],
 			},
 		]
 

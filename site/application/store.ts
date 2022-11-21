@@ -21,7 +21,6 @@ import profileSlice from "./profileSlice";
 import compareSlice from "./compareSlice";
 import ratingApi from "./rating.service";
 import toastSlice from "./toastSlice";
-import thunkMiddleware from 'redux-thunk'
 
 const store = configureStore({
 	middleware: (getDefaultMiddleware) => [
@@ -38,7 +37,6 @@ const store = configureStore({
 		profileApi.middleware,
 		ratingApi.middleware,
 		rtkQueryLogger,
-		thunkMiddleware,
 	],
 	reducer: {
 		[accountApi.reducerPath]: accountApi.reducer,

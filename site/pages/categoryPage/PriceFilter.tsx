@@ -58,14 +58,10 @@ const PriceFilter: FC<IProps> = ({ min, max }) => {
     }
 
     useEffect(() => {
-        if ( !maxPrice ) {
-            dispatch(setMaxPrice(max))
-        } else {
+        if ( maxPrice ) {
             setState(state => ({ ...state, max: maxPrice.toString() }))
         }
-        if (!minPrice) {
-			dispatch(setMinPrice(min))
-		} else {
+        if (minPrice) {
 			setState((state) => ({ ...state, min: minPrice.toString() }))
 		}
     }, [min, max, maxPrice, minPrice, dispatch, setMinPrice, setMaxPrice])

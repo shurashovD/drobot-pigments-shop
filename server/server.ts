@@ -1,4 +1,5 @@
 import express from 'express'
+import { WebSocketServer } from 'ws'
 import { connect } from 'mongoose'
 import { engine } from 'express-handlebars'
 import config from 'config'
@@ -27,7 +28,7 @@ import favouriteRoutes from './routes/favourite.routes'
 import compareRoutes from "./routes/compare.routes"
 import ratingRoutes from "./routes/rating.routes"
 
-const PORT = 3000
+const PORT = config.get('PORT')
 
 const app = express()
 
@@ -42,6 +43,29 @@ const start = async () => {
         console.log(e)
     }
 }
+
+var WsServer = new WebSocketServer({ port: 3001 })
+
+// подключённые клиенты
+var clients = {}
+WsServer.on("connection", function (ws) {
+	var id = Math.random()
+	console.log("новое соединение " + id)
+
+    ws.send("123")
+
+	ws.on("message", function (message) {
+		console.log("получено сообщение " + message)
+
+		for (var key in clients) {
+			
+		}
+	})
+
+	ws.on("close", function () {
+		console.log("соединение закрыто " + id)
+	})
+})
 
 app.engine('hbs', engine({ defaultLayout: 'main', extname: '.hbs' }))
 app.set('view engine', 'hbs')

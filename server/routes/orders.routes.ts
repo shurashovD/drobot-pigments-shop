@@ -745,7 +745,11 @@ router.post("/", bodyParser.json(), async (req, res) => {
 
 			// создание заказа в Амо;
 			if (client.amoContactId) {
-				await createAmoTrade(orderId, client._id.toString(), number, url)
+				try {
+					await createAmoTrade(orderId, client._id.toString(), number, url)
+				} catch (e) {
+					logger.error(e)
+				}
 			}
 
 			// запись информации о платеже в заказ из БД;

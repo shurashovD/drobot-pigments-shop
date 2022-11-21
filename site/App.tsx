@@ -33,6 +33,7 @@ const ProfilePage = lazy(() => import("./pages/profilePage/ProfilePage"))
 const EducationPage = lazy(() => import("./pages/educationPage/EducationPage"))
 const FavouritePage = lazy(() => import("./pages/favouritePage/FavouritePage"))
 const ComparePage = lazy(() => import("./pages/comparePage/ComparePage"))
+const ChatComponent = lazy(() => import("./components/chatComponent/ChatComponent"))
 
 const App = () => {
 	const { data: auth } = useAccountAuthQuery(undefined)
@@ -50,6 +51,9 @@ const App = () => {
 				<AuthComponent />
 				<CookiesComponent />
 				<ToastComponent />
+				<Suspense>
+					<ChatComponent />
+				</Suspense>
 				<Container fluid className="m-0 p-0">
 					<Routes>
 						<Route path="/" element={<MainPage />} />
