@@ -27,7 +27,7 @@ const ImageComponent: FC<IProps> = ({ widthToHeight = 1, src }) => {
 			setSize({ width, height })
 		}
 
-        const { abort } = trigger(`https://drobot-pigments-shop/${src}`, true)
+        const { abort } = trigger(src, true)
 
 		window.addEventListener('resize', handler)
 
