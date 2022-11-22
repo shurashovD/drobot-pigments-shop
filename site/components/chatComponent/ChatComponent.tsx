@@ -26,7 +26,7 @@ const ChatComponent = () => {
 
     return (
 		<div className="position-fixed bottom-0 end-0 p-1" style={{ zIndex: 1101 }}>
-			<div className="d-none d-lg-none">
+			<div className="d-none d-lg-block">
 				<ChatIconComponent />
 			</div>
 			<ChatOffcanvas show={show} onHide={() => setShow(false)} />

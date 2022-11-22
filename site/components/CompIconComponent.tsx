@@ -22,7 +22,7 @@ const CompIconComponent = () => {
             >
                 <span className="text-primary">{quantity}</span>
             </Badge>}
-			<NavLink to="/compare" className="text-white ms-4">
+			<NavLink to="/compare" className="text-white">
 				<IconCompare stroke={"#ffffff"} />
 			</NavLink>
 		</div>

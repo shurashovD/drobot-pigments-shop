@@ -76,11 +76,54 @@ const FooterComponent = () => {
 					<Col>
 						<Stack gap={2} className="w-max-content mx-auto">
 							<div className="mb-3 text-center text-md-start">
-								<span className="text-uppercase text-secondary">Сотрудничество</span>
+								<span className="text-uppercase text-secondary">Пигменты для ПМ</span>
 							</div>
 							<div className="text-center text-md-start">
-								<NavLink to="/partner-program" className="footer__link">
-									Партнерская программа
+								<NavLink
+									to={`/category/629c8aacfc0259cf858d217b/[%7B"filterId":"629dfa131a7f483e3680e933","valueIds":["62de95c575e91f834a882b90"]%7D]`}
+									className="footer__link"
+								>
+									Брови
+								</NavLink>
+							</div>
+							<div className="text-center text-md-start">
+								<NavLink
+									to={`/category/629c8aacfc0259cf858d217b/[%7B"filterId":"629dfa131a7f483e3680e933","valueIds":["629dfa701a7f483e3680e958"]%7D]`}
+									className="footer__link"
+								>
+									Веки
+								</NavLink>
+							</div>
+							<div className="text-center text-md-start">
+								<NavLink
+									to={`/category/629c8aacfc0259cf858d217b/[%7B"filterId":"629dfa131a7f483e3680e933","valueIds":["62a880014be6aed69690b5db"]%7D]`}
+									className="footer__link"
+								>
+									Губы
+								</NavLink>
+							</div>
+							<div className="text-center text-md-start">
+								<NavLink
+									to={`/category/629c8aacfc0259cf858d217b/[%7B"filterId":"629dfa131a7f483e3680e933","valueIds":["62de96bb75e91f834a882ca5"]%7D]`}
+									className="footer__link"
+								>
+									Трихопигментация
+								</NavLink>
+							</div>
+							<div className="text-center text-md-start">
+								<NavLink
+									to={`/category/629c8aacfc0259cf858d217b/[%7B"filterId":"629dfa131a7f483e3680e933","valueIds":["62de96ce75e91f834a882cc1"]%7D]`}
+									className="footer__link"
+								>
+									Камуфляж и ареолы
+								</NavLink>
+							</div>
+							<div className="text-center text-md-start">
+								<NavLink
+									to={`/category/629c8aacfc0259cf858d217b/[%7B"filterId":"629dfa131a7f483e3680e933","valueIds":["62de96c475e91f834a882cb3"]%7D]`}
+									className="footer__link"
+								>
+									Корректоры
 								</NavLink>
 							</div>
 						</Stack>

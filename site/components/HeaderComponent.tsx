@@ -199,13 +199,13 @@ const HeaderComponent = () => {
 							<div className="d-none d-lg-block text-white ms-4 position-realative">
 								<HeaderAccountComponent />
 							</div>
-							<div className="d-none d-lg-block">
+							<div className="d-none d-lg-block ms-4">
 								<CompIconComponent />
 							</div>
-							<div className="d-none d-lg-block">
+							<div className="d-none d-lg-block ms-4">
 								<FavIconComponent />
 							</div>
-							<div className="d-none d-lg-block">
+							<div className="d-none d-lg-block ms-4">
 								<CartIconComponent />
 							</div>
 						</Col>

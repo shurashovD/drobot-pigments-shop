@@ -22,7 +22,7 @@ const CartIconComponent = () => {
             >
                 <span className="text-primary">{quantity}</span>
             </Badge>}
-			<NavLink to="/cart" className="text-white ms-4">
+			<NavLink to="/cart" className="text-white">
 				<IconCart stroke={"#ffffff"} />
 			</NavLink>
 		</div>

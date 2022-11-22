@@ -17,11 +17,12 @@ const IconChat: FC<IProps> = ({ height = 30, width = 30, stroke, strokeWidth = 0
 			xmlns="http://www.w3.org/2000/svg"
 			xmlnsXlink="http://www.w3.org/1999/xlink"
 		>
-			<path 
-				d="M2 28L2 10C2 2 2 2 10 2L20 2C28 2 28 2 28 10L28 20C28 28 28 28 20 28Z"
-				stroke={stroke}
-				strokeWidth={0.6}
-			/>
+			<g stroke={stroke}>
+				<path d="M2 28L2 15C2 6 2 6 10 6L20 6C28 6 28 6 28 15L28 20C28 24 28 24 20 24L13 24C4 24 4 24 2 28" />
+				<circle cx="7" cy="15" r="1" />
+				<circle cx="15" cy="15" r="1" />
+				<circle cx="23" cy="15" r="1" />
+			</g>
 		</svg>
 	)
 }

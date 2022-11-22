@@ -29,7 +29,7 @@ const Filters = () => {
 			)}
 			{!isLoading && category && (
 				<Accordion
-					alwaysOpen={true}
+					alwaysOpen={false}
 					flush
 					id="filter-accordion"
 					defaultActiveKey={[

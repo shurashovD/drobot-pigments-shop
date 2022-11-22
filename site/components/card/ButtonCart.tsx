@@ -63,7 +63,10 @@ const ButtonCart: FC<IProps> = ({ productId, variantId }) => {
 			style={{ maxWidth: "264px", minHeight: "45px" }}
 			onClick={addProductHandler}
 		>
-			<span className={classnames({ "invisible-lg": inCart }, "me-lg-2")}>
+			<span className="me-lg-2 d-lg-none">
+				<IconCart stroke={inCart ? "#52372D" : "#F7DFB1"} width={22} height={27} strokeWidth={0.7} />
+			</span>
+			<span className={classnames({ invisible: inCart }, "me-lg-2 d-none d-lg-block")}>
 				<IconCart stroke={inCart ? "#52372D" : "#F7DFB1"} width={22} height={27} strokeWidth={0.7} />
 			</span>
 			<span className="text-uppercase d-none d-lg-block" style={{ transform: `translateX(${inCart ? "-16px" : "0"})` }}>

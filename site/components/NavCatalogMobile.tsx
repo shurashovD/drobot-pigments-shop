@@ -1,14 +1,17 @@
 import { FC, useState } from 'react'
 import { Accordion, Button, ListGroup, Offcanvas, OffcanvasProps, Stack } from 'react-bootstrap'
-import { NavLink, useNavigate } from 'react-router-dom'
-import { useAppSelector } from '../application/hooks'
+import { useNavigate } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '../application/hooks'
+import { resetFilters } from "../application/filtersSlice"
 
 const NavCatalogMobile: FC<OffcanvasProps> = ({ onHide, show }) => {
     const { categories } = useAppSelector(state => state.categoriesSlice)
     const [openedCategory, setOpenedCategory] = useState<string | undefined>()
 	const navigate = useNavigate()
+	const dispatch = useAppDispatch()
 
 	const clickHandler = (to: string) => {
+		dispatch(resetFilters())
 		navigate(to)
 		if ( onHide ) {
 			onHide()

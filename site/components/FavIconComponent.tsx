@@ -22,7 +22,7 @@ const FavIconComponent = () => {
             >
                 <span className="text-primary">{quantity}</span>
             </Badge>}
-			<NavLink to="/favourite" className="text-white ms-4">
+			<NavLink to="/favourite" className="text-white">
 				<IconFavourite stroke={"#ffffff"} />
 			</NavLink>
 		</div>
