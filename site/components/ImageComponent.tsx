@@ -27,7 +27,7 @@ const ImageComponent: FC<IProps> = ({ widthToHeight = 1, src }) => {
 			setSize({ width, height })
 		}
 
-        const { abort } = trigger(src, true)
+        const { abort } = trigger(`https://drobot-pigments-shop/${src}`, true)
 
 		window.addEventListener('resize', handler)
 
@@ -52,11 +52,7 @@ const ImageComponent: FC<IProps> = ({ widthToHeight = 1, src }) => {
 					/>
 				)}
 				{!isError && data && (
-					<Image
-						src={data}
-						width={size.width.toString()}
-						fluid
-					/>
+					<img src={data} style={{ objectFit: 'contain', objectPosition: 'center' }} />
 				)}
 			</div>
 		</div>
