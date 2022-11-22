@@ -56,7 +56,7 @@ const CartSchema = new Schema<ICartDoc, ICartModel>({
 		paidByCashBack: Number,
 		checked: Boolean
     }]
-})
+}, { expireAfterSeconds: 3600 * 24 * 42 })
 
 CartSchema.statics.getCart = async function (id: string): Promise<ICartDoc | null> {
 	try {

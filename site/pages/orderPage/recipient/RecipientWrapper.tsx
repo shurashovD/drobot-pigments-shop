@@ -10,7 +10,7 @@ const parsePhoneValue = (value: string) => {
 	const first = value.substring(3, 6)
 	const second = value.substring(6, 8)
 	const fird = value.substring(8, 10)
-	let result = "+7 ("
+	let result = "+ ("
 	if (value.length > 0) {
 		result += code
 	}

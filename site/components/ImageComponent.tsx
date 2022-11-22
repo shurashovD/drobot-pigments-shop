@@ -55,7 +55,7 @@ const ImageComponent: FC<IProps> = ({ widthToHeight = 1, src }) => {
 					<Image
 						src={data}
 						width={size.width.toString()}
-						height={size.height.toString()}
+						fluid
 					/>
 				)}
 			</div>

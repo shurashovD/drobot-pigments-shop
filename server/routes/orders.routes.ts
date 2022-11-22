@@ -914,7 +914,6 @@ router.post("/check-payment/probably", bodyParser.json(), async (req: Request<{}
 // получить один заказ;
 router.get("/:id", async (req: Request<{ id: string }>, res) => {
 	try {
-		console.log(890)
 		const { id } = req.params
 		const order: any = await OrderModel.findById(id)
 			.populate([
