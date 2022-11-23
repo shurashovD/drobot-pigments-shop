@@ -13,7 +13,7 @@ const categoryApi = createApi({
 			providesTags: () => ["category"],
 		}),
 		getProducts: build.query<
-			{ length: number; products: ICategorySiteProduct[] },
+			{ length: number; products: ICategorySiteProduct[]; filtersFieldsLength: { fieldId: string; productsLength: number }[] },
 			{
 				id: string
 				filters?: string[][]

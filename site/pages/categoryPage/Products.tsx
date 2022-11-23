@@ -2,7 +2,7 @@ import { FC, useCallback, useEffect, useRef, useState } from "react"
 import { Button, Col, Row, Spinner } from "react-bootstrap"
 import { ICategorySiteProduct } from "../../../shared"
 import { useGetProductsQuery } from "../../application/category.service"
-import { nextPage } from "../../application/filtersSlice"
+import { nextPage, setFiltersLength } from "../../application/filtersSlice"
 import { useAppDispatch, useAppSelector } from "../../application/hooks"
 import ProductCard from "../../components/card/ProductCard"
 import Intro from "./Intro"
@@ -63,8 +63,9 @@ const Products: FC<IProps> = ({ categoryId }) => {
 					return state.concat(goods)
 				})
 			}
+			dispatch(setFiltersLength(data.filtersFieldsLength))
         }
-    }, [data, page])
+    }, [data, dispatch, page, setFiltersLength])
 
 	useEffect(() => {
 		if ( timerId.current ) {

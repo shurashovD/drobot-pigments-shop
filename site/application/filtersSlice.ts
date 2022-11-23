@@ -5,6 +5,10 @@ interface IState {
         filterId: string
         values: string[]
     }[]
+	filtersFieldLength: {
+		fieldId: string
+		productsLength: number
+	}[]
     filters: string[][]
     limit: number
     page: number
@@ -14,13 +18,14 @@ interface IState {
 }
 
 const initialState: IState = {
-    filterObject: [],
-    filters: [[]],
-    limit: 4,
-    page: 1,
+	filterObject: [],
+	filters: [[]],
+	filtersFieldLength: [],
+	limit: 4,
+	page: 1,
 	variantsFilter: [],
 	minPrice: undefined,
-	maxPrice: undefined
+	maxPrice: undefined,
 }
 
 const generateFilters = (filterObject: IState['filterObject']) =>
@@ -30,11 +35,8 @@ const filtersSlice = createSlice({
 	initialState,
 	name: "filtersSlice",
 	reducers: {
-		initFilterObject: (
-			state,
-			{ payload }: PayloadAction<{ filterId: string; valueIds: string[] }[]>
-		) => {
-            state.filterObject = []
+		initFilterObject: (state, { payload }: PayloadAction<{ filterId: string; valueIds: string[] }[]>) => {
+			state.filterObject = []
 			for (const i in payload) {
 				const { filterId, valueIds } = payload[i]
 				state.filterObject.push({
@@ -42,13 +44,10 @@ const filtersSlice = createSlice({
 					values: valueIds,
 				})
 			}
-            state.filters = generateFilters(state.filterObject)
-            state.page = initialState.page
+			state.filters = generateFilters(state.filterObject)
+			state.page = initialState.page
 		},
-		toggleFilterValue: (
-			state,
-			{ payload }: PayloadAction<{ filterId: string; valueId: string }>
-		) => {
+		toggleFilterValue: (state, { payload }: PayloadAction<{ filterId: string; valueId: string }>) => {
 			const { filterId, valueId } = payload
 			const filter = state.filterObject.find((item) => item.filterId === filterId)
 
@@ -74,13 +73,16 @@ const filtersSlice = createSlice({
 			++state.page
 		},
 		toggleVariantsFilter: (state, { payload }: PayloadAction<string>) => {
-			const index = state.variantsFilter.findIndex(item => item === payload)
-			if ( index === -1 ) {
+			const index = state.variantsFilter.findIndex((item) => item === payload)
+			if (index === -1) {
 				state.variantsFilter.push(payload)
 			} else {
 				state.variantsFilter.splice(index, 1)
 			}
 			state.page = 1
+		},
+		setFiltersLength(state, { payload }: PayloadAction<IState["filtersFieldLength"]>) {
+			state.filtersFieldLength = payload
 		},
 		setMinPrice: (state, { payload }: PayloadAction<number>) => {
 			state.minPrice = payload
@@ -94,5 +96,5 @@ const filtersSlice = createSlice({
 	},
 })
 
-export const { initFilterObject, nextPage, toggleFilterValue, resetFilters, toggleVariantsFilter, setMaxPrice, setMinPrice } = filtersSlice.actions
+export const { initFilterObject, nextPage, toggleFilterValue, resetFilters, toggleVariantsFilter, setFiltersLength, setMaxPrice, setMinPrice } = filtersSlice.actions
 export default filtersSlice

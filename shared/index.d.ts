@@ -178,6 +178,7 @@ export interface ICategory extends Document {
 	}): {
 		length: number
 		products: ICategorySiteProduct[]
+		filtersFieldsLength: { fieldId: string; productsLength: number }[]
 	}
 }
 

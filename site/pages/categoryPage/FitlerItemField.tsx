@@ -7,20 +7,24 @@ interface IProps {
     id: string
     filterId: string
     value: string
-    productsLength: number
 }
 
-const FitlerItemField: FC<IProps> = ({ id, filterId, value, productsLength }) => {
+const FitlerItemField: FC<IProps> = ({ id, filterId, value }) => {
     const checked = useAppSelector(state => state.filtersSlice.filterObject.find(item => item.filterId === filterId)?.values.includes(id) || false)
+	const productsLength = useAppSelector(state => state.filtersSlice.filtersFieldLength.find(({ fieldId }) => fieldId === id)?.productsLength)
     const dispatch = useAppDispatch()
+
+	if ( productsLength === 0 ) {
+		return null
+	}
 
     return (
 		<div className="d-flex align-items-center mb-4">
-			<Form.Check checked={checked} disabled={productsLength === 0} onChange={() => dispatch(toggleFilterValue({ filterId, valueId: id }))} />
+			<Form.Check checked={checked} onChange={() => dispatch(toggleFilterValue({ filterId, valueId: id }))} />
 			<div className={`ms-2 ${productsLength === 0 && "text-muted"}`}>{value}</div>
-			{/*<div className="ms-2 text-muted">
+			<div className="ms-2 text-muted">
 				<small>{productsLength}</small>
-			</div>*/}
+			</div>
 		</div>
 	)
 }

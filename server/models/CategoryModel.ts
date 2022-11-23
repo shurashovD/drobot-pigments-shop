@@ -58,70 +58,135 @@ CategorySchema.methods.getProducts = function(filters: string[][] = [], limit?: 
 }
 
 // получить товары и модификации в категории;
-CategorySchema.methods.getProductsAndVariants = function (args: {
-	filters: string[][]
-	limit?: number
-	page?: number
-	variantsFilter?: string[]
-	sortByPrice?: boolean
-	minPrice?: number
-	maxPrice?: number
-}): { length: number; products: ICategorySiteProduct[] } {
-	const { filters = [], limit, page, sortByPrice, variantsFilter, minPrice, maxPrice } = args
-	let products = this.products as any[]
-	for (const i in filters) {
-		const filter = filters[i]
-		if (filter.length === 0) continue
-		products = products.filter(({ properties }) => {
-			return properties.some((prop: Types.ObjectId) => filter.some((item) => item === prop.toString()))
-		})
+CategorySchema.methods.getProductsAndVariants = function (
+	this: ICategory,
+	args: {
+		filters: string[][]
+		limit?: number
+		page?: number
+		variantsFilter?: string[]
+		sortByPrice?: boolean
+		minPrice?: number
+		maxPrice?: number
 	}
-	let result = products.reduce<ICategorySiteProduct[]>((res, item) => {
-		if (item.variants.length) {
-			const arr = item.variants.map((el: any) => {
-				const res: ICategorySiteProduct = {
-					price: (el.price || 0) / 100,
+): { length: number; products: ICategorySiteProduct[]; filtersFieldsLength: { fieldId: string; productsLength: number }[] } {
+	const { filters = [], limit, page, sortByPrice, variantsFilter, minPrice, maxPrice } = args
+
+	function getFilteredProducts(products: IProduct[], filters: string[][]): IProduct[] {
+		let result = products
+		for (const i in filters) {
+			const filter = filters[i]
+			if (filter.length === 0) continue
+			result = result.filter(({ properties }) => {
+				return properties.some((prop: Types.ObjectId) => filter.includes(prop.toString()))
+			})
+		}
+		return result
+	}
+
+	function normalizedProducts(products: IProduct[]): ICategorySiteProduct[] {
+		return products.reduce<ICategorySiteProduct[]>((res, item) => {
+			if (item.variants.length) {
+				const arr = item.variants.map((el: any) => {
+					const res: ICategorySiteProduct = {
+						price: (el.price || 0) / 100,
+						productId: item._id.toString(),
+						productTitle: item.name,
+						img: el.photo,
+						variantId: el._id.toString(),
+						variantTitle: el.name,
+						variantValue: el.value,
+					}
+					return res
+				})
+				return [...res, ...arr]
+			} else {
+				const element: ICategorySiteProduct = {
+					price: (item.price || 0) / 100,
 					productId: item._id.toString(),
 					productTitle: item.name,
-					img: el.photo,
-					variantId: el._id.toString(),
-					variantTitle: el.name,
-					variantValue: el.value,
+					img: item.photo[0],
 				}
-				return res
-			})
-			return [...res, ...arr]
-		} else {
-			const element: ICategorySiteProduct = {
-				price: (item.price || 0) / 100,
-				productId: item._id.toString(),
-				productTitle: item.name,
-				img: item.photo[0],
+				return [...res, element]
 			}
-			return [...res, element]
+		}, [])
+	}
+
+	function filterByPrice(products: ICategorySiteProduct[], minPrice?: number, maxPrice?: number): ICategorySiteProduct[] {
+		if (minPrice && maxPrice) {
+			return products.filter(({ price }) => price >= minPrice && price <= maxPrice)
 		}
-	}, [])
-    if ( minPrice && maxPrice ) {
-        result = result.filter(({ price }) => (price >= minPrice && price <= maxPrice))
-    }
-	if (variantsFilter && variantsFilter.length > 0) {
-		result = result.filter((item) => variantsFilter.includes(item.variantValue || ""))
+		return products
 	}
+
+	function filterByVariants(products: ICategorySiteProduct[], variantsFilter?: string[]): ICategorySiteProduct[] {
+		if (variantsFilter && variantsFilter.length > 0) {
+			return products.filter((item) => variantsFilter.includes(item.variantValue || ""))
+		}
+		return products
+	}
+
+	function priceSort(products: ICategorySiteProduct[], sortByPrice?: boolean): ICategorySiteProduct[] {
+		if (sortByPrice) {
+			return products.sort((a, b) => {
+				if (!(a.price && b.price)) {
+					return 1
+				}
+				return a.price - b.price
+			})
+		}
+		return products
+	}
+
+	function trimByPage(products: ICategorySiteProduct[], limit?: number, page?: number): ICategorySiteProduct[] {
+		if (limit && page) {
+			const start = limit * (page - 1)
+			const end = limit * page
+			return products.slice(start, end)
+		}
+		return products
+	}
+
+	function addFieldInFilters(filter: IFilter, fieldId: string, filters?: string[][]): string[][] {
+		if (!filters) {
+			return [[fieldId]].filter((item) => item.length)
+		}
+		const filterFieldsIds = filter.fields.map<string>(({ _id }) => _id?.toString() || "")
+		const index = filters.findIndex((item) => item.some((el) => filterFieldsIds.includes(el)))
+		if (index === -1) {
+			return filters.concat([[fieldId]]).filter(item => item.length)
+		} else {
+			return filters.map((item, i) => {
+				if (i === index) {
+					return [fieldId]
+				} else {
+					return item
+				}
+			})
+		}
+	}
+
+	const productsDoc = this.products as any[]
+	const filteredProducts = getFilteredProducts(productsDoc, filters)
+	const normalizeProducts = normalizedProducts(filteredProducts)
+	const priceFilterProducts = filterByPrice(normalizeProducts, minPrice, maxPrice)
+	const result = filterByVariants(priceFilterProducts, variantsFilter)
+	const resultSortedByPrice = priceSort(result, sortByPrice)
+	const products = trimByPage(resultSortedByPrice, limit, page)
 	const { length } = result
-	if (sortByPrice) {
-		result = result.sort((a, b) => {
-			if (!(a.price && b.price)) {
-				return 1
-			}
-			return a.price - b.price
-		})
-	}
-	if (limit && page) {
-		const start = limit * (page - 1)
-		const end = limit * page
-		return { length, products: result.slice(start, end) }
-	}
-	return { length, products: result }
+
+	const filtersFieldsLength = this.filters.reduce<{ fieldId: string; productsLength: number }[]>((acc, filter) => {
+		for (const i in filter.fields) {
+			const field = filter.fields[i]
+			const fieldId = field._id?.toString() || ""
+			const newFilter = addFieldInFilters(filter, fieldId, filters)
+			const productsLength = getFilteredProducts(productsDoc, newFilter).length
+			acc.push({ productsLength, fieldId })
+		}
+		return acc
+	}, [])
+
+	return { filtersFieldsLength, length, products }
 }
 
 // добавить фильтр в категорию;
