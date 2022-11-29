@@ -11,6 +11,12 @@ interface IProps {
 
 const FilterItem: FC<IProps> = ({ id, fields, title }) => {
 	const checkedFiledsLength = useAppSelector(state => state.filtersSlice.filterObject.find(({ filterId }) => (filterId === id))?.values.length || 0)
+	const show = useAppSelector((state) => fields.some(({ _id }: any) =>
+		state.filtersSlice.filtersFieldLength.find(({ fieldId }) => fieldId === _id?.toString())?.productsLength))
+
+	if ( !show ) {
+		return null
+	}
 
     return (
 		<Accordion.Item eventKey={id} className="mb-6 bg-transparent">

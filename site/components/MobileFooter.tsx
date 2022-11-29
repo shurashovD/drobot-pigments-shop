@@ -28,7 +28,7 @@ const MobileFooter = () => {
 			<Col xs={2} className="d-flex justify-content-center align-items-center">
 				<FavIconComponent />
 			</Col>
-			<Col xs={2} className="d-flex justify-content-center align-items-center">
+			<Col xs={2} className="d-flex justify-content-center align-items-center d-none">
 				<ChatIconComponent />
 			</Col>
 			<Col xs={2} className="d-flex justify-content-center align-items-center">

@@ -79,11 +79,15 @@ const NavCatalog = () => {
 							<Tab.Content>
 								{categories.map(({ _id: categoryId, filters }) => (
 									<Tab.Pane key={`tab_${categoryId?.toString()}`} eventKey={categoryId?.toString()}>
-										<Row xs={4} className="py-5 px-4 justify-content-start">
+										<Row
+											xs={4}
+											className="py-5 px-4 justify-content-start gy-5 overflow-scroll no-scrollbar"
+											style={{ maxHeight: "90vh" }}
+										>
 											{filters.map((item) => (
 												<Col key={item._id?.toString()}>
-													<Stack gap={2}>
-														<div className="text-uppercase text-muted mb-4">{item.title}</div>
+													<div className="text-uppercase text-muted mb-4">{item.title}</div>
+													<Stack gap={2} className="overflow-scroll no-scrollbar" style={{ maxHeight: "40vh" }}>
 														{item.fields.map(({ _id, value }) => {
 															const filters: any[] = [{ filterId: item._id?.toString(), valueIds: [_id?.toString()] }]
 															return (

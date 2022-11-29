@@ -51,9 +51,6 @@ const App = () => {
 				<AuthComponent />
 				<CookiesComponent />
 				<ToastComponent />
-				<Suspense>
-					<ChatComponent />
-				</Suspense>
 				<Container fluid className="m-0 p-0">
 					<Routes>
 						<Route path="/" element={<MainPage />} />
