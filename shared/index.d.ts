@@ -150,6 +150,7 @@ export interface ICategory extends Document {
 	filters: Types.DocumentArray<IFilter>
 	photo: string[]
 	frontEndKey: "pigments" | "clothes" | "brows" | "remove" | "eqipment"
+	parentCategory: Types.ObjectId
 	products: Types.ObjectId[]
 	title: string
 	variantsFilter?: {

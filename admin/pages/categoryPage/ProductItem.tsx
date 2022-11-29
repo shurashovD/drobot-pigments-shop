@@ -19,7 +19,7 @@ interface IProps {
 	refetchProducts?: () => any
 }
 
-const ProductItem: FC<IProps> = ({ categoryId, disabled, productId, name, refetchCategory, refetchProducts, variantLabel, variants }) => {
+const ProductItem: FC<IProps> = ({ categoryId, disabled, productId, name, refetchCategory, variantLabel, variants }) => {
 	const [remove, { isLoading, isSuccess }] = useRmProductMutation()
 	const dispatch = useAppDispatch()
 

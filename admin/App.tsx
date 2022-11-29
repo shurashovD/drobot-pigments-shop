@@ -22,7 +22,7 @@ import PromocodePage from "./pages/promocodePage/PromocodePage"
 import UsersPage from "./pages/usersPage/UsersPage"
 
 const App = () => {
-	const { data, isSuccess } = useGetOrdersQuery({}, { refetchOnMountOrArgChange: true, pollingInterval: 10000 })
+	const { data, isSuccess } = useGetOrdersQuery({}, { refetchOnMountOrArgChange: true })
 	const dispatch = useAppDispatch()
 
 	useEffect(() => {
