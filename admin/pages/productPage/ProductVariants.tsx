@@ -1,6 +1,6 @@
 import { FC } from "react"
 import { Badge, ListGroup, Stack } from "react-bootstrap"
-import { Product } from "../../../../shared"
+import { Product } from "../../../shared"
 
 interface IProps {
 	variantsLabel?: string

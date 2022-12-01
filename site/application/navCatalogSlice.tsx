@@ -1,15 +1,17 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch, RootState } from './store'
 
 interface IState {
 	isHiding: boolean
 	isShowing: boolean
+	pane: string
     show: boolean
 }
 
 const initialState: IState = {
 	isHiding: false,
 	isShowing: false,
+	pane: "0",
     show: false
 }
 
@@ -60,10 +62,13 @@ const navCatalogSlice = createSlice({
 	},
 	reducers: {
 		hideNavCatalog: (state) => ({ ...state, show: false }),
+		setPane(state, { payload }: PayloadAction<string|undefined>) {
+			state.pane = payload || "0"
+		},
 		showNavCatalog: (state) => ({ ...state, show: true }),
 	},
 })
 
-export const { hideNavCatalog, showNavCatalog } = navCatalogSlice.actions
+export const { hideNavCatalog, setPane, showNavCatalog } = navCatalogSlice.actions
 
 export default navCatalogSlice

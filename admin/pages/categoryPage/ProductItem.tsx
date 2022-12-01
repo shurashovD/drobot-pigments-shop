@@ -36,7 +36,7 @@ const ProductItem: FC<IProps> = ({ categoryId, disabled, productId, name, refetc
 		<ListGroup.Item>
 			<div className="hstack gap-3">
 				<div>
-					<NavLink to={`/admin/products/product/${productId}`}>
+					<NavLink to={`/admin/product/${productId}`}>
 						{name}
 					</NavLink>
 				</div>

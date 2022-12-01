@@ -4,7 +4,7 @@ import { Request, Router } from "express";
 import { access, mkdir, readdir, rm } from "fs/promises";
 import multer, { diskStorage } from "multer";
 import path from "path";
-import { ICategory, IProduct } from "../../shared";
+import { ICategory, ICategorySiteSubcategory, IProduct } from "../../shared";
 import { logger } from "../handlers/errorLogger";
 import CategoryModel from "../models/CategoryModel";
 import ProductModel from "../models/ProductModel";
@@ -50,7 +50,7 @@ const upload = multer({ storage })
 // получение всех категорий;
 router.get("/", async (req, res) => {
 	try {
-        const categories = await CategoryModel.find({ archived: false })
+        const categories = await CategoryModel.find({ archived: false, parentCategory: { $exists: false } })
         return res.json(categories)
 	} catch (e) {
 		logger.error(e)
@@ -101,6 +101,26 @@ router.get("/:id", async (req: Request<{id: string}>, res) => {
 		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
+})
+
+// получение подкатегорий категории;
+router.get("/subcategories/:id", async (req: Request<{ id: string }>, res) => {
+    try {
+        const { id } = req.params
+        const category = await CategoryModel.findById(id)
+        if ( !category ) {
+            const error = new Error('Категория не найдена')
+            error.userError = true
+            throw error
+        }
+
+        const subCategories: ICategorySiteSubcategory[] = await category.getSubCategories()
+        return res.json(subCategories)
+    } catch (e: any) {
+        logger.error(e)
+        const message = e.userError ? e.message : 'Что-то пошло не так...'
+        return res.status(500).json({ message })
+    }
 })
 
 // получение товаров категории;
@@ -202,10 +222,17 @@ router.delete('/products/:id', bodyParser.json(), async (req: Request<{id: strin
 })
 
 // создание категории;
-router.post("/", bodyParser.json(), async (req: Request<{}, {}, {title: string}>, res) => {
+router.post("/", bodyParser.json(), async (req: Request<{}, {}, {title: string, parentCategoryId?: string}>, res) => {
 	try {
-        const { title } = req.body
-		await CategoryModel.create({ title })
+        const { title, parentCategoryId } = req.body
+        if ( parentCategoryId ) {
+            const parentCategory = await CategoryModel.findById(parentCategoryId)
+            if ( parentCategory ) {
+                await parentCategory.createSubCategory(title)
+            }
+        } else {
+            await CategoryModel.create({ title })
+        }
 		return res.end()
 	} catch (e: any) {
         if (e.code === 11000) {
@@ -243,14 +270,14 @@ router.put("/:id", bodyParser.json(), async (req: Request<{id: string}, {}, {des
 })
 
 // удаление категории;
-router.delete("/:id", bodyParser.json(), async (req: Request<{id: string}, {}, {}>, res) => {
+router.delete("/:id", async (req: Request<{id: string}, {}, {}>, res) => {
 	try {
         const { id } = req.params
-        await CategoryModel.findByIdAndUpdate(id, { archived: true })
+        await CategoryModel.rmCategory(id)
 		return res.end()
 	} catch (e) {
 		logger.error(e)
-		return res.status(500).json({ message: "Что-то пошло не так..." })
+		return res.status(500).json({ message: "Не удалось удалить категорию автоматически, удалите все товары и фильтры категории вручную" })
 	}
 })
 

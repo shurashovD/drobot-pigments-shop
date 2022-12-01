@@ -3,7 +3,7 @@ import { Form, Spinner } from "react-bootstrap"
 import {
 	useResetProductFilterMutation,
 	useSetProductFilterMutation,
-} from "../../../application/product.service"
+} from "../../application/product.service"
 
 interface IProps {
     checked: boolean

@@ -1,11 +1,11 @@
 import { Button, Col, Container, Row, Spinner } from "react-bootstrap"
 import { useNavigate, useParams } from "react-router-dom"
-import { useGetProductByIdQuery } from "../../../application/product.service"
+import { useGetProductByIdQuery } from "../../application/product.service"
 import ProductCard from "./ProductCard"
 import ProductsFilters from "./ProductFilters"
 import ProductVariants from "./ProductVariants"
 
-const CategoryProductPage = () => {
+const ProductPage = () => {
     const {id} = useParams()
     const { data, isLoading, isFetching } = useGetProductByIdQuery(id || '', { refetchOnMountOrArgChange: true })
 	const navigate = useNavigate()
@@ -54,4 +54,4 @@ const CategoryProductPage = () => {
 	)
 }
 
-export default CategoryProductPage
+export default ProductPage

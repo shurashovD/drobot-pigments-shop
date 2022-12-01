@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { ICategory, ICategorySiteProduct } from '../../shared'
+import { ICategory, ICategorySiteProduct, ICategorySiteSubcategory } from '../../shared'
 
 const categoryApi = createApi({
 	baseQuery: fetchBaseQuery({ baseUrl: "/api/categories" }),
@@ -11,6 +11,9 @@ const categoryApi = createApi({
 		getCategoryById: build.query<ICategory, string>({
 			query: (id: string) => `/${id}`,
 			providesTags: () => ["category"],
+		}),
+		getSubCategories: build.query<ICategorySiteSubcategory[], { parentCategoryId: string }>({
+			query: ({ parentCategoryId }) => `/subcategories/${parentCategoryId}`,
 		}),
 		getProducts: build.query<
 			{ length: number; products: ICategorySiteProduct[]; filtersFieldsLength: { fieldId: string; productsLength: number }[] },
@@ -61,6 +64,7 @@ export const {
 	useGetCategoriesQuery,
 	useGetCategoryByIdQuery,
 	useGetProductsQuery,
+	useGetSubCategoriesQuery,
 } = categoryApi
 
 export default categoryApi

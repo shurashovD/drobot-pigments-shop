@@ -46,11 +46,7 @@ const Item: FC<IProps> = ({ id, description, descriptionHandler, edittedHandler,
 		<tr className="align-middle">
 			<td className="text-center">
 				{photo ? (
-					<Button
-						className="p-0"
-						variant="link"
-						onClick={() => photoHandler(id)}
-					>
+					<Button className="p-0" variant="link" onClick={() => photoHandler(id)}>
 						<Image width={80} src={photo} alt="product" />
 					</Button>
 				) : (
@@ -67,32 +63,19 @@ const Item: FC<IProps> = ({ id, description, descriptionHandler, edittedHandler,
 				)}
 			</td>
 			<td className="text-center">
-				<NavLink to={`/admin/products/${id}`}>{title}</NavLink>
+				<NavLink to={`/admin/category-products/${id}`}>{title}</NavLink>
 			</td>
 			<td className="text-center">
-				<ButtonComponent
-					onClick={() =>
-						description
-							? descriptionHandler(id)
-							: edittedHandler(id)
-					}
-				>
-					Описание
-				</ButtonComponent>
+				<NavLink to={`/admin/category-subcategories/${id}`}>Подкатегории</NavLink>
+			</td>
+			<td className="text-center d-none">
+				<ButtonComponent onClick={() => (description ? descriptionHandler(id) : edittedHandler(id))}>Описание</ButtonComponent>
 			</td>
 			<td className="text-center">
-				<ButtonComponent onClick={() => edittedHandler(id)}>
-					Изменить
-				</ButtonComponent>
+				<ButtonComponent onClick={() => edittedHandler(id)}>Изменить</ButtonComponent>
 			</td>
 			<td className="text-center">
-				<ButtonComponent
-					variant="link"
-					className="text-danger"
-					size="sm"
-					isLoading={isLoading}
-					onClick={() => remove(id)}
-				>
+				<ButtonComponent variant="link" className="text-danger" size="sm" isLoading={isLoading} onClick={() => remove(id)}>
 					Удалить
 				</ButtonComponent>
 			</td>

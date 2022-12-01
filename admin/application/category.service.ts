@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { ICategory, Product } from '../../shared'
+import { ICategory, ICategorySiteSubcategory, Product } from '../../shared'
 
 const categoryApi = createApi({
 	baseQuery: fetchBaseQuery({ baseUrl: "/api/categories" }),
@@ -11,6 +11,10 @@ const categoryApi = createApi({
 		getCategoryById: build.query<ICategory, string>({
 			query: (id: string) => `/${id}`,
 			providesTags: () => ["category"],
+		}),
+		getSubCategories: build.query<ICategorySiteSubcategory[], { parentCategory: string }>({
+			query: ({ parentCategory }) => `/subcategories/${parentCategory}`,
+			providesTags: () => ["subcategories"],
 		}),
 		getProducts: build.query<
 			{ length: number; products: Product[] },
@@ -40,31 +44,28 @@ const categoryApi = createApi({
 			},
 			providesTags: () => ["products"],
 		}),
-		createCategory: build.mutation<undefined, string>({
-			query: (title) => ({
-				body: { title },
+		createCategory: build.mutation<undefined, { title: string; parentCategoryId?: string }>({
+			query: (body) => ({
+				body,
 				method: "POST",
 				url: "/",
 			}),
-			invalidatesTags: ["categories"],
+			invalidatesTags: ["categories", "subcategories"],
 		}),
-		updateCategory: build.mutation<
-			undefined,
-			{ id: string; body: { description: string; title: string } }
-		>({
+		updateCategory: build.mutation<undefined, { id: string; body: { description: string; title: string } }>({
 			query: ({ body, id }) => ({
 				body,
 				method: "PUT",
 				url: `/${id}`,
 			}),
-			invalidatesTags: ["categories"],
+			invalidatesTags: ["categories", "subcategories"],
 		}),
 		deleteCategory: build.mutation<undefined, string>({
 			query: (id) => ({
 				method: "DELETE",
 				url: `/${id}`,
 			}),
-			invalidatesTags: ["categories"],
+			invalidatesTags: ["categories", "subcategories"],
 		}),
 		uploadPhoto: build.mutation<undefined, { id: string; body: FormData }>({
 			query: ({ body, id }) => ({
@@ -72,14 +73,14 @@ const categoryApi = createApi({
 				method: "PUT",
 				url: `/photo/${id}`,
 			}),
-			invalidatesTags: ["categories"],
+			invalidatesTags: ["categories", "subcategories"],
 		}),
 		deletePhoto: build.mutation<undefined, string>({
 			query: (id) => ({
 				method: "DELETE",
 				url: `/photo/${id}`,
 			}),
-			invalidatesTags: ["categories"],
+			invalidatesTags: ["categories", "subcategories"],
 		}),
 		createFilter: build.mutation<undefined, { id: string; title: string }>({
 			query: ({ id, title }) => ({
@@ -89,10 +90,7 @@ const categoryApi = createApi({
 			}),
 			invalidatesTags: ["categories", "category"],
 		}),
-		updateFilter: build.mutation<
-			undefined,
-			{ id: string; body: { filterId: string; title: string } }
-		>({
+		updateFilter: build.mutation<undefined, { id: string; body: { filterId: string; title: string } }>({
 			query: ({ body, id }) => ({
 				body,
 				method: "PUT",
@@ -100,10 +98,7 @@ const categoryApi = createApi({
 			}),
 			invalidatesTags: ["categories", "category"],
 		}),
-		deleteFilter: build.mutation<
-			undefined,
-			{ id: string; body: { filterId: string } }
-		>({
+		deleteFilter: build.mutation<undefined, { id: string; body: { filterId: string } }>({
 			query: ({ body, id }) => ({
 				body,
 				method: "DELETE",
@@ -111,10 +106,7 @@ const categoryApi = createApi({
 			}),
 			invalidatesTags: ["categories", "category"],
 		}),
-		addFilterValue: build.mutation<
-			undefined,
-			{ id: string; body: { filterId: string; value: string } }
-		>({
+		addFilterValue: build.mutation<undefined, { id: string; body: { filterId: string; value: string } }>({
 			query: ({ body, id }) => ({
 				body,
 				method: "POST",
@@ -136,10 +128,7 @@ const categoryApi = createApi({
 			}),
 			invalidatesTags: ["categories", "category"],
 		}),
-		deleteFilterValue: build.mutation<
-			undefined,
-			{ id: string; body: { filterId: string; fieldId: string } }
-		>({
+		deleteFilterValue: build.mutation<undefined, { id: string; body: { filterId: string; fieldId: string } }>({
 			query: ({ body, id }) => ({
 				body,
 				method: "DELETE",
@@ -147,10 +136,7 @@ const categoryApi = createApi({
 			}),
 			invalidatesTags: ["categories", "category"],
 		}),
-		addProduct: build.mutation<
-			undefined,
-			{ id: string; body: { products: string[] } }
-		>({
+		addProduct: build.mutation<undefined, { id: string; body: { products: string[] } }>({
 			query: ({ body, id }) => ({
 				body,
 				method: "POST",
@@ -158,10 +144,7 @@ const categoryApi = createApi({
 			}),
 			invalidatesTags: ["categories", "category"],
 		}),
-		rmProduct: build.mutation<
-			undefined,
-			{ id: string; body: { productId: string } }
-		>({
+		rmProduct: build.mutation<undefined, { id: string; body: { productId: string } }>({
 			query: ({ body, id }) => ({
 				body,
 				method: "DELETE",
@@ -171,12 +154,13 @@ const categoryApi = createApi({
 		}),
 	}),
 	reducerPath: "categoryApi",
-	tagTypes: ["categories", "products", "category"],
+	tagTypes: ["categories", "products", "category", "subcategories"],
 })
 
 export const {
 	useGetCategoriesQuery,
 	useGetCategoryByIdQuery,
+	useGetSubCategoriesQuery,
 	useGetProductsQuery,
 	useCreateCategoryMutation,
 	useUpdateCategoryMutation,

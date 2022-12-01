@@ -370,8 +370,7 @@ CartSchema.methods.refreshCashBack = async function (this: ICartDoc): Promise<IC
 					delete variant.paidByCashBack
 				}
 			})
-
-			console.log('Корзина с кэшбэком', );
+			
 			await this.save()
 			return this
 		} else {

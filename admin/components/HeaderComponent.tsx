@@ -30,11 +30,11 @@ const HeaderComponent = () => {
 					</Nav.Link>
 				</Nav.Item>
 				<Nav.Item className="mx-3">
-					<Nav.Link active={/\/products/.test(pathname)} as="button" className="btn" onClick={handler} data-to="/admin/products">
+					<Nav.Link active={/\/products/.test(pathname)} as="button" className="btn" onClick={handler} data-to="/admin/categories">
 						Товары
 					</Nav.Link>
 				</Nav.Item>
-				<Nav.Item className="mx-3">
+				<Nav.Item className="mx-3 d-none">
 					<Nav.Link
 						active={/\/orders/.test(pathname)}
 						as="button"

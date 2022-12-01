@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "../application/hooks"
 import { hideNavCatalog, showNavCatalog } from "../application/navCatalogSlice"
 import IconBox from "./icons/IconBox"
 import IconCompare from "./icons/IconCompare"
-import NavCatalog from "./NavCatalog"
+import NavCatalog from "./navCatalog/NavCatalog"
 import NavCatalogBtn from "./NavCatalogBtn"
 import IconMenu from './icons/IconMenu'
 import { useGetCategoriesQuery } from "../application/category.service"

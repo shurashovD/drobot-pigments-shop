@@ -9,7 +9,6 @@ import HeaderComponent from "./components/HeaderComponent"
 import AmoPage from "./pages/amoPage/AmoPage"
 import CashbackPage from "./pages/cashbackPage/CashbackPage"
 import CategoryPage from "./pages/categoryPage/CategoryPage"
-import CategoryProductPage from "./pages/categoryPage/CategoryProductPage/CategoryProductPage"
 import ClientPage from "./pages/clientPage/ClientPage"
 import DebitesPage from "./pages/debitesPage/DebitesPage"
 import HooksPage from "./pages/hooksPage/HooksPage"
@@ -17,9 +16,10 @@ import LoyaltyPage from "./pages/loyaltyPage/LoyaltyPage"
 import MoySkladPage from "./pages/moySkladPage/MoySkladPage"
 import OrderPage from "./pages/ordersPage/OrderPage"
 import OrdersPage from "./pages/ordersPage/OrdersPage"
-import ProductsPage from "./pages/productsPage/ProductsPage"
+import ProductPage from "./pages/productPage/ProductPage"
 import PromocodePage from "./pages/promocodePage/PromocodePage"
 import UsersPage from "./pages/usersPage/UsersPage"
+import SiteCatalogPage from "./pages/siteCatalogPage/SiteCatalogPage"
 
 const App = () => {
 	const { data, isSuccess } = useGetOrdersQuery({}, { refetchOnMountOrArgChange: true })
@@ -39,9 +39,10 @@ const App = () => {
 				<Routes>
 					<Route path="/admin/moy-sklad" element={<MoySkladPage />} />
 					<Route path="/admin/moy-sklad/:id" element={<MoySkladPage />} />
-					<Route path="/admin/products" element={<ProductsPage />} />
-					<Route path="/admin/products/:id" element={<CategoryPage />} />
-					<Route path="/admin/products/product/:id" element={<CategoryProductPage />} />
+					<Route path="/admin/categories" element={<SiteCatalogPage />} />
+					<Route path="/admin/category-subcategories/:id" element={<SiteCatalogPage />} />
+					<Route path="/admin/category-products/:id" element={<CategoryPage />} />
+					<Route path="/admin/product/:id" element={<ProductPage />} />
 					<Route path="/admin/orders" element={<OrdersPage />} />
 					<Route path="/admin/orders/:id" element={<OrderPage />} />
 					<Route path="/admin/hooks" element={<HooksPage />} />

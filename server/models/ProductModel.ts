@@ -5,6 +5,7 @@ import UomModel from './UomModel';
 import CategoryModel from './CategoryModel';
 import config from 'config'
 import RaitingModel from './RatingModel';
+import { logger } from '../handlers/errorLogger';
 
 const discountRootCategory = config.get("discountRootCategory")
 
@@ -80,10 +81,30 @@ ProductSchema.statics.getProduct = async function(id: string): Promise<Product |
 
 ProductSchema.statics.isDiscounted = async function (id: string): Promise<boolean> {
 	try {
+		async function getRootCategoryId(categoryId: Types.ObjectId): Promise<Types.ObjectId|undefined> {
+			try {
+				const category = await CategoryModel.findById(categoryId)
+				if (category?.parentCategory) {
+					return await getRootCategoryId(category.parentCategory)
+				}
+				return categoryId
+			} catch (e) {}
+		}
+
+		if ( !discountRootCategory ) {
+			return false
+		}
+
 		const product = await this.findById(id)
-		return product?.parentCategory?.toString() === discountRootCategory
+		if ( !product?.parentCategory ) {
+			return false
+		}
+
+		const rootCategoryId = await getRootCategoryId(product.parentCategory)
+		return rootCategoryId === discountRootCategory
 	} catch (e) {
 		console.log(e)
+		logger.error(e)
 		return false
 	}
 }
@@ -122,7 +143,7 @@ ProductSchema.methods.setFilter = async function(fieldId: Types.ObjectId): Promi
 	catch (e) { throw e }
 }
 
-ProductSchema.methods.resetFilter = async function(fieldId: Types.ObjectId): Promise<IProduct> {
+ProductSchema.methods.resetFilter = async function(this: IProduct, fieldId: Types.ObjectId): Promise<IProduct> {
 	try {
 		const category = await CategoryModel.findById(this.parentCategory)
 		if ( !category ) {
@@ -133,11 +154,7 @@ ProductSchema.methods.resetFilter = async function(fieldId: Types.ObjectId): Pro
 
 		const filterIndex = category.filters.findIndex(({ fields }) => fields.some(({ _id }) => _id?.toString() === fieldId.toString()))
 		if (filterIndex === -1) {
-			const error = new Error(
-				"Категория не содержит фильтра с таким значением"
-			)
-			error.userError = true
-			throw error
+			return this
 		}
 		const fieldIndex = category.filters[filterIndex].fields.findIndex(({ _id }) => _id?.toString() === fieldId.toString())
 		const productIndex = category.filters[filterIndex].fields[fieldIndex].products.findIndex(item => item.toString() === this._id.toString())

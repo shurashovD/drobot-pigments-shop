@@ -1,9 +1,9 @@
 import { ChangeEvent, FC, useEffect, useState } from "react"
 import { Button, Card, Form, Spinner } from "react-bootstrap"
-import { successAlert } from "../../../application/alertSlice"
-import { useAppDispatch } from "../../../application/hooks"
-import { useRmProductPhotoMutation, useSetProductDescriptionMutation, useSetProductPhotoMutation } from "../../../application/product.service"
-import ButtonComponent from "../../../components/ButtonComponent"
+import { successAlert } from "../../application/alertSlice"
+import { useAppDispatch } from "../../application/hooks"
+import { useRmProductPhotoMutation, useSetProductDescriptionMutation, useSetProductPhotoMutation } from "../../application/product.service"
+import ButtonComponent from "../../components/ButtonComponent"
 
 interface IProps {
     disabled: boolean

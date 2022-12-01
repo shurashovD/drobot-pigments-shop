@@ -1,19 +1,21 @@
 import { ChangeEvent, useEffect, useState } from "react"
 import { Form } from "react-bootstrap"
+import { useParams } from "react-router-dom"
 import { successAlert } from "../../application/alertSlice"
 import { useCreateCategoryMutation } from "../../application/category.service"
 import { useAppDispatch } from "../../application/hooks"
 import ButtonComponent from "../../components/ButtonComponent"
 
 const Footer = () => {
-    const [state, setState] = useState('')
+	const { id: parentCategoryId } = useParams()
+    const [title, setTitle] = useState('')
     const [create, { isLoading, isSuccess }] = useCreateCategoryMutation()
     const dispatch = useAppDispatch()
 
     useEffect(() => {
         if ( isSuccess ) {
             dispatch(successAlert('Категория успешно создана'))
-			setState('')
+			setTitle("")
         }
     }, [isSuccess])
 
@@ -21,17 +23,11 @@ const Footer = () => {
 		<tr>
 			<td />
 			<td className="text-center">
-				<Form.Control
-					value={state}
-					onChange={(e: ChangeEvent<HTMLInputElement>) =>
-						setState(e.target.value)
-					}
-					disabled={isLoading}
-				/>
+				<Form.Control value={title} onChange={(e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)} disabled={isLoading} />
 			</td>
 			<td />
 			<td className="text-center">
-				<ButtonComponent onClick={() => create(state)} isLoading={isLoading} disabled={(state === '') || isLoading}>
+				<ButtonComponent onClick={() => create({ title, parentCategoryId })} isLoading={isLoading} disabled={title === "" || isLoading}>
 					Создать
 				</ButtonComponent>
 			</td>

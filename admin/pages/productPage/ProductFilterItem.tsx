@@ -1,6 +1,6 @@
 import { FC, useEffect, useRef, useState } from "react"
 import { Accordion, Badge } from "react-bootstrap"
-import { IFilter } from "../../../../shared"
+import { IFilter } from "../../../shared"
 import ProductFilterItemField from "./ProductFilterItemField"
 
 interface IProps {

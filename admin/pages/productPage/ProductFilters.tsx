@@ -1,6 +1,6 @@
 import { FC } from "react"
 import { Accordion, Container, Spinner } from "react-bootstrap"
-import { useGetCategoryByIdQuery } from "../../../application/category.service"
+import { useGetCategoryByIdQuery } from "../../application/category.service"
 import ProductFilterItem from "./ProductFilterItem"
 
 interface IProps {
@@ -18,7 +18,7 @@ const ProductsFilters: FC<IProps> = ({ categoryId, disabled, productId, properti
 			{isLoading && <Spinner variant="secondary" animation="border" />}
 			{data && (
 				<Accordion alwaysOpen>
-					{data.filters.map((filter) => (
+					{data.filters?.map((filter) => (
 						<ProductFilterItem
 							key={filter._id.toString()}
 							disabled={disabled}

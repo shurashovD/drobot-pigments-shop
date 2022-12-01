@@ -144,45 +144,6 @@ export interface IFilter extends Document {
 	title: string
 }
 
-export interface ICategory extends Document {
-	archived: boolean
-	description?: string
-	filters: Types.DocumentArray<IFilter>
-	photo: string[]
-	frontEndKey: "pigments" | "clothes" | "brows" | "remove" | "eqipment"
-	parentCategory: Types.ObjectId
-	products: Types.ObjectId[]
-	title: string
-	variantsFilter?: {
-		variantsLabel: string
-		variantsValues: string[]
-	}[]
-	minPrice?: number
-	maxPrice?: number
-	addFilter(title: string): Promise<ICategory>
-	rmFilter(filterId: string): Promise<ICategory>
-	updFilter(filterId: string, title: string): Promise<ICategory>
-	addField(filterId: string, value: string): Promise<ICategory>
-	rmField(filterId: string, fieldId: string): Promise<ICategory>
-	updField(filterId: string, fieldId: string, value: string): Promise<ICategory>
-	addProduct(productId: string): Promise<ICategory>
-	rmProduct(productId: string): Promise<ICategory>
-	getProducts(filters?: string[][], limit?: number, page?: number, sortByPrice?: boolean): Product[]
-	getProductsAndVariants(args: {
-		filters?: string[][]
-		limit?: number
-		page?: number
-		variantsFilter?: string[]
-		sortByPrice?: boolean
-		minPrice?: number
-		maxPrice?: number
-	}): {
-		length: number
-		products: ICategorySiteProduct[]
-		filtersFieldsLength: { fieldId: string; productsLength: number }[]
-	}
-}
-
 export interface ICategorySiteProduct {
 	productId: string
 	productTitle: string
@@ -193,8 +154,34 @@ export interface ICategorySiteProduct {
 	variantValue?: string
 }
 
+export interface ICategorySiteSubcategory {
+	id: string
+	title: string
+	productsLength: number
+	photo?: string
+}
+
+export interface ICategory extends Document, ICategoryMethods {
+	archived: boolean
+	description?: string
+	filters: Types.DocumentArray<IFilter>
+	photo: string[]
+	frontEndKey: "pigments" | "clothes" | "brows" | "remove" | "eqipment"
+	parentCategory: Types.ObjectId
+	products: Types.ObjectId[]
+	subCategories: Types.ObjectId[]
+	title: string
+	variantsFilter?: {
+		variantsLabel: string
+		variantsValues: string[]
+	}[]
+	minPrice?: number
+	maxPrice?: number
+}
+
 export interface ICategoryMethods {
 	addFilter(title: string): Promise<ICategory>
+	createSubCategory(title: string): Promise<void>
 	rmFilter(filterId: string): Promise<ICategory>
 	updFilter(filterId: string, title: string): Promise<ICategory>
 	addField(filterId: string, value: string): Promise<ICategory>
@@ -215,9 +202,12 @@ export interface ICategoryMethods {
 		length: number
 		products: ICategorySiteProduct[]
 	}
+	getSubCategories(): Promise<ICategorySiteSubcategory[]>
 }
 
-export type CategoryModel = Model<ICategory, {}, ICategoryMethods>
+export interface CategoryModel extends Model<ICategory, {}, ICategoryMethods> {
+	rmCategory(categoryId: Types.ObjectId|string): Promise<void>
+}
 
 export interface IOrder extends Document, IOrderMethods {
 	client: Types.ObjectId

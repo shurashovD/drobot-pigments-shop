@@ -26,6 +26,7 @@ const GaranteesAndRefund = lazy(() => import("./pages/garanteesAndRefund/Garante
 const CookiesComponent = lazy(() => import("./components/CookiesComponent"))
 const CartPage = lazy(() => import("./pages/cartPage/CartPage"))
 const CategoryPage = lazy(() => import("./pages/categoryPage/CategoryPage"))
+const ParentCategoryPage = lazy(() => import("./pages/parentCategoryPage/ParentCategoryPage"))
 const DeliveryPage = lazy(() => import("./pages/deliveryPage/DeliveryPage"))
 const OrderPage = lazy(() => import("./pages/orderPage/OrderPage"))
 const ProductPage = lazy(() => import("./pages/productPage/ProductPage"))
@@ -67,6 +68,14 @@ const App = () => {
 							element={
 								<Suspense fallback={<FallbackComponent />}>
 									<CategoryPage />
+								</Suspense>
+							}
+						/>
+						<Route
+							path="/parent-category/:id/:filters"
+							element={
+								<Suspense fallback={<FallbackComponent />}>
+									<ParentCategoryPage />
 								</Suspense>
 							}
 						/>

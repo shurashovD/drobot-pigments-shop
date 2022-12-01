@@ -1,4 +1,4 @@
-import { CategoryModel, ICategory, Product, IFilter, IProduct, ICategoryMethods, ICategorySiteProduct } from './../../shared/index.d';
+import { CategoryModel, ICategory, Product, IFilter, IProduct, ICategoryMethods, ICategorySiteProduct, ICategorySiteSubcategory } from './../../shared/index.d';
 import { model, Schema, Types } from 'mongoose'
 import ProductModel from './ProductModel'
 
@@ -13,14 +13,65 @@ const FilterSchema = new Schema<IFilter>({
 const filterModel = model('Filter', FilterSchema)
 
 const CategorySchema = new Schema<ICategory, CategoryModel, ICategoryMethods>({
-    archived: { type: Boolean, default: false },
-    description: String,
-    filters: [FilterSchema],
-    frontEndKey: String,
-    photo: [String],
-    products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
-    title: { type: String, required: true, unique: true}
+	archived: { type: Boolean, default: false },
+	description: String,
+	filters: [FilterSchema],
+	frontEndKey: String,
+	parentCategory: { type: Schema.Types.ObjectId, ref: "Category" },
+	photo: [String],
+	products: [{ type: Schema.Types.ObjectId, ref: "Product" }],
+	subCategories: [{ type: Schema.Types.ObjectId, ref: "Category" }],
+	title: { type: String, required: true, unique: true },
 })
+
+// удаление категории;
+CategorySchema.statics.rmCategory = async function(categoryId: Types.ObjectId | string): Promise<void> {
+	try {
+		let category = await this.findById(categoryId)
+		if (!category) {
+			throw new Error("Подкатегория не найдена")
+		}
+
+		// удаление товаров;
+		for (const i in category.products) {
+			const productId = category.products[i]
+			await category.rmProduct(productId.toString())
+		}
+		category = await this.findById(categoryId)
+		if (!category) {
+			throw new Error("Подкатегория не найдена после удаления товаров")
+		}
+
+		// удаление фильтров;
+		for (const i in category?.filters) {
+			const { _id } = category?.filters[i]
+			if (_id) {
+				await category?.rmFilter(_id.toString())
+			}
+		}
+		if (!category) {
+			throw new Error("Подкатегория не найдена после удаления фильтров")
+		}
+
+		// удаление подкатегории из списка подкатегории;
+		if (category.parentCategory) {
+			const parentCategory = await this.findById(category.parentCategory)
+			if (parentCategory) {
+				const index = parentCategory.subCategories.findIndex((item) => item.toString() === categoryId.toString())
+				if (index !== -1) {
+					parentCategory.subCategories.splice(index, 1)
+					await parentCategory.save()
+				}
+			}
+		}
+
+		// удаление подкатегории из БД;
+		await category.delete()
+	} catch (e) {
+		console.log(e)
+		throw e
+	}
+}
 
 // получить товары в категории;
 CategorySchema.methods.getProducts = function(filters: string[][] = [], limit?: number, page?: number, sortByPrice?: boolean): { length: number, products: Product[] } {
@@ -55,6 +106,42 @@ CategorySchema.methods.getProducts = function(filters: string[][] = [], limit?: 
         return { length, products: result.slice(start, end) }
     }
     return { length, products: result }
+}
+
+// добавление подкатегории;
+CategorySchema.methods.createSubCategory = async function(this: ICategory, title: string): Promise<void> {
+	try {
+		const subCategory = await new CategoryModel({ title, parentCategory: this._id }).save()
+		this.subCategories.push(subCategory._id)
+		await this.save()
+	} catch (e) {
+		throw e
+	}
+}
+
+// удаление подкатегории;
+CategorySchema.methods.rmSubCategory = async function(this: ICategory, subCategoryId: Types.ObjectId|string): Promise<void> {
+	try {
+		
+	} catch (e) {
+		throw (e)
+	}
+}
+
+// получить подкатегории;
+CategorySchema.methods.getSubCategories = async function(this: ICategory): Promise<ICategorySiteSubcategory[]> {
+	try {
+		return await CategoryModel.find({ _id: { $in: this.subCategories } })
+			.then(doc => doc.map<ICategorySiteSubcategory>(item => {
+				const id = item._id.toString()
+				const productsLength = item.products.length
+				const title = item.title
+				const photo = item.photo[0]
+				return { id, productsLength, title, photo }
+			}))
+	} catch (e) {
+		throw e
+	}
 }
 
 // получить товары и модификации в категории;
@@ -202,12 +289,12 @@ CategorySchema.methods.addFilter = async function(title: string): Promise<ICateg
 }
 
 // удалить фильтр из категории;
-CategorySchema.methods.rmFilter = async function(filterId: string): Promise<ICategory> {
+CategorySchema.methods.rmFilter = async function(this: ICategory, filterId: string): Promise<ICategory> {
     try {
-        const filters = this.filters as IFilter[]
+        const filters = this.filters
         const index = filters.findIndex(({_id}) => _id.toString() === filterId)
         if ( index === -1 ) {
-            throw new Error('Фильтр не найден').userError = true
+            return this
         }
         const filterIsUsed = filters[index].fields.some(({ products }) => products.length > 0)
         if (filterIsUsed) {
@@ -337,7 +424,7 @@ CategorySchema.methods.addProduct = async function (productId: string): Promise<
 }
 
 // удаление товара из категории;
-CategorySchema.methods.rmProduct = async function (productId: string): Promise<ICategory> {
+CategorySchema.methods.rmProduct = async function (this: ICategory, productId: string): Promise<ICategory> {
     try {
         const product = await ProductModel.findById(productId)
         if ( !product ) {
@@ -345,30 +432,34 @@ CategorySchema.methods.rmProduct = async function (productId: string): Promise<I
 			error.userError = true
 			throw error
         }
-        if (product.parentCategory?.toString() !== this._id.toString()) {
+        if (product.parentCategory && product.parentCategory?.toString() !== this._id.toString()) {
             const error = new Error(`Товар не из этой категории`)
 			error.userError = true
 			throw error
 		}
-        if (product.properties.length > 0) {
-            const error = new Error(
-				`Сначала удалите все значения фильтров товара`
-			)
-			error.userError = true
-			throw error
-        }
 
-        await ProductModel.findByIdAndUpdate(productId, {
+		// удаление фильтров товара;
+		for (const i in product.properties) {
+			const fieldId = product.properties[i]
+			await product.resetFilter(fieldId)
+		}
+
+		await ProductModel.findByIdAndUpdate(productId, {
 			$unset: { parentCategory: true },
 		})
-        const products = this.products as Types.ObjectId[]
+        const products = this.products
         const index = products.findIndex(item => item.toString() === productId)
         if ( index !== -1 ) {
-            this.products.splice(index, 1)
+			const category = await CategoryModel.findById(this._id)
+			if ( category ) {
+				category.products.splice(index, 1)
+				return await category.save()
+			}
         }
-        return await this.save()
+        return this
     }
     catch (e) { throw e }
 }
 
-export default model<ICategory, CategoryModel>("Category", CategorySchema)
+const CategoryModel = model<ICategory, CategoryModel>("Category", CategorySchema)
+export default CategoryModel
