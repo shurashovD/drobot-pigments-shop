@@ -4,11 +4,12 @@ import { successAlert } from "../../application/alertSlice"
 import { useAppDispatch } from "../../application/hooks"
 import { useRmProductPhotoMutation, useSetProductDescriptionMutation, useSetProductPhotoMutation } from "../../application/product.service"
 import ButtonComponent from "../../components/ButtonComponent"
+import ImageSelector from "./imageSelectorComponent/ImageSelector"
 
 interface IProps {
     disabled: boolean
     id: string
-    photo?: string
+    photo: string[]
     name: string
     description?: string
 }
@@ -51,7 +52,8 @@ const ProductCard: FC<IProps> = (props) => {
 
     return (
 		<Card>
-			{props.photo && <Card.Img alt="product" src={props.photo} />}
+			{props.photo[0] && <Card.Img alt="product" src={props.photo[0]} />}
+			<ImageSelector />
 			<Card.Body>
 				<Card.Title>{props.name}</Card.Title>
 				<Card.Text>

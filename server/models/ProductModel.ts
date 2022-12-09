@@ -12,12 +12,18 @@ const discountRootCategory = config.get("discountRootCategory")
 const VariantSchema = new Schema<IProduct["variants"][0]>({
 	identifier: String,
 	name: String,
-	photo: String,
-	photoUpdate: String,
+	photo: [String],
+	images: [
+		{
+			filename: String,
+			miniature: String,
+			updated: String,
+		},
+	],
 	price: Number,
 	reviewsCount: Number,
 	value: String,
-	rating: Number
+	rating: Number,
 })
 
 export const VariantModel = model("Variant", VariantSchema)
@@ -28,11 +34,15 @@ const ProductSchema = new Schema<IProduct, IProductModel, IProductMethods>({
 	currency: { type: Schema.Types.ObjectId, ref: "Currency" },
 	description: String,
 	identifier: { type: String, required: true },
+	images: [{
+		filename: String,
+		miniature: String,
+		updated: String
+	}],
 	name: { type: String, required: true },
 	parent: { type: Schema.Types.ObjectId, ref: "Catalog" },
 	parentCategory: { type: Schema.Types.ObjectId, ref: "Category" },
 	photo: [String],
-	photoUpdated: String,
 	properties: [Schema.Types.ObjectId],
 	price: { type: Number },
 	uom: { type: Schema.Types.ObjectId, ref: "Uom" },
@@ -210,4 +220,26 @@ ProductSchema.methods.isRatedByClient = async function (this: IProduct, clientId
 		throw e
 	}
 }
+
+ProductSchema.methods.sortProductPhotoOrdering = async function(this: IProduct, photo: string[]): Promise<void> {
+	try {
+		this.photo = photo
+		await this.save()
+	} catch (e) {
+		throw e
+	}
+}
+
+ProductSchema.methods.sortVariantPhotoOrdering = async function (this: IProduct, photo: string[], variantId: string): Promise<void> {
+	try {
+		const variant = this.variants.find(({ _id }) => _id?.toString() === variantId)
+		if ( variant ) {
+			variant.photo = photo
+		}
+		await this.save()
+	} catch (e) {
+		throw e
+	}
+}
+
 export default model<IProduct, IProductModel>("Product", ProductSchema)

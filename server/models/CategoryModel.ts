@@ -179,7 +179,7 @@ CategorySchema.methods.getProductsAndVariants = function (
 						price: (el.price || 0) / 100,
 						productId: item._id.toString(),
 						productTitle: item.name,
-						img: el.photo,
+						img: el.photo[0],
 						variantId: el._id.toString(),
 						variantTitle: el.name,
 						variantValue: el.value,

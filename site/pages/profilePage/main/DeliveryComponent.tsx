@@ -10,7 +10,7 @@ const DeliveryComponent = () => {
     useEffect(() => {
         if ( data ) {
             const arr = data.products.map(({ photo }) => (photo[0]))
-            const variantImgs = data.variants.map(({ product, variantId }) => product.variants.find((item) => item._id?.toString() === variantId)?.photo || '')
+            const variantImgs = data.variants.map(({ product, variantId }) => product.variants.find((item) => item._id?.toString() === variantId)?.photo?.[0] || '')
                 .filter(item => item !== '')
             arr.concat(variantImgs)
             setImgSources(arr)

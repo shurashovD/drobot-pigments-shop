@@ -128,18 +128,32 @@ router.get('/sync', async (req, res) => {
 		console.log('Папки синхронизированы');
 		sync.state = "Синхронизация продуктов"
 		await sync.save()
-        await productSync()
+		try {
+			await productSync()
+		} catch(e) {
+			sync.state = "Ошибка синхронизации продуктов"
+			sync.running = false
+			await sync.save()
+			throw e
+		}
+        
 		console.log('Продукты синхронизированы');
 		sync.state = "Синхронизация модификаций"
 		await sync.save()
-		await variantSync()
+		try {
+			await variantSync()
+		} catch (e) {
+			sync.state = "Ошибка синхронизации модификаций"
+			sync.running = false
+			await sync.save()
+			throw e
+		}
 		sync.state = "Завершена"
 		sync.running = false
 		await sync.save()
     }
     catch (e) {
         logger.error(e)
-        return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
 })
 
@@ -206,7 +220,6 @@ router.delete("/hooks/:id", async (req: Request<{ id: string }>, res) => {
 		logger.error(e)
 	}
 })
-
 
 router.post(
 	"/handle/productfolder/create",

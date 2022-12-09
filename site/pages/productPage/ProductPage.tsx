@@ -6,6 +6,7 @@ import Raiting from "../../components/card/Raiting"
 import ImageComponent from "../../components/ImageComponent"
 import ToCartBtn from "./ToCartBtn"
 import classNames from 'classnames'
+import Images from "./Images"
 
 const ProductPage = () => {
     const {id} = useParams()
@@ -55,7 +56,7 @@ const ProductPage = () => {
 			{!isLoading && data && (
 				<Row className="mb-6">
 					<Col xs={12} md={5}>
-						<ImageComponent src={data.variants.find(({ id }) => id === toCart)?.photo || data.photo?.[0] || "/static"} />
+						<Images photos={data.variants.find(({ id }) => id === toCart)?.photo || data.photo || []} />
 					</Col>
 					<Col xs={12} md={7} className="d-flex flex-wrap d-md-block justify-content-between align-items-center p-2 px-md-4">
 						<div className="fs-3 text-uppercase d-none d-md-block">
@@ -69,7 +70,7 @@ const ProductPage = () => {
 										<div key={id}>
 											<Button
 												variant="link"
-												className={classNames("product-page-variant__btn", { "checked": id === toCart })}
+												className={classNames("product-page-variant__btn", { checked: id === toCart })}
 												onClick={() => setToCart(id)}
 											>
 												{value}

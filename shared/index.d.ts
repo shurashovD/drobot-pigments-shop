@@ -60,17 +60,23 @@ export interface ICatalog extends Document {
 	parent: Types.ObjectId
 }
 
+export interface IProductImage {
+	filename: string
+	miniature?: string
+	updated?: string
+}
+
 export interface IProduct extends Document, IProductMethods {
 	archived: boolean
 	available: number
 	currency: Types.ObjectId
 	description?: string
 	identifier: string
+	images: IProductImage[]
 	name: string
 	parent: Types.ObjectId
 	parentCategory?: Types.ObjectId
 	photo: string[]
-	photoUpdated?: string
 	properties: Types.ObjectId[]
 	price?: number
 	rating?: number
@@ -80,8 +86,8 @@ export interface IProduct extends Document, IProductMethods {
 	variants: Types.DocumentArray<{
 		identifier: string
 		name: string
-		photo?: string
-		photoUpdate?: string
+		photo: string[]
+		images: IProductImage[]
 		price: number
 		rating?: number
 		reviewsCount?: number
@@ -100,6 +106,8 @@ interface IProductMethods {
 	setFilter(valueId: Types.ObjectId): Promise<IProduct>
 	refreshRating(variantId?: Types.ObjectId | string): Promise<void>
 	resetFilter(fieldId: Types.ObjectId): Promise<IProduct>
+	sortProductPhotoOrdering(newPhotoOrdering: string[]): Promise<void>
+	sortVariantPhotoOrdering(newPhotoOrdering: string[], variantId: string): Promise<void>
 }
 
 export interface Product {
@@ -121,7 +129,7 @@ export interface Product {
 		id: string
 		identifier: string
 		name: string
-		photo?: string
+		photo: string[]
 		price: number
 		rating?: number
 		reviewsCount?: number

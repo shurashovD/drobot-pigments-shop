@@ -76,7 +76,7 @@ const VariantCartItem: FC<IProps> = ({ productId, variantId }) => {
 					</Col>
 					<Col xs={5} md={3}>
 						<div className="position-relative">
-							<ImageComponent src={data.photo || "/static"} />
+							<ImageComponent src={data.photo?.[0] || "/static"} />
 							<div className="position-absolute top-0 start-0 bg-white d-none p-0 m-2">
 								<CheckboxComponent
 									isLoading={toggleLoading}

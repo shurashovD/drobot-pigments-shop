@@ -1,5 +1,5 @@
 import { logger } from './../handlers/errorLogger';
-import bodyParser from "body-parser";
+import bodyParser, { json } from "body-parser";
 import { Request, Router } from "express";
 import { access, mkdir, readdir, rm } from "fs/promises";
 import { Types } from "mongoose";
@@ -101,6 +101,29 @@ router.put('/photo/:id', upload.single('photo'), async (req: Request<{id: string
 		logger.error(e)
 		const message = e.userError ? e.message : "Что-то пошло не так..."
 		return res.status(500).json({ message })
+	}
+})
+
+// новую сортировку фотографий товара или модификации;
+router.put('/set-photo-order/:productId', json(), async (req: Request<{ productId: string }, {}, { photo: string[], variantId?: string }>, res) => {
+	try {
+		const { productId } = req.params
+		const product = await ProductModel.findById(productId)
+		if ( !product ) {
+			return res.end()
+		}
+
+		const { photo, variantId } = req.body
+		if ( variantId ) {
+			await product.sortVariantPhotoOrdering(photo, variantId)
+		} else {
+			await product.sortProductPhotoOrdering(photo)
+		}
+
+		return res.end()
+	} catch (e) {
+		logger.error(e)
+		return res.status(500).json({ message: 'Что-то пошло не так...' })
 	}
 })
 

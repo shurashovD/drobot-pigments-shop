@@ -9,6 +9,7 @@ import moySkladApi from "./moySklad.service";
 import orderApi from "./order.service";
 import ordersSlice from "./ordersSlice";
 import productApi from "./product.service";
+import productPageSlice from "./productPageSlice";
 import promocodeApi from "./promocode.service";
 import sdekApi from "./sdek.service";
 import usersApi from "./users.service";
@@ -37,6 +38,7 @@ const store = configureStore({
 		[orderApi.reducerPath]: orderApi.reducer,
 		[ordersSlice.name]: ordersSlice.reducer,
 		[productApi.reducerPath]: productApi.reducer,
+		[productPageSlice.name]: productPageSlice.reducer,
 		[promocodeApi.reducerPath]: promocodeApi.reducer,
 		[sdekApi.reducerPath]: sdekApi.reducer,
 		[usersApi.reducerPath]: usersApi.reducer,

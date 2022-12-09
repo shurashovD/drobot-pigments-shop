@@ -25,7 +25,7 @@ const Item: FC<IProps> = ({ product, variantId }) => {
 				if (variant) {
 					setTitle(variant.name)
 					setPrice(formatter.format(variant.price / 100))
-					setImg(variant.photo || "/static")
+					setImg(variant.photo[0] || "/static")
 					setTo(`/product/${product._id.toString()}?variantId=${variantId}`)
 				}
 			} else {

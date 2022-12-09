@@ -35,7 +35,7 @@ const OrderItem: FC<IProps> = ({ productId, quantity, variantId, price }) => {
 			{(product || variant) && (
 				<Row>
 					<Col xs={4} md={2}>
-						<div>{show && <ImageComponent src={product?.photo[0] || variant?.photo || "/static"} />}</div>
+						<div>{show && <ImageComponent src={product?.photo[0] || variant?.photo?.[0] || "/static"} />}</div>
 						<div className="d-md-none mt-2 fs-3">{price}</div>
 					</Col>
 					<Col xs={7} md={4} className="d-flex flex-column">

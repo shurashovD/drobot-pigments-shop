@@ -1,4 +1,4 @@
-import { IProduct } from './../../shared/index.d';
+import { IProduct, IProductImage } from "./../../shared/index.d"
 import fetch, { Headers } from 'node-fetch'
 import config from 'config'
 import Moysklad from "moysklad"
@@ -9,6 +9,14 @@ import ProductModel from '../models/ProductModel';
 import { access, mkdir, open, readdir, rm } from 'fs/promises';
 import path from 'path';
 import { createWriteStream } from 'fs';
+import { logger } from '../handlers/errorLogger';
+
+type PhotoInfoType = {
+	downloadHref: string
+	filename: string
+	miniature: string
+	updated: string
+}
 
 const moyskladCredentails: any = config.get("moysklad")
 const ms = Moysklad({ fetch, ...moyskladCredentails })
@@ -23,16 +31,59 @@ const paths = {
 	uom: "entity/uom",
 }
 
+// получает информацию о изображениях товара или модификации из МС;
+async function getPhotosInfo(imagesHref: string): Promise<PhotoInfoType[]|undefined> {
+	try {
+		const images = await ms.GET(imagesHref)
+		return images.rows.map(({ meta, filename, miniature, updated }: any) => ({
+			downloadHref: meta.href,
+			filename,
+			miniature: miniature.href,
+			updated,
+		}))
+	} catch (e) {
+		logger.error(e)
+	}
+}
+
+// удаляет фотографии;
+async function rmPhotos(photoPaths: string[]): Promise<void> {
+	if (typeof photoPaths === 'string') {
+		const p = path.join(__dirname, photoPaths)
+		try {
+			await access(p)
+			await rm(p, { recursive: true })
+		} catch (e) {}
+		return
+	}
+		for (const i in photoPaths) {
+			const p = path.join(__dirname, photoPaths[i])
+			try {
+				await access(p)
+				await rm(p, { recursive: true })
+			} catch (e) {
+				continue
+			}
+		}
+}
+
+// нужно ли обновлять фотографии;
+function shouldDownloadPhoto(photos: PhotoInfoType[], ptoductImages: IProductImage[]): boolean {
+	return photos.some(({ filename, updated }) => !ptoductImages?.some(item => (item.filename === filename && item.updated === updated)))
+}
+
+// скачивает фотографию;
 const downloadPhoto = async (props: { Authorization: string, photo: string, id: string, updated?: string }) => {
 	try {
 		const { Authorization, id, photo } = props
 		const image = await ms.GET(photo)
-		if ( !image.rows[0] ) {
+		if ( !image ) {
 			return { filename: null, updated: null }
 		}
-		const downloadUrl = image.rows[0].meta.downloadHref
-		const filename = image.rows[0].filename
-		const updated = image.rows[0].updated
+		
+		const downloadUrl = image.meta.downloadHref
+		const filename = image.filename
+		const updated = image.updated
 		if ( updated === props.updated ) {
 			return { filename, updated }
 		}
@@ -43,8 +94,7 @@ const downloadPhoto = async (props: { Authorization: string, photo: string, id: 
 			}),
 		}).then((res) => {
 			if (res.redirected) {
-				const text = fetch(res.url)
-				return text
+				return fetch(res.url)
 			}
 		})
 		if (res) {
@@ -52,12 +102,22 @@ const downloadPhoto = async (props: { Authorization: string, photo: string, id: 
 			const filePath = path.join(dirPath, filename)
 			try {
 				await access(dirPath)
-				const files = await readdir(dirPath)
+				/*const files = await readdir(dirPath)
 				for ( const i in files ) {
-					await rm(path.join(dirPath, files[i]))
+					try {
+						await rm(path.join(dirPath, files[i]))
+					} catch(e) {
+						console.log("Ошибка удаления файла")
+						throw e
+					}
+				}*/
+				try {
+					const fd = await open(filePath, 'w')
+					await fd.close()
+				} catch (e) {
+					console.log('Ошибка создания шаблона файла');
+					throw e
 				}
-				const fd = await open(filePath, 'w')
-				await fd.close()
 			}
 			catch {
 				try {
@@ -66,6 +126,7 @@ const downloadPhoto = async (props: { Authorization: string, photo: string, id: 
 					await fd.close()
 				}
 				catch (e) {
+					console.log('Ошибка создания папки')
 					throw e
 				}
 			}
@@ -245,6 +306,8 @@ export const productSync = async () => {
 			})
 		)
 
+		await ProductModel.updateMany({ archived: false }, { photo: [], images: [] })
+
 		const products = await ProductModel.find()
 		const categories = await CatalogModel.find()
 		const currencies = await CurrencyModel.find()
@@ -269,7 +332,7 @@ export const productSync = async () => {
 			}
 			if ( product?.photo[0] ) {
 				try {
-					await rm(path.resolve(product.photo[0]), { recursive: true })
+					await rm(path.resolve(__dirname, product.photo[0]), { recursive: true })
 				}
 				catch (e) {
 					console.log(e)
@@ -328,17 +391,24 @@ export const productSync = async () => {
 				}).save()
 			}
 			if (photo && product) {
-				const { filename, updated } = await downloadPhoto({ Authorization, photo, id: product._id?.toString() || '' })
-				if ( filename && updated ) {
-					product.photo = [
-						`/static/img/${product._id?.toString()}/${filename}`,
-					]
-					product.photoUpdated = updated
-					await product.save()
+				const photos = await getPhotosInfo(photo)
+				if ( photos ) {
+					product.photo = []
+					product.images = []
+					for ( const i in photos ) {
+						const photoUrl = photos[i].downloadHref
+						const { filename, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id: product._id?.toString() || "" })
+						if (filename && updated) {
+							const { filename, miniature, updated } = photos[i]
+							product.photo.push(`/static/img/${product._id?.toString()}/${filename}`)
+							product.images.push({ filename, miniature, updated })
+							await product.save()
+						}
+					}
 				}
 			}
 		}
-		console.log('Удаление продуктов завешено')
+		console.log('Добавление продуктов завешено')
 
 		// обновление измененных продуктов;
 		console.log('Обновление продуктов');
@@ -355,16 +425,10 @@ export const productSync = async () => {
 				price,
 				weight,
 			} = item
-			const currency = currencies.find(
-				({ identifier }) => identifier === item.currency
-			)
-			const parent = categories.find(
-				({ identifier }) => identifier === parentId
-			)?._id
+			const currency = currencies.find(({ identifier }) => identifier === item.currenc)
+			const parent = categories.find(({ identifier }) => identifier === parentId)?._id
 			const uom = uoms.find(({ identifier }) => identifier === item.uom)
-			const product = await ProductModel.findOne({
-				identifier: { $eq: id },
-			})
+			const product = await ProductModel.findOne({identifier: { $eq: id }})
 			if ( product ) {
 				product.archived = archived
 				if ( currency ) {
@@ -381,43 +445,21 @@ export const productSync = async () => {
 				}
 				product.weight = weight
 				if ( photo ) {
-					const { filename, updated } = await downloadPhoto({
-						Authorization,
-						photo,
-						id: product._id.toString(),
-						updated: product.photoUpdated,
-					})
-					if ( filename && updated ) {
-						product.photo = [
-							`/static/img/${product._id?.toString()}/${filename}`,
-						]
-						product.photoUpdated = updated
-					}
-					else {
-						product.photoUpdated = undefined
-						if (product.photo[0]) {
-							try {
-								await rm(
-									path.resolve(__dirname, product.photo[0]),
-									{ recursive: true }
-								)
-							} catch (e) {
-								console.log(e)
-							}
-							product.photo = []
-						}
-					}
-				}
-				else {
-					product.photoUpdated = undefined
-					if ( product.photo[0] ) {
-						try {
-							await rm(path.resolve(__dirname, product.photo[0]), { recursive: true })
-						}
-						catch (e) {
-							console.log(e)
-						}
+					const photos = await getPhotosInfo(photo)
+					if (photos && shouldDownloadPhoto(photos, product.images)) {
+						await rmPhotos(product.photo)
 						product.photo = []
+						product.images = []
+						for (const i in photos) {
+							const photoUrl = photos[i].downloadHref
+							const { filename, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id: product._id?.toString() || "" })
+							if (filename && updated) {
+								const { filename, miniature, updated } = photos[i]
+								product.photo.push(`/static/img/${product._id?.toString()}/${filename}`)
+								product.images.push({ filename, miniature, updated })
+								await product.save()
+							}
+						}
 					}
 				}
 				await product.save()
@@ -453,6 +495,9 @@ export const variantSync = async () => {
 			const product = products[i]
 			for ( const i in product.variants ) {
 				const variant = product.variants[i]
+				variant.photo = []
+				variant.images = []
+				await product.save()
 				const removeFlag = !normalize.some(({ identifier }: any) => variant.identifier === identifier)
 				if ( removeFlag ) {
 					rmIds.push(variant._id?.toString())
@@ -462,15 +507,10 @@ export const variantSync = async () => {
 				const id = rmIds[i]
 				const index = product.variants.findIndex(({ _id }) => id === _id?.toString())
 				if ( index !== -1 ) {
-					if ( typeof product.variants[index].photo === 'string' ) {
-						const rmPath = path.join(
-							__dirname,
-							product.variants[index].photo || ''
-						)
+					for (const i in product.variants[index].photo) {
 						try {
-							await rm(rmPath)
-						}
-						catch (e) {
+							await rm(path.resolve(__dirname, product.variants[index].photo[i]), { recursive: true })
+						} catch (e) {
 							console.log(e)
 						}
 					}
@@ -485,6 +525,7 @@ export const variantSync = async () => {
 
 		// добавление и обновление вариантов;
 		for (const i in normalize) {
+			console.log(normalize.length, i)
 			const mod = normalize[i]
 			const product = await ProductModel.findOne({
 				identifier: mod.productId,
@@ -515,16 +556,23 @@ export const variantSync = async () => {
 			await product.save()
 			
 			const ind = product.variants.findIndex(({ identifier }) => identifier === mod.identifier)
-			if ( ind !== -1 ) {
-				const { filename, updated } = await downloadPhoto({
-					Authorization,
-					photo: mod.photo,
-					id: product.variants[ind]._id?.toString() || "",
-					updated: product.variants[ind].photoUpdate,
-				})
-				if (filename && updated) {
-					product.variants[ind].photo = `/static/img/${product.variants[ind]._id?.toString()}/${filename}`
-					product.variants[ind].photoUpdate = updated
+			if ( ind !== -1 && mod.photo ) {
+				const photos = await getPhotosInfo(mod.photo)
+				if (photos && shouldDownloadPhoto(photos, mod.images)) {
+					await rmPhotos(mod.photo)
+					product.variants[ind].photo = []
+					product.variants[ind].images = []
+					console.log(photos.length)
+					for (const i in photos) {
+						const photoUrl = photos[i].downloadHref
+						const id = product.variants[ind]._id?.toString() || ''
+						const { filename, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id })
+						if (filename && updated) {
+							const { filename, miniature, updated } = photos[i]
+							product.variants[ind].photo.push(`/static/img/${product.variants[ind]._id?.toString()}/${filename}`)
+							product.variants[ind].images.push({ filename, miniature, updated })
+						}
+					}
 					await product.save()
 				}
 			}
@@ -716,17 +764,20 @@ export const oneProductCreate = async (href: string) => {
 			}).save()
 		}
 		if (photo && product) {
-			const { filename, updated } = await downloadPhoto({
-				Authorization,
-				photo,
-				id: product._id?.toString() || "",
-			})
-			if (filename && updated) {
-				product.photo = [
-					`/static/img/${product._id?.toString()}/${filename}`,
-				]
-				product.photoUpdated = updated
-				await product.save()
+			const photos = await getPhotosInfo(photo)
+			if (photos) {
+				product.photo = []
+				product.images = []
+				for (const i in photos) {
+					const photoUrl = photos[i].downloadHref
+					const { filename, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id: product._id?.toString() || "" })
+					if (filename && updated) {
+						const { filename, miniature, updated } = photos[i]
+						product.photo.push(`/static/img/${product._id?.toString()}/${filename}`)
+						product.images.push({ filename, miniature, updated })
+						await product.save()
+					}
+				}
 			}
 		}
 	} catch (e) {
@@ -790,7 +841,7 @@ export const oneProductUpdate = async (href: string) => {
 		})
 		if ( product ) {
 			product.archived = archived
-			if ( currency ) {
+			if (currency) {
 				product.currency = currency._id
 			}
 			product.description = description
@@ -799,48 +850,26 @@ export const oneProductUpdate = async (href: string) => {
 				product.parent = parent._id
 			}
 			product.price = price
-			if ( uom ) {
+			if (uom) {
 				product.uom = uom._id
 			}
 			product.weight = weight
-			if ( photo ) {
-				const { filename, updated } = await downloadPhoto({
-					Authorization,
-					photo,
-					id: product._id.toString(),
-					updated: product.photoUpdated,
-				})
-				if ( filename && updated ) {
-					product.photo = [
-						`/static/img/${product._id?.toString()}/${filename}`,
-					]
-					product.photoUpdated = updated
-				}
-				else {
-					product.photoUpdated = undefined
-					if (product.photo[0]) {
-						try {
-							await rm(
-								path.resolve(__dirname, product.photo[0]),
-								{ recursive: true }
-							)
-						} catch (e) {
-							console.log(e)
+			await rmPhotos(product.photo)
+			product.photo = []
+			product.images = []
+			if (photo) {
+				const photos = await getPhotosInfo(photo)
+				if (photos && shouldDownloadPhoto(photos, product.images)) {
+					for (const i in photos) {
+						const photoUrl = photos[i].downloadHref
+						const { filename, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id: product._id?.toString() || "" })
+						if (filename && updated) {
+							const { filename, miniature, updated } = photos[i]
+							product.photo.push(`/static/img/${product._id?.toString()}/${filename}`)
+							product.images.push({ filename, miniature, updated })
+							await product.save()
 						}
-						product.photo = []
 					}
-				}
-			}
-			else {
-				product.photoUpdated = undefined
-				if ( product.photo[0] ) {
-					try {
-						await rm(path.resolve(__dirname, product.photo[0]), { recursive: true })
-					}
-					catch (e) {
-						console.log(e)
-					}
-					product.photo = []
 				}
 			}
 			await product.save()
@@ -855,7 +884,6 @@ export const oneProductDelete = async (href: string) => {
 	try {
 		console.log('Удаление товара', href);
 		const goods = await ms.GET(href)
-		const Authorization = ms.getAuthHeader()
 
 		const id = goods.rows.map(({ id }: any) => (id))[0]
 
@@ -866,12 +894,8 @@ export const oneProductDelete = async (href: string) => {
 			return
 		}
 		const product = await ProductModel.findByIdAndDelete(id)
-		if (product?.photo[0]) {
-			try {
-				await rm(path.resolve(product.photo[0]), { recursive: true })
-			} catch (e) {
-				console.log(e)
-			}
+		if ( product ) {
+			await rmPhotos(product.photo)
 		}
 	} catch (e) {
 		console.log(e)
@@ -925,22 +949,24 @@ export const oneVariantCreate = async (href: string) => {
 		const ind = product.variants.findIndex(
 			({ identifier }) => identifier === mod.identifier
 		)
-		if (ind !== -1) {
-			const { filename, updated } = await downloadPhoto({
-				Authorization,
-				photo: mod.photo,
-				id: product.variants[ind]._id?.toString() || "",
-				updated: product.variants[ind].photoUpdate,
-			})
-			if (filename && updated) {
-				product.variants[ind].photo = `/static/img/${product.variants[
-					ind
-				]._id?.toString()}/${filename}`
-				product.variants[ind].photoUpdate = updated
-				await product.save()
+		if (ind !== -1 && mod.photo) {
+			const photos = await getPhotosInfo(mod.photo)
+			if (photos && shouldDownloadPhoto(photos, mod.images)) {
+				product.variants[ind].photo = []
+				product.variants[ind].images = []
+				for (const i in photos) {
+					const photoUrl = photos[i].downloadHref
+					const id = product.variants[ind]._id?.toString() || ""
+					const { filename, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id })
+					if (filename && updated) {
+						const { filename, miniature, updated } = photos[i]
+						product.variants[ind].photo.push(`/static/img/${product.variants[ind]._id?.toString()}/${filename}`)
+						product.variants[ind].images.push({ filename, miniature, updated })
+						await product.save()
+					}
+				}
 			}
 		}
-
 	} catch (e) {
 		console.log(e)
 		throw e
@@ -989,19 +1015,23 @@ export const oneVariantUpdate = async (href: string) => {
 		const ind = product.variants.findIndex(
 			({ identifier }) => identifier === mod.identifier
 		)
-		if (ind !== -1) {
-			const { filename, updated } = await downloadPhoto({
-				Authorization,
-				photo: mod.photo,
-				id: product.variants[ind]._id?.toString() || "",
-				updated: product.variants[ind].photoUpdate,
-			})
-			if (filename && updated) {
-				product.variants[ind].photo = `/static/img/${product.variants[
-					ind
-				]._id?.toString()}/${filename}`
-				product.variants[ind].photoUpdate = updated
-				await product.save()
+		if (ind !== -1 && mod.photo) {
+			const photos = await getPhotosInfo(mod.photo)
+			if (photos && shouldDownloadPhoto(photos, product.images)) {
+				await rmPhotos(mod.photo)
+				product.variants[ind].photo = []
+				product.variants[ind].photo = []
+				for (const i in photos) {
+					const photoUrl = photos[i].downloadHref
+					const id = product.variants[ind]._id?.toString() || ""
+					const { filename, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id })
+					if (filename && updated) {
+						const { filename, miniature, updated } = photos[i]
+						product.variants[ind].photo.push(`/static/img/${product.variants[ind]._id?.toString()}/${filename}`)
+						product.variants[ind].images.push({ filename, miniature, updated })
+						await product.save()
+					}
+				}
 			}
 		}
 	} catch (e) {
@@ -1049,17 +1079,7 @@ export const oneVariantDelete = async (href: string) => {
 				({ _id }) => id === _id?.toString()
 			)
 			if (index !== -1) {
-				if (typeof product.variants[index].photo === "string") {
-					const rmPath = path.join(
-						__dirname,
-						product.variants[index].photo || ""
-					)
-					try {
-						await rm(rmPath)
-					} catch (e) {
-						console.log(e)
-					}
-				}
+				await rmPhotos(product.variants[index].photo)
 				product.variants.splice(index, 1)
 				await product.save()
 			}

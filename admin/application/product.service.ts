@@ -8,10 +8,7 @@ const productApi = createApi({
 			query: (id) => `/${id}`,
 			providesTags: () => ["product"],
 		}),
-		setProductPhoto: build.mutation<
-			undefined,
-			{ id: string; body: FormData }
-		>({
+		setProductPhoto: build.mutation<undefined, { id: string; body: FormData }>({
 			query: ({ body, id }) => ({
 				body,
 				method: "PUT",
@@ -26,10 +23,15 @@ const productApi = createApi({
 			}),
 			invalidatesTags: ["product"],
 		}),
-		setProductDescription: build.mutation<
-			undefined,
-			{ id: string; body: { description: string } }
-		>({
+		setPhotoOrder: build.mutation<undefined, { productId: string; body: { photo: string[]; variantId?: string } }>({
+			query: ({ body, productId }) => ({
+				body,
+				method: "PUT",
+				url: `/set-photo-order/${productId}`,
+			}),
+			invalidatesTags: ['product']
+		}),
+		setProductDescription: build.mutation<undefined, { id: string; body: { description: string } }>({
 			query: ({ body, id }) => ({
 				body,
 				method: "PUT",
@@ -37,10 +39,7 @@ const productApi = createApi({
 			}),
 			invalidatesTags: ["product"],
 		}),
-		setProductFilter: build.mutation<
-			undefined,
-			{ id: string; body: { fieldId: string } }
-		>({
+		setProductFilter: build.mutation<undefined, { id: string; body: { fieldId: string } }>({
 			query: ({ body, id }) => ({
 				body,
 				method: "PUT",
@@ -48,10 +47,7 @@ const productApi = createApi({
 			}),
 			invalidatesTags: ["product"],
 		}),
-		resetProductFilter: build.mutation<
-			undefined,
-			{ id: string; body: { fieldId: string } }
-		>({
+		resetProductFilter: build.mutation<undefined, { id: string; body: { fieldId: string } }>({
 			query: ({ body, id }) => ({
 				body,
 				method: "DELETE",
@@ -68,6 +64,7 @@ export const {
 	useGetProductByIdQuery, 
 	useSetProductPhotoMutation,
 	useRmProductPhotoMutation,
+	useSetPhotoOrderMutation,
 	useSetProductDescriptionMutation,
 	useSetProductFilterMutation,
 	useResetProductFilterMutation,

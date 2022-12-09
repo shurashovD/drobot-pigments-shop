@@ -91,8 +91,8 @@ CompareSchema.methods.getProductsByCategory = async function (this: ICompareDoc,
 				const variant = product.variants.find(({ _id }: any) => _id?.toString() === item.variantId?.toString())
 				if (variant) {
 					const { name, price, photo, _id } = variant
-					if (photo) {
-						return { ...variant.toObject(), name, price, photo: [photo], id, variantId: _id?.toString() }
+					if (photo.length) {
+						return { ...variant.toObject(), name, price, photo, id, variantId: _id?.toString() }
 					} else {
 						return { ...variant.toObject(), name, price, id, variantId: _id?.toString() }
 					}
