@@ -306,8 +306,6 @@ export const productSync = async () => {
 			})
 		)
 
-		await ProductModel.updateMany({ archived: false }, { photo: [], images: [] })
-
 		const products = await ProductModel.find()
 		const categories = await CatalogModel.find()
 		const currencies = await CurrencyModel.find()
@@ -495,9 +493,6 @@ export const variantSync = async () => {
 			const product = products[i]
 			for ( const i in product.variants ) {
 				const variant = product.variants[i]
-				variant.photo = []
-				variant.images = []
-				await product.save()
 				const removeFlag = !normalize.some(({ identifier }: any) => variant.identifier === identifier)
 				if ( removeFlag ) {
 					rmIds.push(variant._id?.toString())

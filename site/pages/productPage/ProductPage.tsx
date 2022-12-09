@@ -36,6 +36,8 @@ const ProductPage = () => {
 		}
 	}, [data])
 
+	console.log()
+
     return (
 		<Container className="py-6">
 			{isLoading && (
@@ -98,7 +100,11 @@ const ProductPage = () => {
 			{!isLoading && data && data.description && (
 				<div className="w-100 w-lg-50">
 					<h3 className="mb-5">О товаре</h3>
-					<pre style={{ whiteSpace: "pre-wrap", fontSize: "1.2rem" }}>{data.description}</pre>
+					{
+						data.description.split(/\r\n|\r|\n/g).map((item) => (
+							<p>{item}</p>
+						))
+					}
 				</div>
 			)}
 		</Container>
