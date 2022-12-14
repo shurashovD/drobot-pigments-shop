@@ -40,7 +40,53 @@ const storage = diskStorage({
 	},
 })
 
+const worksPhotosStorage = diskStorage({
+	destination: async (req, file, cb) => {
+		const { id } = req.params
+		const dirPath = path.join(__dirname, "static", "img", id, 'worksPhotos')
+		try {
+			await access(dirPath)
+		} catch {
+			try {
+				await mkdir(dirPath, { recursive: true })
+			} catch (e) {
+				console.log(e)
+				throw e
+			}
+		}
+		cb(null, dirPath)
+	},
+	filename: (req, file, cb) => {
+		const filename = Date.now() + path.extname(file.originalname)
+		cb(null, filename)
+	},
+})
+
+const worksVideosStorage = diskStorage({
+	destination: async (req, file, cb) => {
+		const { id } = req.params
+		const dirPath = path.join(__dirname, "static", "img", id, "worksVideos")
+		try {
+			await access(dirPath)
+		} catch {
+			try {
+				await mkdir(dirPath, { recursive: true })
+			} catch (e) {
+				console.log(e)
+				throw e
+			}
+		}
+		cb(null, dirPath)
+	},
+	filename: (req, file, cb) => {
+		const filename = Date.now() + path.extname(file.originalname)
+		cb(null, filename)
+	},
+})
+
 const upload = multer({ storage })
+const worksPhotosUpload = multer({ storage: worksPhotosStorage })
+const worksVideosUpload = multer({ storage: worksVideosStorage })
 
 // получить товар;
 router.get('/:id', async (req: Request<{id: string}>, res) => {
@@ -104,6 +150,48 @@ router.put('/photo/:id', upload.single('photo'), async (req: Request<{id: string
 	}
 })
 
+// добавить фото работ;
+router.post('/works-photo/:id', worksPhotosUpload.single('photo'), async (req: Request<{id: string}>, res) => {
+	try {
+		const { id } = req.params
+		const product = await ProductModel.findById(id)
+		if (!product) {
+			return res.status(500).json({ message: "Товар не найден" })
+		}
+
+		if (req.file) {
+			await product.addWorksPhoto(`/static/img/${id}/worksPhotos/${req.file.filename}`)
+		}
+
+		return res.end()
+	} catch (e: any) {
+		logger.error(e)
+		const message = e.userError ? e.message : "Что-то пошло не так..."
+		return res.status(500).json({ message })
+	}
+})
+
+// добавить видео работ;
+router.post("/works-video/:id", worksVideosUpload.single("video"), async (req: Request<{ id: string }>, res) => {
+	try {
+		const { id } = req.params
+		const product = await ProductModel.findById(id)
+		if (!product) {
+			return res.status(500).json({ message: "Товар не найден" })
+		}
+
+		if (req.file) {
+			await product.addWorksVideo(`/static/img/${id}/worksVideos/${req.file.filename}`)
+		}
+
+		return res.end()
+	} catch (e: any) {
+		logger.error(e)
+		const message = e.userError ? e.message : "Что-то пошло не так..."
+		return res.status(500).json({ message })
+	}
+})
+
 // новую сортировку фотографий товара или модификации;
 router.put('/set-photo-order/:productId', json(), async (req: Request<{ productId: string }, {}, { photo: string[], variantId?: string }>, res) => {
 	try {
@@ -126,6 +214,86 @@ router.put('/set-photo-order/:productId', json(), async (req: Request<{ productI
 		return res.status(500).json({ message: 'Что-то пошло не так...' })
 	}
 })
+
+// сортировка фото работ;
+router.put('/works-photos-order/:productId', json(), async (req: Request<{ productId: string }, {}, { photos: string[] }>, res) => {
+	try {
+		const { productId } = req.params
+		const { photos } = req.body
+		const product = await ProductModel.findById(productId)
+		if ( product ) {
+			await product.setWorksPhotosOrder(photos)
+		}
+
+		return res.end()
+	} catch (e) {
+		logger.error(e)
+		return res.status(500).json({ message: 'Что-то пошло не так...' })
+	}
+})
+
+// сортировка видео работ;
+router.put('/works-videos-order/:productId', json(), async (req: Request<{ productId: string }, {}, { videos: string[] }>, res) => {
+	try {
+		const { productId } = req.params
+		const { videos } = req.body
+		const product = await ProductModel.findById(productId)
+		if ( product ) {
+			await product.setWorksVideosOrder(videos)
+		}
+
+		return res.end()
+	} catch (e) {
+		logger.error(e)
+		return res.status(500).json({ message: 'Что-то пошло не так...' })
+	}
+})
+
+// удалить одно фото работ;
+router.delete('/works-photo/:id', json(), async (req: Request<{ id: string }, {}, { photo: string }>, res) => {
+	try {
+		const { id } = req.params
+		const { photo } = req.body
+		const product = await ProductModel.findById(id)
+		if (product) {
+			await product.rmWorksPhoto(photo)
+			try {
+				await rm(path.join(__dirname, photo))
+			} catch (e) {
+				console.log(e)
+			}
+			return res.end()
+		}
+		return res.status(500).json({ message: 'Товар не найден' })
+	} catch (e: any) {
+		logger.error(e)
+		const message = e.userError ? e.message : "Что-то пошло не так..."
+		return res.status(500).json({ message })
+	}
+})
+
+// удалить одно видео работ;
+router.delete("/works-video/:productId", json(), async (req: Request<{ productId: string }, {}, { video: string }>, res) => {
+	try {
+		const { productId } = req.params
+		const { video } = req.body
+		const product = await ProductModel.findById(productId)
+		if (product) {
+			await product.rmWorksVideo(video)
+			try {
+				await rm(path.join(__dirname, video))
+			} catch (e) {
+				console.log(e)
+			}
+		}
+		return res.end()
+	} catch (e: any) {
+		logger.error(e)
+		const message = e.userError ? e.message : "Что-то пошло не так..."
+		return res.status(500).json({ message })
+	}
+})
+
 
 // удалить фото товара;
 router.delete('/photo/:id', async (req: Request<{id: string}>, res) => {

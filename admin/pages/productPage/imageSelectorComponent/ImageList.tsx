@@ -14,10 +14,16 @@ const ImageList = () => {
     const [sort, { isLoading }] = useSetPhotoOrderMutation()
 
     const moveImage = useCallback((dragIndex: number, hoverIndex: number) => {
-        const leftIndex = Math.min(dragIndex, hoverIndex)
-        const rightIndex = Math.max(dragIndex, hoverIndex)
-        setPhotos(state => [...state.slice(0, leftIndex), state[rightIndex], state[leftIndex], ...state.slice(rightIndex + 1)])
-    }, [])
+        setPhotos(state => state.map((item, index, arr) => {
+            if ( index === dragIndex ) {
+                return arr[hoverIndex]
+            }
+            if ( index === hoverIndex ) {
+                return arr[dragIndex]
+            }
+            return item
+        }))
+    }, [photos])
 
     useEffect(() => {
         if ( (isSuccess || checkedVariant) && product ) {
@@ -27,26 +33,37 @@ const ImageList = () => {
     }, [checkedVariant, isSuccess, product])
 
     useEffect(() => {
-		if (dragging && id && photos.length) {
-			console.log(photos)
+        const productPhotos = product?.variants.find(({ id }) => id === checkedVariant)?.photo || product?.photo
+		if (photos.length !== productPhotos?.length) {
             setIsDragging(false)
-			sort({ body: { photo: photos, variantId: checkedVariant }, productId: id })
+			return
 		}
-	}, [dragging, id, photos, sort])
+
+		if (photos.some((item) => !item)) {
+            setIsDragging(false)
+			return
+		}
+
+		if (dragging && id && photos.length) {
+			setIsDragging(false)
+			sort({ body: { photo: photos, variantId: checkedVariant }, productId: id })
+			setPhotos([])
+		}
+	}, [checkedVariant, dragging, id, product, photos, sort])
 
     return (
-		<Row xs={2} md={3}>
+		<Row xs={2} md={3} className="g-3 overflow-scroll flex-nowrap">
 			{photos.map((item, index) => (
-				<Col key={item}>
-					<ImageItem
+                <Col key={item}>
+                    <ImageItem
                         index={index}
                         src={item}
                         moveHandler={moveImage}
                         setDragging={(isDragging: boolean) => setIsDragging(isDragging)}
                         enable={!isLoading}
                     />
-				</Col>
-			))}
+                </Col>
+            ))}
 		</Row>
 	)
 }

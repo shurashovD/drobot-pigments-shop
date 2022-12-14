@@ -51,6 +51,8 @@ const ProductSchema = new Schema<IProduct, IProductModel, IProductMethods>({
 	variantsLabel: String,
 	variants: [VariantSchema],
 	weight: { type: Number },
+	worksPhotos: [String],
+	worksVideos: [String]
 })
 
 ProductSchema.statics.getProduct = async function(id: string): Promise<Product | null> {
@@ -79,7 +81,9 @@ ProductSchema.statics.getProduct = async function(id: string): Promise<Product |
 			price: product.price,
 			properties: product.properties.map((item) => item.toString()),
 			uom: product.uom,
-			variants
+			variants,
+			worksPhotos: product.worksPhotos,
+			worksVideos: product.worksVideos
 		}
 		if ( product.variantsLabel ) {
 			result.variantsLabel = product.variantsLabel
@@ -236,6 +240,56 @@ ProductSchema.methods.sortVariantPhotoOrdering = async function (this: IProduct,
 		if ( variant ) {
 			variant.photo = photo
 		}
+		await this.save()
+	} catch (e) {
+		throw e
+	}
+}
+
+ProductSchema.methods.addWorksPhoto = async function (this: IProduct, photoPath: string): Promise<void> {
+	if ( this.worksPhotos.includes(photoPath) ) {
+		return
+	}
+	this.worksPhotos.push(photoPath)
+	await this.save()
+}
+
+ProductSchema.methods.addWorksVideo = async function (this: IProduct, videoPath: string): Promise<void> {
+	if (this.worksVideos.includes(videoPath)) {
+		return
+	}
+	this.worksVideos.push(videoPath)
+	await this.save()
+}
+
+ProductSchema.methods.rmWorksPhoto = async function (this: IProduct, photoPath: string): Promise<void> {
+	const index = this.worksPhotos.findIndex((item) => (item === photoPath))
+	if (index !== -1) {
+		this.worksPhotos.splice(index, 1)
+		await this.save()
+	}
+}
+
+ProductSchema.methods.rmWorksVideo = async function (this: IProduct, videoPath: string): Promise<void> {
+	const index = this.worksVideos.findIndex((item) => item === videoPath)
+	if (index !== -1) {
+		this.worksVideos.splice(index, 1)
+		await this.save()
+	}
+}
+
+ProductSchema.methods.setWorksPhotosOrder = async function(this: IProduct, photos: string[]): Promise<void> {
+	try {
+		this.worksPhotos = photos
+		await this.save()
+	} catch (e) {
+		throw e
+	}
+}
+
+ProductSchema.methods.setWorksVideosOrder = async function (this: IProduct, videos: string[]): Promise<void> {
+	try {
+		this.worksVideos = videos
 		await this.save()
 	} catch (e) {
 		throw e

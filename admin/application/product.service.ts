@@ -29,13 +29,61 @@ const productApi = createApi({
 				method: "PUT",
 				url: `/set-photo-order/${productId}`,
 			}),
-			invalidatesTags: ['product']
+			invalidatesTags: ["product"],
 		}),
 		setProductDescription: build.mutation<undefined, { id: string; body: { description: string } }>({
 			query: ({ body, id }) => ({
 				body,
 				method: "PUT",
 				url: `/description/${id}`,
+			}),
+			invalidatesTags: ["product"],
+		}),
+		addWorksPhoto: build.mutation<undefined, { id: string; body: FormData }>({
+			query: ({ body, id }) => ({
+				body,
+				method: "POST",
+				url: `/works-photo/${id}`,
+			}),
+			invalidatesTags: ["product"],
+		}),
+		addWorksVideo: build.mutation<undefined, { id: string; body: FormData }>({
+			query: ({ body, id }) => ({
+				body,
+				method: "POST",
+				url: `/works-video/${id}`,
+			}),
+			invalidatesTags: ["product"],
+		}),
+		rmWorksPhoto: build.mutation<undefined, { id: string; body: { photo: string } }>({
+			query: ({ body, id }) => ({
+				body,
+				method: "DELETE",
+				url: `/works-photo/${id}`,
+			}),
+			invalidatesTags: ["product"],
+		}),
+		rmWorksVideo: build.mutation<undefined, { id: string; body: { video: string } }>({
+			query: ({ body, id }) => ({
+				body,
+				method: "DELETE",
+				url: `/works-video/${id}`,
+			}),
+			invalidatesTags: ["product"],
+		}),
+		worksPhotosOrder: build.mutation<undefined, { id: string; body: { photos: string[] } }>({
+			query: ({ body, id }) => ({
+				body,
+				method: "PUT",
+				url: `/works-photos-order/${id}`,
+			}),
+			invalidatesTags: ["product"],
+		}),
+		worksVideosOrder: build.mutation<undefined, { id: string; body: { videos: string[] } }>({
+			query: ({ body, id }) => ({
+				body,
+				method: "PUT",
+				url: `/works-videos-order/${id}`,
 			}),
 			invalidatesTags: ["product"],
 		}),
@@ -61,6 +109,12 @@ const productApi = createApi({
 })
 
 export const {
+	useAddWorksPhotoMutation,
+	useAddWorksVideoMutation,
+	useRmWorksPhotoMutation,
+	useRmWorksVideoMutation,
+	useWorksPhotosOrderMutation,
+	useWorksVideosOrderMutation,
 	useGetProductByIdQuery, 
 	useSetProductPhotoMutation,
 	useRmProductPhotoMutation,

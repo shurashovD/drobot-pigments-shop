@@ -10,7 +10,6 @@ import OrderModel from "../models/OrderModel";
 import PointsModel from '../models/PointsModel';
 import ProductModel, { VariantModel } from '../models/ProductModel'
 import { sdekCalcDelivery } from '../sdekAPI/calc';
-import getCounterPartyByNumber from '../moyskladAPI/counterparty';
 import { logger } from '../handlers/errorLogger';
 import createMsOrderHandler from '../handlers/createMsOrderHandler';
 import createPaymentHandler from '../handlers/createPaymentHandler';
@@ -714,7 +713,7 @@ router.post("/", bodyParser.json(), async (req, res) => {
 				const { tariff_code, address, code } = sdek
 				const sdekForOrder: IOrder["delivery"]["sdek"] = {
 					city_code,
-					number: `+7${client.tel}`,
+					number: `+${client.tel}`,
 					address,
 					point_code: code,
 					cost: req.session.delivery.sdek?.cost || 0,

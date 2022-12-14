@@ -15,7 +15,7 @@ const ProductVariants: FC<IProps> = ({ variantsLabel, variants }) => {
 	const dispatch = useAppDispatch()
 
     return (
-		<div>
+		<div className="border p-3 rounded">
 			<div className="mb-2">
 				{variantsLabel}
 			</div>

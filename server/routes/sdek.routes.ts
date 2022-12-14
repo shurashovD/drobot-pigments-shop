@@ -79,6 +79,9 @@ router.post('/handle/order', async (req: Request<{}, {}, ISdekWebhookPayload>, r
         }
 
         const { code } = attributes
+        if ( code === 'INVALID' ) {
+            logger.error(attributes)
+        }
         if ( code === 'СREATED' || code === 'RECEIVED_AT_SENDER_WAREHOUSE' || 'READY_TO_SHIP_AT_SENDING_OFFICE' ) {
             order.status = "delivering"
             if ( order.msOrderId ) {

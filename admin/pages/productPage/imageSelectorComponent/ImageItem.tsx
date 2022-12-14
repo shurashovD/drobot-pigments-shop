@@ -14,7 +14,7 @@ interface IProps {
 const ImageItem: FC<IProps> = ({ enable, index, src, moveHandler, setDragging }) => {
 	const ref = useRef<HTMLImageElement | null>(null)
 
-	const [props, drop] = useDrop<IProps, void, { handlerId: Identifier|null }>(() => ({
+	const [props, drop] = useDrop<IProps, void, { handlerId: Identifier|null }>({
 		accept: "image",
 		collect(monitor) {
 			return {
@@ -43,17 +43,18 @@ const ImageItem: FC<IProps> = ({ enable, index, src, moveHandler, setDragging })
 
             const hoverClientX = clientOffset.x - hoverBoundingRect.left
 
-            if ( dragIndex > hoverIndex && hoverClientX < hoverMiddleX ) {
+            if ( dragIndex > hoverIndex && hoverClientX > hoverMiddleX ) {
                 return
             }
 
-            if (dragIndex < hoverIndex && hoverClientX > hoverMiddleX) {
+            if (dragIndex > hoverIndex && hoverClientX > hoverMiddleX) {
 				return
 			}
 
             moveHandler(dragIndex, hoverIndex)
+			item.index = hoverIndex
 		},
-	}))
+	})
 
 	const [{ isDragging }, drag] = useDrag(() => ({
 		collect(monitor) {

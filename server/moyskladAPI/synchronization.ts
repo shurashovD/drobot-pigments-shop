@@ -6,7 +6,7 @@ import CurrencyModel from '../models/CurrencyModel'
 import UomModel from '../models/UomModel'
 import CatalogModel from '../models/CatalogModel'
 import ProductModel from '../models/ProductModel';
-import { access, mkdir, open, readdir, rm } from 'fs/promises';
+import { access, mkdir, open, rm } from 'fs/promises';
 import path from 'path';
 import { createWriteStream } from 'fs';
 import { logger } from '../handlers/errorLogger';
@@ -306,6 +306,7 @@ export const productSync = async () => {
 			})
 		)
 
+		await ProductModel.updateMany({ archived: false }, { photo: [], images: [], worksPhotos: [], worksVideos: [] })
 		const products = await ProductModel.find()
 		const categories = await CatalogModel.find()
 		const currencies = await CurrencyModel.find()
@@ -493,6 +494,8 @@ export const variantSync = async () => {
 			const product = products[i]
 			for ( const i in product.variants ) {
 				const variant = product.variants[i]
+				variant.photo = []
+				variant.images = []
 				const removeFlag = !normalize.some(({ identifier }: any) => variant.identifier === identifier)
 				if ( removeFlag ) {
 					rmIds.push(variant._id?.toString())

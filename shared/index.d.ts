@@ -94,6 +94,8 @@ export interface IProduct extends Document, IProductMethods {
 		value: string
 	}>
 	weight?: number
+	worksPhotos: string[]
+	worksVideos: string[]
 }
 
 interface IProductMethods {
@@ -108,6 +110,12 @@ interface IProductMethods {
 	resetFilter(fieldId: Types.ObjectId): Promise<IProduct>
 	sortProductPhotoOrdering(newPhotoOrdering: string[]): Promise<void>
 	sortVariantPhotoOrdering(newPhotoOrdering: string[], variantId: string): Promise<void>
+	addWorksPhoto(photoPath: string): Promise<void>
+	rmWorksPhoto(photoPath: string): Promise<void>
+	addWorksVideo(videoPath: string): Promise<void>
+	rmWorksVideo(videoPath: string): Promise<void>
+	setWorksPhotosOrder(photos: string[]): Promise<void>
+	setWorksVideosOrder(videos: string[]): Promise<void>
 }
 
 export interface Product {
@@ -137,6 +145,8 @@ export interface Product {
 	}[]
 	variantId?: string
 	weight?: number
+	worksPhotos: string[]
+	worksVideos: string[]
 }
 
 export interface IProductModel extends Model<IProduct, {}, IProductMethods> {
