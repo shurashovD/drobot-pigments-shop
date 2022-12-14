@@ -3,10 +3,11 @@ import { Button, Col, Container, Fade, Row, Spinner, Stack } from "react-bootstr
 import { useParams, useLocation } from "react-router-dom"
 import { useGetProductByIdQuery } from "../../application/product.service"
 import Raiting from "../../components/card/Raiting"
-import ImageComponent from "../../components/ImageComponent"
 import ToCartBtn from "./ToCartBtn"
 import classNames from 'classnames'
 import Images from "./Images"
+import WorksImagesComponent from "./WorksImagesComponent"
+import WorksVideosComponent from "./WorksVideosComponent"
 
 const ProductPage = () => {
     const {id} = useParams()
@@ -35,8 +36,6 @@ const ProductPage = () => {
 			document.title = data.name
 		}
 	}, [data])
-
-	console.log()
 
     return (
 		<Container className="py-6">
@@ -94,17 +93,21 @@ const ProductPage = () => {
 								</div>
 							</Fade>
 						</div>
+						{(!!data.worksPhotos.length || !!data.worksPhotos.length) && (
+							<Stack className="mt-5 mt-md-0 order-3" direction="horizontal" gap={3}>
+								<WorksImagesComponent photos={data.worksPhotos} />
+								<WorksVideosComponent videos={data.worksVideos} />
+							</Stack>
+						)}
 					</Col>
 				</Row>
 			)}
 			{!isLoading && data && data.description && (
 				<div className="w-100 w-lg-50">
 					<h3 className="mb-5">О товаре</h3>
-					{
-						data.description.split(/\r\n|\r|\n/g).map((item) => (
-							<p>{item}</p>
-						))
-					}
+					{data.description.split(/\r\n|\r|\n/g).map((item, index) => (
+						<p key={`description${index}`}>{item}</p>
+					))}
 				</div>
 			)}
 		</Container>
