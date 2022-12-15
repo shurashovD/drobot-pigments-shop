@@ -115,7 +115,7 @@ ProductSchema.statics.isDiscounted = async function (id: string): Promise<boolea
 		}
 
 		const rootCategoryId = await getRootCategoryId(product.parentCategory)
-		return rootCategoryId === discountRootCategory
+		return rootCategoryId?.toString() === discountRootCategory
 	} catch (e) {
 		console.log(e)
 		logger.error(e)
