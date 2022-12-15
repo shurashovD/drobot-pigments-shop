@@ -471,6 +471,7 @@ export interface IClient extends Document, IClientMethods {
 	coachOrders: Types.ObjectId[]
 	status?: string
 	claimedStatus?: string
+	passHash?: string
 	promocodes?: Types.ObjectId[]
 	cashBack?: number
 	sid?: string

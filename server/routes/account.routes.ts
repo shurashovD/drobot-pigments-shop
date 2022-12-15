@@ -5,6 +5,8 @@ import { createTask } from '../amoAPI/amoApi';
 import { logger } from '../handlers/errorLogger';
 import ClientModel from '../models/ClientModel';
 import { checkNumber, checkPin } from '../plusofonAPI/plusofonApi';
+import md5 from 'md5';
+import authMiddleware from '../middleware/auth.middleware';
 
 const router = Router()
 
@@ -73,8 +75,6 @@ router.post('/auth/check-pin', json(), async (req: Request<{}, {}, { pin: string
 				client.claimedStatus = req.session.claimedStatus
 				await client.save()
 				delete req.session.claimedStatus
-				req.session.userId = client._id.toString()
-				return res.redirect("/partner-program")
 			}
 
             req.session.userId = client._id.toString()
@@ -89,6 +89,47 @@ router.post('/auth/check-pin', json(), async (req: Request<{}, {}, { pin: string
         logger.error(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
     }
+})
+
+router.post("/auth/check-pass", json(), async (req: Request<{}, {}, { pass: string }>, res) => {
+	try {
+		const { pass } = req.body
+		if (!req.session.candidateNumber) {
+			throw new Error("К сессии не привязан номер")
+		}
+        const client = await ClientModel.findOne({ tel: req.session.candidateNumber })
+		if (!client) {
+			return res.status(500).json({ message: "Пользователь не найден" })
+		}
+        if (client.passHash !== md5(pass)) {
+			return res.status(500).json({ message: "Неверный пароль" })
+		}
+		client.sid = req.session.id
+		await client.save()
+		if (req.session.cartId) {
+			await client.mergeCart(req.session.cartId)
+			delete req.session.cartId
+		}
+		if (req.session.favouriteId) {
+			await client.unionFavourite(req.session.favouriteId)
+			delete req.session.favouriteId
+		}
+		if (req.session.compareId) {
+			await client.unionFavourite(req.session.compareId)
+			delete req.session.compareId
+		}
+		if (req.session.claimedStatus) {
+			client.claimedStatus = req.session.claimedStatus
+			await client.save()
+			delete req.session.claimedStatus
+		}
+
+		req.session.userId = client._id.toString()
+		return res.end()
+	} catch (e) {
+		logger.error(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
+	}
 })
 
 router.post('/register', json(), async (req: Request<{}, {}, { phone: string }>, res) => {
@@ -155,6 +196,42 @@ router.post('/register/check-pin', json(), async (req: Request<{}, {}, { pin: st
     }
 })
 
+router.post("/register/insert-pass", json(), async (req: Request<{}, {}, { pass: string }>, res) => {
+	try {
+		const { pass } = req.body
+		if (!req.session.candidateNumber) {
+			throw new Error("К сессии не привязан номер")
+		}
+		let client: IClient | null = await ClientModel.findOne({ tel: req.session.candidateNumber })
+		if (client) {
+			return res.status(500).json({ message: "Пользователь с таким номером уже зарегистрирован" })
+		}
+		client = await ClientModel.createClient(req.session.candidateNumber)
+        client.passHash = md5(pass)
+		client.sid = req.session.id
+		await client.save()
+
+		req.session.userId = client._id.toString()
+		if (req.session.claimedStatus) {
+			client.claimedStatus = req.session.claimedStatus
+			await client.save()
+			delete req.session.claimedStatus
+		}
+		if (req.session.favouriteId) {
+			await client.unionFavourite(req.session.favouriteId)
+			delete req.session.favouriteId
+		}
+		if (req.session.compareId) {
+			await client.unionFavourite(req.session.compareId)
+			delete req.session.compareId
+		}
+		return res.end()
+	} catch (e) {
+		logger.error(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
+	}
+})
+
 router.post("/change-status-request", json(), async (req: Request<{}, {}, { claimedStatus: string }>, res) => {
 	try {
 		const { claimedStatus } = req.body
@@ -200,6 +277,22 @@ router.post("/change-status-request", json(), async (req: Request<{}, {}, { clai
 		logger.error(e)
 		return res.status(500).json({ message: "Что-то пошло не так..." })
 	}
+})
+
+router.put("/update-pass", authMiddleware, json(), async (req: Request<{}, {}, { pass: string }>, res) => {
+    try {
+        const { pass } = req.body
+        const client = await ClientModel.findById(req.session.userId)
+        if ( !client ) {
+            return res.status(500).json({ message: 'Обновите страницу' })
+        }
+        client.passHash = md5(pass)
+        await client.save()
+        return res.end()
+    } catch (e) {
+        logger.error(e)
+        return res.status(500).json({ message: 'Что-то пошло не так...' })
+    }
 })
 
 router.post('/logout', async (req, res) => {

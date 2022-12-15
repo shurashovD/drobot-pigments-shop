@@ -1,17 +1,13 @@
 import classNames from "classnames"
-import { ChangeEvent, FC, KeyboardEventHandler, useEffect, useState } from "react"
-import { Col, Form, Row } from "react-bootstrap"
+import { ChangeEvent, KeyboardEventHandler, useEffect, useState } from "react"
+import { Button, Col, Form, Row } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
 import { useCheckNumberMutation, useRegisterMutation } from "../../application/account.service"
-import { setCheckPin, setNumber } from "../../application/authComponentSlice"
+import { setAuthorization, setInsertPin, setNumber } from "../../application/authComponentSlice"
 import { useAppDispatch, useAppSelector } from "../../application/hooks"
 import ButtonComponent from "../ButtonComponent"
 
-interface IProps {
-    show: boolean
-}
-
-const PhoneComponent: FC<IProps> = ({ show }) => {
+const PhoneComponent = () => {
     const { authorization, number } = useAppSelector(state => state.authComponentSlice)
     const [checkNumber, { isLoading, isSuccess }] = useCheckNumberMutation()
 	const [register, { isLoading: registerLoading, isSuccess: registerSuccess }] = useRegisterMutation()
@@ -53,13 +49,9 @@ const PhoneComponent: FC<IProps> = ({ show }) => {
 
 	useEffect(() => {
 		if (isSuccess || registerSuccess) {
-			dispatch(setCheckPin(true))
+			dispatch(setInsertPin())
 		}
-	}, [dispatch, isSuccess, registerSuccess, setCheckPin])
-
-    if (!show) {
-		return null
-	}
+	}, [dispatch, isSuccess, registerSuccess, setInsertPin])
 
     return (
 		<Row>
@@ -73,27 +65,23 @@ const PhoneComponent: FC<IProps> = ({ show }) => {
 					<Form.Label>
 						<small className={classNames({ "text-muted": !numberInvalid, "text-danger": numberInvalid })}>Номер</small>
 					</Form.Label>
-					<Form.Control
-						value={value}
-						onChange={phoneHandler}
-						onKeyDown={kdHandler}
-						className="p-2 py-4 text-white"
-					/>
+					<Form.Control value={value} onChange={phoneHandler} onKeyDown={kdHandler} className="p-2 py-4 text-white" />
 				</Form.Group>
 			</Col>
-			<Col xs={12} className="mt-4">
-				<div className="text-white text-center mb-5">На указанный номер поступит звонок, отвечать на звонок не нужно.</div>
+			<Col xs={12} className="mt-4 mb-5">
+				<div className="text-white text-center">На указанный номер поступит звонок, отвечать на звонок не нужно.</div>
 			</Col>
 			<Col xs={12} className="text-center mb-4">
-				<ButtonComponent
-					variant="secondary"
-					isLoading={isLoading || registerLoading}
-					onClick={clickHandler}
-				>
+				<ButtonComponent variant="secondary" isLoading={isLoading || registerLoading} onClick={clickHandler}>
 					{authorization ? <>Войти</> : <>Зарегистрироваться</>}
 				</ButtonComponent>
 			</Col>
-			<Col xs={12} className="mb-5">
+			<Col xs={12} className="text-center mb-4">
+				<Button variant="link" className="text-muted" size="sm" onClick={() => dispatch(setAuthorization(!authorization))}>
+					{authorization ? <small>К регистрации</small> : <small>К авторизации</small>}
+				</Button>
+			</Col>
+			<Col xs={12}>
 				<Row className="text-white justify-content-center g-2">
 					<Col xs="auto" className="d-flex align-items-center">
 						<input type="checkbox" checked={true} className="bg-dark" readOnly />

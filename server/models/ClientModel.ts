@@ -30,6 +30,7 @@ const ClientSchema = new Schema<IClient, ClientModel>({
 	totalCashBack: Number,
 	cashbackDebites: [{ date: Date, total: Number, orderId: { type: Types.ObjectId, ref: "Order" } }],
 	claimedStatus: String,
+	passHash: String,
 	promocodes: [{ type: Schema.Types.ObjectId, ref: "Promocode" }],
 	status: String,
 	sid: String,
