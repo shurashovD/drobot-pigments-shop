@@ -158,7 +158,7 @@ const App = () => {
 							</Suspense>
 						}
 					/>
-					<Route path="*" element={<Navigate to="/admin" />} />
+					<Route path="*" element={<Navigate to="/admin/moy-sklad" />} />
 				</Routes>
 			</Container>
 		</Container>

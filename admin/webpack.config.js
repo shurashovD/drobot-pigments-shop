@@ -1,10 +1,10 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
-const mode = process.env.NODE_ENV || 'development'
+const mode = 'development'
 const output = process.env.NODE_ENV === 'production' ? {
     path: path.resolve(__dirname, '..', 'dist', 'static', 'admin'),
     filename: '[name].[contenthash].js',
-    publicPath: '/static/admin',
+    publicPath: '/static/admin/',
     clean: true
 } : {
     path: path.resolve(__dirname, 'admin'),
@@ -62,6 +62,6 @@ module.exports = {
         ]
     },
     plugins: [
-        new HtmlWebpackPlugin({ template: path.join(__dirname, 'index.html') })
+        new HtmlWebpackPlugin({ template: path.join(__dirname, 'index.html'), inject: 'body' })
     ]
 }
