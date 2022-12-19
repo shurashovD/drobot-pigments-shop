@@ -162,6 +162,34 @@ export interface IFilter extends Document {
 	title: string
 }
 
+interface ICategoryContentMethods {
+	addImage(path: string): Promise<void>
+	addVideo(path: string): Promise<void>
+	addSideBarLink(text: string, href: string | undefined, to: string | undefined): Promise<void>
+	updImage(id: Types.ObjectId | string, href: string | undefined, to: string | undefined): Promise<void>
+	updSideBarLink(id: Types.ObjectId | string, text: string | undefined, href: string | undefined, to: string | undefined): Promise<void>
+	rmImage(id: Types.ObjectId | string): Promise<void>
+	rmSideBarLink(id: Types.ObjectId | string): Promise<void>
+	rmVideo(path: string): Promise<void>
+	sortImages(order: string[]): Promise<void>
+	sortSideBarLinks(order: string[]): Promise<void>
+}
+
+export interface ICategoryContent extends Document, ICategoryContentMethods {
+	categoryId: Types.ObjectId
+	carouselImages: Types.DocumentArray<{
+		href?: string
+		to?: string
+		imgSrc?: string
+	}>
+	sideBarLinks: Types.DocumentArray<{
+		text: string
+		href?: string
+		to?: string
+	}>
+	videos: string[]
+}
+
 export interface ICategorySiteProduct {
 	productId: string
 	productTitle: string

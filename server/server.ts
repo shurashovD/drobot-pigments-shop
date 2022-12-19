@@ -27,6 +27,7 @@ import cookiesRoutes from "./routes/cookies.routes"
 import favouriteRoutes from './routes/favourite.routes'
 import compareRoutes from "./routes/compare.routes"
 import ratingRoutes from "./routes/rating.routes"
+import categoriesContentRoutes from "./routes/categoriesContent.routes"
 
 const PORT = config.get('PORT')
 
@@ -117,6 +118,8 @@ app.use("/api/promocodes", adminAuthMiddleware, promocodeRoutes)
 app.use("/api/users", adminAuthMiddleware, usersRoutes)
 
 app.use("/api/loyalty", adminAuthMiddleware, loyaltyRoutes)
+
+app.use("/api/category-content", adminAuthMiddleware, categoriesContentRoutes)
 
 app.use("/api/favourite", favouriteRoutes)
 

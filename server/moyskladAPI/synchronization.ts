@@ -97,9 +97,10 @@ const downloadPhoto = async (props: { Authorization: string, photo: string, id: 
 				return fetch(res.url)
 			}
 		})
+		const hashName = `${Date.now()}${path.extname(filename)}`
 		if (res) {
 			const dirPath = path.join(__dirname, 'static', 'img', id)
-			const filePath = path.join(dirPath, filename)
+			const filePath = path.join(dirPath, hashName)
 			try {
 				await access(dirPath)
 				/*const files = await readdir(dirPath)
@@ -137,7 +138,7 @@ const downloadPhoto = async (props: { Authorization: string, photo: string, id: 
 				fileStream.on("finish", resolve)
 			})
 		}
-		return { filename, updated }
+		return { filename, hashName, updated }
 	}
 	catch (e) {
 		throw e
@@ -451,10 +452,10 @@ export const productSync = async () => {
 						product.images = []
 						for (const i in photos) {
 							const photoUrl = photos[i].downloadHref
-							const { filename, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id: product._id?.toString() || "" })
+							const { filename, hashName, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id: product._id?.toString() || "" })
 							if (filename && updated) {
 								const { filename, miniature, updated } = photos[i]
-								product.photo.push(`/static/img/${product._id?.toString()}/${filename}`)
+								product.photo.push(`/static/img/${product._id?.toString()}/${hashName}`)
 								product.images.push({ filename, miniature, updated })
 								await product.save()
 							}
@@ -564,10 +565,10 @@ export const variantSync = async () => {
 					for (const i in photos) {
 						const photoUrl = photos[i].downloadHref
 						const id = product.variants[ind]._id?.toString() || ''
-						const { filename, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id })
+						const { filename, hashName, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id })
 						if (filename && updated) {
 							const { filename, miniature, updated } = photos[i]
-							product.variants[ind].photo.push(`/static/img/${product.variants[ind]._id?.toString()}/${filename}`)
+							product.variants[ind].photo.push(`/static/img/${product.variants[ind]._id?.toString()}/${hashName}`)
 							product.variants[ind].images.push({ filename, miniature, updated })
 						}
 					}
@@ -768,10 +769,10 @@ export const oneProductCreate = async (href: string) => {
 				product.images = []
 				for (const i in photos) {
 					const photoUrl = photos[i].downloadHref
-					const { filename, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id: product._id?.toString() || "" })
+					const { filename, hashName, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id: product._id?.toString() || "" })
 					if (filename && updated) {
 						const { filename, miniature, updated } = photos[i]
-						product.photo.push(`/static/img/${product._id?.toString()}/${filename}`)
+						product.photo.push(`/static/img/${product._id?.toString()}/${hashName}`)
 						product.images.push({ filename, miniature, updated })
 						await product.save()
 					}
@@ -860,10 +861,10 @@ export const oneProductUpdate = async (href: string) => {
 				if (photos && shouldDownloadPhoto(photos, product.images)) {
 					for (const i in photos) {
 						const photoUrl = photos[i].downloadHref
-						const { filename, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id: product._id?.toString() || "" })
+						const { filename, hashName, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id: product._id?.toString() || "" })
 						if (filename && updated) {
 							const { filename, miniature, updated } = photos[i]
-							product.photo.push(`/static/img/${product._id?.toString()}/${filename}`)
+							product.photo.push(`/static/img/${product._id?.toString()}/${hashName}`)
 							product.images.push({ filename, miniature, updated })
 							await product.save()
 						}
@@ -955,10 +956,10 @@ export const oneVariantCreate = async (href: string) => {
 				for (const i in photos) {
 					const photoUrl = photos[i].downloadHref
 					const id = product.variants[ind]._id?.toString() || ""
-					const { filename, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id })
+					const { filename, hashName, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id })
 					if (filename && updated) {
 						const { filename, miniature, updated } = photos[i]
-						product.variants[ind].photo.push(`/static/img/${product.variants[ind]._id?.toString()}/${filename}`)
+						product.variants[ind].photo.push(`/static/img/${product.variants[ind]._id?.toString()}/${hashName}`)
 						product.variants[ind].images.push({ filename, miniature, updated })
 						await product.save()
 					}
@@ -1022,10 +1023,10 @@ export const oneVariantUpdate = async (href: string) => {
 				for (const i in photos) {
 					const photoUrl = photos[i].downloadHref
 					const id = product.variants[ind]._id?.toString() || ""
-					const { filename, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id })
+					const { filename, hashName, updated } = await downloadPhoto({ Authorization, photo: photoUrl, id })
 					if (filename && updated) {
 						const { filename, miniature, updated } = photos[i]
-						product.variants[ind].photo.push(`/static/img/${product.variants[ind]._id?.toString()}/${filename}`)
+						product.variants[ind].photo.push(`/static/img/${product.variants[ind]._id?.toString()}/${hashName}`)
 						product.variants[ind].images.push({ filename, miniature, updated })
 						await product.save()
 					}

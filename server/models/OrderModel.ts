@@ -25,6 +25,7 @@ const OrderSchema = new Schema<IOrder, OrderModel, IOrderMethods>({
 		recipientName: String
 	},
 	payment: {
+		cancelationReason: String,
 		paymentId: String,
 		paymentUrl: String,
 		status: String,

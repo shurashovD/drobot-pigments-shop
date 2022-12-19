@@ -9,7 +9,7 @@ import MobileFooter from "./components/MobileFooter"
 import MainPage from "./pages/mainPage/MainPage"
 import { useSendErrorMutation } from "./application/error.service"
 import { useAccountAuthQuery } from "./application/account.service"
-import FallbackComponent from "./FallbackComponent"
+import FallbackComponent from "./components/FallbackComponent"
 import ToastComponent from "./components/ToastComponent"
 const PromocodePage = lazy(() => import("./pages/promocodePage/PromocodePage"))
 const PigmentsPage = lazy(() => import("./pages/pigmentsPage/PigmentsPage"))

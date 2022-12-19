@@ -5,6 +5,7 @@ import { useAppDispatch } from "./application/hooks"
 import { useGetOrdersQuery } from "./application/order.service"
 import { setOrders } from "./application/ordersSlice"
 import AlertComponent from "./components/AlertComponent"
+import FallbackComponent from "./components/FallbackComponent"
 import HeaderComponent from "./components/HeaderComponent"
 const AmoPage = lazy(() => import("./pages/amoPage/AmoPage"))
 const CashbackPage = lazy(() => import("./pages/cashbackPage/CashbackPage"))
@@ -40,7 +41,7 @@ const App = () => {
 					<Route
 						path="/admin/moy-sklad"
 						element={
-							<Suspense>
+							<Suspense fallback={<FallbackComponent />}>
 								<MoySkladPage />
 							</Suspense>
 						}
@@ -49,7 +50,7 @@ const App = () => {
 					<Route
 						path="/admin/categories"
 						element={
-							<Suspense>
+							<Suspense fallback={<FallbackComponent />}>
 								<SiteCatalogPage />
 							</Suspense>
 						}
@@ -57,7 +58,7 @@ const App = () => {
 					<Route
 						path="/admin/category-subcategories/:id"
 						element={
-							<Suspense>
+							<Suspense fallback={<FallbackComponent />}>
 								<SiteCatalogPage />
 							</Suspense>
 						}
@@ -65,7 +66,7 @@ const App = () => {
 					<Route
 						path="/admin/category-products/:id"
 						element={
-							<Suspense>
+							<Suspense fallback={<FallbackComponent />}>
 								<CategoryPage />
 							</Suspense>
 						}
@@ -73,7 +74,7 @@ const App = () => {
 					<Route
 						path="/admin/product/:id"
 						element={
-							<Suspense>
+							<Suspense fallback={<FallbackComponent />}>
 								<ProductPage />
 							</Suspense>
 						}
@@ -81,7 +82,7 @@ const App = () => {
 					<Route
 						path="/admin/orders"
 						element={
-							<Suspense>
+							<Suspense fallback={<FallbackComponent />}>
 								<OrdersPage />
 							</Suspense>
 						}
@@ -89,7 +90,7 @@ const App = () => {
 					<Route
 						path="/admin/orders/:id"
 						element={
-							<Suspense>
+							<Suspense fallback={<FallbackComponent />}>
 								<OrderPage />
 							</Suspense>
 						}
@@ -97,7 +98,7 @@ const App = () => {
 					<Route
 						path="/admin/hooks"
 						element={
-							<Suspense>
+							<Suspense fallback={<FallbackComponent />}>
 								<HooksPage />
 							</Suspense>
 						}
@@ -105,7 +106,7 @@ const App = () => {
 					<Route
 						path="/admin/amo"
 						element={
-							<Suspense>
+							<Suspense fallback={<FallbackComponent />}>
 								<AmoPage />
 							</Suspense>
 						}
@@ -113,7 +114,7 @@ const App = () => {
 					<Route
 						path="/admin/users"
 						element={
-							<Suspense>
+							<Suspense fallback={<FallbackComponent />}>
 								<UsersPage />
 							</Suspense>
 						}
@@ -121,7 +122,7 @@ const App = () => {
 					<Route
 						path="/admin/loyalty"
 						element={
-							<Suspense>
+							<Suspense fallback={<FallbackComponent />}>
 								<LoyaltyPage />
 							</Suspense>
 						}
@@ -129,7 +130,7 @@ const App = () => {
 					<Route
 						path="/admin/client/:id"
 						element={
-							<Suspense>
+							<Suspense fallback={<FallbackComponent />}>
 								<ClientPage />
 							</Suspense>
 						}
@@ -137,7 +138,7 @@ const App = () => {
 					<Route
 						path="/admin/cashback"
 						element={
-							<Suspense>
+							<Suspense fallback={<FallbackComponent />}>
 								<CashbackPage />
 							</Suspense>
 						}
@@ -145,7 +146,7 @@ const App = () => {
 					<Route
 						path="/admin/promocode/:id"
 						element={
-							<Suspense>
+							<Suspense fallback={<FallbackComponent />}>
 								<PromocodePage />
 							</Suspense>
 						}
@@ -153,7 +154,7 @@ const App = () => {
 					<Route
 						path="/admin/client/debites/:id"
 						element={
-							<Suspense>
+							<Suspense fallback={<FallbackComponent />}>
 								<DebitesPage />
 							</Suspense>
 						}
