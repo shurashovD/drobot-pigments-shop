@@ -114,7 +114,7 @@ ClientSchema.methods.getDiscount = async function (this: IClient): Promise<{ dis
 			return { discountPercentValue: agentDiscount?.percentValue || 0, nextLevelRequires: ["У вас максимальный уровень скидки"] }
 		}
 
-		if (this.status === 'delegate' || 'coach') {
+		if ((this.status === 'delegate') || (this.status === 'coach')) {
 			const delegateDiscounts = await DelegateDiscountModel.find().sort({ lowerTreshold: 1 })
 			if ( delegateDiscounts.length === 0 ) {
 				return { nextLevelRequires: ["Бонусная программа не активна"] }
