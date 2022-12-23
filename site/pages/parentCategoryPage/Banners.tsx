@@ -44,6 +44,10 @@ const Banners: FC<{ categoryId: string }> = ({ categoryId }) => {
 		}
 	}, [content, pictures])
 
+	if ( pictures.length === 0 ) {
+		return null
+	}
+
 	return (
 		<Carousel controls={controls} indicators id="pigments-banner-carousel">
 			{pictures.map(({ src, to, url }, index) => (
