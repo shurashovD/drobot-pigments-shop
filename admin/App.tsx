@@ -10,6 +10,7 @@ import HeaderComponent from "./components/HeaderComponent"
 const AmoPage = lazy(() => import("./pages/amoPage/AmoPage"))
 const CashbackPage = lazy(() => import("./pages/cashbackPage/CashbackPage"))
 const CategoryPage = lazy(() => import("./pages/categoryPage/CategoryPage"))
+const CategoryContentPage = lazy(() => import("./pages/categoryContentPage/CategoryContentPage"))
 const ClientPage = lazy(() => import("./pages/clientPage/ClientPage"))
 const DebitesPage = lazy(() => import("./pages/debitesPage/DebitesPage"))
 const HooksPage = lazy(() => import("./pages/hooksPage/HooksPage"))
@@ -68,6 +69,14 @@ const App = () => {
 						element={
 							<Suspense fallback={<FallbackComponent />}>
 								<CategoryPage />
+							</Suspense>
+						}
+					/>
+					<Route
+						path="/admin/category-content/:id"
+						element={
+							<Suspense fallback={<FallbackComponent />}>
+								<CategoryContentPage />
 							</Suspense>
 						}
 					/>

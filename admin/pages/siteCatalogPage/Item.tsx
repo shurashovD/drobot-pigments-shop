@@ -68,6 +68,9 @@ const Item: FC<IProps> = ({ id, description, descriptionHandler, edittedHandler,
 			<td className="text-center">
 				<NavLink to={`/admin/category-subcategories/${id}`}>Подкатегории</NavLink>
 			</td>
+			<td className="text-center">
+				<NavLink to={`/admin/category-content/${id}`}>Контент</NavLink>
+			</td>
 			<td className="text-center d-none">
 				<ButtonComponent onClick={() => (description ? descriptionHandler(id) : edittedHandler(id))}>Описание</ButtonComponent>
 			</td>

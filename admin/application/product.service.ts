@@ -47,7 +47,7 @@ const productApi = createApi({
 			}),
 			invalidatesTags: ["product"],
 		}),
-		addWorksVideo: build.mutation<undefined, { id: string; body: FormData }>({
+		addWorksVideo: build.mutation<undefined, { id: string; body: { url: string } }>({
 			query: ({ body, id }) => ({
 				body,
 				method: "POST",

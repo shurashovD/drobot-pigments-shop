@@ -85,7 +85,7 @@ const Products: FC<IProps> = ({ categoryId }) => {
 
     return (
 		<Row className="g-4 gy-6">
-			<Intro />
+			<Intro categoryId={categoryId} />
 			{!isLoading && !isFetching && state.length === 0 && (
 				<Col xs={12} className="text-center p-4">
 					<span>Товары отсутсвуют</span>

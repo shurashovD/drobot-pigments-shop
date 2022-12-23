@@ -5,18 +5,19 @@ import { useDrag, useDrop } from "react-dnd"
 import { Identifier } from 'dnd-core'
 
 interface IProps {
-	imageClickHandler(index: number): void
+	imageClickHandler(id: string): void
+	id: string
 	index: number
 	mover(hoverIndex: number, dragIndex: number): void
 	setIsDragging: (val: boolean) => void
-	src: string
+	src?: string
 }
 
-const Item: FC<IProps> = ({ imageClickHandler, index, mover, src, setIsDragging }) => {
+const Item: FC<IProps> = ({ imageClickHandler, id, index, mover, src, setIsDragging }) => {
 	const ref = useRef<HTMLButtonElement | null>(null)
 
 	const [{ handlerId }, drop] = useDrop<IProps, void, { handlerId: Identifier | null }>({
-		accept: "worksImage",
+		accept: "categorySlide",
 		collect(monitor) {
 			return {
 				handlerId: monitor.getHandlerId(),
@@ -57,7 +58,7 @@ const Item: FC<IProps> = ({ imageClickHandler, index, mover, src, setIsDragging 
 	})
 
 	const [{ isDragging }, drag] = useDrag(() => ({
-		type: "worksImage",
+		type: "categorySlide",
 		collect: (monitor) => ({
 			isDragging: monitor.isDragging(),
 		}),
@@ -71,12 +72,16 @@ const Item: FC<IProps> = ({ imageClickHandler, index, mover, src, setIsDragging 
 
 	return (
 		<Button
-			onClick={() => imageClickHandler(index)}
+			onClick={() => imageClickHandler(id)}
 			ref={ref}
 			className={classNames({ invisible: isDragging }, "p-0")}
 			data-handler-id={handlerId}
 		>
-			<Image src={src} alt="works" fluid />
+			{src ? (
+				<Image src={src} alt="carousel-item" fluid />
+			) : (
+				<>Нет фото</>
+			)}
 		</Button>
 	)
 }

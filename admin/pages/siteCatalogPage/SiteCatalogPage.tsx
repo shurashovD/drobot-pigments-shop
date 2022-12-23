@@ -21,6 +21,8 @@ const SiteCatalogPage = () => {
     const [description, setDescription] = useState<string | undefined>()
     const [photo, setPhoto] = useState<string | undefined>()
 
+	console.log(photo)
+
 	useEffect(() => {
 		if ( !parentCategory && data ) {
 			setState(data.map(({ _id, title, photo, products }) => ({
@@ -47,11 +49,7 @@ const SiteCatalogPage = () => {
     return (
 		<Container>
 			<DescriptionModal text={data?.find(({ _id }) => _id?.toString() === description)?.description} onHide={() => setDescription(undefined)} />
-			<PhotoModalComponent
-				id={photo || ""}
-				src={data?.find(({ _id }) => _id?.toString() === photo)?.photo[0]}
-				onHide={() => setPhoto(undefined)}
-			/>
+			<PhotoModalComponent id={photo || ""} src={state.find(({ id }) => id === photo)?.photo} onHide={() => setPhoto(undefined)} />
 			<h3>Разделы {parentCategory ? <>{category?.title}</> : <>на сайте</>}</h3>
 			<Table hover>
 				<thead>
@@ -59,6 +57,7 @@ const SiteCatalogPage = () => {
 						<th>#</th>
 						<th className="text-center">Название</th>
 						<th className="text-center">Подкатегории</th>
+						<th className="text-center">Контент</th>
 						<th className="text-center">Изменить</th>
 						<th className="text-center">Удалить</th>
 					</tr>

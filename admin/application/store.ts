@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import alertSlice from "./alertSlice";
 import amoApi from "./amo.service";
 import categoryApi from "./category.service";
+import categoryContentApi from "./categoryContent.service";
 import { rtkQueryLogger } from "./error.middleware";
 import filtersSlice from "./filtersSlice";
 import loyaltyApi from "./loyalty.service";
@@ -19,6 +20,7 @@ const store = configureStore({
 		...getDefaultMiddleware(),
 		amoApi.middleware,
 		categoryApi.middleware,
+		categoryContentApi.middleware,
 		loyaltyApi.middleware,
 		moySkladApi.middleware,
 		orderApi.middleware,
@@ -32,6 +34,7 @@ const store = configureStore({
 		[alertSlice.name]: alertSlice.reducer,
 		[amoApi.reducerPath]: amoApi.reducer,
 		[categoryApi.reducerPath]: categoryApi.reducer,
+		[categoryContentApi.reducerPath]: categoryContentApi.reducer,
 		[filtersSlice.name]: filtersSlice.reducer,
 		[loyaltyApi.reducerPath]: loyaltyApi.reducer,
 		[moySkladApi.reducerPath]: moySkladApi.reducer,

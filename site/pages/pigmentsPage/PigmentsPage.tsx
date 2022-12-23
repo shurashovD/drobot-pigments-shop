@@ -1,7 +1,6 @@
 import { useEffect } from "react"
 import { Col, Container, Row } from "react-bootstrap"
 import { NavLink, useParams } from "react-router-dom"
-import Banners from "./Banners"
 import Item from "./Item"
 
 const PigmentsPage = () => {
@@ -13,7 +12,6 @@ const PigmentsPage = () => {
 
     return (
 		<Container fluid className="p-0">
-			<Banners />
 			<Container className="my-6">
 				<Row>
 					<Col xs={12} lg={9}>

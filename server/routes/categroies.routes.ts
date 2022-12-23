@@ -7,6 +7,7 @@ import { ICategory, ICategorySiteSubcategory, IProduct } from "../../shared";
 import { logger } from "../handlers/errorLogger";
 import CategoryModel from "../models/CategoryModel";
 import ProductModel from "../models/ProductModel";
+import CategoryContentModel from '../models/CategoryContentModel';
 
 const router = Router()
 
@@ -179,6 +180,18 @@ router.get(
 		}
 	}
 )
+
+// получение контента;
+router.get('/content/:categoryId', async (req: Request<{ categoryId: string }>, res) => {
+    try {
+        const { categoryId } = req.params
+        const content = await CategoryContentModel.findOne({ categoryId })
+        return res.json(content)
+    } catch (e) {
+        logger.error(e)
+        return res.status(500).json({ message: 'Что-то пошло не так...' })
+    }
+})
 
 // добавление товаров в категорию;
 router.post('/products/:id', bodyParser.json(), async (req: Request<{id: string}, {}, {products: string []}>, res) => {

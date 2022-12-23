@@ -36,6 +36,7 @@ router.post("/:categoryId", async (req: Request<{ categoryId: string }>, res) =>
     try {
         const { categoryId } = req.params
         await CategoryContentModel.createContent(categoryId)
+		return res.end()
     } catch (e) {
         logger.error(e)
         return res.status(500).json({ message: 'Что-то пошло не так...' })
@@ -75,7 +76,7 @@ router.post("/add-carousel-image/:contentId", carouselImageUpload.single('image'
 	}
 })
 
-router.post("/set-video-url/:contentId", async (req: Request<{ contentId: string }, {}, { url: string }>, res) => {
+router.post("/set-video-url/:contentId", json(), async (req: Request<{ contentId: string }, {}, { url: string }>, res) => {
 	try {
 		const { contentId } = req.params
         const content = await CategoryContentModel.findById(contentId)

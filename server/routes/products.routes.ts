@@ -62,31 +62,8 @@ const worksPhotosStorage = diskStorage({
 	},
 })
 
-const worksVideosStorage = diskStorage({
-	destination: async (req, file, cb) => {
-		const { id } = req.params
-		const dirPath = path.join(__dirname, "static", "img", id, "worksVideos")
-		try {
-			await access(dirPath)
-		} catch {
-			try {
-				await mkdir(dirPath, { recursive: true })
-			} catch (e) {
-				console.log(e)
-				throw e
-			}
-		}
-		cb(null, dirPath)
-	},
-	filename: (req, file, cb) => {
-		const filename = Date.now() + path.extname(file.originalname)
-		cb(null, filename)
-	},
-})
-
 const upload = multer({ storage })
 const worksPhotosUpload = multer({ storage: worksPhotosStorage })
-const worksVideosUpload = multer({ storage: worksVideosStorage })
 
 // получить товар;
 router.get('/:id', async (req: Request<{id: string}>, res) => {
@@ -172,7 +149,7 @@ router.post('/works-photo/:id', worksPhotosUpload.single('photo'), async (req: R
 })
 
 // добавить видео работ;
-router.post("/works-video/:id", worksVideosUpload.single("video"), async (req: Request<{ id: string }>, res) => {
+router.post("/works-video/:id", json(), async (req: Request<{ id: string }, {}, { url: string }>, res) => {
 	try {
 		const { id } = req.params
 		const product = await ProductModel.findById(id)
@@ -180,9 +157,8 @@ router.post("/works-video/:id", worksVideosUpload.single("video"), async (req: R
 			return res.status(500).json({ message: "Товар не найден" })
 		}
 
-		if (req.file) {
-			await product.addWorksVideo(`/static/img/${id}/worksVideos/${req.file.filename}`)
-		}
+		const { url } = req.body
+		await product.addWorksVideo(url)
 
 		return res.end()
 	} catch (e: any) {
