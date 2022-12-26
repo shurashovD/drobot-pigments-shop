@@ -162,8 +162,8 @@ router.get("/delivery/detail", async (req, res) => {
 			})
 			const { total_sum } = sdekInfo.data
 
-			// доставка на заказ от 20.000 рублей бесплатна;
-			if (cart.amount && cart?.amount >= 20000) {
+			// доставка на заказ от 20.000 рублей бесплатна (отключена);
+			if (0 && cart.amount && cart?.amount >= 20000) {
 				req.session.delivery.sdek.cost = 0
 			} else {
 				req.session.delivery.sdek.cost = total_sum

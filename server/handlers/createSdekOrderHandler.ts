@@ -35,7 +35,7 @@ const createSdekOrderHandler = async (orderId: string) => {
             const items: ISdekOrderPayload["packages"][0]["items"] = products
 				.map(({ price, product, quantity, discountOn, paidByCashBack }) => ({
 					amount: quantity,
-					cost: price - (discountOn || 0) - (paidByCashBack || 0),
+					cost: 0,
 					name: product.name,
 					payment: { value: 0 },
 					ware_key: product.identifier,
@@ -45,7 +45,7 @@ const createSdekOrderHandler = async (orderId: string) => {
 					variants.map(({ product, variant, quantity, price, discountOn, paidByCashBack }) => {
 						const variantObj = product.variants.find(({ _id }) => _id?.toString() === variant.toString())
 						const name = `${product.name} (${variantObj?.name || ""})`
-						const cost = price - (discountOn || 0) - (paidByCashBack || 0)
+						const cost = 0
 						const payment = { value: 0 }
 						const ware_key = variantObj?.identifier || ""
 						const weight = 25 * quantity
