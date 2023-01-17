@@ -23,7 +23,7 @@ const SubCategoryItem: FC<IProps> = ({ subCategoryId, title }) => {
 
     return (
 		<div>
-			<Button variant="link" onClick={() => clickHandler(`/category/${subCategoryId}/[]}`)} className="p-0 text-start">
+			<Button variant="link" onClick={() => clickHandler(`/category/${subCategoryId}/[]}`)} className="p-0 text-start hover-dark">
 				{title}
 			</Button>
 		</div>

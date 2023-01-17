@@ -134,7 +134,7 @@ const HeaderComponent = () => {
 					</Stack>
 				</Offcanvas.Body>
 			</Offcanvas>
-			<Collapse in={scrollingTop}>
+			<Collapse in={true}>
 				<div>
 					<div className="d-none d-lg-block bg-light p-2">
 						<Container>
