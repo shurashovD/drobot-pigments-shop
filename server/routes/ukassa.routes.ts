@@ -80,7 +80,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 							const trackUrl = `https://www.cdek.ru/ru/tracking?order_id=${sdekNumber}`
 							try {
 								if (order.tradeId && sdekNumber) {
-									await setTradeSdekTrackId(order.tradeId, sdekNumber)
+									await setTradeSdekTrackId(order.tradeId, trackUrl)
 								}
 							} catch (e) {
 								console.log(e)
