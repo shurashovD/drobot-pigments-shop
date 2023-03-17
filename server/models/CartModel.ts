@@ -412,6 +412,10 @@ CartSchema.methods.refreshTotal = async function (this: ICartDoc): Promise<ICart
 			.reduce<number>((sum, item) => sum + (item || 0), 0)
 		this.total = amount - discount - Math.round(paidByCashBack)
 
+		// обновление полной скидки корзины в процентах без оплаты кэшбэком;
+		const discountPercent = this.discount / this.total
+		this.discountPercent = discountPercent
+
 		await this.save()
 		return this
 	} catch (e) {

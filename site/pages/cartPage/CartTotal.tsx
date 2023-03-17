@@ -19,6 +19,13 @@ const CartTotal = () => {
 			minimumFractionDigits: 0,
 		})
 	)
+	const percentFormatter = useRef(
+		Intl.NumberFormat("ru", {
+			style: "percent",
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 0,
+		})
+	)
 
     return (
 		<div className="sticky-lg-top" style={{ top: "120px" }}>
@@ -42,7 +49,7 @@ const CartTotal = () => {
 					</Fade>
 					<Fade in={!!cart?.discount && !isFetching}>
 						<Row className="mb-2 text-danger">
-							<Col xs={8}>Скидка</Col>
+							<Col xs={8}>Скидка {!!cart?.discountPercent && percentFormatter.current.format(cart.discountPercent)}</Col>
 							<Col xs={4}>-{formatter.current.format(cart?.discount || 0)}</Col>
 						</Row>
 					</Fade>
