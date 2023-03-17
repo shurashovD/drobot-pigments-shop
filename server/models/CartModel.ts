@@ -263,7 +263,7 @@ CartSchema.methods.refreshDiscounts = async function (this: ICartDoc): Promise<I
 
 		// для представителя;
 		if (client?.status === "delegate" || client?.status === "coach") {
-			const delegateDiscounts = await DelegateDiscountModel.find().sort({ lowerTreshold: 1 })
+			const delegateDiscounts = await DelegateDiscountModel.find().sort({ lowerTreshold: -1 })
 			// вычисление общей суммы товаров;
 			const amount = this.products
 				.filter(({ checked }) => checked)
