@@ -8,6 +8,19 @@ import { useGetCartQuery } from "../../application/order.service"
 import CashBackComponent from "./CashBackComponent"
 import PromocodeComponent from "./PromocodeComponent"
 
+function getDiscountPercent(discount?: number, total?: number) {
+	const options = {
+		style: "percent",
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 0,
+	}
+	const percentFormatter = Intl.NumberFormat("ru", options)
+
+	if (discount && total) {
+		return percentFormatter.format(discount / total)
+	}
+}
+
 const CartTotal = () => {
 	const { data: auth } = useAccountAuthQuery(undefined)
 	const { data: cart, isFetching } = useGetCartQuery(undefined, { refetchOnMountOrArgChange: true })
@@ -19,15 +32,10 @@ const CartTotal = () => {
 			minimumFractionDigits: 0,
 		})
 	)
-	const percentFormatter = useRef(
-		Intl.NumberFormat("ru", {
-			style: "percent",
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 0,
-		})
-	)
 
-    return (
+	const discountPercent = getDiscountPercent(cart?.discount, cart?.total)
+
+	return (
 		<div className="sticky-lg-top" style={{ top: "120px" }}>
 			<Collapse in={!!cart?.total}>
 				<div className="p-4 pb-5 mb-4 border border-primary mx-0">
@@ -49,7 +57,7 @@ const CartTotal = () => {
 					</Fade>
 					<Fade in={!!cart?.discount && !isFetching}>
 						<Row className="mb-2 text-danger">
-							<Col xs={8}>Скидка {!!cart?.discountPercent && percentFormatter.current.format(cart.discountPercent)}</Col>
+							<Col xs={8}>Скидка {discountPercent}</Col>
 							<Col xs={4}>-{formatter.current.format(cart?.discount || 0)}</Col>
 						</Row>
 					</Fade>

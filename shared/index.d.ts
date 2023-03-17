@@ -862,7 +862,6 @@ export interface ICart {
 	amount?: number
 	availableCashBack?: number
 	discount?: number
-	discountPercent?: number
 	promocode?: { promocodeId: string; code: string }
 	total?: number
 	useCashBack?: boolean

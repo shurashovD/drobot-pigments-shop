@@ -272,7 +272,7 @@ CartSchema.methods.refreshDiscounts = async function (this: ICartDoc): Promise<I
 				.reduce((sum, item) => sum + item, 0)
 
 			// поиск подходящего уровня скидки;
-			const discountLevel = delegateDiscounts.find(({ lowerTreshold }) => amount >= lowerTreshold)
+			const discountLevel = delegateDiscounts.find(({ lowerTreshold, percentValue }) => (1 - percentValue) * amount >= lowerTreshold)
 			if (discountLevel?.percentValue) {
 				discountPercent = discountLevel.percentValue
 			}
@@ -411,10 +411,6 @@ CartSchema.methods.refreshTotal = async function (this: ICartDoc): Promise<ICart
 			.concat(this.variants.filter(({ checked }) => checked).map(({ paidByCashBack, quantity }) => (paidByCashBack || 0) * quantity))
 			.reduce<number>((sum, item) => sum + (item || 0), 0)
 		this.total = amount - discount - Math.round(paidByCashBack)
-
-		// обновление полной скидки корзины в процентах без оплаты кэшбэком;
-		const discountPercent = this.discount / this.total
-		this.discountPercent = discountPercent
 
 		await this.save()
 		return this
