@@ -1,4 +1,4 @@
-import { IProduct, IProductMethods, IProductModel, Product } from './../../shared/index.d';
+import { ICategory, IProduct, IProductMethods, IProductModel, Product } from './../../shared/index.d';
 import { model, Schema, Types } from 'mongoose';
 import CurrencyModel from './CurrencyModel';
 import UomModel from './UomModel';
@@ -93,29 +93,73 @@ ProductSchema.statics.getProduct = async function(id: string): Promise<Product |
 	catch (e) { throw e }
 }
 
+ProductSchema.statics.getDiscountedProductsIds = async function(): Promise<string[]> {
+	try {
+		async function getAllDiscoutCategories(category: ICategory, result: ICategory[] = []): Promise<ICategory[]> {
+			result.push(category)
+			const subcategories = await CategoryModel.find({ _id: { $in: category?.subCategories } })
+			for (const i in subcategories) {
+				const subcategory = await CategoryModel.findById(subcategories[i])
+				if (subcategory) {
+					await getAllDiscoutCategories(subcategory, result)
+				}
+			}
+			return result
+		}
+
+		if (!discountRootCategory) {
+			return []
+		}
+
+		const discountCategory = await CategoryModel.findById(discountRootCategory)
+		if (!discountCategory) {
+			return []
+		}
+
+		const allDiscoutCategories = await getAllDiscoutCategories(discountCategory)
+		const allDiscountProductsIds = allDiscoutCategories.reduce<string[]>((acc, { products }) => {
+			acc.push(...products.map((item) => item.toString()))
+			return acc
+		}, [])
+
+		return allDiscountProductsIds
+	} catch (e) {
+		console.log(e)
+		logger.error(e)
+		return []
+	}
+}
+
 ProductSchema.statics.isDiscounted = async function (id: string): Promise<boolean> {
 	try {
-		async function getRootCategoryId(categoryId: Types.ObjectId): Promise<Types.ObjectId|undefined> {
-			try {
-				const category = await CategoryModel.findById(categoryId)
-				if (category?.parentCategory) {
-					return await getRootCategoryId(category.parentCategory)
+		async function getAllDiscoutCategories(category: ICategory, result: ICategory[] = []): Promise<ICategory[]> {
+			result.push(category)
+			const subcategories = await CategoryModel.find({ _id: { $in: category?.subCategories } })
+			for (const i in subcategories) {
+				const subcategory = await CategoryModel.findById(subcategories[i])
+				if ( subcategory ) {
+					await getAllDiscoutCategories(subcategory, result)
 				}
-				return categoryId
-			} catch (e) {}
+			}
+			return result
 		}
 
 		if ( !discountRootCategory ) {
 			return false
 		}
 
-		const product = await this.findById(id)
-		if ( !product?.parentCategory ) {
+		const discountCategory = await CategoryModel.findById(discountRootCategory)
+		if (!discountCategory) {
 			return false
 		}
 
-		const rootCategoryId = await getRootCategoryId(product.parentCategory)
-		return rootCategoryId?.toString() === discountRootCategory
+		const allDiscoutCategories = await getAllDiscoutCategories(discountCategory)
+		const allDiscountProductsIds = allDiscoutCategories.reduce<string[]>((acc, { products }) => {
+			acc.push(...products.map(item => item.toString()))
+			return acc
+		}, [])
+
+		return allDiscountProductsIds.includes(id)
 	} catch (e) {
 		console.log(e)
 		logger.error(e)

@@ -8,7 +8,7 @@ import { useGetCartQuery } from "../../application/order.service"
 import CashBackComponent from "./CashBackComponent"
 import PromocodeComponent from "./PromocodeComponent"
 
-function getDiscountPercent(discount?: number, total?: number) {
+function getDiscountPercent(discount?: number, amount?: number) {
 	const options = {
 		style: "percent",
 		minimumFractionDigits: 0,
@@ -16,8 +16,8 @@ function getDiscountPercent(discount?: number, total?: number) {
 	}
 	const percentFormatter = Intl.NumberFormat("ru", options)
 
-	if (discount && total) {
-		return percentFormatter.format(discount / total)
+	if (discount && amount) {
+		return percentFormatter.format(discount / amount)
 	}
 }
 
@@ -33,7 +33,7 @@ const CartTotal = () => {
 		})
 	)
 
-	const discountPercent = getDiscountPercent(cart?.discount, cart?.total)
+	const discountPercent = getDiscountPercent(cart?.discount, cart?.amount)
 
 	return (
 		<div className="sticky-lg-top" style={{ top: "120px" }}>

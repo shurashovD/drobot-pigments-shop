@@ -157,11 +157,12 @@ CartSchema.methods.refreshDiscounts = async function (this: ICartDoc): Promise<I
 				(typeof discountPercent !== "undefined" && discountPercent > 0) ||
 				(typeof promocodeDiscountPercent !== "undefined" && promocodeDiscountPercent > 0)
 			) {
+				const discountedProducts = await ProductModel.getDiscountedProductsIds()
 				this.products.forEach(async (product) => {
 					// если есть скидка по промокоду;
 					if (typeof promocodeDiscountPercent !== "undefined" && promocodeDiscountPercent > 0) {
 						// если товар скидочный, применяем скидку по промокоду;
-						const isDiscounted = await ProductModel.isDiscounted(product.productId)
+						const isDiscounted = discountedProducts.includes(product.productId)
 						if (isDiscounted) {
 							product.discountOn = Math.round((product.price * promocodeDiscountPercent) / 100)
 						} else {
@@ -185,7 +186,7 @@ CartSchema.methods.refreshDiscounts = async function (this: ICartDoc): Promise<I
 					// если есть скидка по промокоду;
 					if (typeof promocodeDiscountPercent !== "undefined" && promocodeDiscountPercent > 0) {
 						// если товар скидочный, применяем скидку по промокоду;
-						const isDiscounted = await ProductModel.isDiscounted(variant.productId)
+						const isDiscounted = discountedProducts.includes(variant.productId)
 						if (isDiscounted) {
 							variant.discountOn = Math.round((variant.price * promocodeDiscountPercent) / 100)
 						} else {
@@ -229,9 +230,10 @@ CartSchema.methods.refreshDiscounts = async function (this: ICartDoc): Promise<I
 			}
 
 			if (typeof discountPercent !== "undefined" && discountPercent > 0) {
+				const discountedProducts = await ProductModel.getDiscountedProductsIds()				
 				this.products.forEach(async (product) => {
 					// узнаёем, является ли товар скидочным;
-					const isDiscounted = await ProductModel.isDiscounted(product.productId)
+					const isDiscounted = discountedProducts.includes(product.productId)
 
 					if (isDiscounted) {
 						product.discountOn = Math.round((product.price * (discountPercent || 0)) / 100)
@@ -272,32 +274,35 @@ CartSchema.methods.refreshDiscounts = async function (this: ICartDoc): Promise<I
 				.reduce((sum, item) => sum + item, 0)
 
 			// поиск подходящего уровня скидки;
-			const discountLevel = delegateDiscounts.find(({ lowerTreshold, percentValue }) => (1 - percentValue) * amount >= lowerTreshold)
+			const discountLevel = delegateDiscounts.find(({ lowerTreshold, percentValue }) => (1 - percentValue * 0.01) * amount >= lowerTreshold)
 			if (discountLevel?.percentValue) {
 				discountPercent = discountLevel.percentValue
 			}
 
 			if (typeof discountPercent !== "undefined" && discountPercent > 0) {
-				this.products.forEach(async (product) => {
+				const discountedProducts = await ProductModel.getDiscountedProductsIds()
+				for (const i in this.products) {
+					const product = this.products[i]
 					// узнаёем, является ли товар скидочным;
-					const isDiscounted = await ProductModel.isDiscounted(product.productId)
+					const isDiscounted = discountedProducts.includes(product.productId)
 
 					if (isDiscounted) {
 						product.discountOn = Math.round((product.price * (discountPercent || 0)) / 100)
 					} else {
 						product.discountOn = undefined
 					}
-				})
-				this.variants.forEach(async (variant) => {
+				}
+				for ( const i in this.variants ) {
+					const variant = this.variants[i]
 					// узнаёем, является ли товар скидочным;
-					const isDiscounted = await ProductModel.isDiscounted(variant.productId)
+					const isDiscounted = discountedProducts.includes(variant.productId)
 
 					if (isDiscounted) {
 						variant.discountOn = Math.round((variant.price * (discountPercent || 0)) / 100)
 					} else {
 						variant.discountOn = undefined
 					}
-				})
+				}
 				await this.save()
 				return this
 			}

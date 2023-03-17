@@ -152,6 +152,7 @@ export interface Product {
 export interface IProductModel extends Model<IProduct, {}, IProductMethods> {
 	getProduct(id: string): Promise<Product>
 	isDiscounted(id: string): Promise<boolean>
+	getDiscountedProductsIds(): Promise<string[]>
 }
 
 export interface IFilter extends Document {
