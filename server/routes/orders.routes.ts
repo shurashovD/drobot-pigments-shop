@@ -315,16 +315,16 @@ router.put("/cart/product", bodyParser.json(), async (req: Request<{}, {}, { pro
 		const { productId, quantity } = req.body
 
 		// если пользователь авторизован, попробуем добавить товар в его корзину;
-		const client = await ClientModel.findById(req.session.userId || '')
-		if ( client ) {
+		const client = await ClientModel.findById(req.session.userId)
+		if (client) {
 			const cart = await CartModel.findById(client.cartId)
 			// если корзина есть;
-			if ( cart ) {
-				await cart.addProduct(productId, quantity)	// положим товар туда;
+			if (cart) {
+				await cart.addProduct(productId, quantity) // положим товар туда;
 				return res.end()
 			} else {
-				const newCart = await new CartModel().save()	// или создадим новую корзину;
-				client.cartId = newCart._id.toString()			// привяже корзину к пользователю;
+				const newCart = await new CartModel().save() // или создадим новую корзину;
+				client.cartId = newCart._id.toString() // привяже корзину к пользователю;
 				await newCart.addProduct(productId, quantity)
 				return res.end()
 			}
