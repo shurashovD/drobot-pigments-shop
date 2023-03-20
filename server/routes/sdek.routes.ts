@@ -1,4 +1,4 @@
-import { getPoints } from './../sdekAPI/staticData';
+import { getCities, getPoints } from './../sdekAPI/staticData';
 import { Request, Router } from "express";
 import PointsModel from '../models/PointsModel';
 import { createSdekHook, deleteSdekHook, getSdekHooks } from '../sdekAPI/hooks';
@@ -9,11 +9,57 @@ import { updateMsOrder } from '../moyskladAPI/orders';
 import { logger } from '../handlers/errorLogger';
 import setMsOrderStatus from '../handlers/setMsOrderStatus';
 import { updTradeStatus } from '../handlers/amoTradeStatus';
+import { SdekCitiesModel } from '../models/SdekCitiesModel';
 
 const router = Router()
 
+async function updateCities() {
+    try {
+		const cities = await getCities()
+		const citiesInDbCodes = await SdekCitiesModel.find().then(doc => doc.map(({ code }) => (code)))
+
+		const deletedCodes = citiesInDbCodes.filter((item) => !cities.some(({ code }) => item === code))
+		await SdekCitiesModel.deleteMany({ code: { $in: deletedCodes } })
+
+		const newCities = cities.filter(({ code }) => !citiesInDbCodes.includes(code))
+		if ( newCities.length ) {
+			await SdekCitiesModel.insertMany(newCities)
+		}
+
+	} catch (e) {
+		throw e
+	}
+}
+
+router.post("/update-cities", async (req, res) => {
+	try {
+		const cities = await getCities()
+		const citiesInDb = await SdekCitiesModel.find()
+
+		const deletedIds = citiesInDb.filter(({ code }) => !cities.some((item) => item.code === code)).map(({ _id }) => _id)
+		await SdekCitiesModel.deleteMany({ _id: { $in: deletedIds } })
+
+		for (const i in cities) {
+			const city = cities[i]
+			const cityInDb = citiesInDb.find(({ code }) => code === city.code)?._id
+			if (cityInDb) {
+				await SdekCitiesModel.findByIdAndUpdate(cityInDb, city)
+			} else {
+				await new SdekCitiesModel(city).save()
+			}
+		}
+
+		return res.end()
+	} catch (e) {
+		logger.error(e)
+		return res.status(500).json({ message: "Что-то пошло не так..." })
+	}
+})
+
 router.post('/update-pvz', async (req, res) => {
     try {
+		await updateCities()
+
         const points = await getPoints()
         const pointsInDb = await PointsModel.find()
 

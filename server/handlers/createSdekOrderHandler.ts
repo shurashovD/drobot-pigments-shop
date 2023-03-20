@@ -56,6 +56,9 @@ const createSdekOrderHandler = async (orderId: string) => {
             const sdekPayload: ISdekOrderPayload = {
 				number: order.msOrderId,
 				tariff_code,
+				seller: {
+					address: 'РФ, г. Краснодар, ул. Дзержинского, д. 87/1, оф. 1'
+				},
 				recipient: { name, phones: [{ number }], number },
 				from_location: { address: "Дзержинского 87/1", code: 435 },
 				packages: [{ number, items, weight: items.reduce((total, { weight }) => total + weight, 0) }],

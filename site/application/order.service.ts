@@ -1,4 +1,4 @@
-import { ICart, ISdekPoints } from './../../shared/index.d';
+import { ICart, ISdekPoints, ISdekCities } from './../../shared/index.d';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 const orderApi = createApi({
@@ -84,7 +84,7 @@ const orderApi = createApi({
 			}),
 			invalidatesTags: ["cart"],
 		}),
-		getRelevantCities: build.query<{ city: string; city_code: number }[], string>({
+		getRelevantCities: build.query<ISdekCities[], string>({
 			query: (str) => `/delivery/cities/${str}`,
 		}),
 		getDeliveryCity: build.query<{ region: string; city: string; city_code?: number }, undefined>({

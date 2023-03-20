@@ -525,6 +525,16 @@ export interface IReqId extends Document {
 	requestId: string
 }
 
+export interface ISdekCities {
+	code: number
+	city: string
+	country_code: string
+	country: string
+	region: string
+}
+
+export interface ISdekCitiesDoc extends ISdekCities, Document {}
+
 export interface ISdekPoints {
 	code: string
 	name: string
@@ -623,6 +633,9 @@ export interface ISdekOrderPayload {
 	tariff_code: 138 | 139 | 366
 	comment?: string
 	delivery_point?: string
+	seller: {
+		address: string
+	}
 	recipient: {
 		name: string
 		phones: { number: string }[]

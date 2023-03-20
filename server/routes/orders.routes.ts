@@ -15,6 +15,7 @@ import createMsOrderHandler from '../handlers/createMsOrderHandler';
 import createPaymentHandler from '../handlers/createPaymentHandler';
 import CartModel from '../models/CartModel';
 import createAmoTrade from '../handlers/createAmoTrade';
+import { SdekCitiesModel } from '../models/SdekCitiesModel';
 
 const formatter = Intl.DateTimeFormat('ru', {
 	day: 'numeric',
@@ -778,16 +779,8 @@ router.post("/", bodyParser.json(), async (req, res) => {
 router.get('/delivery/cities/:str', async (req: Request<{str: string}>, res) => {
 	try {
 		const { str } = req.params
-		const points = await PointsModel.find({ "location.city": { $regex: str, $options: "i" } })
-		const cities = points.reduce<{ city: string, city_code: number }[]>((cities, { location }) => {
-			if ( cities.some(({ city }) => city === location.city) ) {
-				return cities
-			}
-			const { city, city_code } = location
-			return cities.concat({ city, city_code })
-		}, [])
-		const relevant = cities.filter(({ city }) => city.toLowerCase().includes(str.toLowerCase())).splice(0, 5)
-		return res.json(relevant)
+		const cities = await SdekCitiesModel.find({ city: { $regex: str, $options: "i" } }).limit(5)
+		return res.json(cities)
 	}
 	catch (e) {
 		logger.error(e)

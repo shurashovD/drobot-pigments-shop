@@ -35,7 +35,7 @@ const Region: FC<IProps> = ({ city, code }) => {
 
 	const dropdownHandler = (cityCode: number) => {
 		if (cities) {
-			const city = cities.find(({ city_code }) => city_code === cityCode)?.city
+			const city = cities.find(({ code }) => code === cityCode)?.city
 			if (city) {
 				setValue(city)
 				setCityCode(cityCode)
@@ -97,8 +97,14 @@ const Region: FC<IProps> = ({ city, code }) => {
 								</div>
 							)}
 							{!citiesLoading &&
-								cities?.map(({ city, city_code }) => (
-									<DropdownCityItem city={city} city_code={city_code} key={city_code.toString()} handler={dropdownHandler} />
+								cities?.map(({ city, code, country_code }) => (
+									<DropdownCityItem
+										city={city}
+										city_code={code}
+										countryCode={country_code}
+										key={code.toString()}
+										handler={dropdownHandler}
+									/>
 								))}
 							{!citiesLoading && cities?.length === 0 && <span className="text-muted px-3">Нет подходящих вариантов</span>}
 						</Dropdown.Menu>
