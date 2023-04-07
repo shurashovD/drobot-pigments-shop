@@ -432,8 +432,19 @@ CartSchema.methods.addProduct = async function ( this: ICartDoc, productId: stri
 			throw new Error("Товар не найден")
 		}
 
+		// поиск номера товара в корзине;
+		const index = this.products.findIndex((item) => item.productId === productId)
+		// удаление товара;
+		if (quantity === 0) {
+			if (index !== -1) {
+				this.products.splice(index, 1)
+				await this.save()
+			}
+		}
+
+
 		const stock = await rests({ assortmentId: [product.identifier] })
-		if (!stock) {
+		if (!stock || stock < 1) {
 			const err = new Error("Товар отсутсвует в продаже")
 			err.userError = true
 			throw err
@@ -443,17 +454,10 @@ CartSchema.methods.addProduct = async function ( this: ICartDoc, productId: stri
 		const item: ICartDoc["products"][0] = { price, productId, productName: name, quantity, checked: true }
 
 		// добавляем товар в корзину, или увеличиваем количество;
-		const index = this.products.findIndex((item) => item.productId === productId)
-		if (stock * quantity === 0) {
-			if (index !== -1) {
-				this.products.splice(index, 1)
-			}
+		if (index === -1) {
+			this.products.push(item)
 		} else {
-			if (index === -1) {
-				this.products.push(item)
-			} else {
-				this.products[index].quantity = Math.min(quantity, stock)
-			}
+			this.products[index].quantity = Math.min(quantity, stock)
 		}
 
 		await this.save() // сохраняем корзину;

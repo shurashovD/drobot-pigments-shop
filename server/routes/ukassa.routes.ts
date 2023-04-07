@@ -53,14 +53,15 @@ router.delete("/hooks/:id", bodyParser.json(), async (req: Request<{id: string}>
 router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNotice>, res) => {
     try {
 		const { object } = req.body
+		res.end()
         const { id, status, amount } = object
         const order = await OrderModel.findOne({ 'payment.paymentId': id })
         const client = await ClientModel.findById(order?.client)
         if ( !order ) {
-             return res.end()
+             return
         }
         if ( !order?.msOrderId ) {
-            return res.end()
+            return
         }
         if (status === "succeeded") {
 			// проведение оплаты в "Мой склад";
@@ -197,7 +198,7 @@ router.post('/handle', bodyParser.json(), async (req: Request<{}, {}, IUKassaNot
 				description: "Ожидает подтверждения оплаты в ЛК Ю-Касса",
 			})
 		}
-        return res.end()
+        return
 	} catch (e) {
 		logger.error(e)
 		return res.end()

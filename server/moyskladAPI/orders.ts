@@ -1,6 +1,7 @@
 import fetch from "node-fetch"
 import Moysklad from "moysklad"
 import config from 'config'
+import { IOrder } from "../../shared"
 
 const moyskladCredentails: any = config.get("moysklad")
 const organizationId: string = config.get("moyskladOrgId")
@@ -28,8 +29,30 @@ interface IProps {
 	}[]
 }
 
+function setMsOrderStatus(orderId: string, status: IOrder['status']) {
+	try {
+		const payload = {
+            meta: {
+                href: "https://online.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/states/fb56c504-2e58-11e6-8a84-bae500000069",
+                type: "state",
+                mediaType: "application/json"
+            }
+        }
+	} catch (e) {
+		console.log(e)
+		throw e
+	}
+}
+
 const createMsOrder = async (props: IProps, pickup?: boolean) => {
 	try {
+		const store = {
+			meta: {
+				href: `https://online.moysklad.ru/api/remap/1.2/entity/store/${storeId}`,
+				type: "store",
+				mediaType: "application/json",
+			},
+		}
 		const shipmentAddress = `${props.city} ${props.address && `до двери ${props.address}`} ${props.point && `до ПВЗ ${props.point}`}`
 		const positions = props.positions.map(
 			({ price, quantity, productId, variantId, discount }) => ({
@@ -61,7 +84,7 @@ const createMsOrder = async (props: IProps, pickup?: boolean) => {
 					mediaType: "application/json",
 				},
 			},
-			shipmentAddress, positions
+			shipmentAddress, positions, store
 		}
 		if ( pickup ) {
 			body.state = {
