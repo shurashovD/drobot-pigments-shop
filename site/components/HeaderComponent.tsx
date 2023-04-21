@@ -112,9 +112,9 @@ const HeaderComponent = () => {
 							</NavLink>
 						</div>
 						<div>
-							<NavLink to="/education" className="text-uppercase text-white" onClick={() => setMobileMenuShow(false)}>
+							<a target="_blank" href="https://taplink.cc/olga_drobot_academy" className="text-uppercase text-white">
 								Обучение
-							</NavLink>
+							</a>
 						</div>
 						<div>
 							<NavLink to="/" className="text-uppercase text-white d-none" onClick={() => setMobileMenuShow(false)}>
@@ -175,9 +175,13 @@ const HeaderComponent = () => {
 							</Button>
 							{categories && <NavCatalogBtn show={show} onClick={toggleCatalogHandler} />}
 							<div className="p-0 m-0">
-								<NavLink to="/education" className="d-none d-lg-block text-white text-uppercase">
-									<span>Обучение</span>
-								</NavLink>
+								<a
+									target="_blank"
+									href="https://taplink.cc/olga_drobot_academy"
+									className="d-none d-lg-block text-uppercase text-white"
+								>
+									Обучение
+								</a>
 							</div>
 							<div className="p-0 m-0">
 								<a href="#" className="d-none d-lg-block text-white text-uppercase d-none invisible">
