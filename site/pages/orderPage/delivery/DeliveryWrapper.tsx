@@ -12,11 +12,14 @@ const DeliveryWrapper = () => {
 	const empty = useAppSelector((state) => state.orderSlice.empty.includes(eventKey))
     const { data: deliveryDetail } = useGetDeliveryDetailQuery(undefined)
 	const dispatch = useAppDispatch()
-	const formatter = new Intl.NumberFormat('ru', {
-		style: 'unit',
-		unit: 'day',
-		notation: 'standard'
-	})
+	let formatter = null
+	try {
+		formatter = new Intl.NumberFormat('ru', {
+			style: 'unit',
+			unit: 'day',
+			notation: 'standard'
+		})
+	} catch (e) {}
 
     return (
 		<>
@@ -50,7 +53,12 @@ const DeliveryWrapper = () => {
 						<span>Стоимость: </span>
 						{deliveryDetail?.period_max && (
 							<b>
-								{deliveryDetail?.total_sum} руб., {deliveryDetail.period_min}-{formatter.format(deliveryDetail.period_max)}
+								{deliveryDetail?.total_sum} руб.
+								{formatter && (
+									<>
+										, {deliveryDetail.period_min}-{formatter.format(deliveryDetail.period_max)}
+									</>
+								)}
 							</b>
 						)}
 						{deliveryDetail?.pickup && <b>бесплатно</b>}

@@ -6,11 +6,14 @@ import RadioComponent from "../../../components/RadioComponent"
 const SdekTariff = () => {
     const { data, isFetching } = useGetDeliveryDetailQuery(undefined)
     const [setDetail, { isLoading }] = useSetDeliveryDetailMutation()
-    const formatter = new Intl.NumberFormat("ru", {
-		style: "unit",
-		unit: "day",
-		notation: "standard",
-	})
+	let formatter = null
+	try {
+		formatter = new Intl.NumberFormat("ru", {
+			style: "unit",
+			unit: "day",
+			notation: "standard",
+		})
+	} catch (e) {}
 
     const handler = (tariff_code: number) => {
 		setDetail({ pickup: false, sdek: true, tariff_code })
@@ -52,7 +55,8 @@ const SdekTariff = () => {
 							{data?.total_sum} руб.,{" "}
 							{data?.period_max && (
 								<span>
-									{data?.period_min}-{formatter.format(data.period_max)}
+									{data?.period_min}
+									{formatter && <>-{formatter.format(data.period_max)}</>}
 								</span>
 							)}
 						</div>

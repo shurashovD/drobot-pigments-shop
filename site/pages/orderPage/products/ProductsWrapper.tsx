@@ -66,7 +66,7 @@ const ProductsWrapper = () => {
 									1 ШТ
 								</Col>
 								<Col xs={4} md={3} className="fs-3">
-									{formatter.format(deliveryDetail?.total_sum || 0)}
+									{formatter.format(+(deliveryDetail?.total_sum?.toFixed(2) || 0))}
 								</Col>
 							</Row>
 						</ListGroup.Item>
