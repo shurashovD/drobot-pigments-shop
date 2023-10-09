@@ -3,7 +3,7 @@ import { ChangeEvent, KeyboardEventHandler, useEffect, useState } from "react"
 import { Button, Col, Form, Row } from "react-bootstrap"
 import { NavLink } from "react-router-dom"
 import { useCheckNumberMutation, useRegisterMutation } from "../../application/account.service"
-import { setAuthorization, setInsertPin, setNumber } from "../../application/authComponentSlice"
+import { setAuthorization, setInsertPass, setInsertPin, setNumber } from "../../application/authComponentSlice"
 import { useAppDispatch, useAppSelector } from "../../application/hooks"
 import ButtonComponent from "../ButtonComponent"
 
@@ -49,7 +49,7 @@ const PhoneComponent = () => {
 
 	useEffect(() => {
 		if (isSuccess || registerSuccess) {
-			dispatch(setInsertPin())
+			dispatch(setInsertPass())
 		}
 	}, [dispatch, isSuccess, registerSuccess, setInsertPin])
 
