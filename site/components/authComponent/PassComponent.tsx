@@ -1,15 +1,16 @@
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { Button, Col, Fade, Form, Row } from 'react-bootstrap'
 import { useAccountAuthQuery, useCheckPassMutation, useRegisterInsertPassMutation } from '../../application/account.service'
 import { setDoublePass, setInsertPin, setPass } from '../../application/authComponentSlice'
 import { useAppDispatch, useAppSelector } from '../../application/hooks'
 import ButtonComponent from '../ButtonComponent'
+import ym from 'react-yandex-metrika'
 
 const PassComponent = () => {
     const { isFetching } = useAccountAuthQuery(undefined)
     const { authorization, pass, doublePass } = useAppSelector(state => state.authComponentSlice)
     const [checkPass, { isLoading }] = useCheckPassMutation()
-    const [insertPass, { isLoading: insertLoading }] = useRegisterInsertPassMutation()
+    const [insertPass, { isLoading: insertLoading, isSuccess }] = useRegisterInsertPassMutation()
     const [error, setError] = useState<string|undefined>()
     const dispatch = useAppDispatch()
 
@@ -41,6 +42,10 @@ const PassComponent = () => {
             insertPass({ pass })
         }
     }
+
+	useEffect(() => {
+		ym('reachGoal','register-success')
+	}, [isSuccess])		// eslint-disable-line
 
     return (
 		<Row>

@@ -5,6 +5,7 @@ import CheckboxComponent from "../../components/CheckboxComponent"
 import CartItem from "./CartItem"
 import CartTotal from "./CartTotal"
 import VariantCartItem from "./VariantCartItem"
+import ym from "react-yandex-metrika"
 
 const CartPage = () => {
     const [label, setLabel] = useState<'товар' | 'товара' | 'товаров'>()
@@ -50,6 +51,10 @@ const CartPage = () => {
 		document.title = 'Корзина'
 		resetCheck()
 	}, [resetCheck])
+
+	useEffect(() => {
+		ym('reachGoal','cart-visit')
+	}, [])	// eslint-diable-line
 
     return (
 		<Container className="pb-6">
