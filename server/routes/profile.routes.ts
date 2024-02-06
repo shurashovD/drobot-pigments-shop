@@ -20,11 +20,7 @@ router.put('/edit', json(), async (req: Request<{}, {}, {name: string, email: st
         }
 
         const { name, email } = req.body
-        const prefix = client.tel.substring(0, 3)
-        const first = client.tel.substring(3, 6)
-        const second = client.tel.substring(6, 8)
-        const fird = client.tel.substring(8, 10)
-        const phone = `+7 (${prefix}) ${first}-${second}-${fird}`
+        const phone = client.tel
 
         client.name = name
 		client.mail = email
@@ -46,7 +42,11 @@ router.put('/edit', json(), async (req: Request<{}, {}, {name: string, email: st
         }
 
         if ( client.amoContactId ) {
-            await updateContact(client.amoContactId.toString(), name, phone, email)
+            try {
+                await updateContact(client.amoContactId.toString(), name, phone, email)
+            } catch (e) {
+                console.log(e)
+            }
         } else {
             const {id} = await createContact(name, phone, email)
             if ( id ) {
