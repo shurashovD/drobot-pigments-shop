@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { Container } from "react-bootstrap"
 import { Navigate, Route, Routes } from "react-router-dom"
+import { YMInitializer } from 'react-yandex-metrika'
 import ErrorFallback from "./components/ErrorFallback"
 import FooterComponent from "./components/FooterComponent"
 import HeaderComponent from "./components/HeaderComponent"
@@ -225,6 +226,7 @@ const App = () => {
 				</div>
 				<MobileFooter />
 			</Container>
+			<YMInitializer accounts={[96056352]} options={{ defer: true }} />
 		</ErrorBoundary>
 	)
 }
