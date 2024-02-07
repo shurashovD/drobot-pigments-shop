@@ -340,6 +340,7 @@ export interface IOrderPop {
 		recipientMail?: string
 	}
 	id: string
+	_id: string
 	payment?: {
 		paymentId: string
 		paymentUrl: string
