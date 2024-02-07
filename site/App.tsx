@@ -1,8 +1,8 @@
-import { lazy, Suspense } from "react"
+import { lazy, Suspense, useEffect } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 import { Container } from "react-bootstrap"
 import { Navigate, Route, Routes } from "react-router-dom"
-import { YMInitializer } from 'react-yandex-metrika'
+import ym, { YMInitializer } from 'react-yandex-metrika'
 import ErrorFallback from "./components/ErrorFallback"
 import FooterComponent from "./components/FooterComponent"
 import HeaderComponent from "./components/HeaderComponent"
@@ -44,6 +44,10 @@ const App = () => {
 	const handler = (error: Error, info: { componentStack: string }) => {
 		sendError({ error: error.message, stack: info.componentStack })
 	}
+
+	useEffect(() => {
+		ym('hit', '/')
+	}, [])	// eslint-disable-line
 
 	return (
 		<ErrorBoundary FallbackComponent={ErrorFallback} onError={handler}>
