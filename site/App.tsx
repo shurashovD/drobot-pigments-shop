@@ -226,7 +226,7 @@ const App = () => {
 				</div>
 				<MobileFooter />
 			</Container>
-			<YMInitializer accounts={[96056352]} options={{ defer: true }} />
+			<YMInitializer accounts={[96056352]} />
 		</ErrorBoundary>
 	)
 }
