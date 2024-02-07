@@ -44,6 +44,9 @@ const PassComponent = () => {
     }
 
 	useEffect(() => {
+		if (isSuccess) {
+			ym('reachGoal','register-success')
+		}
 		ym('reachGoal','register-success')
 	}, [isSuccess])		// eslint-disable-line
 
