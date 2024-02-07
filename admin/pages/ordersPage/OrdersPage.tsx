@@ -33,14 +33,14 @@ const OrdersPage = () => {
 					<tbody>
 						{orders.map((item) => (
 							<Item
-								key={item.id}
+								key={item._id}
 								date={item.date}
-								id={item.id}
+								id={item._id}
 								new={item.status === "new"}
 								number={item.number.toString()}
-								client={item.client.name}
-								mail={item.client.mail}
-								phone={item.client.tel}
+								client={item.client?.name}
+								mail={item.client?.mail}
+								phone={item.client?.tel}
 								status={statusDecoder(item.status)}
 							/>
 						))}

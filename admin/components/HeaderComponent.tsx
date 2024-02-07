@@ -34,12 +34,11 @@ const HeaderComponent = () => {
 						Товары
 					</Nav.Link>
 				</Nav.Item>
-				<Nav.Item className="mx-3 d-none">
+				<Nav.Item className="mx-3">
 					<Nav.Link
 						active={/\/orders/.test(pathname)}
 						as="button"
 						className={`btn ${hasNewOrders && "fw-bold text-warning"}`}
-						disabled={true}
 						onClick={handler}
 						data-to="/admin/orders"
 					>

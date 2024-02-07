@@ -1,6 +1,7 @@
 import { Badge, Container, ListGroup, Spinner } from "react-bootstrap"
 import { useParams } from "react-router-dom"
 import { useGetOrderByIdQuery } from "../../application/order.service"
+import { NavLink } from "react-router-dom"
 
 const OrderPage = () => {
     const {id} = useParams()
@@ -22,6 +23,9 @@ const OrderPage = () => {
 					<p>
 						Клиент: {data.client?.name} {data.client?.tel}
 					</p>
+					{data.promocode && <p>
+						<NavLink to={`/admin/promocode/${data.promocode}`}>С промокодом</NavLink>
+					</p>}
 					<ListGroup>
 						{data.products.map(({ product, quantity }, index) => (
 							<ListGroup.Item key={`order-product_${index}`}>
