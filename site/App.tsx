@@ -46,7 +46,7 @@ const App = () => {
 	}
 
 	useEffect(() => {
-		ym('hit', '/')
+		/* ym('hit', '/') */
 	}, [])	// eslint-disable-line
 
 	return (
@@ -230,7 +230,7 @@ const App = () => {
 				</div>
 				<MobileFooter />
 			</Container>
-			<YMInitializer accounts={[96056352]} />
+			<YMInitializer accounts={[96056352]} options={{webvisor: true}} />
 		</ErrorBoundary>
 	)
 }
