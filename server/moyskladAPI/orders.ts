@@ -33,7 +33,7 @@ function setMsOrderStatus(orderId: string, status: IOrder['status']) {
 	try {
 		const payload = {
             meta: {
-                href: "https://online.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/states/fb56c504-2e58-11e6-8a84-bae500000069",
+                href: "https://api.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/states/fb56c504-2e58-11e6-8a84-bae500000069",
                 type: "state",
                 mediaType: "application/json"
             }
@@ -48,7 +48,7 @@ const createMsOrder = async (props: IProps, pickup?: boolean) => {
 	try {
 		const store = {
 			meta: {
-				href: `https://online.moysklad.ru/api/remap/1.2/entity/store/${storeId}`,
+				href: `https://api.moysklad.ru/api/remap/1.2/entity/store/${storeId}`,
 				type: "store",
 				mediaType: "application/json",
 			},
@@ -60,7 +60,7 @@ const createMsOrder = async (props: IProps, pickup?: boolean) => {
 				discount: discount || 0,
 				assortment: {
 					meta: {
-						href: `https://online.moysklad.ru/api/remap/1.2/entity/${
+						href: `https://api.moysklad.ru/api/remap/1.2/entity/${
 							productId ? "product" : "variant"
 						}/${productId ?? variantId}`,
 						type: productId ? "product" : "variant",
@@ -72,14 +72,14 @@ const createMsOrder = async (props: IProps, pickup?: boolean) => {
 		const body: any = {
 			organization: {
 				meta: {
-					href: `https://online.moysklad.ru/api/remap/1.2/entity/organization/${organizationId}`,
+					href: `https://api.moysklad.ru/api/remap/1.2/entity/organization/${organizationId}`,
 					type: "organization",
 					mediaType: "application/json",
 				},
 			},
 			agent: {
 				meta: {
-					href: `https://online.moysklad.ru/api/remap/1.2/entity/counterparty/${props.counterpartyId || agentnId}`,
+					href: `https://api.moysklad.ru/api/remap/1.2/entity/counterparty/${props.counterpartyId || agentnId}`,
 					type: "counterparty",
 					mediaType: "application/json",
 				},
@@ -89,7 +89,7 @@ const createMsOrder = async (props: IProps, pickup?: boolean) => {
 		if ( pickup ) {
 			body.state = {
 				meta: {
-					href: "https://online.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/states/e17a3e83-3b2e-11ed-0a80-0e67000c4a44",
+					href: "https://api.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/states/e17a3e83-3b2e-11ed-0a80-0e67000c4a44",
 					type: "state",
 					mediaType: "application/json",
 				},
@@ -168,9 +168,9 @@ export const createDemand = async (orderId: string) => {
 		const template = await ms.PUT(`${paths.demand}/new`, {
 			customerOrder: {
 				meta: {
-					href: `https://online.moysklad.ru/api/remap/1.2/entity/customerorder/${orderId}`,
+					href: `https://api.moysklad.ru/api/remap/1.2/entity/customerorder/${orderId}`,
 					metadataHref:
-						"https://online.moysklad.ru/api/remap/1.2/entity/customerorder/metadata",
+						"https://api.moysklad.ru/api/remap/1.2/entity/customerorder/metadata",
 					type: "customerorder",
 					mediaType: "application/json",
 				},
@@ -178,7 +178,7 @@ export const createDemand = async (orderId: string) => {
 		})
 		const store = {
 			meta: {
-				href: `https://online.moysklad.ru/api/remap/1.2/entity/store/${storeId}`,
+				href: `https://api.moysklad.ru/api/remap/1.2/entity/store/${storeId}`,
 				type: "store",
 				mediaType: "application/json",
 			},
@@ -200,8 +200,8 @@ export const acceptPayment = async (orderId: string, sum: number) => {
 		const operations = [
 			{
 				meta: {
-					href: `https://online.moysklad.ru/api/remap/1.2/entity/customerorder/${orderId}`,
-					metadataHref: "https://online.moysklad.ru/api/remap/1.2/entity/customerorder/metadata",
+					href: `https://api.moysklad.ru/api/remap/1.2/entity/customerorder/${orderId}`,
+					metadataHref: "https://api.moysklad.ru/api/remap/1.2/entity/customerorder/metadata",
 					type: "customerorder",
 					mediaType: "application/json",
 				},

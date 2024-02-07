@@ -156,7 +156,7 @@ router.post('/handle/order', async (req: Request<{}, {}, ISdekWebhookPayload>, r
             const payload = {
 				state: {
 					meta: {
-						href: "https://online.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/states/644e2da9-ed66-11ec-0a80-0185000dc96c",
+						href: "https://api.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/states/644e2da9-ed66-11ec-0a80-0185000dc96c",
 						type: "state",
 						mediaType: "application/json",
 					},
@@ -169,7 +169,7 @@ router.post('/handle/order', async (req: Request<{}, {}, ISdekWebhookPayload>, r
 			const payload = {
 				state: {
 					meta: {
-						href: "https://online.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/states/a3ab577e-f494-11e8-9ff4-34e80005d6b3",
+						href: "https://api.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/states/a3ab577e-f494-11e8-9ff4-34e80005d6b3",
 						type: "state",
 						mediaType: "application/json",
 					},

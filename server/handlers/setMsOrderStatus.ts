@@ -14,7 +14,7 @@ const setMsOrderStatus = async (orderId: string, key: keyof typeof statuses) => 
 	const payload = {
 		state: {
 			meta: {
-				href: `https://online.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/states/${statuses[key]}`,
+				href: `https://api.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/states/${statuses[key]}`,
 				type: "state",
 				mediaType: "application/json",
 			},
