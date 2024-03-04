@@ -8,7 +8,7 @@ import CryptoJS from 'crypto-js';
 import Base64 from 'crypto-js/enc-base64'
 import AmoCRM, { AmoDTO } from 'amocrm-connector';
 
-const { auth, amojoId, chatAccountId, chatChannelId: chatId, chatScopeId, chatSecret, domain } = config.get("amo")
+const { auth, amojoId, chatAccountId, chatChannelId: chatId, chatScopeId, chatSecret, domain } = config.get("amo") as any
 const { client_id: integrationId, client_secret: secretKey, redirect_uri: redirectUri } = auth
 
 class AmoChatApi implements IAmoChat {

@@ -2,7 +2,7 @@ import { YooCheckout, ICreateWebHook } from "@a2seven/yoo-checkout"
 import { v4 as uuidv4 } from "uuid"
 import config from "config"
 
-const { shopId, secretKey } = config.get("ukassa")
+const { shopId, secretKey } = config.get<any>("ukassa")
 const checkout = new YooCheckout({ shopId, secretKey })
 
 export const createUKHook = async (createWebHookPayload: ICreateWebHook) => {

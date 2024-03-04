@@ -19,7 +19,7 @@ router.get('/', (req, res) => {
 router.post("/", bodyParser.urlencoded({ extended: false }), async (req: Request, res) => {
 	try {
 		const { login, pass } = req.body
-        const { login: configLogin, password: configPassword } = config.get('panel')
+        const { login: configLogin, password: configPassword } = config.get<any>('panel')
 		if ( login === configLogin && pass === configPassword ) {
             req.session.isAdmin = true
 			return res.redirect("/admin/panel")

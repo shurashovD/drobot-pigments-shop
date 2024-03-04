@@ -3,7 +3,7 @@ import config from 'config'
 
 const auth = async () => {
     try {
-        const { url, cred } = config.get("plusofon")
+        const { url, cred } = config.get("plusofon") as any
         const res = await axios.post(url, cred, {
 			headers: { "Content-Type": "multipart/form-data" },
 		}).then(({ data }) => data)

@@ -4,7 +4,7 @@ import { IAmoAuthCodeExchangePayload, IAmoAuthCodeExchangeResponse, IAmoCreateTa
 import AmoContactModel from '../models/AmoContactModel'
 import AmoCredModel from '../models/AmoCredModel'
 
-const { auth, contact, domain, pipelineId } = config.get("amo")
+const { auth, contact, domain, pipelineId } = config.get("amo") as any
 
 const paths = {
 	oauth: "/oauth2/access_token",
