@@ -886,12 +886,14 @@ router.post("/check-payment/probably", bodyParser.json(), async (req: Request<{}
 
 		const func = `<div>Отслеживайте заказы в <NavLink to="/profile">личном кабинете</NavLink></div>`
 
-		const response = { status: "pending", title: `Заказ ${number} оплачен!`, func }
+		const response = { status: "pending", title: `Заказ ${number} в обработке платежа!`, func }
 		if ( order.payment && order.payment.status === 'succeeded' ) {
 			response.status = 'succeeded'
+			response.title = `Заказ ${number} оплачен!`
 		}
 		if (order.payment && order.payment.status === "canceled") {
 			response.status = "canceled"
+			response.title = `Заказ ${number}. Платёж отменён!`
 		}
 		if (order.payment && !order.payment.status && order.payment.probably) {
 			response.status = 'probably'
