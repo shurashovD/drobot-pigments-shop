@@ -13,14 +13,6 @@ const HeaderComponent = () => {
         navigate(to)
     }
 
-	useEffect(() => {
-		if ( hasNewOrders ) {
-			new Audio("/static/assets/sound.ogg").play().catch(() => {
-				new Audio("/static/assets/sound.webm").play()
-			})
-		}
-	}, [hasNewOrders])
-
     return (
 		<Navbar bg="primary" variant="dark" sticky="top">
 			<Nav className="w-100">
