@@ -67,7 +67,7 @@ const ProductPage = () => {
 									<ProductVariants variantsLabel={data.variantsLabel} variants={data.variants} />
 								</Col>
 								<Col xs={12}>
-										<WorksPhotosComponent productId={data.id} photos={data.worksPhotos} />
+									<WorksPhotosComponent productId={data.id} photos={data.worksPhotos} />
 								</Col>
 								<Col xs={12}>
 									<WorksVideosComponent productId={data.id} videos={data.worksVideos} />
