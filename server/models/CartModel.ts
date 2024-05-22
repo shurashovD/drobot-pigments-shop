@@ -274,7 +274,7 @@ CartSchema.methods.refreshDiscounts = async function (this: ICartDoc): Promise<I
 				.reduce((sum, item) => sum + item, 0)
 
 			// поиск подходящего уровня скидки;
-			const discountLevel = delegateDiscounts.find(({ lowerTreshold, percentValue }) => (1 - percentValue * 0.01) * amount >= lowerTreshold)
+			const discountLevel = delegateDiscounts.find(({ lowerTreshold, percentValue }) => amount >= lowerTreshold)
 			if (discountLevel?.percentValue) {
 				discountPercent = discountLevel.percentValue
 			}
